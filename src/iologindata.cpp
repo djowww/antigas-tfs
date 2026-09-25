@@ -142,7 +142,7 @@ void IOLoginData::updateOnlineStatus(uint32_t guid, bool login)
 
 	std::ostringstream query;
 	if (login) {
-		query << "INSERT INTO `players_online` VALUES (" << guid << ')';
+		query << "INSERT IGNORE INTO `players_online` VALUES (" << guid << ')';
 	} else {
 		query << "DELETE FROM `players_online` WHERE `player_id` = " << guid;
 	}
@@ -187,17 +187,24 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 
 bool IOLoginData::loadPlayerById(Player* player, uint32_t id)
 {
+	DBTransaction transaction;
+	if (!transaction.begin(true)) return false;
 	std::ostringstream query;
 	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `ridingmount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `id` = " << id;
-	return loadPlayer(player, Database::getInstance()->storeQuery(query.str()));
+	// Wait for the previous session's transaction to settle before reading assets.
+	bool loaded = loadPlayer(player, Database::getInstance()->storeQuery(query.str() + " FOR UPDATE"));
+	return loaded && transaction.commit();
 }
 
 bool IOLoginData::loadPlayerByName(Player* player, const std::string& name)
 {
+	DBTransaction transaction;
+	if (!transaction.begin(true)) return false;
 	Database* db = Database::getInstance();
 	std::ostringstream query;
 	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `ridingmount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << db->escapeString(name);
-	return loadPlayer(player, db->storeQuery(query.str()));
+	bool loaded = loadPlayer(player, db->storeQuery(query.str() + " FOR UPDATE"));
+	return loaded && transaction.commit();
 }
 
 bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
@@ -633,6 +640,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 
 bool IOLoginData::savePlayer(Player* player, bool manageTransaction)
 {
+	if (player->isPersistenceQuarantined()) return false;
 	if (player->getHealth() <= 0) {
 		player->changeHealth(1);
 	}

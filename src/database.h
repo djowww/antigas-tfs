@@ -72,7 +72,7 @@ class Database
 		 *
 		 * @return results object (nullptr on error)
 		 */
-		DBResult_ptr storeQuery(const std::string& query);
+		DBResult_ptr storeQuery(const std::string& query, bool* success = nullptr);
 
 		/**
 		 * Escapes string for query.
@@ -101,7 +101,8 @@ class Database
 		 * @return id on success, 0 if last query did not result on any rows with auto_increment keys
 		 */
 		uint64_t getLastInsertId() const {
-			return static_cast<uint64_t>(mysql_insert_id(handle));
+			std::lock_guard<std::recursive_mutex> lock(databaseLock);
+			return handle ? static_cast<uint64_t>(mysql_insert_id(handle)) : 0;
 		}
 
 		/**
@@ -129,11 +130,17 @@ class Database
 		 */
 		bool beginTransaction(bool strict = false);
 		bool rollback();
-		bool commit();
+		bool commit(bool& uncertain);
 
 	private:
 		MYSQL* handle = nullptr;
-		std::recursive_mutex databaseLock;
+		mutable std::recursive_mutex databaseLock;
+		bool connected = false;
+		std::chrono::steady_clock::time_point retryAfter;
+		bool ensureConnection();
+		void connectionFailed();
+		void queryFailed();
+		void finishTransaction();
 		uint64_t maxPacketSize = 1048576;
 		bool transactionOpen = false;
 		bool strictTransaction = false;
@@ -239,8 +246,9 @@ class DBTransaction
 			}
 
 			state = STEATE_COMMIT;
-			return Database::getInstance()->commit();
+			return Database::getInstance()->commit(uncertain);
 		}
+		bool isUncertain() const { return uncertain; }
 
 	private:
 		enum TransactionStates_t {
@@ -250,6 +258,7 @@ class DBTransaction
 		};
 
 		TransactionStates_t state = STATE_NO_START;
+		bool uncertain = false;
 };
 
 #endif

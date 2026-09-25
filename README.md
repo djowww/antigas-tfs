@@ -20,6 +20,10 @@ Repositório privado do servidor Antigas 7.4. O repositório contém o código-f
 
 Use o toolchain e as dependências documentados para esta versão do TFS. Os arquivos de projeto em `CMakeLists.txt` e `src/` são a referência; mantenha binários de build fora do repositório.
 
+## Recuperação de banco e teste de concorrência
+
+Consulte [o relatório de recuperação e concorrência](docs/database-recovery.md). Esta atualização exige o novo executável junto do `market.lua`; recarregar apenas o Lua não aplica as proteções do banco. O cliente v15 continua compatível.
+
 ## Market — histórico e catálogo (cliente v15)
 
 - Em instalação nova, aplique `data/sql/market.sql`, `market-v2.sql` e `market-v3.sql`, nessa ordem. Em instalação com Market v2, aplique somente `market-v3.sql` **antes** de carregar o novo `market.lua`. A migração é aditiva, usa InnoDB e pode ser repetida no MariaDB.
