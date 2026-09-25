@@ -3870,9 +3870,6 @@
 		<npc name="ferryman4" x="0" y="0" z="7" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="32388" centery="31692" centerz="7" radius="1" />
-	<spawn centerx="32683" centery="31692" centerz="7" radius="1">
-		<npc name="tusker3" x="0" y="0" z="7" spawntime="60" direction="2" />
-	</spawn>
 	<spawn centerx="32928" centery="31692" centerz="7" radius="5">
 		<monster name="pig" x="3" y="-1" z="7" spawntime="90" />
 		<monster name="pig" x="1" y="4" z="7" spawntime="90" />
@@ -4629,9 +4626,6 @@
 	<spawn centerx="32360" centery="31785" centerz="7" radius="1">
 		<npc name="alia" x="0" y="0" z="7" spawntime="60" direction="2" />
 	</spawn>
-	<spawn centerx="32372" centery="31785" centerz="7" radius="1">
-		<npc name="tusker1" x="0" y="0" z="7" spawntime="60" direction="2" />
-	</spawn>
 	<spawn centerx="32874" centery="31785" centerz="7" radius="3">
 		<monster name="pig" x="1" y="-2" z="7" spawntime="990" />
 		<monster name="orc spearman" x="2" y="-2" z="7" spawntime="90" />
@@ -4884,9 +4878,6 @@
 		<monster name="deer" x="-2" y="-1" z="7" spawntime="90" />
 		<monster name="deer" x="0" y="0" z="7" spawntime="90" />
 		<monster name="deer" x="-2" y="1" z="7" spawntime="90" />
-	</spawn>
-	<spawn centerx="33179" centery="31815" centerz="7" radius="1">
-		<npc name="tusker4" x="0" y="0" z="7" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="32300" centery="31816" centerz="7" radius="1">
 		<npc name="padreia" x="0" y="0" z="7" spawntime="60" direction="2" />
@@ -6083,9 +6074,6 @@
 		<monster name="wolf" x="0" y="0" z="7" spawntime="90" />
 		<monster name="wolf" x="-3" y="2" z="7" spawntime="90" />
 		<monster name="wolf" x="3" y="3" z="7" spawntime="90" />
-	</spawn>
-	<spawn centerx="32938" centery="32074" centerz="7" radius="1">
-		<npc name="tusker6" x="0" y="0" z="7" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="32919" centery="32075" centerz="7" radius="1">
 		<npc name="dove" x="0" y="0" z="7" spawntime="60" direction="2" />
@@ -8421,9 +8409,6 @@
 	</spawn>
 	<spawn centerx="32991" centery="32395" centerz="7" radius="1">
 		<monster name="stalker" x="0" y="0" z="7" spawntime="90" />
-	</spawn>
-	<spawn centerx="33227" centery="32400" centerz="7" radius="1">
-		<npc name="tusker5" x="0" y="0" z="7" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="32439" centery="32402" centerz="7" radius="4" />
 	<spawn centerx="33112" centery="32403" centerz="7" radius="3">
@@ -12963,9 +12948,6 @@
 		<monster name="scarab" x="0" y="0" z="7" spawntime="90" />
 		<monster name="scarab" x="1" y="3" z="7" spawntime="90" />
 	</spawn>
-	<spawn centerx="32623" centery="32755" centerz="7" radius="1">
-		<npc name="tusker8" x="0" y="0" z="7" spawntime="60" direction="2" />
-	</spawn>
 	<spawn centerx="32806" centery="32755" centerz="7" radius="3">
 		<monster name="flamingo" x="-2" y="0" z="7" spawntime="90" />
 		<monster name="flamingo" x="0" y="0" z="7" spawntime="90" />
@@ -13937,9 +13919,6 @@
 	</spawn>
 	<spawn centerx="32634" centery="32830" centerz="7" radius="1">
 		<monster name="cave rat" x="0" y="0" z="7" spawntime="90" />
-	</spawn>
-	<spawn centerx="33126" centery="32830" centerz="7" radius="1">
-		<npc name="tusker7" x="0" y="0" z="7" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="32575" centery="32831" centerz="7" radius="4">
 		<monster name="wasp" x="1" y="-3" z="7" spawntime="90" />
@@ -16487,9 +16466,6 @@
 	<spawn centerx="32520" centery="31915" centerz="8" radius="3">
 		<monster name="dwarf" x="-2" y="-2" z="8" spawntime="90" />
 		<monster name="dwarf" x="0" y="0" z="8" spawntime="90" />
-	</spawn>
-	<spawn centerx="32643" centery="31916" centerz="8" radius="1">
-		<npc name="tusker2" x="0" y="0" z="8" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="33141" centery="31916" centerz="8" radius="4">
 		<monster name="orc spearman" x="-1" y="2" z="8" spawntime="90" />

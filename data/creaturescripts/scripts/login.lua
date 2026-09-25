@@ -45,11 +45,6 @@ function onLogin(player)
         end
     end
 	
-	player:registerEvent('VialCleanup')
-	if player:getStorageValue(50000) == 1 then
-    removePlayerVials(player:getId())
-    end
-	
 	if (player:getGroup():getId() >= 3) then
         player:setGhostMode(true)
     end
@@ -78,13 +73,11 @@ Unmute Player: /unmute nick.
     end
 	
 	-- Events
-	player:registerEvent("Tasks")
 	player:registerEvent("PlayerDeath")
 	player:registerEvent("Shop")
 	player:registerEvent("Market")
 	player:registerEvent("Spell")
 	player:registerEvent('KillDeathCount')
 	player:registerEvent("Reward")
-	player:registerEvent('BountyHunterKill')
 	return true
 end
