@@ -50,6 +50,24 @@ local function marketType(id)
  return types[id]
 end
 
+-- Keep marketType available for legacy refunds; only new trading is restricted.
+local blockedIds
+local function permitted(item)
+ if not item then return false end
+ local name=item.name:lower()
+ if name=='fishing rod' then return true end
+ return not name:find('wand',1,true) and not name:match('%f[%a]rods?%f[%A]')
+  and ItemType(item.id):getWeaponType()~=WEAPON_WAND
+end
+local function blockedList()
+ if not blockedIds then
+  local ids={}
+  for id=100,6000 do local t=marketType(id);if t and not permitted(t) then ids[#ids+1]=id end end
+  blockedIds=#ids>0 and table.concat(ids,',') or '0'
+ end
+ return blockedIds
+end
+
 -- getUniqueId() in this engine is a script handle, not a quest attribute.
 -- Match persistent attributes against an untouched item with the same count.
 local function clean(item)
@@ -99,7 +117,13 @@ local function balances(player,summary)
 end
 local function sendBalances(player)
  local _,summary=inventory(player)
- send(player,"balances",balances(player,summary))
+ local data=balances(player,summary)
+ local r=db.storeQuery('SELECT COUNT(*) AS n,COALESCE(SUM(IF(kind=0,item_count,0)),0) AS items,COALESCE(SUM(IF(kind=1 AND currency_id=3031,currency_amount,0)),0) AS gold,COALESCE(SUM(IF(kind=1 AND currency_id=5130,currency_amount,0)),0) AS antigas FROM market_claims WHERE player_guid='..player:getGuid())
+ if r then
+  data.pending={count=result.getDataInt(r,'n'),items=result.getDataInt(r,'items'),gold=result.getDataInt(r,'gold'),antigas=result.getDataInt(r,'antigas')}
+  result.free(r)
+ end
+ send(player,"balances",data)
 end
 local function rows(sql,fields)
  local r=db.storeQuery(sql)
@@ -123,7 +147,7 @@ local function pageOf(data) return integer(data.page,1,250) or 1 end
 local function sendCatalog(player,data)
  if not catalog then
   catalog={}
-  for id=100,6000 do local t=marketType(id);if t then catalog[#catalog+1]=t end end
+  for id=100,6000 do local t=marketType(id);if permitted(t) then catalog[#catalog+1]=t end end
   table.sort(catalog,function(a,b) if a.name:lower()==b.name:lower() then return a.id<b.id end return a.name:lower()<b.name:lower() end)
  end
  local _,summary=inventory(player)
@@ -131,12 +155,19 @@ local function sendCatalog(player,data)
  local cat=validCategories[data.category] and data.category or "all"
  local page,matched,items=pageOf(data),0,{}
  for _,item in ipairs(catalog) do
-  if (cat=="all" or item.category==cat) and (query=="" or item.name:lower():find(query,1,true)) then
+  if (cat=="all" or item.category==cat) and (query=="" or item.name:lower():find(query,1,true))
+   and (data.ownedOnly~=true or (summary[item.id..":"..item.subtype] or 0)>0) then
    matched=matched+1
    if matched>(page-1)*PAGE_SIZE and #items<PAGE_SIZE then
     items[#items+1]={id=item.id,name=item.name,category=item.category,subtype=item.subtype,owned=summary[item.id..":"..item.subtype] or 0}
    end
   end
+ end
+ if #items>0 then
+  local ids,byId={},{}
+  for _,item in ipairs(items) do ids[#ids+1]=item.id;byId[item.id]=item;item.prices={} end
+  local prices=rows('SELECT item_id AS id,currency_id AS currency,MIN(IF(side=0,unit_price,NULL)) AS sell,MAX(IF(side=1,unit_price,NULL)) AS buy FROM market_offers WHERE status=1 AND remaining>0 AND item_id IN ('..table.concat(ids,',')..') GROUP BY item_id,currency_id',{id='n',currency='n',sell='n',buy='n'})
+  for _,p in ipairs(prices) do byId[p.id].prices[tostring(p.currency)]={sell=p.sell,buy=p.buy} end
  end
  send(player,"catalog",{items=items,page=page,hasNext=matched>page*PAGE_SIZE,total=matched})
 end
@@ -144,6 +175,7 @@ local offerFields={id="n",owner="n",ownerName="s",side="n",itemId="n",subtype="n
 local function sendOffers(player,data,mine)
  local clauses={"o.status=1"}
  if mine then clauses[#clauses+1]="o.owner_guid="..player:getGuid() end
+ if not mine then clauses[#clauses+1]='o.item_id NOT IN ('..blockedList()..')' end
  local cat=validCategories[data.category] and data.category or "all"
  if cat~="all" then clauses[#clauses+1]="o.category="..db.escapeString(cat) end
  local currency=integer(data.currency,0,6000)
@@ -157,6 +189,14 @@ local function sendOffers(player,data,mine)
  local hasNext=#offers>PAGE_SIZE
  if hasNext then table.remove(offers) end
  send(player,mine and "myOffers" or "offers",{offers=offers,page=page,hasNext=hasNext,playerGuid=player:getGuid()})
+end
+
+local function sendHistory(player,data)
+ local page=pageOf(data)
+ local entries=rows('SELECT h.id,h.event_type AS event,h.item_id AS itemId,h.item_name AS name,h.quantity,h.unit_price AS price,h.currency_id AS currency,h.total,h.destination,DATE_FORMAT(h.created_at,\'%Y-%m-%d %H:%i UTC\') AS date,COALESCE(c.item_count+c.currency_amount,0) AS pending FROM market_history h LEFT JOIN market_claims c ON c.id=h.claim_id AND c.player_guid=h.player_guid WHERE h.player_guid='..player:getGuid()..' ORDER BY h.id DESC LIMIT '..(PAGE_SIZE+1)..' OFFSET '..((page-1)*PAGE_SIZE),{id='n',event='s',itemId='n',name='s',quantity='n',price='n',currency='n',total='n',destination='s',date='s',pending='n'})
+ local hasNext=#entries>PAGE_SIZE
+ if hasNext then table.remove(entries) end
+ send(player,'history',{entries=entries,page=page,hasNext=hasNext})
 end
 
 local function context(player)
@@ -251,7 +291,13 @@ local function context(player)
  return ctx
 end
 local function claim(guid,kind,id,subtype,count,currency,amount)
- return db.query("INSERT INTO market_claims(player_guid,kind,item_id,item_subtype,item_count,currency_id,currency_amount) VALUES ("..guid..","..kind..","..id..","..subtype..","..count..","..currency..","..amount..")")
+ if not db.query("INSERT INTO market_claims(player_guid,kind,item_id,item_subtype,item_count,currency_id,currency_amount) VALUES ("..guid..","..kind..","..id..","..subtype..","..count..","..currency..","..amount..")") then return false end
+ local row=rows('SELECT LAST_INSERT_ID() AS id',{id='n'})[1]
+ return row and row.id
+end
+local function history(guid,event,offer,amount,claimId,destination)
+ local item=marketType(offer.itemId)
+ return db.query('INSERT INTO market_history(player_guid,offer_id,event_type,item_id,item_name,quantity,unit_price,currency_id,total,claim_id,destination) VALUES ('..guid..','..offer.id..','..db.escapeString(event)..','..offer.itemId..','..db.escapeString(item.name)..','..amount..','..offer.price..','..offer.currency..','..amount*offer.price..','..claimId..','..db.escapeString(destination)..')')
 end
 local function getOffer(id)
  return rows("SELECT id,owner_guid AS owner,side,item_id AS itemId,item_subtype AS subtype,remaining AS amount,unit_price AS price,currency_id AS currency FROM market_offers WHERE id="..id.." AND status=1 FOR UPDATE",{id="n",owner="n",side="n",itemId="n",subtype="n",amount="n",price="n",currency="n"})[1]
@@ -267,7 +313,7 @@ function actions.create(ctx,data)
  local item=marketType(data.itemId)
  local amount,price=integer(data.amount,1,MAX_AMOUNT),integer(data.price,1,MAX_TOTAL)
  local currency=integer(data.currency,1,6000)
- if not side or not item or not amount or not price or (currency~=GOLD and currency~=ANTIGAS)
+ if not side or not permitted(item) or not amount or not price or (currency~=GOLD and currency~=ANTIGAS)
   or data.subtype~=item.subtype or (not item.stackable and amount>1000)
   or amount*price>(currency==ANTIGAS and 10000 or MAX_TOTAL) then return ctx:fail("Invalid offer quantity, item or price.") end
  local counts=rows("SELECT COUNT(*) AS n FROM market_offers WHERE owner_guid="..ctx.player:getGuid().." AND status=1",{n="n"})
@@ -284,6 +330,7 @@ function actions.fill(ctx,data)
  if not id or not amount then return ctx:fail("Invalid offer or quantity.") end
  local offer=getOffer(id)
  if not validOffer(offer) or offer.owner==ctx.player:getGuid() or amount>offer.amount then return ctx:fail("Offer changed, sold out or belongs to you. Refresh the list.") end
+ if not permitted(marketType(offer.itemId)) then return ctx:fail('This item is no longer tradable. Its owner can cancel and collect the refund.') end
  local total=offer.price*amount
  local itemReceiver,moneyReceiver
  if offer.side==0 then
@@ -294,7 +341,11 @@ function actions.fill(ctx,data)
   itemReceiver,moneyReceiver=offer.owner,ctx.player:getGuid()
  end
  if not changed("UPDATE market_offers SET status=IF(remaining="..amount..",2,1),remaining=remaining-"..amount.." WHERE id="..id.." AND status=1 AND remaining>="..amount) then return false end
- if not claim(itemReceiver,0,offer.itemId,offer.subtype,amount,0,0) or not claim(moneyReceiver,1,0,-1,0,offer.currency,total) then return false end
+ local itemClaim=claim(itemReceiver,0,offer.itemId,offer.subtype,amount,0,0)
+ local moneyClaim=claim(moneyReceiver,1,0,-1,0,offer.currency,total)
+ if not itemClaim or not moneyClaim then return false end
+ if not history(itemReceiver,'Bought',offer,amount,itemClaim,'items to depot')
+  or not history(moneyReceiver,'Sold',offer,amount,moneyClaim,offer.currency==GOLD and 'gold to bank' or 'Antigas Coins to depot') then return false end
  ctx.text="Trade completed. Use Collect: gold goes to your bank; items and Antigas Coins go to your depot."
  return true
 end
@@ -308,13 +359,14 @@ function actions.cancel(ctx,data)
  if offer.side==0 then ok=claim(offer.owner,0,offer.itemId,offer.subtype,offer.amount,0,0)
  else ok=claim(offer.owner,1,0,-1,0,offer.currency,offer.amount*offer.price) end
  if not ok then return false end
+ if not history(offer.owner,'Cancelled',offer,offer.amount,ok,offer.side==0 and 'items to depot' or offer.currency==GOLD and 'gold to bank' or 'Antigas Coins to depot') then return false end
  ctx.text="Offer cancelled. Use Collect to receive the remaining items or money."
  return true
 end
 function actions.collect(ctx)
  local claims=rows("SELECT id,kind,item_id AS itemId,item_subtype AS subtype,item_count AS itemCount,currency_id AS currency,currency_amount AS currencyAmount FROM market_claims WHERE player_guid="..ctx.player:getGuid().." ORDER BY id LIMIT 20 FOR UPDATE",{id="n",kind="n",itemId="n",subtype="n",itemCount="n",currency="n",currencyAmount="n"})
  if #claims==0 then return ctx:fail("No pending Market deliveries.") end
- local received=0
+ local received,gold,coins,items=0,0,0,0
  for _,c in ipairs(claims) do
   local id=c.kind==1 and c.currency or c.itemId
   local count=c.kind==1 and c.currencyAmount or c.itemCount
@@ -329,10 +381,11 @@ function actions.collect(ctx)
    else sql="UPDATE market_claims SET "..(c.kind==1 and "currency_amount" or "item_count").."="..(count-n).." WHERE id="..c.id.." AND player_guid="..ctx.player:getGuid() end
    if not changed(sql) then return false end
    received=received+n
+   if c.kind==0 then items=items+n elseif id==GOLD then gold=gold+n else coins=coins+n end
   end
  end
  if received==0 then return ctx:fail("Your depot is full or your bank cannot receive more gold. Your deliveries remain reserved.") end
- ctx.text="Collected: gold to bank, items and Antigas Coins to depot. If deliveries remain, free depot space and collect again."
+ ctx.text=string.format('Collected: %d gold to bank; %d Antigas Coins and %d items to your town depot. Check Collect for remaining deliveries.',gold,coins,items)
  return true
 end
 local function mutate(player,request,buffer)
@@ -379,6 +432,7 @@ function onExtendedOpcode(player,opcode,buffer)
  elseif request.action=="browse" then sendOffers(player,request.data,false)
  elseif request.action=="mine" then sendOffers(player,request.data,true)
  elseif request.action=="catalog" then sendCatalog(player,request.data)
+ elseif request.action=='history' then sendHistory(player,request.data)
  else return false end
  return true
 end

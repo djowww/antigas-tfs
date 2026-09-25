@@ -19,3 +19,13 @@ Repositório privado do servidor Antigas 7.4. O repositório contém o código-f
 ## Compilação
 
 Use o toolchain e as dependências documentados para esta versão do TFS. Os arquivos de projeto em `CMakeLists.txt` e `src/` são a referência; mantenha binários de build fora do repositório.
+
+## Market — histórico e catálogo (cliente v15)
+
+- Em instalação nova, aplique `data/sql/market.sql`, `market-v2.sql` e `market-v3.sql`, nessa ordem. Em instalação com Market v2, aplique somente `market-v3.sql` **antes** de carregar o novo `market.lua`. A migração é aditiva, usa InnoDB e pode ser repetida no MariaDB.
+- O histórico começa nesta atualização: compras, vendas e cancelamentos são registrados na mesma transação dos bens e do comprovante de idempotência. Entregas anteriores continuam disponíveis, mas não têm histórico retroativo inventado.
+- Cada registro acompanha sua entrega: uma coleta parcial mantém o saldo pendente; a coleta completa passa a constar como recolhida. Gold vai ao banco; itens e Antigas Coins vão ao depot da cidade do personagem.
+- O catálogo oferece filtro de itens próprios e menor preço de venda/maior preço de compra por moeda. Os preços são calculados sobre ofertas ativas, não são cotações garantidas e não misturam as moedas.
+- Wands e rods de combate são bloqueadas no servidor para novas ofertas e negociações, inclusive em clientes antigos. Ofertas antigas continuam visíveis ao dono para cancelar e recolher. A fishing rod permanece disponível.
+- Validação isolada: 37 testes de protocolo mais 5 verificações adicionais, incluindo concorrência, repetição de pedidos, falha de gravação do histórico, duas moedas, devolução legada, coleta parcial, paginação e isolamento entre personagens. Interface validada no cliente real com dados de teste, sem usar contas de jogadores.
+- Para atualizar sem desconectar jogadores: faça backup do Lua anterior, aplique a migração, instale o arquivo e use `/reload creaturescripts` com uma conta autorizada. Verifique o log e faça testes de leitura. Em rollback, restaure somente o Lua anterior e recarregue; nunca restaure um banco antigo sobre negociações já concluídas.
