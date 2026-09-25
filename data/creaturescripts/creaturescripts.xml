@@ -15,8 +15,6 @@
 	
 	<event type="modalwindow" name="ModalWindowHelper" script="others/modalwindowhelper.lua" />
 	
-	<event type="modalwindow" name="modalwindowhelper" script="others/tutor.lua"/>
-	
 	<event type="login" name="serverinfos" script="others/serverinfo.lua"/>
 	
 	<event type="death" name="KillDeathCount" script="killdeathcount.lua"/>

@@ -4,15 +4,6 @@ local muted = Condition(CONDITION_CHANNELMUTEDTICKS, CONDITIONID_DEFAULT)
 muted:setParameter(CONDITION_PARAM_SUBID, CHANNEL_HELP)
 muted:setParameter(CONDITION_PARAM_TICKS, 3600000)
 
-function onJoin(player)
-    addEvent(function(cid)
-        local player = Player(cid)
-        if not player then return end
-        player:sendChannelMessage("", "If you have doubts about the server, type !tutor to interact with Antiga's automatic tutor.", TALKTYPE_CHANNEL_R1, CHANNEL_HELP)
-    end, 100, player.uid)
-    return true
-end
-
 function onSpeak(player, type, message)
 	local playerAccountType = player:getAccountType()
 	if player:getLevel() == 1 and playerAccountType == ACCOUNT_TYPE_NORMAL then

@@ -60,10 +60,9 @@ function onLogin(player)
 6. It is not allowed to divulge time up or to help in quest.
 7. You are not allowed to sell items in the Help.
 8. If the player encounters a bug, ask to go to the website to send a ticket and explain in detail.
-9. Always keep the Tutors Chat open. (required).
-10. You have finished your schedule, you have no tutor online, you communicate with some CM in-game or ts and stay in the help until someone logs in, if you can.
-11. Always keep a good Portuguese in the Help, we want tutors who support, not that they speak a satanic ritual.
-12. If you see a tutor doing something that violates the rules, take a print and send it to your superiors.
+9. If no tutor is online, communicate with a CM in-game or on TS and stay in Help until someone logs in, if possible.
+10. Use clear Portuguese in Help so players can understand the support.
+11. Report tutor misconduct to a superior with a screenshot.
 
 - Commands -
 Mute Player: /mute nick, 90. (90 seconds)
