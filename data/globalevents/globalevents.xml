@@ -12,6 +12,5 @@
 	<!-- <globalevent name="puntos" interval="3600000" script="puntos.lua" /> -->
 	
 	<!-- <globalevent name="Weather" interval="200" script="Weather.lua" /> -->
-	<globalevent name="bounty" interval="3600000" script="bounty.lua"/>
 
 </globalevents>

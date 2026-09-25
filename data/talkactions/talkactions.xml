@@ -47,8 +47,6 @@
 	<talkaction words="!uptime" script="uptime.lua"/>
 	<talkaction words="!serverinfo" script="serverinfo.lua"/>
 	<talkaction words="!online" script="online.lua"/>
-	<talkaction script="vialoff.lua" words="!vial" separator=" "/>
-	<talkaction words="!tasks" script="tasks.lua"/>
 	<talkaction words="!spells" separator=" " script="emote.lua"/>
 	<talkaction words="!deathlist" script="deathlist.lua"/> 
 	
@@ -63,7 +61,6 @@
 	<talkaction words="!x" separator=" " script="animationeffect.lua"/>
 	<!-- Legacy auction has no database schema and unsafe withdrawals. Keep offline. -->
 	<!-- <talkaction words="!offer" separator=" " script="auctionsystem.lua"/> -->
-	<talkaction words="!hunt" separator=" " script="bounty_hunter.lua" />
 	<!-- Legacy war command requires absent guild balance/payment columns. -->
 	<!-- <talkaction words="!war" separator=" " script="war_system.lua" /> -->
 </talkactions>

@@ -6,8 +6,6 @@
     <event type="death" name="death_animation_fireelemental" script="fireelemental.lua"/>
     <event type="death" name="death_animation_slime" script="slime.lua"/>
 	<event type="advance" name="Advance" script="advance.lua"/>
-	<event type="kill" name="Tasks" script="tasks.lua"/>
-	<event type="kill" name="BountyHunterKill" script="bounty_hunter.lua"/>
 	<event type="extendedopcode" name="Shop" script="shop.lua" />
 	<event type="extendedopcode" name="Market" script="market.lua" />
 	<event type="advance" name="Spell" script="spell.lua" />
@@ -25,8 +23,6 @@
 	
 	<event type="login" name="OnlineBonus" script="others/onlineBonus.lua" />
 	<event type="logout" name="OnlineBonusLogout" script="others/onlineBonus.lua" />
-	<event type="logout" name="VialCleanup" script="others/vial_cleanup.lua" />
-	
 	<event type="advance" name="Reward" script="reward.lua"/>
 	
 </creaturescripts>

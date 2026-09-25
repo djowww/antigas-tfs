@@ -80,12 +80,6 @@ rateLoot = 5
 rateMagic = 100
 rateSpawn = 0
 
--- Critical hits
--- NOTE: criticalChance and extraPercent are percentages, not absolute values.
--- extraPercent is the extra percentage of the damage to be added.
-criticalChance = 0
-criticalExtra = 0
-
 deSpawnRange = 0
 deSpawnRadius = 0
 

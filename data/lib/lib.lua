@@ -9,10 +9,6 @@ dofile('data/lib/modalwindow.lua')
 
 -- Crash-safe inventory/SQL changes for purchases and currency exchange.
 dofile('data/lib/custom/economy.lua')
-dofile('data/lib/custom/vials.lua')
 
 -- Online Time System
 dofile('data/lib/custom/onlineTime.lua')
-
---BountyHunterSystem
-dofile('data/lib/custom/bountyhunter.lua')

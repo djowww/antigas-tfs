@@ -24,6 +24,8 @@ Use o toolchain e as dependências documentados para esta versão do TFS. Os arq
 
 Consulte [o relatório de recuperação e concorrência](docs/database-recovery.md). Esta atualização exige o novo executável junto do `market.lua`; recarregar apenas o Lua não aplica as proteções do banco. O cliente v15 continua compatível.
 
+Os sistemas antigos de tarefas Tusker, bounty hunter, coleta customizada de frascos vazios e acertos críticos foram removidos. Veja [o resumo da aposentadoria](docs/retired-legacy-systems.md); o uso e as negociações normais de frascos continuam disponíveis.
+
 ## Market — histórico e catálogo (cliente v15)
 
 - Em instalação nova, aplique `data/sql/market.sql`, `market-v2.sql` e `market-v3.sql`, nessa ordem. Em instalação com Market v2, aplique somente `market-v3.sql` **antes** de carregar o novo `market.lua`. A migração é aditiva, usa InnoDB e pode ser repetida no MariaDB.

@@ -112,8 +112,6 @@ class ConfigManager
 			NEWBIE_TOWN,
 			NEWBIE_LEVEL_THRESHOLD,
 			MONEY_RATE,
-			CRITICAL_HIT_CHANCE,
-			CRITICAL_HIT_EXTRA,
 
 			LAST_INTEGER_CONFIG /* this must be the last one */
 		};

@@ -124,8 +124,6 @@ bool ConfigManager::load()
 	integer[STAIRHOP_DELAY] = getGlobalNumber(L, "stairJumpExhaustion", 2000);
 	integer[EXP_FROM_PLAYERS_LEVEL_RANGE] = getGlobalNumber(L, "expFromPlayersLevelRange", 75);
 	integer[MAX_PACKETS_PER_SECOND] = getGlobalNumber(L, "maxPacketsPerSecond", 25);
-	integer[CRITICAL_HIT_CHANCE] = getGlobalNumber(L, "criticalChance", 0);
-	integer[CRITICAL_HIT_EXTRA] = getGlobalNumber(L, "criticalExtra", 0);
 	integer[NEWBIE_TOWN] = getGlobalNumber(L, "newbieTownId", 1);
 	integer[NEWBIE_LEVEL_THRESHOLD] = getGlobalNumber(L, "newbieLevelThreshold", 5);
 	integer[MONEY_RATE] = getGlobalNumber(L, "moneyRate", 1);
