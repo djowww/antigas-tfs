@@ -23,6 +23,8 @@ Use o toolchain e as dependências documentados para esta versão do TFS. Os arq
 ## Recuperação de banco e teste de concorrência
 
 
+A regressão da aba Loot da v16 foi corrigida no cliente v17, com teste do despachante e pacotes de coleta reais.
+
 Esta atualização exige o novo executável junto do `market.lua`; recarregar apenas o Lua não aplica as proteções do banco. O cliente v15 continua compatível.
 
 Os sistemas antigos de tarefas Tusker, bounty hunter, coleta customizada de frascos vazios e acertos críticos foram removidos. Veja [o resumo da aposentadoria](docs/retired-legacy-systems.md); o uso e as negociações normais de frascos continuam disponíveis.
