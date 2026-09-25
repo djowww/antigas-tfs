@@ -1,0 +1,42 @@
+# Local server settings contain database credentials and should stay on this host.
+/config.lua
+/config.local.lua
+/config.private.lua
+/.env
+/.env.*
+
+# Generated program and build output.
+/tfs
+/tfs.exe
+/build/
+/cmake-build-*/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+
+# Runtime state, player reports, logs, dumps, backups and editor temporary files.
+*.save
+*.log
+*.core
+*.dump
+*.sql.gz
+*.bak
+*.backup
+*.tmp
+*.swp
+*~
+/data/reports/players/*
+!/data/reports/players/.gitignore
+/backup/
+/backups/
+/logs/
+
+# Credentials and local developer tooling.
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.vscode/
+.idea/

@@ -1,0 +1,24 @@
+# GIMUD - Graphical Interface Multi User Dungeon
+
+Name = "Tusker"
+Outfit = (129,0-95-95-95)
+Home = [32683,31692,7]
+Radius = 2
+
+Behaviour = {
+ADDRESS,"hello$",! -> "Welcome %N! The royal Tibians army is looking for brave adventurers to complete <<tasks>> for our legion.", SetQuestValue(49999, 1)
+ADDRESS,"hi$",!    -> *
+ADDRESS,"hiho$",!    -> *
+ADDRESS,!          -> Idle
+
+BUSY,"hello$",!    -> "Show some patience please.", Queue
+BUSY,"hi$",!       -> *
+BUSY,"hiho$",!    -> *
+BUSY,!             -> NOP
+VANISH,!           -> "Farewell."
+
+"bye"      -> "Farewell.", Idle
+"farewell" -> *
+
+@"gen-tasks.ndb"
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<globalevents>
+	<globalevent type="startup" name="ServerStartup" script="startup.lua"/>
+	<globalevent type="record" name="PlayerRecord" script="record.lua"/>
+	<globalevent name="Server Save" time="06:00:00" script="serversave.lua"/>
+
+
+    <globalevent type="startup" name="lamp_states" script="load_states.lua"/>
+	<!-- Horse-rental advertising removed together with the mount feature. -->
+	<globalevent type="startup" name="RashidSpawn" script="RashidSpawn.lua" />	
+	<globalevent name="SpawnRaid" interval="60000" script="raids.lua"/>
+	<!-- <globalevent name="puntos" interval="3600000" script="puntos.lua" /> -->
+	
+	<!-- <globalevent name="Weather" interval="200" script="Weather.lua" /> -->
+	<globalevent name="bounty" interval="3600000" script="bounty.lua"/>
+
+</globalevents>

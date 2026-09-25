@@ -1,0 +1,67 @@
+# GIMUD - Graphical Interface Multi User Dungeon
+# frans.npc: Datenbank f�r den Magieladen-Verk�ufer Frans
+
+Name = "Frans"
+Outfit = (0,3114)
+Home = [32971,32080,6]
+Radius = 1
+
+Behaviour = {
+ADDRESS,"hello$",! -> "Beeee Greeeeted %N. What is your neeeed?"
+ADDRESS,"hi$",!    -> *
+ADDRESS,!          -> Idle
+BUSY,"hello$",!    -> "%N, I am veeeerry busy. Unfoooortunately you will have to waiiiit.", Queue
+BUSY,"hi$",!       -> *
+BUSY,!             -> NOP
+VANISH,!           -> "Bye."
+
+"bye"       -> "Bye.", Idle
+"farewell"  -> *
+"name"      -> "I am a FRANS."
+"frans"     -> "Floating ReeeeAnimated Necromantic Seeeervant ... FRANS."
+"job"       -> "I am selliiiing ruuuunes and spellbooooooks."
+"sorcerer"  -> "Sorcerorssss, druidssss, they all come to ussss."
+"druid"     -> *
+"magic"     -> "Is aaaall about magic more or lesssss, isn't it?"
+"vladruc"   -> "Heeee is the bossss. Better don't messss with him!" 
+"urghain"   -> * 
+"ferumbras" -> "Wouldn't he beeee the perfect FRANS?"
+"market"    -> "Yes, that's a market heeeere, smarty ... Nice to seeeee I am not the only one without a braiiiin here."
+"excalibug" -> "We FRANSes don't liiiike any bugssss."
+
+
+"offer"           -> "What do youuuu think I am? A lousy barberrrr? I'm selliiiing blank ruuuunes and spellboooooks."
+"goods"           -> *
+"do","you","sell" -> *
+"do","you","have" -> *
+
+"rune"          -> "I sell blank ruuuuunes."
+"blank","rune"  -> Type=3147, Amount=1, Price=10,    "Do youuuu want to buy a blank ruuuune for %P gold?", Topic=1
+"spellbook"     -> Type=3059, Amount=1, Price=150,   "Do youuuu want to buy a spellboooook for %P gold?", Topic=1
+"bp", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=50
+
+
+%1,1<%1,"blank","rune" -> Type=3147, Amount=%1, Price=10*%1,  "Do youuuu want to buy %A blank ruuuunes for %P gold?", Topic=1
+%1,1<%1,"spellbook"    -> Type=3059, Amount=%1, Price=150*%1, "Do youuuu want to buy %A spellboooooks for %P gold?", Topic=1
+%1,1<%1,"bp", "blank", "rune" -> Amount=%1, Price=200*%1, "Do you want to buy %A backpacks full of blank runes for %P gold?", Topic=50
+
+BUSY,"instant", "backpack", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+BUSY,"instant", "backpack", "of", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+BUSY,"instant", "bp", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+BUSY,"instant", "bp", "of", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+
+Topic=1,"yes",CountMoney>=Price -> "And here it isssss! Almost like magiiiic, isn't it?", DeleteMoney, Create(Type)
+Topic=1,"yes"                   -> "Sorry, too many buttonssss and not enough gold in your pursssse."
+Topic=1                         -> "Better not annoy a FRANS if you don't want to deeeeal with him!"
+
+Topic=50,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(2870,3147,20)
+Topic=50,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=50                         -> "Maybe you will buy it another time."
+
+BUSY,Topic=70,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(2870,3147,20)
+BUSY,Topic=70,"yes"                   -> "Sorry, you do not have enough gold."
+BUSY,Topic=70                         -> "Maybe you will buy it another time."
+
+#@"gen-t-runes-free-s.ndb"
+
+}

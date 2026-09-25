@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movements>
+	<!-- main Map Based Movements -->
+	
+	<movevent event="StepIn" movementid="2013" script="arena/leavearena.lua" />
+	<movevent event="StepIn" movementid="2014" script="arena/enterarena.lua" />
+	
+	<movevent event="StepIn" movementid="14876" script="trainers/trainertp.lua" />
+	<movevent event="StepIn" movementid="14877" script="trainers/trainertp2.lua" />
+	
+	<movevent event="StepIn" movementid="1000" script="main/1000.lua" />
+	<movevent event="StepIn" movementid="1001" script="main/1001.lua" />
+	<movevent event="StepIn" movementid="1002" script="main/1002.lua" />
+	<movevent event="StepIn" movementid="1" script="main/1.lua" />
+	<movevent event="StepOut" movementid="1" script="main/1.lua" />
+	<movevent event="StepIn" movementid="2" script="main/2.lua" />
+	<movevent event="StepOut" movementid="2" script="main/2.lua" />
+	<movevent event="StepIn" movementid="3" script="main/3.lua" />
+	<movevent event="StepOut" movementid="3" script="main/3.lua" />
+	<movevent event="StepIn" movementid="4" script="main/4.lua" />
+	<movevent event="StepIn" movementid="5" script="main/5.lua" />
+	<movevent event="StepIn" movementid="6" script="main/6.lua" />
+	<movevent event="StepIn" movementid="7" script="main/7.lua" />
+	<movevent event="StepIn" movementid="8" script="main/8.lua" />
+	<movevent event="StepIn" movementid="9" script="main/9.lua" />
+	<movevent event="StepIn" movementid="10" script="main/10.lua" />
+	<movevent event="StepIn" movementid="11" script="main/11.lua" />
+	<movevent event="StepIn" movementid="12" script="main/12.lua" />
+	<movevent event="StepIn" movementid="13" script="main/13.lua" />
+	<movevent event="StepIn" movementid="14" script="main/14.lua" />
+	<movevent event="StepIn" movementid="15" script="main/15.lua" />
+	<movevent event="StepIn" movementid="16" script="main/16.lua" />
+	<movevent event="StepIn" movementid="17" script="main/17.lua" />
+	<movevent event="StepIn" movementid="18" script="main/18.lua" />
+	<movevent event="StepIn" movementid="19" script="main/19.lua" />
+	<movevent event="StepIn" movementid="20" script="main/20.lua" />
+	<movevent event="StepIn" movementid="21" script="main/21.lua" />
+	<movevent event="StepIn" movementid="22" tileitem="1" script="main/22.lua" />
+	<movevent event="AddItem" movementid="22" tileitem="1" script="main/22.lua" />
+	<movevent event="StepIn" movementid="23" tileitem="1" script="main/23.lua" />
+	<movevent event="AddItem" movementid="23" tileitem="1" script="main/23.lua" />
+	<movevent event="AddItem" movementid="24" tileitem="1" script="main/24.lua" />
+	<movevent event="StepIn" movementid="25" script="main/25.lua" />
+	<movevent event="StepOut" movementid="25" script="main/25.lua" />
+	<movevent event="StepIn" movementid="26" script="main/26.lua" />
+	<movevent event="StepOut" movementid="26" script="main/26.lua" />
+	<movevent event="StepIn" movementid="27" script="main/27.lua" />
+	<movevent event="StepOut" movementid="27" script="main/27.lua" />
+	<movevent event="StepIn" movementid="28" script="main/28.lua" />
+	<movevent event="StepOut" movementid="28" script="main/28.lua" />
+	<movevent event="StepIn" movementid="29" script="main/29.lua" />
+	<movevent event="StepOut" movementid="29" script="main/29.lua" />
+	<movevent event="StepIn" movementid="30" script="main/30.lua" />
+	<movevent event="StepOut" movementid="30" script="main/30.lua" />
+	<movevent event="StepIn" movementid="31" script="main/31.lua" />
+	<movevent event="StepOut" movementid="31" script="main/31.lua" />
+	<movevent event="StepIn" movementid="32" script="main/32.lua" />
+	<movevent event="StepOut" movementid="32" script="main/32.lua" />
+	<movevent event="StepIn" movementid="33" script="main/33.lua" />
+	<movevent event="StepOut" movementid="33" script="main/33.lua" />
+	<movevent event="StepIn" movementid="34" script="main/34.lua" />
+	<movevent event="StepOut" movementid="34" script="main/34.lua" />
+	<movevent event="StepIn" movementid="35" script="main/35.lua" />
+	<movevent event="AddItem" movementid="35" tileitem="1" script="main/35.lua" />
+	<movevent event="StepIn" movementid="36" script="main/36.lua" />
+	<movevent event="StepIn" movementid="37" script="main/37.lua" />
+	<movevent event="StepIn" movementid="38" script="main/38.lua" />
+	<movevent event="AddItem" movementid="38" tileitem="1" script="main/38.lua" />
+	<movevent event="StepIn" movementid="39" script="main/39.lua" />
+	<movevent event="AddItem" movementid="39" tileitem="1" script="main/39.lua" />
+	<movevent event="StepIn" movementid="40" script="main/40.lua" />
+	<movevent event="AddItem" movementid="40" tileitem="1" script="main/40.lua" />
+	<movevent event="StepIn" movementid="41" script="main/41.lua" />
+	<movevent event="AddItem" movementid="41" tileitem="1" script="main/41.lua" />
+	<movevent event="StepIn" movementid="42" script="main/42.lua" />
+	<movevent event="StepIn" movementid="43" script="main/43.lua" />
+	<movevent event="StepIn" movementid="44" script="main/44.lua" />
+	<movevent event="StepOut" movementid="44" script="main/44.lua" />
+	<movevent event="StepIn" movementid="45" script="main/45.lua" />
+	<movevent event="StepOut" movementid="45" script="main/45.lua" />
+	<movevent event="StepIn" movementid="46" script="main/46.lua" />
+	<movevent event="StepIn" movementid="47" script="main/47.lua" />
+	<movevent event="StepIn" movementid="48" script="main/48.lua" />
+	<movevent event="StepIn" movementid="49" script="main/49.lua" />
+	<movevent event="StepIn" movementid="50" script="main/50.lua" />
+	<movevent event="StepIn" movementid="51" script="main/51.lua" />
+	<movevent event="StepIn" movementid="52" script="main/52.lua" />
+	<movevent event="StepIn" movementid="53" script="main/53.lua" />
+	<movevent event="StepIn" movementid="54" script="main/54.lua" />
+	<movevent event="StepIn" movementid="55" script="main/55.lua" />
+	<movevent event="StepIn" movementid="56" script="main/56.lua" />
+	<movevent event="StepIn" movementid="57" script="main/57.lua" />
+	<movevent event="StepIn" movementid="58" script="main/58.lua" />
+	<movevent event="AddItem" movementid="59" tileitem="1" script="main/59.lua" />
+	<movevent event="RemoveItem" movementid="59" tileitem="1" script="main/59.lua" />
+	<movevent event="StepIn" movementid="60" script="main/60.lua" />
+	<movevent event="StepIn" movementid="61" script="main/61.lua" />
+	<movevent event="StepIn" movementid="62" script="main/62.lua" />
+	<movevent event="AddItem" movementid="62" tileitem="1" script="main/62.lua" />
+	<movevent event="StepIn" movementid="63" script="main/63.lua" />
+	<movevent event="AddItem" movementid="63" tileitem="1" script="main/63.lua" />
+	<movevent event="AddItem" movementid="64" tileitem="1" script="main/64.lua" />
+	<movevent event="AddItem" movementid="65" tileitem="1" script="main/65.lua" />
+	<movevent event="AddItem" movementid="66" tileitem="1" script="main/66.lua" />
+	<movevent event="AddItem" movementid="67" tileitem="1" script="main/67.lua" />
+	<movevent event="AddItem" movementid="68" tileitem="1" script="main/68.lua" />
+	<movevent event="AddItem" movementid="69" tileitem="1" script="main/69.lua" />
+	<movevent event="AddItem" movementid="70" tileitem="1" script="main/70.lua" />
+	<movevent event="AddItem" movementid="71" tileitem="1" script="main/71.lua" />
+	<movevent event="AddItem" movementid="72" tileitem="1" script="main/72.lua" />
+	<movevent event="AddItem" movementid="73" tileitem="1" script="main/73.lua" />
+	<movevent event="StepIn" movementid="74" script="main/74.lua" />
+	<movevent event="AddItem" movementid="74" tileitem="1" script="main/74.lua" />
+	<movevent event="StepIn" movementid="75" script="main/75.lua" />
+	<movevent event="AddItem" movementid="75" tileitem="1" script="main/75.lua" />
+	<movevent event="StepIn" movementid="76" script="main/76.lua" />
+	<movevent event="AddItem" movementid="76" tileitem="1" script="main/76.lua" />
+	<movevent event="StepIn" movementid="77" script="main/77.lua" />
+	<movevent event="AddItem" movementid="77" tileitem="1" script="main/77.lua" />
+	<movevent event="StepIn" movementid="78" script="main/78.lua" />
+	<movevent event="AddItem" movementid="78" tileitem="1" script="main/78.lua" />
+	<movevent event="StepIn" movementid="79" script="main/79.lua" />
+	<movevent event="AddItem" movementid="79" tileitem="1" script="main/79.lua" />
+	<movevent event="StepIn" movementid="80" script="main/80.lua" />
+	<movevent event="AddItem" movementid="80" tileitem="1" script="main/80.lua" />
+	<movevent event="StepIn" movementid="81" script="main/81.lua" />
+	<movevent event="AddItem" movementid="81" tileitem="1" script="main/81.lua" />
+	<movevent event="StepIn" movementid="82" script="main/82.lua" />
+	<movevent event="AddItem" movementid="82" tileitem="1" script="main/82.lua" />
+	<movevent event="StepIn" movementid="83" script="main/83.lua" />
+	<movevent event="AddItem" movementid="83" tileitem="1" script="main/83.lua" />
+	<movevent event="StepIn" movementid="84" script="main/84.lua" />
+	<movevent event="AddItem" movementid="84" tileitem="1" script="main/84.lua" />
+	<movevent event="StepIn" movementid="85" script="main/85.lua" />
+	<movevent event="AddItem" movementid="85" tileitem="1" script="main/85.lua" />
+	<movevent event="StepIn" movementid="86" script="main/86.lua" />
+	<movevent event="AddItem" movementid="86" tileitem="1" script="main/86.lua" />
+	<movevent event="StepIn" movementid="87" script="main/87.lua" />
+	<movevent event="AddItem" movementid="87" tileitem="1" script="main/87.lua" />
+	<movevent event="StepIn" movementid="88" script="main/88.lua" />
+	<movevent event="AddItem" movementid="88" tileitem="1" script="main/88.lua" />
+	<movevent event="StepIn" movementid="89" script="main/89.lua" />
+	<movevent event="AddItem" movementid="89" tileitem="1" script="main/89.lua" />
+	<movevent event="StepIn" movementid="90" script="main/90.lua" />
+	<movevent event="AddItem" movementid="90" tileitem="1" script="main/90.lua" />
+	<movevent event="StepIn" movementid="91" script="main/91.lua" />
+	<movevent event="AddItem" movementid="91" tileitem="1" script="main/91.lua" />
+	<movevent event="StepIn" movementid="92" script="main/92.lua" />
+	<movevent event="AddItem" movementid="92" tileitem="1" script="main/92.lua" />
+	<movevent event="StepIn" movementid="93" script="main/93.lua" />
+	<movevent event="AddItem" movementid="93" tileitem="1" script="main/93.lua" />
+	<movevent event="StepIn" movementid="94" script="main/94.lua" />
+	<movevent event="AddItem" movementid="94" tileitem="1" script="main/94.lua" />
+	<movevent event="StepIn" movementid="95" script="main/95.lua" />
+	<movevent event="AddItem" movementid="95" tileitem="1" script="main/95.lua" />
+	<movevent event="StepIn" movementid="96" script="main/96.lua" />
+	<movevent event="AddItem" movementid="96" tileitem="1" script="main/96.lua" />
+	<movevent event="StepIn" movementid="97" script="main/97.lua" />
+	<movevent event="AddItem" movementid="97" tileitem="1" script="main/97.lua" />
+	<movevent event="StepIn" movementid="98" script="main/98.lua" />
+	<movevent event="AddItem" movementid="98" tileitem="1" script="main/98.lua" />
+	<movevent event="StepIn" movementid="99" script="main/99.lua" />
+	<movevent event="AddItem" movementid="99" tileitem="1" script="main/99.lua" />
+	<movevent event="StepIn" movementid="100" script="main/100.lua" />
+	<movevent event="AddItem" movementid="100" tileitem="1" script="main/100.lua" />
+	<movevent event="StepIn" movementid="101" script="main/101.lua" />
+	<movevent event="AddItem" movementid="101" tileitem="1" script="main/101.lua" />
+	<movevent event="StepIn" movementid="102" script="main/102.lua" />
+	<movevent event="AddItem" movementid="102" tileitem="1" script="main/102.lua" />
+	<movevent event="StepIn" movementid="103" script="main/103.lua" />
+	<movevent event="AddItem" movementid="103" tileitem="1" script="main/103.lua" />
+	<movevent event="StepIn" movementid="104" script="main/104.lua" />
+	<movevent event="AddItem" movementid="104" tileitem="1" script="main/104.lua" />
+	<movevent event="StepIn" movementid="105" script="main/105.lua" />
+	<movevent event="AddItem" movementid="105" tileitem="1" script="main/105.lua" />
+	<movevent event="StepIn" movementid="106" script="main/106.lua" />
+	<movevent event="AddItem" movementid="106" tileitem="1" script="main/106.lua" />
+	<movevent event="StepIn" movementid="107" script="main/107.lua" />
+	<movevent event="AddItem" movementid="107" tileitem="1" script="main/107.lua" />
+	<movevent event="StepIn" movementid="108" script="main/108.lua" />
+	<movevent event="AddItem" movementid="108" tileitem="1" script="main/108.lua" />
+	<movevent event="StepIn" movementid="109" script="main/109.lua" />
+	<movevent event="AddItem" movementid="109" tileitem="1" script="main/109.lua" />
+	<movevent event="StepIn" movementid="110" script="main/110.lua" />
+	<movevent event="AddItem" movementid="110" tileitem="1" script="main/110.lua" />
+	<movevent event="StepIn" movementid="111" script="main/111.lua" />
+	<movevent event="AddItem" movementid="111" tileitem="1" script="main/111.lua" />
+	<movevent event="StepIn" movementid="112" script="main/112.lua" />
+	<movevent event="AddItem" movementid="112" tileitem="1" script="main/112.lua" />
+	<movevent event="StepIn" movementid="113" script="main/113.lua" />
+	<movevent event="AddItem" movementid="113" tileitem="1" script="main/113.lua" />
+	<movevent event="StepIn" movementid="114" script="main/114.lua" />
+	<movevent event="AddItem" movementid="114" tileitem="1" script="main/114.lua" />
+	<movevent event="StepIn" movementid="115" script="main/115.lua" />
+	<movevent event="AddItem" movementid="115" tileitem="1" script="main/115.lua" />
+	<movevent event="StepIn" movementid="116" script="main/116.lua" />
+	<movevent event="AddItem" movementid="116" tileitem="1" script="main/116.lua" />
+	<movevent event="StepIn" movementid="117" script="main/117.lua" />
+	<movevent event="AddItem" movementid="117" tileitem="1" script="main/117.lua" />
+	<movevent event="StepIn" movementid="118" script="main/118.lua" />
+	<movevent event="AddItem" movementid="118" tileitem="1" script="main/118.lua" />
+	<movevent event="StepIn" movementid="119" script="main/119.lua" />
+	<movevent event="AddItem" movementid="119" tileitem="1" script="main/119.lua" />
+	<movevent event="StepIn" movementid="120" script="main/120.lua" />
+	<movevent event="AddItem" movementid="120" tileitem="1" script="main/120.lua" />
+	<movevent event="StepIn" movementid="121" script="main/121.lua" />
+	<movevent event="AddItem" movementid="121" tileitem="1" script="main/121.lua" />
+	<movevent event="StepIn" movementid="122" script="main/122.lua" />
+	<movevent event="AddItem" movementid="122" tileitem="1" script="main/122.lua" />
+	<movevent event="StepIn" movementid="123" script="main/123.lua" />
+	<movevent event="AddItem" movementid="123" tileitem="1" script="main/123.lua" />
+	<movevent event="StepIn" movementid="124" script="main/124.lua" />
+	<movevent event="AddItem" movementid="124" tileitem="1" script="main/124.lua" />
+	<movevent event="StepIn" movementid="125" script="main/125.lua" />
+	<movevent event="AddItem" movementid="125" tileitem="1" script="main/125.lua" />
+	<movevent event="StepIn" movementid="126" script="main/126.lua" />
+	<movevent event="AddItem" movementid="126" tileitem="1" script="main/126.lua" />
+	<movevent event="StepIn" movementid="127" script="main/127.lua" />
+	<movevent event="AddItem" movementid="127" tileitem="1" script="main/127.lua" />
+	<movevent event="StepIn" movementid="128" script="main/128.lua" />
+	<movevent event="AddItem" movementid="128" tileitem="1" script="main/128.lua" />
+	<movevent event="StepIn" movementid="129" script="main/129.lua" />
+	<movevent event="AddItem" movementid="129" tileitem="1" script="main/129.lua" />
+	<movevent event="StepIn" movementid="130" script="main/130.lua" />
+	<movevent event="AddItem" movementid="130" tileitem="1" script="main/130.lua" />
+	<movevent event="StepIn" movementid="131" script="main/131.lua" />
+	<movevent event="AddItem" movementid="131" tileitem="1" script="main/131.lua" />
+	<movevent event="StepIn" movementid="132" script="main/132.lua" />
+	<movevent event="AddItem" movementid="132" tileitem="1" script="main/132.lua" />
+	<movevent event="StepIn" movementid="133" script="main/133.lua" />
+	<movevent event="AddItem" movementid="133" tileitem="1" script="main/133.lua" />
+	<movevent event="StepIn" movementid="134" script="main/134.lua" />
+	<movevent event="StepIn" movementid="135" script="main/135.lua" />
+	<movevent event="StepIn" movementid="136" script="main/136.lua" />
+	<movevent event="AddItem" movementid="136" tileitem="1" script="main/136.lua" />
+	<movevent event="StepIn" movementid="137" script="main/137.lua" />
+	<movevent event="StepIn" movementid="138" script="main/138.lua" />
+	<movevent event="StepIn" movementid="139" script="main/139.lua" />
+	<movevent event="StepIn" movementid="140" script="main/140.lua" />
+	<movevent event="StepIn" movementid="141" script="main/141.lua" />
+	<movevent event="AddItem" movementid="141" tileitem="1" script="main/141.lua" />
+	<movevent event="StepIn" movementid="142" script="main/142.lua" />
+	<movevent event="StepIn" movementid="143" script="main/143.lua" />
+	<movevent event="AddItem" movementid="143" tileitem="1" script="main/143.lua" />
+	<movevent event="StepIn" movementid="144" script="main/144.lua" />
+	<movevent event="AddItem" movementid="144" tileitem="1" script="main/144.lua" />
+	<movevent event="StepIn" movementid="145" script="main/145.lua" />
+	<movevent event="AddItem" movementid="145" tileitem="1" script="main/145.lua" />
+	<movevent event="StepIn" movementid="146" script="main/146.lua" />
+	<movevent event="AddItem" movementid="146" tileitem="1" script="main/146.lua" />
+	<movevent event="StepIn" movementid="147" script="main/147.lua" />
+	<movevent event="AddItem" movementid="147" tileitem="1" script="main/147.lua" />
+	<movevent event="StepIn" movementid="148" script="main/148.lua" />
+	<movevent event="AddItem" movementid="148" tileitem="1" script="main/148.lua" />
+	<movevent event="StepIn" movementid="149" script="main/149.lua" />
+	<movevent event="AddItem" movementid="149" tileitem="1" script="main/149.lua" />
+	<movevent event="StepIn" movementid="150" script="main/150.lua" />
+	<movevent event="StepIn" movementid="151" script="main/151.lua" />
+	<movevent event="AddItem" movementid="151" tileitem="1" script="main/151.lua" />
+	<movevent event="StepIn" movementid="152" script="main/152.lua" />
+	<movevent event="AddItem" movementid="152" tileitem="1" script="main/152.lua" />
+	<movevent event="StepIn" movementid="153" script="main/153.lua" />
+	<movevent event="StepIn" movementid="154" script="main/154.lua" />
+	<movevent event="StepIn" movementid="155" script="main/155.lua" />
+	<movevent event="AddItem" movementid="155" tileitem="1" script="main/155.lua" />
+	<movevent event="StepIn" movementid="156" script="main/156.lua" />
+	<movevent event="AddItem" movementid="156" tileitem="1" script="main/156.lua" />
+	<movevent event="StepIn" movementid="157" script="main/157.lua" />
+	<movevent event="AddItem" movementid="157" tileitem="1" script="main/157.lua" />
+	<movevent event="StepIn" movementid="158" script="main/158.lua" />
+	<movevent event="AddItem" movementid="158" tileitem="1" script="main/158.lua" />
+	<movevent event="StepIn" movementid="159" script="main/159.lua" />
+	<movevent event="StepIn" movementid="160" script="main/160.lua" />
+	<movevent event="AddItem" movementid="160" tileitem="1" script="main/160.lua" />
+	<movevent event="StepIn" movementid="161" script="main/161.lua" />
+	<movevent event="AddItem" movementid="161" tileitem="1" script="main/161.lua" />
+	<movevent event="StepIn" movementid="162" script="main/162.lua" />
+	<movevent event="AddItem" movementid="162" tileitem="1" script="main/162.lua" />
+	<movevent event="StepIn" movementid="163" script="main/163.lua" />
+	<movevent event="AddItem" movementid="163" tileitem="1" script="main/163.lua" />
+	<movevent event="StepIn" movementid="164" script="main/164.lua" />
+	<movevent event="AddItem" movementid="164" tileitem="1" script="main/164.lua" />
+	<movevent event="StepIn" movementid="165" script="main/165.lua" />
+	<movevent event="AddItem" movementid="165" tileitem="1" script="main/165.lua" />
+	<movevent event="StepIn" movementid="166" script="main/166.lua" />
+	<movevent event="AddItem" movementid="166" tileitem="1" script="main/166.lua" />
+	<movevent event="StepIn" movementid="167" script="main/167.lua" />
+	<movevent event="AddItem" movementid="167" tileitem="1" script="main/167.lua" />
+	<movevent event="StepIn" movementid="168" script="main/168.lua" />
+	<movevent event="AddItem" movementid="168" tileitem="1" script="main/168.lua" />
+	<movevent event="StepIn" movementid="169" script="main/169.lua" />
+	<movevent event="AddItem" movementid="169" tileitem="1" script="main/169.lua" />
+	<movevent event="StepIn" movementid="170" script="main/170.lua" />
+	<movevent event="AddItem" movementid="170" tileitem="1" script="main/170.lua" />
+	<movevent event="StepIn" movementid="171" script="main/171.lua" />
+	<movevent event="StepIn" movementid="172" script="main/172.lua" />
+	<movevent event="StepIn" movementid="173" script="main/173.lua" />
+	<movevent event="StepIn" movementid="174" script="main/174.lua" />
+	<movevent event="StepIn" movementid="175" script="main/175.lua" />
+	<movevent event="StepIn" movementid="176" script="main/176.lua" />
+	<movevent event="StepIn" movementid="177" script="main/177.lua" />
+	<movevent event="StepIn" movementid="178" script="main/178.lua" />
+	<movevent event="StepIn" movementid="179" script="main/179.lua" />
+	<movevent event="StepIn" movementid="180" script="main/180.lua" />
+	<movevent event="StepIn" movementid="181" script="main/181.lua" />
+	<movevent event="StepIn" movementid="182" script="main/182.lua" />
+	<movevent event="StepIn" movementid="183" script="main/183.lua" />
+	<movevent event="StepIn" movementid="184" script="main/184.lua" />
+	<movevent event="AddItem" movementid="184" tileitem="1" script="main/184.lua" />
+	<movevent event="StepIn" movementid="185" script="main/185.lua" />
+	<movevent event="StepIn" movementid="186" script="main/186.lua" />
+	<movevent event="AddItem" movementid="186" tileitem="1" script="main/186.lua" />
+	<movevent event="StepIn" movementid="187" script="main/187.lua" />
+	<movevent event="StepIn" movementid="188" script="main/188.lua" />
+	<movevent event="StepIn" movementid="189" script="main/189.lua" />
+	<movevent event="StepIn" movementid="190" script="main/190.lua" />
+	<movevent event="StepIn" movementid="191" script="main/191.lua" />
+	<movevent event="StepIn" movementid="192" script="main/192.lua" />
+	<movevent event="StepIn" movementid="193" script="main/193.lua" />
+	<movevent event="AddItem" movementid="193" tileitem="1" script="main/193.lua" />
+	<movevent event="StepIn" movementid="194" script="main/194.lua" />
+	<movevent event="StepIn" movementid="195" script="main/195.lua" />
+	<movevent event="StepIn" movementid="196" script="main/196.lua" />
+	<movevent event="AddItem" movementid="196" tileitem="1" script="main/196.lua" />
+	<movevent event="StepIn" movementid="197" script="main/197.lua" />
+	<movevent event="AddItem" movementid="197" tileitem="1" script="main/197.lua" />
+	<movevent event="StepIn" movementid="198" script="main/198.lua" />
+	<movevent event="AddItem" movementid="198" tileitem="1" script="main/198.lua" />
+	<movevent event="StepIn" movementid="199" script="main/199.lua" />
+	<movevent event="AddItem" movementid="199" tileitem="1" script="main/199.lua" />
+	<movevent event="StepIn" movementid="200" script="main/200.lua" />
+	<movevent event="AddItem" movementid="200" tileitem="1" script="main/200.lua" />
+	<movevent event="StepIn" movementid="201" script="main/201.lua" />
+	<movevent event="AddItem" movementid="201" tileitem="1" script="main/201.lua" />
+	<movevent event="StepIn" movementid="202" script="main/202.lua" />
+	<movevent event="AddItem" movementid="202" tileitem="1" script="main/202.lua" />
+	<movevent event="StepIn" movementid="203" script="main/203.lua" />
+	<movevent event="AddItem" movementid="203" tileitem="1" script="main/203.lua" />
+	<movevent event="StepIn" movementid="204" script="main/204.lua" />
+	<movevent event="AddItem" movementid="204" tileitem="1" script="main/204.lua" />
+	<movevent event="StepIn" movementid="205" script="main/205.lua" />
+	<movevent event="AddItem" movementid="205" tileitem="1" script="main/205.lua" />
+	<movevent event="StepIn" movementid="206" script="main/206.lua" />
+	<movevent event="AddItem" movementid="206" tileitem="1" script="main/206.lua" />
+	<movevent event="StepIn" movementid="207" script="main/207.lua" />
+	<movevent event="AddItem" movementid="207" tileitem="1" script="main/207.lua" />
+	<movevent event="StepIn" movementid="208" script="main/208.lua" />
+	<movevent event="AddItem" movementid="208" tileitem="1" script="main/208.lua" />
+	<movevent event="StepIn" movementid="209" script="main/209.lua" />
+	<movevent event="StepIn" movementid="210" script="main/210.lua" />
+	<movevent event="StepIn" movementid="211" script="main/211.lua" />
+	<movevent event="AddItem" movementid="211" tileitem="1" script="main/211.lua" />
+	<movevent event="StepIn" movementid="212" script="main/212.lua" />
+	<movevent event="AddItem" movementid="212" tileitem="1" script="main/212.lua" />
+	<movevent event="StepIn" movementid="213" script="main/213.lua" />
+	<movevent event="AddItem" movementid="213" tileitem="1" script="main/213.lua" />
+	<movevent event="StepIn" movementid="214" script="main/214.lua" />
+	<movevent event="AddItem" movementid="214" tileitem="1" script="main/214.lua" />
+	<movevent event="StepIn" movementid="215" script="main/215.lua" />
+	<movevent event="AddItem" movementid="215" tileitem="1" script="main/215.lua" />
+	<movevent event="StepIn" movementid="216" script="main/216.lua" />
+	<movevent event="AddItem" movementid="216" tileitem="1" script="main/216.lua" />
+	<movevent event="StepIn" movementid="217" script="main/217.lua" />
+	<movevent event="AddItem" movementid="217" tileitem="1" script="main/217.lua" />
+	<movevent event="StepIn" movementid="218" script="main/218.lua" />
+	<movevent event="AddItem" movementid="218" tileitem="1" script="main/218.lua" />
+	<movevent event="StepIn" movementid="219" script="main/219.lua" />
+	<movevent event="AddItem" movementid="219" tileitem="1" script="main/219.lua" />
+	<movevent event="StepIn" movementid="220" script="main/220.lua" />
+	<movevent event="AddItem" movementid="220" tileitem="1" script="main/220.lua" />
+	<movevent event="StepIn" movementid="221" script="main/221.lua" />
+	<movevent event="AddItem" movementid="221" tileitem="1" script="main/221.lua" />
+	<movevent event="StepIn" movementid="222" script="main/222.lua" />
+	<movevent event="AddItem" movementid="222" tileitem="1" script="main/222.lua" />
+	<movevent event="StepIn" movementid="223" script="main/223.lua" />
+	<movevent event="AddItem" movementid="223" tileitem="1" script="main/223.lua" />
+	<movevent event="StepIn" movementid="224" script="main/224.lua" />
+	<movevent event="AddItem" movementid="224" tileitem="1" script="main/224.lua" />
+	<movevent event="StepIn" movementid="225" script="main/225.lua" />
+	<movevent event="AddItem" movementid="225" tileitem="1" script="main/225.lua" />
+	<movevent event="StepIn" movementid="226" script="main/226.lua" />
+	<movevent event="AddItem" movementid="226" tileitem="1" script="main/226.lua" />
+	<movevent event="StepIn" movementid="227" script="main/227.lua" />
+	<movevent event="AddItem" movementid="227" tileitem="1" script="main/227.lua" />
+	<movevent event="StepIn" movementid="228" script="main/228.lua" />
+	<movevent event="AddItem" movementid="228" tileitem="1" script="main/228.lua" />
+	<movevent event="StepIn" movementid="229" script="main/229.lua" />
+	<movevent event="AddItem" movementid="229" tileitem="1" script="main/229.lua" />
+	<movevent event="StepIn" movementid="230" script="main/230.lua" />
+	<movevent event="StepOut" movementid="230" script="main/230.lua" />
+	<movevent event="StepIn" movementid="231" script="main/231.lua" />
+	<movevent event="StepIn" movementid="232" script="main/232.lua" />
+	<movevent event="StepOut" movementid="232" script="main/232.lua" />
+	<movevent event="StepIn" movementid="233" script="main/233.lua" />
+	<movevent event="StepOut" movementid="233" script="main/233.lua" />
+	<movevent event="RemoveItem" movementid="234" tileitem="1" script="main/234.lua" />
+	<movevent event="StepIn" movementid="236" script="main/236.lua" />
+	<movevent event="AddItem" movementid="236" tileitem="1" script="main/236.lua" />
+	<movevent event="StepIn" movementid="237" script="main/237.lua" />
+	<movevent event="AddItem" movementid="237" tileitem="1" script="main/237.lua" />
+	<movevent event="StepIn" movementid="238" script="main/238.lua" />
+	<movevent event="AddItem" movementid="238" tileitem="1" script="main/238.lua" />
+	<movevent event="StepIn" movementid="239" script="main/239.lua" />
+	<movevent event="AddItem" movementid="239" tileitem="1" script="main/239.lua" />
+	<movevent event="StepIn" movementid="240" script="main/240.lua" />
+	<movevent event="StepIn" movementid="241" script="main/241.lua" />
+	<movevent event="StepIn" movementid="242" script="main/242.lua" />
+	<movevent event="StepIn" movementid="243" script="main/243.lua" />
+	<movevent event="StepIn" movementid="244" script="main/244.lua" />
+	<movevent event="StepIn" movementid="245" script="main/245.lua" />
+	<movevent event="StepIn" movementid="246" script="main/246.lua" />
+	<movevent event="StepIn" movementid="247" script="main/247.lua" />
+	<movevent event="AddItem" movementid="248" tileitem="1" script="main/248.lua" />	
+	<movevent event="StepIn" movementid="249" script="main/249.lua" />
+	<movevent event="StepIn" movementid="250" script="main/250.lua" />
+	<movevent event="StepIn" movementid="1100" script="main/1100.lua" />
+	<movevent event="StepIn" movementid="1101" script="main/1101.lua" />
+	<movevent event="StepIn" movementid="1102" script="main/1102.lua" />
+	<movevent event="StepIn" movementid="1103" script="main/1103.lua" />
+	<movevent event="StepIn" movementid="1104" script="main/1104.lua" />
+	<movevent event="StepOut" movementid="1104" script="main/1104.lua" />
+	<movevent event="StepIn" movementid="1105" script="main/1105.lua" />
+	<movevent event="AddItem" movementid="1105" tileitem="1" script="main/1105.lua" />
+	<movevent event="StepIn" movementid="1106" script="main/1106.lua" />
+	<movevent event="AddItem" movementid="1106" tileitem="1" script="main/1106.lua" />
+	<movevent event="StepIn" movementid="1107" script="main/1107.lua" />
+	<movevent event="AddItem" movementid="1107" tileitem="1" script="main/1107.lua" />
+	<movevent event="StepIn" movementid="1108" script="main/1108.lua" />
+	<movevent event="AddItem" movementid="1108" tileitem="1" script="main/1108.lua" />
+	<movevent event="StepIn" movementid="1109" script="main/1109.lua" />
+	<movevent event="AddItem" movementid="1109" tileitem="1" script="main/1109.lua" />
+	<movevent event="StepIn" movementid="1110" script="main/1110.lua" />
+	<movevent event="AddItem" movementid="1110" tileitem="1" script="main/1110.lua" />
+	<movevent event="StepIn" movementid="1111" script="main/1111.lua" />
+	<movevent event="AddItem" movementid="1111" tileitem="1" script="main/1111.lua" />
+	<movevent event="StepIn" movementid="1112" script="main/1112.lua" />
+	<movevent event="AddItem" movementid="1112" tileitem="1" script="main/1112.lua" />
+	<movevent event="StepIn" movementid="1113" script="main/1113.lua" />
+	<movevent event="AddItem" movementid="1113" tileitem="1" script="main/1113.lua" />
+	<movevent event="StepIn" movementid="1114" script="main/1114.lua" />
+	<movevent event="AddItem" movementid="1114" tileitem="1" script="main/1114.lua" />
+	<movevent event="StepIn" movementid="1115" script="main/1115.lua" />
+	<movevent event="AddItem" movementid="1115" tileitem="1" script="main/1115.lua" />
+	<movevent event="StepIn" movementid="1116" script="main/1116.lua" />
+	<movevent event="AddItem" movementid="1116" tileitem="1" script="main/1116.lua" />
+	<movevent event="StepIn" movementid="1117" script="main/1117.lua" />
+	<movevent event="AddItem" movementid="1117" tileitem="1" script="main/1117.lua" />
+	<movevent event="StepIn" movementid="1118" script="main/1118.lua" />
+	<movevent event="AddItem" movementid="1118" tileitem="1" script="main/1118.lua" />
+	<movevent event="StepIn" movementid="1119" script="main/1119.lua" />
+	<movevent event="AddItem" movementid="1119" tileitem="1" script="main/1119.lua" />
+	<movevent event="StepIn" movementid="1120" script="main/1120.lua" />
+	<movevent event="AddItem" movementid="1120" tileitem="1" script="main/1120.lua" />
+	<movevent event="StepIn" movementid="1121" script="main/1121.lua" />
+	<movevent event="AddItem" movementid="1121" tileitem="1" script="main/1121.lua" />
+	<movevent event="StepIn" movementid="2000" script="main/2000.lua" />
+	<movevent event="AddItem" movementid="2000" tileitem="1" script="main/2000.lua" />
+	<movevent event="StepIn" movementid="2001" script="main/2001.lua" />
+	<movevent event="AddItem" movementid="2001" tileitem="1" script="main/2001.lua" />
+	<movevent event="StepIn" movementid="2002" script="main/2002.lua" />
+	<movevent event="AddItem" movementid="2002" tileitem="1" script="main/2002.lua" />
+	<movevent event="StepIn" movementid="2003" script="main/2003.lua" />
+	<movevent event="AddItem" movementid="2003" tileitem="1" script="main/2003.lua" />
+	
+	<movevent event="StepIn" movementid="2005" script="main/2005.lua" />
+	<movevent event="AddItem" movementid="2005" tileitem="1" script="main/2005.lua" />
+	
+	<movevent event="StepIn" movementid="2006" script="main/2006.lua" />
+	<movevent event="AddItem" movementid="2006" tileitem="1" script="main/2006.lua" />
+	
+	<movevent event="StepIn" movementid="2007" script="main/2007.lua" />
+	<movevent event="AddItem" movementid="2007" tileitem="1" script="main/2007.lua" />
+	
+	<movevent event="StepIn" movementid="2008" script="main/2008.lua" />
+	<movevent event="AddItem" movementid="2008" tileitem="1" script="main/2008.lua" />
+	
+	<movevent event="StepIn" movementid="2009" script="main/2009.lua" />
+	<movevent event="AddItem" movementid="2009" tileitem="1" script="main/2009.lua" />
+	
+	<movevent event="StepIn" movementid="2010" script="main/2010.lua" />
+	<movevent event="AddItem" movementid="2010" tileitem="1" script="main/2010.lua" />
+	
+	<movevent event="StepIn" movementid="2011" script="main/2011.lua" />
+	<movevent event="AddItem" movementid="2011" tileitem="1" script="main/2011.lua" />
+	
+	<movevent event="StepIn" movementid="2012" script="main/2012.lua" />
+	<movevent event="AddItem" movementid="2012" tileitem="1" script="main/2012.lua" />
+	
+	<!-- main Default Movements -->
+
+	<!-- Floorchange -->
+	<movevent event="StepIn" itemid="293" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="293" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="294" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="294" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="369" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="369" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="370" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="370" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="385" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="385" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="394" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="394" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="411" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="411" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="412" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="412" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="413" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="413" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="414" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="414" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="428" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="428" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="4823" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="4823" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="4824" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="4824" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="4825" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="4825" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="4826" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="4826" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="432" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="432" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="433" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="433" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="434" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="434" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="437" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="437" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="438" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="438" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="451" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="451" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="465" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="465" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="466" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="466" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="467" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="467" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="471" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="471" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="472" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="472" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="473" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="473" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="474" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="474" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="475" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="475" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="476" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="476" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="482" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="482" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="5081" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="5081" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="483" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="483" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="484" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="484" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="485" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="485" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="566" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="566" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="567" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="567" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="594" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="594" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="595" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="595" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="600" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="600" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="601" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="601" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="604" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="604" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="605" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="605" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="607" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="607" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="609" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="609" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="610" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="610" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="615" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="615" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1066" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1066" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1067" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1067" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1080" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1080" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1156" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1156" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1947" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1947" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1950" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1950" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1952" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1952" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1954" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1954" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1956" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1956" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1958" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1958" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1960" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1960" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1962" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1962" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1964" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1964" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1966" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1966" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1969" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1969" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1971" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1971" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1973" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1973" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1975" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1975" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1977" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1977" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="1978" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="1978" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="2192" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="2192" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="2194" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="2194" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="2196" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="2196" tileitem="1" script="others/floorchange.lua" />
+	<movevent event="StepIn" itemid="2198" script="others/floorchange.lua" />
+	<movevent event="AddItem" itemid="2198" tileitem="1" script="others/floorchange.lua" />
+	
+	<!-- Damage -->
+	<movevent event="StepIn" itemid="2145" script="others/damage.lua" />
+	<movevent event="StepIn" itemid="2146" script="others/damage.lua" />
+	<movevent event="StepIn" itemid="2148" script="others/damage.lua" />
+	<movevent event="StepIn" itemid="3482" script="others/damage.lua" />
+	<movevent event="StepIn" itemid="3944" script="others/damage.lua" />
+	
+	
+	<!-- Liquid Deletions -->
+	<movevent event="AddItem" fromid="727" toid="730" tileitem="1" script="others/lava.lua" />
+	<movevent event="AddItem" fromid="837" toid="840" tileitem="1" script="others/tar.lua" />
+	<movevent event="AddItem" fromid="4680" toid="4701" tileitem="1" script="others/swamp.lua" />
+	<movevent event="AddItem" fromid="4738" toid="4744" tileitem="1" script="others/swamp.lua" />
+	<movevent event="AddItem" fromid="4874" toid="4880" tileitem="1" script="others/swamp.lua" />
+	<movevent event="AddItem" fromid="4597" toid="4602" tileitem="1" script="others/water.lua" />
+	<movevent event="AddItem" fromid="4609" toid="4620" tileitem="1" script="others/water.lua" />
+	<movevent event="AddItem" fromid="4809" toid="4814" tileitem="1" script="others/water.lua" />
+	<movevent event="AddItem" fromid="4653" toid="4655" tileitem="1" script="others/water.lua" />
+	<movevent event="AddItem" fromid="1718" toid="1721" tileitem="1" script="others/water.lua" />
+	<movevent event="AddItem" itemid="622" tileitem="1" script="others/water.lua" />
+		
+	<!-- Miscellaneous -->
+	<movevent event="StepIn" itemid="478" script="others/sandstone_wall.lua" />
+	<movevent event="AddItem" itemid="478" tileitem="1" script="others/sandstone_wall.lua" />
+	<movevent event="StepOut" itemid="479" script="others/sandstone_wall.lua" />
+	<movevent event="RemoveItem" itemid="479" tileitem="1" script="others/sandstone_wall.lua" />
+	<movevent event="StepIn" itemid="480" script="others/sandstone_wall.lua" />
+	<movevent event="AddItem" itemid="480" tileitem="1" script="others/sandstone_wall.lua" />
+	<movevent event="StepOut" itemid="481" script="others/sandstone_wall.lua" />
+	<movevent event="RemoveItem" itemid="481" tileitem="1" script="others/sandstone_wall.lua" />
+	<movevent event="AddItem" itemid="2526" tileitem="1" script="others/dustbin.lua" />
+	<movevent event="AddItem" itemid="5155" tileitem="1" script="others/dustbin2.lua" />
+	<movevent event="RemoveItem" itemid="2927" script="others/candelabrum.lua" />
+	<!--<movevent event="RemoveItem" itemid="3482" script="others/open_trap.lua" /> -->
+	
+	<!--Doors -->
+	<movevent event="StepOut" itemid="1643" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1647" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1661" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1665" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1675" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1679" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1697" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1699" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1645" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1649" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1663" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1667" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1677" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1681" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1688" script="others/doors.lua" />
+	<movevent event="StepOut" itemid="1690" script="others/doors.lua" />
+	
+	<!-- Magic Fields -->
+	<movevent event="StepIn" itemid="1998"  function="onStepInField" />
+	<movevent event="AddItem" itemid="1998" function="onAddField" />
+	<movevent event="StepIn" itemid="1999"  function="onStepInField" />
+	<movevent event="AddItem" itemid="1999" function="onAddField" />
+	<movevent event="StepIn" itemid="2000"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2000" function="onAddField" />
+	<movevent event="StepIn" itemid="2118"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2118" function="onAddField" />
+	<movevent event="StepIn" itemid="2119"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2119" function="onAddField" />
+	<movevent event="StepIn" itemid="2121"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2121" function="onAddField" />
+	<movevent event="StepIn" itemid="2122"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2122" function="onAddField" />
+	<movevent event="StepIn" itemid="2123"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2123" function="onAddField" />
+	<movevent event="StepIn" itemid="2124"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2124" function="onAddField" />
+	<movevent event="StepIn" itemid="2126"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2126" function="onAddField" />
+	<movevent event="StepIn" itemid="2127"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2127" function="onAddField" />
+	<movevent event="StepIn" itemid="2128"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2128" function="onAddField" />
+	<movevent event="StepIn" itemid="2130"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2130" function="onAddField" />
+	<movevent event="StepIn" itemid="2131"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2131" function="onAddField" />
+	<movevent event="StepIn" itemid="2132"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2132" function="onAddField" />
+	<movevent event="StepIn" itemid="2134"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2134" function="onAddField" />
+	<movevent event="StepIn" itemid="2135"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2135" function="onAddField" />
+	<movevent event="StepIn" itemid="2137"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2137" function="onAddField" />
+	<movevent event="StepIn" itemid="2138"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2138" function="onAddField" />
+	<movevent event="StepIn" itemid="2141"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2141" function="onAddField" />
+	<movevent event="StepIn" itemid="2142"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2142" function="onAddField" />
+	<movevent event="StepIn" itemid="2143"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2143" function="onAddField" />
+	<movevent event="StepIn" itemid="2149"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2149" function="onAddField" />
+	<movevent event="StepIn" itemid="2150"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2150" function="onAddField" />
+	<movevent event="StepIn" itemid="2151"  function="onStepInField" />
+	<movevent event="AddItem" itemid="2151" function="onAddField" />
+	
+	<!-- Helmet -->
+	<movevent event="Equip" itemid="5104" slot="head" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5104" slot="head" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3393" slot="head" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3393" slot="head" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3396" slot="head" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3396" slot="head" function="onDeEquipItem" />
+	
+	<!-- Armor -->
+	<movevent event="Equip" itemid="5105" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5105" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="5108" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5108" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="5107" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5107" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="5109" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5109" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3366" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3366" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3388" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3388" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3394" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3394" slot="armor" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3397" slot="armor" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3397" slot="armor" function="onDeEquipItem" />
+	
+	<!-- Shield -->
+	<movevent event="Equip" itemid="5124" slot="hand" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5124" slot="hand" function="onDeEquipItem" />
+	
+	<movevent event="Equip" itemid="3321" slot="hand" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3321" slot="hand" function="onDeEquipItem" />
+	
+	
+	<!-- Legs -->
+	<movevent event="Equip" itemid="3364" slot="legs" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3364" slot="legs" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3389" slot="legs" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3389" slot="legs" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3398" slot="legs" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3398" slot="legs" function="onDeEquipItem" />
+
+	<!-- Boots -->
+	<movevent event="Equip" itemid="3554" slot="feet" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3554" slot="feet" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3079" slot="feet" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3079" slot="feet" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="5101" slot="feet" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5101" slot="feet" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3549" slot="feet" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3549" slot="feet" function="onDeEquipItem" />
+	
+	<!-- Amulets -->
+	<movevent event="Equip" itemid="5247" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5247" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3045" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3045" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3054" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3054" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3056" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3056" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3081" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3081" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3082" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3082" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3083" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3083" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3084" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3084" slot="necklace" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3085" slot="necklace" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3085" slot="necklace" function="onDeEquipItem" />
+	
+	<!-- Rings -->
+	<movevent event="Equip" itemid="5102" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5102" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="5103" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="5103" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3049" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3086" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3086" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3050" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3087" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3087" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3051" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3088" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3088" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3052" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3089" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3089" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3053" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3090" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3090" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3091" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3094" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3094" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3092" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3095" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3095" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3093" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3096" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3096" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3097" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3099" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3099" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3098" slot="ring" function="onEquipItem" />
+	<movevent event="Equip" itemid="3100" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3100" slot="ring" function="onDeEquipItem" />
+	<movevent event="Equip" itemid="3048" slot="ring" function="onEquipItem" />
+	<movevent event="DeEquip" itemid="3048" slot="ring" function="onDeEquipItem" />
+</movements>

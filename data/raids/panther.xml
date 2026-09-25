@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<raid>
+	<areaspawn delay="3000" lifetime="7200000" radius="4" centerx="32915" centery="32512" centerz="7">
+		<monster name="Midnight Panther" minamount="1" maxamount="1"/>
+	</areaspawn>
+</raid>

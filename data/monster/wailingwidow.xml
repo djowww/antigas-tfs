@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<monster name="Wailing Widow" nameDescription="a Wailing Widow" race="venom" experience="450" speed="220" manacost="0">
+	<health now="850" max="850" />
+	<look type="239" head="0" body="0" legs="0" feet="0" corpse="5220" />
+	<targetchange interval="4000" chance="10" />
+	<targetstrategy nearest="70" weakest="0" mostdamage="30" random="0" />
+	<flags>
+		<flag summonable="0" />
+		<flag attackable="1" />
+		<flag hostile="1" />
+		<flag illusionable="1" />
+		<flag convinceable="0" />
+		<flag pushable="0" />
+		<flag canpushitems="1" />
+		<flag canpushcreatures="1" />
+		<flag targetdistance="1" />
+		<flag staticattack="90" />
+		<flag runonhealth="0" />
+	</flags>
+	<attacks>
+		<attack name="melee" interval="2000" chance="0" skill="50" attack="45" />
+		<attack name="lifedrain" min="-40" max="-70" range="1" interval="1000" chance="10" />
+		<attack name="earth" interval="2000" chance="15" range="7" min="-60" max="-110">
+			<attribute key="shootEffect" value="poison" />
+		</attack>
+	</attacks>
+	<defenses armor="20" defense="20">
+	</defenses>
+	<immunities>
+		<immunity fire="1" />
+		<immunity lifedrain="1" />
+		<immunity paralyze="1" />
+		<immunity poison="1" />
+	</immunities>
+	<loot>
+		<item id="3305" countmax="1" chance="30" /> <!-- a battle hammer -->
+		<item id="3413" countmax="1" chance="10" /> <!-- a battle shield -->
+		<item id="3031" countmax="100" chance="400" /> <!-- a gold coin -->
+		<item id="3031" countmax="37" chance="300" /> <!-- a gold coin -->
+		<item id="3269" countmax="1" chance="40" /> <!-- a guardian shield -->
+		<item id="3410" countmax="1" chance="20" /> <!-- an iron helmet -->
+	</loot>
+</monster>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<monster name="Wild Warrior" nameDescription="a wild warrior" race="blood" experience="55" speed="190" manacost="420">
+	<health now="120" max="120" />
+	<look type="131" head="38" body="38" legs="38" feet="38" corpse="4240" />
+	<targetchange interval="1000" chance="0" />
+	<targetstrategy nearest="100" weakest="0" mostdamage="0" random="0" />
+	<flags>
+		<flag summonable="1" />
+		<flag attackable="1" />
+		<flag hostile="1" />
+		<flag illusionable="1" />
+		<flag convinceable="1" />
+		<flag pushable="1" />
+		<flag canpushitems="0" />
+		<flag canpushcreatures="0" />
+		<flag targetdistance="1" />
+		<flag staticattack="85" />
+		<flag runonhealth="10" />
+	</flags>
+	<attacks>
+		<attack name="melee" interval="2000" chance="0" skill="46" attack="16" />
+	</attacks>
+	<defenses armor="9" defense="18">
+	</defenses>
+	<voices interval="5000" chance="10">
+		<voice sentence="An enemy!" />
+		<voice sentence="Gimme your money!" />
+	</voices>
+	<loot>
+		<item id="3274" countmax="1" chance="300" /> <!-- an axe -->
+		<item id="3359" countmax="1" chance="25" /> <!-- a brass armor -->
+		<item id="3411" countmax="1" chance="170" /> <!-- a brass shield -->
+		<item id="3352" countmax="1" chance="50" /> <!-- a chain helmet -->
+		<item id="2991" countmax="1" chance="5" /> <!-- a doll -->
+		<item id="3031" countmax="20" chance="400" /> <!-- a gold coin -->
+		<item id="3031" countmax="10" chance="150" /> <!-- a gold coin -->
+		<item id="3353" countmax="1" chance="5" /> <!-- an iron helmet -->
+		<item id="3559" countmax="1" chance="150" /> <!-- leather legs -->
+		<item id="3286" countmax="1" chance="100" /> <!-- a mace -->
+		<item id="3577" countmax="1" chance="400" /> <!-- meat -->
+		<item id="3409" countmax="1" chance="10" /> <!-- a steel shield -->
+		<item id="3279" countmax="1" chance="1" /> <!-- a war hammer -->
+	</loot>
+</monster>

@@ -1,0 +1,84 @@
+# GIMUD - Graphical Interface Multi User Dungeon
+# sandra.npc: Datenbank für die Trankhändlerin Sandra
+
+Name = "Sandra"
+Outfit = (137,115-63-95-38)
+Home = [33258,31840,7]
+Radius = 2
+
+Behaviour = {
+ADDRESS,"hello$",! -> "Hello %N."
+ADDRESS,"hi$",!    -> *
+ADDRESS,!          -> Idle
+BUSY,"hello$",!    -> "Sorry %N, I am busy right now. Please wait a moment.", Queue
+BUSY,"hi$",!       -> *
+BUSY,!             -> NOP
+VANISH,!           -> "Good bye and please come back soon."
+
+"bye"       -> "Good bye and please come back soon.", Idle
+"name"      -> "I am lady Sandra Astralian."
+"job"       -> "I sell potions and magic fluids."
+"time"      -> "Buy a watch."
+"king"      -> "I was guest at his castle on my visits to Thais."
+"tibianus"  -> *
+"army"      -> "Do I look as if I'd fraternize with such people?"
+"ferumbras" -> "A disgusting person indeed."
+"excalibug" -> "I am not interested in tales only kids belive in."
+"thais"     -> "A city full of disgusting people with ill manners."
+"tibia"     -> "The world is a place of barbarianism."
+"carlin"    -> "I plan to visit this city one day."
+"edron"     -> "Isn't it a wonderful town?"
+"news"      -> "Nothing I would talk to you about."
+"rumors"    -> *
+
+"offer"           -> "I'm selling life and mana fluids and several potions."
+"goods"           -> *
+"do","you","sell" -> *
+"do","you","have" -> *
+"fluid"           -> *
+"potion"          -> "I'm selling potions of slime, blood, urine, oil, and distilled water."
+
+"bp", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=30
+"bp", "life", "fluid" -> Amount=1, Price=1200, "Do you want to buy backpack full of life fluid for %P gold?", Topic=40
+%1,1<%1,"bp", "mana", "fluid" -> Amount=%1, Price=2000*%1, "Do you want to buy %A backpacks full of mana fluid for %P gold?", Topic=30
+%1,1<%1,"bp", "life", "fluid" -> Amount=%1, Price=1200*%1, "Do you want to buy %A backpacks full of life fluid for %P gold?", Topic=40
+"life","fluid"         -> Type=2874, Data=11, Amount=1,  Price=60,     "Do you want to buy life fluid for %P gold?", Topic=2
+"mana","fluid"         -> Type=2874, Data=10, Amount=1,  Price=100,    "Do you want to buy mana fluid for %P gold?", Topic=2
+%1,1<%1,"life","fluid" -> Type=2874, Data=11, Amount=%1, Price=60*%1,  "Do you want to buy %A potions of life fluid for %P gold?", Topic=2
+%1,1<%1,"mana","fluid" -> Type=2874, Data=10, Amount=%1, Price=100*%1, "Do you want to buy %A potions of mana fluid for %P gold?", Topic=2
+"slime"                -> Type=2874, Data=6,  Amount=1,  Price=12,     "Do you want to buy a potion of slime for %P gold?", Topic=2
+"blood"                -> Type=2874, Data=5,  Amount=1,  Price=15,     "Do you want to buy a potion of blood for %P gold?", Topic=2
+"urine"                -> Type=2874, Data=8,  Amount=1,  Price=10,     "Do you want to buy a potion of urine for %P gold?", Topic=2
+"oil"                  -> Type=2874, Data=7,  Amount=1,  Price=20,     "Do you want to buy a potion of oil for %P gold?", Topic=2
+"water"                -> Type=2874, Data=1,  Amount=1,  Price=8,      "Do you want to buy a potion of distilled water for %P gold?", Topic=2
+
+BUSY,"instant", "bp", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+BUSY,"instant", "bp", "of", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+BUSY,"instant", "backpack", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+BUSY,"instant", "backpack", "of", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+
+"deposit"                   -> "I will pay you 5 gold for every empty vial. Ok?", Data=0, Topic=3
+"vial"                      -> *
+"flask"                     -> *
+
+Topic=2,"yes",CountMoney>=Price -> "Here you are. There is a deposit of 5 gold on the vial.", DeleteMoney, Create(Type)
+Topic=2,"yes"                   -> "Come back, when you have enough money."
+Topic=2                         -> "Hmm, but next time."
+
+Topic=3,"yes",Count(2874)>0 -> Amount=Count(2874), Price=Amount*5, "Here you are ... %P gold.", Delete(2874), CreateMoney
+Topic=3,"yes"               -> "You don't have any empty vials."
+Topic=3                     -> "Hmm, but please keep Tibia litter free."
+
+Topic=30,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(5119,2874,10)
+Topic=30,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=30                         -> "Maybe you will buy it another time."
+
+Topic=40,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(2867,2874,11)
+Topic=40,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=40                         -> "Maybe you will buy it another time."
+
+BUSY,Topic=60,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(5119,2874,10)
+BUSY,Topic=60,"yes"                   -> "Sorry, you do not have enough gold."
+BUSY,Topic=60                         -> "Maybe you will buy it another time."
+
+}

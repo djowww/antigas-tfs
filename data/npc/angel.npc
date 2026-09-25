@@ -1,0 +1,39 @@
+Name = "Halvar"
+Outfit = (185,72-105-105-95)
+Home = [32055,31532,7]
+Radius = 2
+
+Behaviour = {
+ADDRESS,"hello$",!      -> "Welcome %N! Ask me about <<arena>>."
+ADDRESS,"hi$",!         -> *
+ADDRESS,!               -> Idle
+BUSY,"hello$",!         -> "Please wait a minute, %N.", Queue
+BUSY,"hi$",!            -> *
+BUSY,!                  -> NOP
+VANISH,!                -> ".."
+
+"bye"            -> "Good bye, %N!", Idle
+"farewell"       -> *
+"arena" -> "You can choose different levels: <<Greenhorn>>, <<Scrapper>> and <<Warlord>>."
+
+"greenhorn" -> "Are you ready to fight? You need to pay 1.000 gold coins. If you die, all your progress will be lost.",Price=1000,Topic=3
+Topic=3,"yes", QuestValue(7100)=1,!        -> "You already start this task."
+Topic=3,"yes",Level<20,!            -> "You need to level 20 or higher."
+Topic=3,"yes",CountMoney<Price,!            -> "You do not have enough money."
+Topic=3,"yes",!                             -> "You have the right to fight in the Greenhorn arena. Again, if you die all your progress will be lost.", EffectOpp(13), DeleteMoney, SetQuestValue(7100,1)
+Topic=3,!                             -> "Ok. As you wish.."
+
+"scrapper" -> "Are you ready to fight? You need to pay 5.000 gold coins. If you die, all your progress will be lost.",Price=5000,Topic=4
+Topic=4,"yes", QuestValue(7200)=1,!        -> "You already start this task."
+Topic=4,"yes",Level<50,!            -> "You need to level 50 or higher."
+Topic=4,"yes",CountMoney<Price,!            -> "You do not have enough money."
+Topic=4,"yes",!                             -> "You have the right to fight in the Scrapper arena. Again, if you die all your progress will be lost.", EffectOpp(13), DeleteMoney, SetQuestValue(7200,1)
+Topic=4,!                             -> "Ok. As you wish.."
+
+"warlord" -> "Are you ready to fight? You need to pay 10.000 gold coins. If you die, all your progress will be lost.",Price=10000,Topic=5
+Topic=5,"yes", QuestValue(7300)=1,!        -> "You already start this task."
+Topic=5,"yes",Level<80,!            -> "You need to level 80 or higher."
+Topic=5,"yes",CountMoney<Price,!            -> "You do not have enough money."
+Topic=5,"yes",!                             -> "You have the right to fight in the Warlord arena. Again, if you die all your progress will be lost.", EffectOpp(13), DeleteMoney, SetQuestValue(7300,1)
+Topic=5,!                             -> "Ok. As you wish.."
+}

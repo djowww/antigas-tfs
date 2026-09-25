@@ -1,0 +1,69 @@
+# GIMUD - Graphical Interface Multi User Dungeon
+# avar.npc: Datenbank für den Abenteurer Avar Tar
+
+Name = "Avar Tar"
+Outfit = (73,0-0-0-0)
+Home = [33250,31764,7]
+Radius = 4
+
+Behaviour = {
+ADDRESS,"hello$",QuestValue(11)<>1,! -> "Sorry, %N, you need to complete banshee quest to talk with me!.", Idle
+ADDRESS,"hi$",QuestValue(11)<>1,!			 -> *
+ADDRESS,"hello$",!       -> "Hello, %N! I sell all the blessings, please ask me for one for each."
+ADDRESS,"hi$",!          -> *
+ADDRESS,!                -> Idle
+BUSY,"hello$",! 		 -> "Sorry, %N, you need to complete banshee quest to talk with me!.", Idle
+BUSY,"hello$",!          -> "Can't you see, I am talking to someone else!."
+BUSY,"hi$",!             -> *
+BUSY,!                   -> NOP
+VANISH,!                 -> "Leave me, I am used to it anyways..."
+
+"bye"       -> "See you later.", Idle
+"name"      -> "I am Avar Tar, slayer of monsters, saviour of princesses, and defender of the weak."
+"job"       -> "I am a professional hero."
+"time"      -> "It's %T right now."
+"king"      -> "I am on a quest for the Thaian king ... as usual, of course."
+"tibianus"  -> *
+"quest"     -> *
+"army"      -> "Where the army fails a hero like me is needed."
+"ferumbras" -> "I fought him serveral times, sometimes he killed me, sometimes I killed him, I would say we are even right now, but I am getting better and more powerful each day."
+"excalibug" -> "I am sure it's hidden in a vault of the Nightmare Knights beneath the Plains of Havoc. I plan an expedition to go there and rout out the Ruthless Seven, but I have to save the world first."
+"thais"     -> "If I had the time I would restore peace in this once proud city, but there's too much to do before I can start that quest."
+"tibia"     -> "I've seen it all and done it all ... at least twice."
+"carlin"    -> "I saved the women there once or twice."
+"news"      -> "There is a great evil lurking beneath this isle ... and beneath the Plains of Havoc and in the ancient necropolis and beneath the Ghostlands ... well everywhere basically."
+"rumors"    -> *
+
+"spiritual" -> "Here in the whiteflower temple you may receive the blessing of spiritual shielding. But we must ask of you to sacrifice 10.000 gold. Are you still interested?",Price=10000, Topic=5
+"embrace" -> "I will give to you the embrace of tibia, but you will have to make a sacrifice. Are you prepared to pay 10.000 gold for the blessing?.",Price=10000, Topic=6
+"fire"     -> "Do you wish to receive the blessing of the two suns? It will cost you 10.000 gold, pilgrim.",Price=10000, Topic=7
+"wisdom" -> "I can provide you with the wisdom of solitude. But you will have to sacrifice 10.000 gold to receive it. Are you still interested?",Price=10000,Topic=8
+"spark" -> "The spark of the phoenix is given by pydar and by the great geomancer of the local earthtemple. Do you wish to receive my part of blessing of the phoenix for 10.000 gold?",Price=10000, topic=9
+
+
+Topic=5,"yes", QuestValue(104) > 0,!        -> "You already possess this blessing."
+Topic=5,"yes",CountMoney<Price,!            -> "Oh. You do not have enough money."
+Topic=5,"yes",!                             -> "So receive the shielding of your spirit, pilgrim.", DeleteMoney, EffectOpp(13),SetQuestValue(104,1), Bless(1)
+Topic=5,!                                   -> "Ok. Suits me."
+
+Topic=6,"yes", QuestValue(105) > 0          -> "You already possess this blessing."
+Topic=6,"yes",CountMoney<Price              -> "Oh. You do not have enough money."
+Topic=6,"yes"                               -> "So receive the embrace of tibia, pilgrim", DeleteMoney, EffectOpp(13),SetQuestValue(105,1), Bless(2)
+Topic=6                                     -> "Fine. You are free to decline my offer."
+
+Topic=7,"yes", QuestValue(103) > 0,!        -> "You already possess this blessing."
+Topic=7,"yes",CountMoney<Price,!            -> "Oh. You do not have enough money."
+Topic=7,"yes",!                             -> "Kneel down and receive the warmth of sunfire, pilgrim.", DeleteMoney, EffectOpp(13), SetQuestValue(103,3), Bless(3)
+Topic=7,!                                   -> "All right. As you wish."
+
+Topic=8,"yes", QuestValue(101) > 0,!        -> "You already possess this blessing."
+Topic=8,"yes",CountMoney<Price,!            -> "Oh. You do not have enough money."
+Topic=8,"yes",!                             -> "So receive the wisdom of solitude, pilgrim", DeleteMoney, EffectOpp(13), SetQuestValue(101,1), Bless(4)
+Topic=8,!                                   -> "Ok. As you wish."
+
+Topic=9,"yes", QuestValue(102) > 0,!        -> "You already possess this blessing."
+Topic=9,"yes",CountMoney<Price,!            -> "Oh. You do not have enough money."
+Topic=9,"yes",!                             -> "So receive the mark of the flame and be blessed by the phoenix, pilgrim.", DeleteMoney, EffectOpp(13),SetQuestValue(102,1), Bless(5)
+Topic=9,!                                   -> "Perhaps another time."
+
+}

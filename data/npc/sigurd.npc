@@ -1,0 +1,100 @@
+# GIMUD - Graphical Interface Multi User Dungeon
+# sigurd.npc: Datenbank f�r den H�ndler Sigurd
+
+Name = "Sigurd"
+Outfit = (69,0-0-0-0)
+Home = [32626,31923,5]
+Radius = 8
+
+Behaviour = {
+ADDRESS,"hello$",! -> "Welcome to the magic store, %N!"
+ADDRESS,"hi$",!    -> *
+ADDRESS,"hiho$",!  -> *
+ADDRESS,!          -> Idle
+BUSY,"hello$",!    -> "You next %N, jawoll!", Queue
+BUSY,"hi$",!       -> *
+BUSY,"hiho$",!     -> *
+BUSY,!             -> NOP
+VANISH,!           -> "Good bye. Come back soon."
+
+"bye"           -> "Good bye. Come back soon.", Idle
+"farewell"      -> *
+
+"name"      -> "I am Sigurd Fireworker, brother to Etzel Fireworker, son of fire, of the Molten Rocks."
+"job"       -> "I help my brother handling his little magic store so he can focus on studying spells."
+"time"      -> "It's %T right now."
+
+"offer"           -> "I'm selling life and mana fluids, blank runes and spellbooks."
+"goods"           -> *
+"do","you","sell" -> *
+"do","you","have" -> *
+
+
+"rune"         -> "I sell blank runes."
+"life","fluid" -> Type=2874, Data=11, Amount=1, Price=60, "Do you want to buy life fluid for %P gold?", Topic=5
+"mana","fluid" -> Type=2874, Data=10, Amount=1, Price=100, "Do you want to buy mana fluid for %P gold?", Topic=5
+"blank","rune" -> Type=3147, Amount=1, Price=10, "Do you want to buy a blank rune for %P gold?", Topic=4
+"spellbook"    -> Type=3059, Amount=1, Price=150, "In a spellbook, your spells are listed. There you will find the pronunciation of each spell. Do you want to buy one for %P gold?", Topic=4
+
+"bp", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=30
+"bp", "life", "fluid" -> Amount=1, Price=1200, "Do you want to buy backpack full of life fluid for %P gold?", Topic=40
+"bp", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=50
+
+BUSY,"instant", "bp", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+BUSY,"instant", "bp", "of", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+BUSY,"instant", "backpack", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+BUSY,"instant", "backpack", "of", "mana", "fluid" -> Amount=1, Price=2000, "Do you want to buy backpack full of mana fluid for %P gold?", Topic=60
+
+BUSY,"instant", "backpack", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+BUSY,"instant", "backpack", "of", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+BUSY,"instant", "bp", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+BUSY,"instant", "bp", "of", "blank", "rune" -> Amount=1, Price=200, "Do you want to buy backpack full of blank runes for %P gold?", Topic=70
+
+%1,1<%1,"bp", "mana", "fluid" -> Amount=%1, Price=2000*%1, "Do you want to buy %A backpacks full of mana fluid for %P gold?", Topic=30
+%1,1<%1,"bp", "life", "fluid" -> Amount=%1, Price=1200*%1, "Do you want to buy %A backpacks full of life fluid for %P gold?", Topic=40
+%1,1<%1,"bp", "blank", "rune" -> Amount=%1, Price=200*%1, "Do you want to buy %A backpacks full of blank runes for %P gold?", Topic=50 
+
+%1,1<%1,"life","fluid"  -> Type=2874, Data=11, Amount=%1, Price=60*%1, "Do you want to buy %A potions of life fluid for %P gold?", Topic=5 
+%1,1<%1,"mana","fluid"  -> Type=2874, Data=10, Amount=%1, Price=100*%1, "Do you want to buy %A potions of mana fluid for %P gold?", Topic=5 
+%1,1<%1,"blank","rune"  -> Type=3147, Amount=%1, Price=10*%1, "Do you want to buy %A blank runes for %P gold?", Topic=4 
+%1,1<%1,"spellbook"     -> Type=3059, Amount=%1, Price=150*%1, "In a spellbook, your spells are listed. There you will find the pronunciation of each spell. Do you want to buy %A spellbooks for %P gold?", Topic=4 
+ 
+"deposit" -> "I will pay you 5 gold for every empty vial. Ok?", Data=0, Topic=6 
+"vial"    -> *
+"flask"   -> * 
+ 
+Topic=4,"yes",CountMoney>=Price -> "Here you are.", DeleteMoney, Create(Type)
+Topic=4,"yes"                   -> "Come back, when you have enough money."
+Topic=4                         -> "Hmm, but next time."
+
+Topic=5,"yes",CountMoney>=Price -> "Here you are. There is a deposit of 5 gold on the vial.", DeleteMoney, Create(Type)
+Topic=5,"yes"                   -> "Come back, when you have enough money."
+Topic=5                         -> "Hmm, but next time."
+
+Topic=6,"yes",Count(2874)>0 -> Amount=Count(2874), Price=Amount*5, "Here you are ... %P gold.", Delete(2874), CreateMoney
+Topic=6,"yes"               -> "You don't have any empty vials."
+Topic=6                     -> "Hmm, but please keep Tibia litter free."
+
+Topic=30,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(5119,2874,10)
+Topic=30,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=30                         -> "Maybe you will buy it another time."
+
+Topic=40,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(2867,2874,11)
+Topic=40,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=40                         -> "Maybe you will buy it another time."
+
+Topic=50,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(2870,3147,20)
+Topic=50,"yes"                   -> "Sorry, you do not have enough gold."
+Topic=50                         -> "Maybe you will buy it another time."
+
+BUSY,Topic=60,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(5119,2874,10)
+BUSY,Topic=60,"yes"                   -> "Sorry, you do not have enough gold."
+BUSY,Topic=60                         -> "Maybe you will buy it another time."
+
+BUSY,Topic=70,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(2870,3147,20)
+BUSY,Topic=70,"yes"                   -> "Sorry, you do not have enough gold."
+BUSY,Topic=70                         -> "Maybe you will buy it another time."
+
+#@"gen-t-runes-free-s.ndb"
+
+}

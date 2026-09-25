@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<monster name="Crystal Spider" nameDescription="a crystal spider" race="venom" experience="900" speed="280" manacost="0">
+	<health now="1250" max="1250" />
+	<look type="147" head="0" body="0" legs="0" feet="0" corpse="5212" />
+	<targetchange interval="1000" chance="10" />
+	<targetstrategy nearest="70" weakest="20" mostdamage="0" random="10" />
+	<flags>
+		<flag summonable="0" />
+		<flag attackable="1" />
+		<flag hostile="1" />
+		<flag illusionable="0" />
+		<flag convinceable="0" />
+		<flag pushable="0" />
+		<flag canpushitems="1" />
+		<flag canpushcreatures="1" />
+		<flag targetdistance="1" />
+		<flag staticattack="85" />
+		<flag runonhealth="0" />
+	</flags>
+	<attacks>
+		<attack name="melee" interval="2000" chance="0" skill="80" attack="65" poison="250" />
+		<attack name="speed" interval="2000" chance="15" range="7" radius="6" target="0" speedchange="-600" duration="15000">
+			<attribute key="areaEffect" value="poff" />
+		</attack>
+	    <attack name="ice" chance="15" range="7" target="1" min="-50" max="-100">
+			<attribute key="shootEffect" value="smallice" />
+			<attribute key="areaEffect" value="icearea" />
+		</attack>
+		<attack name="speed" chance="20" range="7" target="1" speedchange="-600" duration="10000">
+			<attribute key="shootEffect" value="snowball" />
+		</attack>	
+	</attacks>
+	<defenses armor="43" defense="40">
+		<defense name="speed" speedchange="396" duration="20000" chance="18">
+			<attribute key="areaEffect" value="redshimmer" />
+		</defense>
+	</defenses>
+	<immunities>
+		<immunity fire="1" />
+		<immunity ice="1" />
+		<immunity paralyze="1" />
+		<immunity invisible="1" />
+	</immunities>
+	<elements>
+		<element earthPercent="20" />
+		<element energyPercent="-20" />
+	</elements>
+	<voices interval="5000" chance="10">
+		<voice sentence="Screeech!" />
+	</voices>
+	<loot>
+		<item id="3031" countmax="55" chance="333" /> <!-- a gold coin -->
+		<item id="3031" countmax="33" chance="666" /> <!-- a gold coin -->
+		<item id="3031" countmax="11" chance="999" /> <!-- a gold coin -->
+		<item id="3152" countmax="1" chance="500" /> <!-- a mana potion -->
+		<item id="3370" countmax="1" chance="3" /> <!-- a knight armor -->
+		<item id="3265" countmax="1" chance="40" /> <!-- a two handed sword -->
+		<item id="3369" countmax="1" chance="2" /> <!-- a warrior helmet -->
+		<item id="3371" countmax="1" chance="3" /> <!-- knight legs -->
+		<item id="3357" countmax="1" chance="100" /> <!-- a plate armor -->
+		<!-- <item id="5215" countmax="1" chance="1" /> a shard -->
+		<item id="3055" countmax="1" chance="1" /> <!-- a platinum amulet -->
+		<item id="3351" countmax="1" chance="50" /> <!-- a steel helmet -->
+		<item id="3053" countmax="1" chance="7" /> <!-- a time ring -->
+	</loot>
+</monster>

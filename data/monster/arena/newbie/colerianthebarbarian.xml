@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<monster name="Colerian The Barbarian" nameDescription="colerian the barbarian" race="blood" experience="90" speed="190" manacost="0">
+	<health now="265" max="265" />
+	<look type="166" head="76" body="115" legs="115" feet="43" corpse="2118" />
+	<targetchange interval="1000" chance="5" />
+	<targetstrategy nearest="70" weakest="15" mostdamage="15" random="0" />
+	<script>
+        <event name="arena"/>
+	</script>
+	<flags>
+		<flag summonable="0" />
+		<flag attackable="1" />
+		<flag hostile="1" />
+		<flag illusionable="0" />
+		<flag convinceable="0" />
+		<flag pushable="0" />
+		<flag canpushitems="1" />
+		<flag targetdistance="1" />
+	</flags>
+	<attacks>
+		<attack name="melee" interval="2000" chance="0" skill="20" attack="40" />
+		<attack name="physical" min="-45" max="-85" range="7" chance="3">
+			<attribute key="shootEffect" value="bolt" />
+		</attack>
+	</attacks>
+	<defenses armor="19" defense="20" />
+	<immunities>
+		<immunity outfit="1" />
+		<immunity drunk="1" />
+		<immunity invisible="1" />
+	</immunities>
+	<voices interval="2000" chance="5">
+		<voice sentence="Flee, coward!" />
+		<voice sentence="You will lose!" />
+		<voice sentence="Yeehaawh" />
+	</voices>
+</monster>

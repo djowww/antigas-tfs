@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<raid>
+	<announce delay="1000" type="event" message="The seals on Ferumbras old cidatel are glowing. Prepare for HIS return mortals."/>
+	<areaspawn delay="1000" lifetime="14400000" radius="5" centerx="32522" centery="32520" centerz="4">
+		<monster name="Demon" minamount="1" maxamount="1"/>
+	</areaspawn>
+	<areaspawn delay="200000" lifetime="14400000" radius="5" centerx="32516" centery="32520" centerz="4">
+		<monster name="Demon" minamount="1" maxamount="1"/>
+	</areaspawn>
+	<announce delay="200000" type="event" message="Ferumbras return is at hand. The Edron Academy calls for Heroes to fight that evil."/>
+	<areaspawn delay="200000" lifetime="14400000" radius="7" centerx="32519" centery="32524" centerz="4">
+		<monster name="Demon" minamount="1" maxamount="1"/>
+	</areaspawn>
+	<announce delay="400000" type="event" message="Ferumbras has returned to his citadel once more. Stop him before its too late."/>
+	<areaspawn delay="400000" lifetime="14400000" radius="2" centerx="32518" centery="32520" centerz="4">
+		<monster name="Ferumbras" minamount="1" maxamount="1"/>
+	</areaspawn>
+	<areaspawn delay="400000" lifetime="14400000" radius="5" centerx="32519" centery="32518" centerz="4">
+		<monster name="Demon" minamount="1" maxamount="2"/>
+	</areaspawn>
+</raid>

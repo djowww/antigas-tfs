@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<monster name="Orcus the Cruel" nameDescription="orcus the cruel" race="blood" experience="280" speed="230" manacost="0">
+	<health now="480" max="480" />
+	<look type="59" corpse="2118" />
+	<targetchange interval="1000" chance="5" />
+	<targetstrategy nearest="70" weakest="15" mostdamage="15" random="0" />
+	<script>
+        <event name="arena"/>
+	</script>
+	<flags>
+		<flag summonable="0" />
+		<flag attackable="1" />
+		<flag hostile="1" />
+		<flag illusionable="0" />
+		<flag convinceable="0" />
+		<flag pushable="0" />
+		<flag canpushitems="1" />
+		<flag targetdistance="1" />
+	</flags>
+	<attacks>
+		<attack name="melee" interval="2000" chance="0" skill="50" attack="60" />
+		<attack name="physical" min="-50" max="-70" range="7" interval="1000" chance="6">
+			<attribute key="shootEffect" value="throwingknife" />
+		</attack>
+	</attacks>
+	<defenses armor="39" defense="40" />
+	<immunities>
+		<immunity fire="1" />
+		<immunity outfit="1" />
+		<immunity drunk="1" />
+		<immunity invisible="1" />
+	</immunities>
+</monster>
