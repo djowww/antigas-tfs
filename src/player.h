@@ -171,6 +171,8 @@ class Player final : public Creature, public Cylinder
 		void removeList() final;
 		void addList() final;
 		void kickPlayer(bool displayEffect);
+		void quarantinePersistence();
+		bool isPersistenceQuarantined() const { return persistenceQuarantined; }
 
 		static uint64_t getExpForLevel(int32_t lv) {
 			lv--;
@@ -1178,6 +1180,7 @@ class Player final : public Creature, public Cylinder
 		bool pzLocked = false;
 		bool wasMounted = false;
 		bool isConnecting = false;
+		bool persistenceQuarantined = false;
 		bool addAttackSkillPoint = false;
 		bool inventoryAbilities[CONST_SLOT_LAST + 1] = {};
 

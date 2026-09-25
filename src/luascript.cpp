@@ -3668,6 +3668,7 @@ const luaL_Reg LuaScriptInterface::luaDatabaseTable[] = {
 	{"query", LuaScriptInterface::luaDatabaseExecute},
 	{"asyncQuery", LuaScriptInterface::luaDatabaseAsyncExecute},
 	{"storeQuery", LuaScriptInterface::luaDatabaseStoreQuery},
+	{"storeQueryChecked", LuaScriptInterface::luaDatabaseStoreQueryChecked},
 	{"asyncStoreQuery", LuaScriptInterface::luaDatabaseAsyncStoreQuery},
 	{"escapeString", LuaScriptInterface::luaDatabaseEscapeString},
 	{"escapeBlob", LuaScriptInterface::luaDatabaseEscapeBlob},
@@ -3720,6 +3721,18 @@ int LuaScriptInterface::luaDatabaseStoreQuery(lua_State* L)
 		pushBoolean(L, false);
 	}
 	return 1;
+}
+
+int LuaScriptInterface::luaDatabaseStoreQueryChecked(lua_State* L)
+{
+	bool success = false;
+	if (DBResult_ptr res = Database::getInstance()->storeQuery(getString(L, -1), &success)) {
+		lua_pushnumber(L, ScriptEnvironment::addResult(res));
+	} else {
+		pushBoolean(L, false);
+	}
+	pushBoolean(L, success);
+	return 2;
 }
 
 int LuaScriptInterface::luaDatabaseAsyncStoreQuery(lua_State* L)
@@ -9010,13 +9023,23 @@ int LuaScriptInterface::luaPlayerMarketTransaction(lua_State* L)
 {
 	// Trusted server scripts only: work() and undo() must not yield or send success early.
 	Player* player = getUserdata<Player>(L, 1);
-	if (!player || !lua_isfunction(L, 2) || !lua_isfunction(L, 3)) {
+	if (!player || player->isRemoved() || player->isPersistenceQuarantined() || !lua_isfunction(L, 2) || !lua_isfunction(L, 3)) {
 		pushBoolean(L, false);
 		return 1;
 	}
+	const Position previousLoginPosition = player->loginPosition;
+	// A recovery reload must preserve progress earned before this trade.
+	{
+		DBTransaction checkpoint;
+		if (!checkpoint.begin(true)) { pushBoolean(L, false); return 1; }
+		player->loginPosition = player->getPosition();
+		if (!IOLoginData::savePlayer(player, false) || !checkpoint.commit()) {
+			player->loginPosition = previousLoginPosition;
+			pushBoolean(L, false); return 1;
+		}
+	}
 	DBTransaction transaction;
 	if (!transaction.begin(true)) { pushBoolean(L, false); return 1; }
-	const Position previousLoginPosition = player->loginPosition;
 	lua_pushvalue(L, 2);
 	int status = lua_pcall(L, 0, 1, 0);
 	bool ok = status == 0 && lua_isboolean(L, -1) && lua_toboolean(L, -1);
@@ -9028,6 +9051,10 @@ int LuaScriptInterface::luaPlayerMarketTransaction(lua_State* L)
 	}
 	if (ok) ok = transaction.commit();
 	else transaction.rollback();
+	if (transaction.isUncertain()) {
+		player->quarantinePersistence();
+		pushBoolean(L, false); return 1;
+	}
 	if (!ok) {
 		player->loginPosition = previousLoginPosition;
 		lua_pushvalue(L, 3);
@@ -9035,8 +9062,7 @@ int LuaScriptInterface::luaPlayerMarketTransaction(lua_State* L)
 		bool restored = status == 0 && lua_isboolean(L, -1) && lua_toboolean(L, -1);
 		lua_pop(L, 1);
 		if (!restored) {
-			std::cout << "[Market] CRITICAL: memory rollback failed; stopping without saving." << std::endl;
-			std::abort();
+			player->quarantinePersistence();
 		}
 	}
 	pushBoolean(L, ok);

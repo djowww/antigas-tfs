@@ -19,6 +19,11 @@ end
 local function send(player,action,data)
  player:sendExtendedOpcode(OPCODE,json.encode({action=action,data=data or {}}))
 end
+local function checkedQuery(sql)
+ local r,ok=(db.storeQueryChecked or db.storeQuery)(sql)
+ if ok==false then error('Market database unavailable') end
+ return r
+end
 local function message(player,text,requestId,ok)
  send(player,"message",{text=text,requestId=requestId,ok=ok or false})
 end
@@ -118,7 +123,7 @@ end
 local function sendBalances(player)
  local _,summary=inventory(player)
  local data=balances(player,summary)
- local r=db.storeQuery('SELECT COUNT(*) AS n,COALESCE(SUM(IF(kind=0,item_count,0)),0) AS items,COALESCE(SUM(IF(kind=1 AND currency_id=3031,currency_amount,0)),0) AS gold,COALESCE(SUM(IF(kind=1 AND currency_id=5130,currency_amount,0)),0) AS antigas FROM market_claims WHERE player_guid='..player:getGuid())
+ local r=checkedQuery('SELECT COUNT(*) AS n,COALESCE(SUM(IF(kind=0,item_count,0)),0) AS items,COALESCE(SUM(IF(kind=1 AND currency_id=3031,currency_amount,0)),0) AS gold,COALESCE(SUM(IF(kind=1 AND currency_id=5130,currency_amount,0)),0) AS antigas FROM market_claims WHERE player_guid='..player:getGuid())
  if r then
   data.pending={count=result.getDataInt(r,'n'),items=result.getDataInt(r,'items'),gold=result.getDataInt(r,'gold'),antigas=result.getDataInt(r,'antigas')}
   result.free(r)
@@ -126,7 +131,7 @@ local function sendBalances(player)
  send(player,"balances",data)
 end
 local function rows(sql,fields)
- local r=db.storeQuery(sql)
+ local r=checkedQuery(sql)
  local out={}
  if r then
   repeat
@@ -404,8 +409,10 @@ local function mutate(player,request,buffer)
   if not actions[request.action](ctx,request.data) then return false end
   return db.query("INSERT INTO market_requests(player_guid,request_id,action,request_json,response) VALUES ("..player:getGuid()..","..db.escapeString(id)..","..db.escapeString(request.action)..","..db.escapeString(buffer)..","..db.escapeString(ctx.text)..")")
  end,function() return ctx:undo() end)
- message(player,ok and ctx.text or ctx.error or "Market operation failed. No assets were transferred.",id,ok)
- sendBalances(player)
+ if player:isRemoved() then return end -- uncertain state: reconnect and retry the saved request
+ message(player,ok and ctx.text or ctx.error or "Market temporarily unavailable or operation failed. Retry safely; no assets were transferred.",id,ok)
+ -- A failed balance refresh must never replace a confirmed transaction receipt.
+ pcall(sendBalances,player)
 end
 local function allowed(player,mutation)
  local now,guid=os.time(),player:getGuid()
@@ -425,6 +432,7 @@ function onExtendedOpcode(player,opcode,buffer)
   if actions[request.action] then message(player,"Please wait a moment before another transaction.",request.requestId) end
   return false
  end
+ local handled,err=pcall(function()
  if actions[request.action] then mutate(player,request,buffer)
  elseif request.action=="init" then
   send(player,"init",{categories=CATEGORIES,version=2,goldCoin=GOLD,antigasCoin=ANTIGAS})
@@ -433,6 +441,11 @@ function onExtendedOpcode(player,opcode,buffer)
  elseif request.action=="mine" then sendOffers(player,request.data,true)
  elseif request.action=="catalog" then sendCatalog(player,request.data)
  elseif request.action=='history' then sendHistory(player,request.data)
- else return false end
+ end
+ end)
+ if not handled and not player:isRemoved() then
+  if not tostring(err):find('Market database unavailable',1,true) then print('[Market] Request failed: '..tostring(err)) end
+  message(player,'Market temporarily unavailable. Please try again shortly.',request.requestId)
+ end
  return true
 end

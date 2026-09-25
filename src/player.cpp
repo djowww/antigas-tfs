@@ -1070,6 +1070,8 @@ void Player::onRemoveCreature(Creature* creature, bool isLogout)
 		}
 
 		IOLoginData::updateOnlineStatus(guid, false);
+		// Never overwrite the authoritative database with uncertain Market state.
+		if (persistenceQuarantined) return;
 
 		bool saved = false;
 		for (uint32_t tries = 0; tries < 3; ++tries) {
@@ -1999,6 +2001,15 @@ void Player::kickPlayer(bool displayEffect)
 	} else {
 		g_game.removeCreature(this);
 	}
+}
+
+void Player::quarantinePersistence()
+{
+	persistenceQuarantined = true;
+	std::cout << "[Market] Isolating character " << getGUID() << " for persisted-state recovery." << std::endl;
+	disconnect();
+	// Remove immediately, without running logout scripts on uncertain assets.
+	g_game.removeCreature(this);
 }
 
 void Player::notifyStatusChange(Player* loginPlayer, VipStatus_t status)
