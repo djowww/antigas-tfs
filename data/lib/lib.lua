@@ -12,3 +12,7 @@ dofile('data/lib/custom/economy.lua')
 
 -- Online Time System
 dofile('data/lib/custom/onlineTime.lua')
+
+-- Persistent bonus earned for each uninterrupted hour online.
+ONLINE_STAY_BONUS_STORAGE = 17592
+ONLINE_STAY_BONUS_MAX = 24

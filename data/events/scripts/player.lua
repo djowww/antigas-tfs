@@ -207,6 +207,11 @@ function Player:onGainExperience(source, exp, rawExp)
 	if self:getStorageValue(1234) >= os.time() then
     exp = exp * 1.25
     end
+
+	local onlineBonus = math.max(0, math.min(ONLINE_STAY_BONUS_MAX, self:getStorageValue(ONLINE_STAY_BONUS_STORAGE)))
+	if onlineBonus > 0 then
+		exp = exp * (1 + onlineBonus / 100)
+	end
 	
 	-- Custom Lines
     if getGlobalStorageValue(17589) > os.time() then
@@ -231,6 +236,9 @@ function Player:onGainSkillTries(skill, tries)
         return tries
     end
 
+    local onlineBonus = math.max(0, math.min(ONLINE_STAY_BONUS_MAX, self:getStorageValue(ONLINE_STAY_BONUS_STORAGE)))
+    local onlineMultiplier = 1 + onlineBonus / 100
+
     if skill == SKILL_MAGLEVEL then
         tries = tries * configManager.getNumber(configKeys.RATE_MAGIC)
         -- Custom Lines
@@ -238,7 +246,7 @@ function Player:onGainSkillTries(skill, tries)
             tries = tries * (1 + getGlobalStorageValue(17587) / 100)
         end
         -- Custom Lines
-        return tries
+        return tries * onlineMultiplier
     end
     
     tries = tries * configManager.getNumber(configKeys.RATE_SKILL)
@@ -247,7 +255,7 @@ function Player:onGainSkillTries(skill, tries)
         tries = tries * (1 + getGlobalStorageValue(17586) / 100)
     end
     -- Custom Lines
-    return tries
+    return tries * onlineMultiplier
 end
 
 function Player:onUseItem(item, target)

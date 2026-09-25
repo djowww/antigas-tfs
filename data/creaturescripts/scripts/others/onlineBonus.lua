@@ -11,32 +11,51 @@ local function cancelReward(playerId)
     end
 end
 
-local function addOnlineToken(playerId, token)
+local function grantOnlineBonus(playerId, token)
     if events[playerId] ~= token then
         return
     end
+
     local player = Player(playerId)
     if not player or player:getIp() == 0 then
         events[playerId] = nil
         return
     end
-    if Economy.run(player,function(ctx)
-        return ctx:give(5130,1) and Economy.changed('UPDATE players SET online_time=online_time+1 WHERE id='..player:getGuid()..' AND online_time<2000000000')
-    end) then
-        player:getPosition():sendMagicEffect(13)
-        player:sendTextMessage(MESSAGE_EVENT_ADVANCE,
-            "You get 1 Antigas Coin for staying online for 1 hour without logging out.")
+
+    local currentBonus = math.max(0, player:getStorageValue(ONLINE_STAY_BONUS_STORAGE))
+    if currentBonus >= ONLINE_STAY_BONUS_MAX then
+        player:setStorageValue(ONLINE_STAY_BONUS_STORAGE, ONLINE_STAY_BONUS_MAX)
+        events[playerId] = nil
+        return
     end
-    token.eventId = addEvent(addOnlineToken, rewardInterval, playerId, token)
+
+    local newBonus = math.min(ONLINE_STAY_BONUS_MAX, currentBonus + 1)
+    player:setStorageValue(ONLINE_STAY_BONUS_STORAGE, newBonus)
+    player:getPosition():sendMagicEffect(13)
+    player:sendTextMessage(MESSAGE_EVENT_ADVANCE,
+        "Your online bonus increased by 1%. You now receive +" .. newBonus .. "% experience and skills (maximum +" .. ONLINE_STAY_BONUS_MAX .. "%).")
+
+    if newBonus < ONLINE_STAY_BONUS_MAX then
+        token.eventId = addEvent(grantOnlineBonus, rewardInterval, playerId, token)
+    else
+        events[playerId] = nil
+    end
 end
 
 function onLogin(player)
     player:registerEvent("OnlineBonusLogout")
     local playerId = player:getId()
     cancelReward(playerId)
+
+    local currentBonus = math.max(0, player:getStorageValue(ONLINE_STAY_BONUS_STORAGE))
+    if currentBonus >= ONLINE_STAY_BONUS_MAX then
+        player:setStorageValue(ONLINE_STAY_BONUS_STORAGE, ONLINE_STAY_BONUS_MAX)
+        return true
+    end
+
     local token = {}
     events[playerId] = token
-    token.eventId = addEvent(addOnlineToken, rewardInterval, playerId, token)
+    token.eventId = addEvent(grantOnlineBonus, rewardInterval, playerId, token)
     return true
 end
 
