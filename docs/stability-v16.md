@@ -1,5 +1,7 @@
 # Estabilidade e cliente v16
 
+> Correção posterior: o teste do Loot abaixo chamava o callback diretamente e não cobria o despachante de rede. Duas incompatibilidades deixavam os contadores vazios. Veja a [correção v17 e sua validação](loot-v17.md), que também delimita a garantia de não avaliar Lua nos avisos de Loot.
+
 ## Encerramento do servidor Linux
 
 SIGTERM e SIGINT são recebidos pelo Boost.Asio e encaminhados à fila principal do jogo. O mesmo caminho usado pelo comando de encerramento salva os personagens e o mundo antes de terminar. O manipulador é registrado antes das threads do servidor; sinais repetidos não iniciam salvamentos concorrentes.
