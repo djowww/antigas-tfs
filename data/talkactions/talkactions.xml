@@ -50,8 +50,6 @@
 	<talkaction words="!spells" separator=" " script="emote.lua"/>
 	<talkaction words="!deathlist" script="deathlist.lua"/> 
 	
-	<talkaction words="!tutor" script="tutor.lua"/>
-	
 	<talkaction words="!pz" script="pz.lua" />
 	
 	<!-- <talkaction words="!cast" separator=" " script="cast.lua"/> -->
