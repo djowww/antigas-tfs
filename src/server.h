@@ -22,6 +22,10 @@
 
 #include "connection.h"
 #include <memory>
+#ifndef _WIN32
+#include <boost/asio/signal_set.hpp>
+#include <csignal>
+#endif
 
 class Protocol;
 
@@ -90,7 +94,7 @@ class ServicePort : public std::enable_shared_from_this<ServicePort>
 class ServiceManager
 {
 	public:
-		ServiceManager() = default;
+		ServiceManager();
 		~ServiceManager();
 
 		// non-copyable
@@ -113,6 +117,10 @@ class ServiceManager
 		std::unordered_map<uint16_t, ServicePort_ptr> acceptors;
 
 		boost::asio::io_service io_service;
+#ifndef _WIN32
+		// Register before worker threads start; callbacks run on the network loop.
+		boost::asio::signal_set shutdownSignals { io_service, SIGTERM, SIGINT };
+#endif
 		boost::asio::deadline_timer death_timer { io_service };
 		bool running = false;
 };

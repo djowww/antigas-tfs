@@ -24,9 +24,28 @@
 #include "scheduler.h"
 #include "configmanager.h"
 #include "ban.h"
+#include "game.h"
 
 extern ConfigManager g_config;
+extern Game g_game;
+extern Dispatcher g_dispatcher;
 Ban g_bans;
+
+ServiceManager::ServiceManager()
+{
+#ifndef _WIN32
+	shutdownSignals.async_wait([](const boost::system::error_code& error, int signal) {
+		if (error) {
+			return;
+		}
+		std::cout << "[Shutdown] Signal " << signal << ": saving players and world before exit." << std::endl;
+		// World/database state belongs to the dispatcher, never to a signal handler.
+		g_dispatcher.addTask(createTask([]() {
+			g_game.setGameState(GAME_STATE_SHUTDOWN);
+		}));
+	});
+#endif
+}
 
 ServiceManager::~ServiceManager()
 {
