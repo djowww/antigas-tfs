@@ -22,6 +22,8 @@ Use o toolchain e as dependências documentados para esta versão do TFS. Os arq
 
 ## Recuperação de banco e teste de concorrência
 
+Consulte também [as correções de encerramento e do cliente v16](docs/stability-v16.md).
+
 Consulte [o relatório de recuperação e concorrência](docs/database-recovery.md). Esta atualização exige o novo executável junto do `market.lua`; recarregar apenas o Lua não aplica as proteções do banco. O cliente v15 continua compatível.
 
 Os sistemas antigos de tarefas Tusker, bounty hunter, coleta customizada de frascos vazios e acertos críticos foram removidos. Veja [o resumo da aposentadoria](docs/retired-legacy-systems.md); o uso e as negociações normais de frascos continuam disponíveis.

@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-25",
+  "serverBinarySha256": "b75499ccab786c9530236906674a9a85cfa6ae1839738d778ca0c043f980ad75",
+  "isolatedShutdownChecks": 29,
+  "signals": ["SIGTERM", "SIGINT", "repeated SIGTERM"],
+  "persistenceVerified": ["bank balance", "inventory items", "player storage", "cleared online roster", "state after relogin"],
+  "clientRelease": 16,
+  "clientArchiveSha256": "4d7691f5a7dc710620f8ebda900db9141345e9c0889b87e17930ced70f14b58a",
+  "clientRuntimeChecks": ["task module removed", "current and invalid version responses ignored", "new version notice deferred while playing", "download restricted to official host", "malformed and oversized loot entries rejected", "loot and supply aggregation", "session reset", "Loot button state"],
+  "marketUiRegression": "passed",
+  "realClientHttpsReleaseCheck": "passed: version 16 and published package SHA-256 matched",
+  "liveSmokeChecks": ["init", "catalog", "browse", "history"],
+  "liveStartupErrors": []
+}
