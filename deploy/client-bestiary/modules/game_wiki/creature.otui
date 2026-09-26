@@ -1,26 +1,33 @@
 MainWindow
   id: creatureWindow
   !text: tr('Creature')
-  size: 550 305
-  background-color: #AAAAAA
+  size: 570 330
   @onEscape: modules.game_wiki.closeCreature()
 
-  UICreature
-    id: creature
-    padding: 6
-    size: 96 96
+  Panel
+    id: creatureArea
+    size: 144 80
     anchors.left: parent.left
     anchors.top: parent.top
     margin-left: 5
     background-color: alpha
 
+    UICreature
+      id: creature
+      size: 64 64
+      anchors.centerIn: parent
+      old-scaling: true
+      outfit-center: true
+      animate: false
+      phantom: true
+
   Panel
     id: killProgressTrack
     anchors.left: parent.left
-    anchors.top: creature.bottom
+    anchors.top: creatureArea.bottom
     margin-left: 5
     margin-top: 5
-    width: 96
+    width: 144
     height: 9
     background-color: #202020
     border: 1 #171717
@@ -30,7 +37,7 @@ MainWindow
       id: killProgressBar
       anchors.fill: parent
       margin: 1
-      background-color: #A48643
+      background-color: #958358
       phantom: true
 
   Label
@@ -39,10 +46,10 @@ MainWindow
     anchors.top: killProgressTrack.bottom
     margin-left: 5
     margin-top: 1
-    width: 96
+    width: 144
     height: 13
     text-align: center
-    color: #D2C294
+    color: #BCB8AA
     font: verdana-11px-rounded
     phantom: true
 
@@ -50,7 +57,7 @@ MainWindow
     id:healthLabel
     margin-top: 5
     anchors.top: parent.top
-    anchors.left: creature.right
+    anchors.left: creatureArea.right
     size: 12 12
     image-source: /images/ui/icons-for-wiki
     image-clip: 0 0 12 12
@@ -66,7 +73,7 @@ MainWindow
   Label
     id:summonLabel
     anchors.top: healthInfo.bottom
-    anchors.left: creature.right
+    anchors.left: creatureArea.right
     size: 12 12
     image-source: /images/ui/icons-for-wiki
     image-clip: 0 12 12 12
@@ -83,7 +90,7 @@ MainWindow
   Label
     id:expLabel
     anchors.top: summonInfo.bottom
-    anchors.left: creature.right
+    anchors.left: creatureArea.right
     size: 12 12
     image-source: /images/ui/icons-for-wiki
     image-clip: 0 24 12 12
@@ -99,7 +106,7 @@ MainWindow
     id: placeLabel
     anchors.top: parent.top
     anchors.left: summonInfo.right
-    !text: tr("Locations(s):")
+    !text: tr("Locations:")
 
   MultilineTextEdit
     id: placeDesc
@@ -108,6 +115,8 @@ MainWindow
     anchors.top: placeLabel.bottom
     anchors.right: parent.right
     anchors.bottom: lootLabel.top
+    margin-right: 13
+    margin-bottom: 5
     vertical-scrollbar: locationsScrollBar
     text-wrap: true
     editable: false
@@ -130,12 +139,14 @@ MainWindow
 
   MultilineTextEdit
     id: lootDesc
-    size: 50 80
     margin-top: 5
     margin-left: 15
     anchors.left: parent.left
     anchors.top: lootLabel.bottom
     anchors.right: parent.right
+    anchors.bottom: buttonCancel.top
+    margin-right: 13
+    margin-bottom: 8
     vertical-scrollbar: wikiScrollBar
     text-wrap: true
     editable: false
