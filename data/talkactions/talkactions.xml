@@ -40,7 +40,6 @@
 
 
 	<!-- player talkactions -->
-	<talkaction words="!task" script="task.lua"/>
 	<talkaction words="!buyhouse" script="buyhouse.lua"/>
 	<talkaction words="!leavehouse" script="leavehouse.lua"/>
 	<talkaction words="!frags" script="kills.lua"/>
