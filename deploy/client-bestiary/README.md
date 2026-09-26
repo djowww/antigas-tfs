@@ -1,5 +1,16 @@
 # Progresso de caça no Bestiary
 
+**Interface clássica publicada na v32:** veja [UI-CLASSICA.md](UI-CLASSICA.md). Os arquivos desta pasta incluem o novo layout; o histórico v31 abaixo se refere à publicação anterior.
+
+## Publicação v32 — 26/09/2026
+
+- Download: https://tibia74.tech/Antigas-7.4-Client-v32.zip
+- SHA-256: `c0fe853eaec3918a34418ec7f3f6f20925a80a3f5fafeccd5b3c1ee11587d98a`.
+- Pacote derivado do v31, com somente três arquivos do Bestiary e a versão em `init.lua` modificados. Executáveis, sprites, demais módulos e protocolo permanecem iguais.
+- Testes no cliente real e offline: 138 fichas, filtros, busca, seleção, mensagens de progresso, ciclo do módulo e quatro tamanhos de janela. Dez listas de loot com mais de 200 caracteres foram conferidas integralmente; nomes repetidos foram eliminados somente da apresentação.
+- Publicação sem reiniciar o servidor. ZIP público, manifesto e link da página inicial verificados. Pacote v31 e backup da página/manifesto preservados na VPS.
+- Empacotamento/publicação específica desta versão: `deploy/bestiary-ui-v32-release.py`. Não reutilizar o script v31 para esta revisão.
+
 Patch dos módulos de interface do cliente Antigas atual (v30) para mostrar o progresso individual de abates no Bestiary. Copie os arquivos preservando seus caminhos relativos para a pasta do cliente.
 
 - `modules/game_wiki/`: progresso em cada criatura e na janela de detalhes.
