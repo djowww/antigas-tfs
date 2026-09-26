@@ -55,14 +55,53 @@ local function marketType(id)
  return types[id]
 end
 
--- Keep marketType available for legacy refunds; only new trading is restricted.
-local blockedIds
-local function permitted(item)
+-- Keep marketType available for legacy refunds; new trading uses this allowlist.
+local blockedIds, duplicateNameIds, duplicateNamesReady
+local writingTerms={'books?','letters?','parchment','papers?','scrolls?','documents?',
+ 'notes?','diaries','journals?','writings?','manuscripts?'}
+local furnitureTerms={'furniture','chairs?','tables?','beds?','benches?','stools?','thrones?',
+ 'desks?','wardrobes?','dressers?','cabinets?','cupboards?','bookcases?','bookshelves?',
+ 'shelves','drawers?','sofas?','couches?','carpets?','rugs?','tapestries','hammocks?',
+ 'pianos?','harpsichords?','fireplaces?'}
+local function hasNamedTerm(name,terms)
+ for _,term in ipairs(terms) do
+  if name:match('%f[%w]'..term..'%f[%W]') then return true end
+ end
+ return false
+end
+local function basePermitted(item)
  if not item then return false end
  local name=item.name:lower()
+ local itemType=ItemType(item.id)
+ if itemType:isCorpse() or name:find('mount',1,true)
+  or name:match('^dead[%s%-]') or name:match('^body of[%s%-]')
+  or name:match('^remains of[%s%-]') or name:find('corpse',1,true) then return false end
+ if name:find('outfit',1,true) or name:find('addon',1,true) then return false end
+ if name:match('%f[%w]dice%f[%W]') then return false end
+ if itemType:isReadable() or itemType:isWritable() or hasNamedTerm(name,writingTerms)
+  or hasNamedTerm(name,furnitureTerms) then return false end
  if name=='fishing rod' then return true end
  return not name:find('wand',1,true) and not name:match('%f[%a]rods?%f[%A]')
-  and ItemType(item.id):getWeaponType()~=WEAPON_WAND
+  and itemType:getWeaponType()~=WEAPON_WAND
+end
+local function ensureUniqueNames()
+ if duplicateNamesReady then return end
+ duplicateNamesReady=true
+ duplicateNameIds={}
+ local firstByName={}
+ for id=100,6000 do
+  local item=marketType(id)
+  if basePermitted(item) then
+   local key=item.name:lower():gsub('%s+',' ')
+   if firstByName[key] then duplicateNameIds[id]=true
+   else firstByName[key]=id end
+  end
+ end
+end
+local function permitted(item)
+ if not basePermitted(item) then return false end
+ ensureUniqueNames()
+ return not duplicateNameIds[item.id]
 end
 local function blockedList()
  if not blockedIds then
@@ -99,6 +138,8 @@ local function inventory(player)
  local entries,summary,seen={},{},{}
  local function visit(item,parent,slot)
   if not item then return end
+  -- Equipment slots are not sellable inventory. Only recurse into the backpack.
+  if parent==player and slot~=CONST_SLOT_BACKPACK then return end
   local id,t=item:getId(),ItemType(item:getId())
   if t:isContainer() then
    local uid=item:getUniqueId()

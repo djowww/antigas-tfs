@@ -78,5 +78,15 @@ Unmute Player: /unmute nick.
 	player:registerEvent("Spell")
 	player:registerEvent('KillDeathCount')
 	player:registerEvent("Reward")
+	if AntigasTasks.isAuthorized(player) then
+		player:registerEvent("AntigasTaskModal")
+		local activeTaskId = player:getStorageValue(AntigasTasks.ACTIVE_STORAGE)
+		if AntigasTasks.getTask(activeTaskId) then
+			player:registerEvent("AntigasTaskKill")
+		elseif activeTaskId > 0 then
+			player:setStorageValue(AntigasTasks.ACTIVE_STORAGE, 0)
+			player:setStorageValue(AntigasTasks.PROGRESS_STORAGE, 0)
+		end
+	end
 	return true
 end
