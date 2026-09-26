@@ -2,6 +2,9 @@
 dofile('data/lib/core/core.lua')
 dofile('data/lib/lamp_states.lua')
 
+-- GM-only task window and kill-counter configuration.
+dofile('data/lib/custom/antigasTasks.lua')
+
 -- Compatibility library for our old Lua API
 dofile('data/lib/compat/compat.lua')
 
