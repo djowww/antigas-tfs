@@ -14,30 +14,36 @@ MainWindow
     margin-left: 5
     background-color: alpha
 
-  ProgressBar
-    id: killProgressBar
+  Panel
+    id: killProgressTrack
     anchors.left: parent.left
     anchors.top: creature.bottom
     margin-left: 5
     margin-top: 5
     width: 96
     height: 9
-    image-source: /images/ui/progressbar
-    background-color: #A48643
+    background-color: #202020
     border: 1 #171717
     phantom: true
+
+    UIProgressBar
+      id: killProgressBar
+      anchors.fill: parent
+      margin: 1
+      background-color: #A48643
+      phantom: true
 
   Label
     id: killProgressText
     anchors.left: parent.left
-    anchors.top: killProgressBar.bottom
+    anchors.top: killProgressTrack.bottom
     margin-left: 5
     margin-top: 1
     width: 96
     height: 13
     text-align: center
     color: #D2C294
-    font: small-9px
+    font: verdana-11px-rounded
     phantom: true
 
   Label

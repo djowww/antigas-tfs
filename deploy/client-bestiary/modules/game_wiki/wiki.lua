@@ -24,6 +24,7 @@ local function updateProgressWidget(widget, name)
 	local progressText = widget:recursiveGetChildById("killProgressText")
 	if progressBar then
 		progressBar:setPercent(kills * 100 / BESTIARY_MAX_KILLS)
+		progressBar:setVisible(kills > 0)
 	end
 	if progressText then
 		progressText:setText(string.format("%d / %d", kills, BESTIARY_MAX_KILLS))
