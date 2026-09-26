@@ -36,8 +36,8 @@ MonsterObject < UIWidget
       background-color: alpha
       phantom: true
 
-    ProgressBar
-      id: killProgressBar
+    Panel
+      id: killProgressTrack
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.bottom: parent.bottom
@@ -45,21 +45,27 @@ MonsterObject < UIWidget
       margin-right: 14
       margin-bottom: 17
       height: 9
-      image-source: /images/ui/progressbar
-      background-color: #A48643
+      background-color: #202020
       border: 1 #171717
       phantom: true
+
+      UIProgressBar
+        id: killProgressBar
+        anchors.fill: parent
+        margin: 1
+        background-color: #A48643
+        phantom: true
 
     Label
       id: killProgressText
       anchors.left: parent.left
       anchors.right: parent.right
-      anchors.top: killProgressBar.bottom
+      anchors.top: killProgressTrack.bottom
       margin-top: 1
       height: 13
       text-align: center
       color: #D2C294
-      font: small-9px
+      font: verdana-11px-rounded
       phantom: true
 
 ListPanel < Panel
