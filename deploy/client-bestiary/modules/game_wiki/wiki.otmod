@@ -1,0 +1,9 @@
+Module
+  name: game_wiki
+  description: Monster bestiary and kill progress
+  author: bowt
+  reloadable: true
+  sandboxed: true
+  scripts: [ wiki ]
+  @onLoad: init()
+  @onUnload: terminate()
