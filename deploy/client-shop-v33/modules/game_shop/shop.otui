@@ -1,0 +1,282 @@
+ShopCategory < Panel
+  height: 36
+  focusable: true
+  background-color: alpha
+
+  $focus:
+    background-color: #ffffff18
+    border: 1 #777777
+
+  Label
+    id: name
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-left: 40
+    text-align: left
+    color: #d2d2d2
+    font: verdana-11px-rounded
+
+ShopCategoryItem < ShopCategory
+  UIItem
+    id: item
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin-top: 2
+    margin-bottom: 2
+    margin-left: 3
+    virtual: true
+    size: 32 32
+
+ShopCategoryCreature < ShopCategory
+  UICreature
+    id: creature
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin-top: 2
+    margin-bottom: 2
+    margin-left: 3
+    size: 32 32
+
+ShopCategoryImage < ShopCategory
+  Label
+    id: image
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin-top: 2
+    margin-bottom: 2
+    margin-left: 3
+    size: 32 32
+
+
+
+ShopOffer < Panel
+  height: 56
+  background-color: alpha
+
+  $focus:
+    background-color: #ffffff0e
+
+  Panel
+    id: spriteArea
+    size: 44 44
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    background-color: alpha
+    phantom: true
+
+  Label
+    id: title
+    anchors.left: spriteArea.right
+    anchors.right: price.left
+    anchors.top: parent.top
+    margin-top: 4
+    margin-left: 8
+    margin-right: 6
+    height: 14
+    text-align: topleft
+    text-wrap: false
+    text-auto-resize: false
+    color: #dedede
+    font: verdana-11px-rounded
+
+  Label
+    id: description
+    anchors.top: title.bottom
+    anchors.left: title.left
+    anchors.right: title.right
+    margin-top: 2
+    height: 28
+    text-align: topleft
+    text-auto-resize: false
+    text-wrap: true
+    color: #bcbcbc
+    font: verdana-11px-rounded
+
+  Label
+    id: price
+    anchors.right: buyButton.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 8
+    width: 78
+    height: 14
+    text-align: right
+    text-wrap: false
+    text-auto-resize: false
+    color: #cbbc8e
+    font: verdana-11px-rounded
+
+  Button
+    id: buyButton
+    text: BUY
+    size: 48 22
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.right: parent.right
+    margin-right: 6
+    text-align: center
+
+  Panel
+    id: divider
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 1
+    background-color: #ffffff18
+    phantom: true
+
+ShopOfferItem < ShopOffer
+  UIItem
+    id: item
+    anchors.centerIn: spriteArea
+    virtual: true
+    size: 32 32
+
+ShopOfferCreature < ShopOffer
+  UICreature
+    id: creature
+    anchors.centerIn: spriteArea
+    size: 32 32
+    old-scaling: true
+    outfit-center: true
+
+ShopOfferImage < ShopOffer
+  Label
+    id: image
+    anchors.centerIn: spriteArea
+    size: 44 44
+    image-fixed-ratio: true
+
+MainWindow
+  id: shopWindow
+  !text: tr('Shop')
+  size: 750 500
+  @onEscape: modules.game_shop.hide()
+  $mobile:
+    size: 500 360
+
+  Panel
+    id: infoPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    width: 210
+    height: 68
+
+    Label
+      id: points
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.top: parent.top
+      margin-top: 8
+      text: -
+      text-auto-resize: true
+
+    Button
+      id: buy
+      anchors.horizontalCenter: parent.horizontalCenter
+      width: 118
+      height: 22
+      anchors.top: prev.bottom
+      margin-top: 6
+      visible: false
+      !text: tr("Buy points")
+
+  Panel
+    id: adPanel
+    anchors.top: parent.top
+    anchors.left: infoPanel.right
+    anchors.right: parent.right
+    margin-left: 10
+    height: 0
+
+    Label
+      id: ad
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      text-auto-resize: true
+      text-wrap: true
+      text-align: center
+      font: verdana-11px-rounded
+      color: #c8bd9b
+
+  Panel
+    id: sidebarSeparator
+    anchors.top: parent.top
+    anchors.bottom: transactionHistory.top
+    anchors.left: infoPanel.right
+    margin-left: 4
+    width: 1
+    background-color: #171717
+    phantom: true
+
+  TextList
+    id: categories
+    vertical-scrollbar: categoriesScrollBar
+    anchors.top: infoPanel.bottom
+    anchors.left: infoPanel.left
+    anchors.right: categoriesScrollBar.left
+    anchors.bottom: transactionHistory.top
+    margin-top: 5
+    margin-right: 3
+    margin-bottom: 8
+    padding: 1
+    focusable: false
+
+  VerticalScrollBar
+    id: categoriesScrollBar
+    anchors.top: infoPanel.bottom
+    anchors.bottom: transactionHistory.top
+    anchors.right: infoPanel.right
+    margin-top: 5
+    margin-bottom: 8
+    step: 50
+    pixels-scroll: true
+
+  TextList
+    id: offers
+    vertical-scrollbar: offersScrollBar
+    anchors.top: adPanel.bottom
+    anchors.left: adPanel.left
+    anchors.right: offersScrollBar.left
+    anchors.bottom: transactionHistory.top
+    margin-top: 6
+    margin-right: 3
+    margin-bottom: 8
+    padding: 1
+    focusable: false
+
+  VerticalScrollBar
+    id: offersScrollBar
+    anchors.top: adPanel.bottom
+    anchors.bottom: transactionHistory.top
+    anchors.right: parent.right
+    margin-top: 6
+    margin-bottom: 8
+    step: 50
+    pixels-scroll: true
+
+  Button
+    id: transactionHistory
+    !text: tr('Transaction history')
+    width: 128
+    height: 22
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin-left: 2
+    margin-bottom: 2
+    @onClick: modules.game_shop.showHistory()
+
+  Button
+    id: buttonCancel
+    !text: tr('Close')
+    width: 64
+    height: 22
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-right: 2
+    margin-bottom: 2
+    @onClick: modules.game_shop.hide()
