@@ -24,3 +24,8 @@ de points, scrollbar e última linha visível. Geometria testada em 800×600,
 Empacotamento/publicação: `deploy/shop-v33-release.py`. Ele exige o SHA-256 da
 v32 pública, valida a sintaxe Lua na VPS, compara cada entrada do ZIP novo com
 a v32 e publica ZIP, link e manifesto de forma atômica, preservando backups.
+
+Publicado em 27/09/2026: [cliente v33](https://tibia74.tech/Antigas-7.4-Client-v33.zip).
+SHA-256: `ef50d472f05cceef3dc8a3194b4318573812db351b1a831f0a2d9e28067051fa`.
+O mesmo hash foi observado no pacote local, na VPS e no manifesto; o download
+público respondeu HTTP 200. A v32 e o backup da página/manifesto foram mantidos.
