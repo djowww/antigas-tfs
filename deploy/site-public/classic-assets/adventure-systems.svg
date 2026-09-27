@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 290" role="img" aria-labelledby="title desc">
+  <title id="title">Crônicas e sistemas de Antigas 7.4</title>
+  <desc id="desc">Três ilustrações originais: moedas de ouro, um livro de criaturas e um diário de missões.</desc>
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1"><stop stop-color="#f6e8c7"/><stop offset=".52" stop-color="#ead6ac"/><stop offset="1" stop-color="#d9bd8c"/></linearGradient>
+    <linearGradient id="coin" x2="0" y2="1"><stop stop-color="#f7de7a"/><stop offset=".55" stop-color="#bd8120"/><stop offset="1" stop-color="#805019"/></linearGradient>
+    <linearGradient id="leather" x2="1" y2="1"><stop stop-color="#7c2518"/><stop offset="1" stop-color="#3b1713"/></linearGradient>
+    <pattern id="grain" width="31" height="23" patternUnits="userSpaceOnUse"><path d="M2 6h1m14 11h2M27 3h1M8 21h1" stroke="#805b31" stroke-opacity=".13"/></pattern>
+  </defs>
+  <rect x="3" y="3" width="954" height="284" fill="#4a3121"/>
+  <rect x="8" y="8" width="944" height="274" fill="url(#paper)" stroke="#c1a271" stroke-width="3"/>
+  <rect x="13" y="13" width="934" height="264" fill="url(#grain)" stroke="#876540" stroke-width="1"/>
+  <path d="M25 45h910" stroke="#711210" stroke-width="5"/>
+  <path d="M25 50h910" stroke="#d1aa64" stroke-width="1"/>
+  <text x="480" y="36" text-anchor="middle" fill="#64100d" font-family="Georgia,serif" font-size="20" font-weight="bold" letter-spacing="3">CRÔNICAS DE ANTIGAS 7.4</text>
+  <g fill="#74100e"><path d="m34 29 7 7-7 7-7-7zM926 29l7 7-7 7-7-7z"/></g>
+
+  <g transform="translate(170 71)" stroke="#563813" stroke-linejoin="round">
+    <ellipse cx="0" cy="116" rx="66" ry="12" fill="#7d5930" opacity=".25" stroke="none"/>
+    <path d="M-31 39q-5-14 1-27l-9-9 39 5 39-5-9 11q8 19 1 39l-11 61h-42z" fill="#7d3e1e" stroke-width="4"/>
+    <path d="M-39 4q38 15 78 0M-26 31q26 10 52 0" fill="none" stroke="#d2a755" stroke-width="4"/>
+    <path d="M0 9q-9-16 2-24 11 9 1 24" fill="#a66c2a" stroke-width="3"/>
+    <ellipse cx="-53" cy="111" rx="22" ry="8" fill="url(#coin)" stroke-width="3"/><path d="M-75 104v8q4 13 44 0v-8" fill="#a56a19" stroke-width="3"/><ellipse cx="-53" cy="104" rx="22" ry="8" fill="url(#coin)" stroke-width="3"/><path d="M-58 100h10m-5-5v10" stroke="#765015" stroke-width="2"/>
+    <ellipse cx="51" cy="111" rx="21" ry="8" fill="url(#coin)" stroke-width="3"/><path d="M30 104v8q4 12 42 0v-8" fill="#a56a19" stroke-width="3"/><ellipse cx="51" cy="104" rx="21" ry="8" fill="url(#coin)" stroke-width="3"/><path d="M46 100h10m-5-5v10" stroke="#765015" stroke-width="2"/>
+    <circle cx="0" cy="61" r="15" fill="url(#coin)" stroke-width="3"/><path d="M-6 61h12m-6-7v14" stroke="#765015" stroke-width="2"/>
+  </g>
+  <text x="170" y="222" text-anchor="middle" fill="#5a170e" font-family="Georgia,serif" font-size="21" font-weight="bold">MARKET</text>
+  <text x="170" y="243" text-anchor="middle" fill="#654c30" font-family="Verdana,sans-serif" font-size="12">Trocas entre aventureiros</text>
+  <path d="M319 68v194M640 68v194" stroke="#aa8555" stroke-width="2"/>
+  <path d="M324 68v194M645 68v194" stroke="#fff5d9" stroke-opacity=".65"/>
+
+  <g transform="translate(480 126)" stroke-linejoin="round">
+    <ellipse cy="58" rx="84" ry="12" fill="#7d5930" opacity=".25" stroke="none"/>
+    <path d="M-77-48q40-15 77 5 37-20 77-5v96q-41-12-77 8-37-20-77-8z" fill="url(#leather)" stroke="#482719" stroke-width="5"/>
+    <path d="M-67-39q31-9 61 5v79q-31-15-61-7zm134 0q-31-9-61 5v79q31-15 61-7z" fill="#f3e5c4" stroke="#bf9b63" stroke-width="3"/>
+    <path d="M-6-28l-22 17 5 6-12 9 13 4-5 12 18-7 11 7 10-8 19 5-7-12 11-8-15-7-4-14-12 8z" fill="#45513c" stroke="#373325" stroke-width="3"/>
+    <circle cx="8" cy="-8" r="3" fill="#d6a736" stroke="none"/><path d="M-45 18h27m-27 7h23M26 18h27m-27 7h23" stroke="#9e8258" stroke-width="2"/>
+  </g>
+  <text x="480" y="222" text-anchor="middle" fill="#5a170e" font-family="Georgia,serif" font-size="21" font-weight="bold">BESTIARY</text>
+  <text x="480" y="243" text-anchor="middle" fill="#654c30" font-family="Verdana,sans-serif" font-size="12">Criaturas e progresso de caça</text>
+
+  <g transform="translate(795 123)" stroke-linejoin="round">
+    <ellipse cy="68" rx="66" ry="10" fill="#7d5930" opacity=".24" stroke="none"/>
+    <path d="M-40-56q38 8 76 0v111q-38-8-76 0z" fill="#f5e6c5" stroke="#694628" stroke-width="4"/>
+    <path d="M-29-39h50M-29-29h45M-29-4h44M-29 6h49M-29 31h43M-29 41h49" stroke="#ac9064" stroke-width="3"/>
+    <g fill="#c39a39" stroke="#654920" stroke-width="2"><circle cx="-24" cy="-17" r="8"/><circle cx="-24" cy="18" r="8"/></g>
+    <path d="m-28-17 3 3 6-7m-9 22 3 3 6-7" fill="none" stroke="#fff3cc" stroke-width="2"/>
+    <path d="M40-61q20 43 38 74-24-15-41-39 14 18 18 33l-31-49z" fill="#66724a" stroke="#414735" stroke-width="3"/>
+    <path d="m17-42 22 21" stroke="#bd9145" stroke-width="3"/>
+  </g>
+  <text x="795" y="222" text-anchor="middle" fill="#5a170e" font-family="Georgia,serif" font-size="21" font-weight="bold">QUEST LOG</text>
+  <text x="795" y="243" text-anchor="middle" fill="#654c30" font-family="Verdana,sans-serif" font-size="12">Suas missões e descobertas</text>
+</svg>

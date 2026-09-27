@@ -2,6 +2,7 @@
 local OPCODE, GOLD, PLATINUM, CRYSTAL, ANTIGAS = 202,3031,3035,3043,5130
 local MAX_AMOUNT, MAX_TOTAL, MAX_SAFE, PAGE_SIZE = 10000,100000000,9007199254740991,40
 local types, canonical, catalog, limits = {},{},nil,{}
+local lastLimitCleanup = 0
 local CATEGORIES = {
  {id="all",name="All items"},{id="weapons",name="Weapons"},
  {id="shields",name="Shields"},{id="armor",name="Armor"},
@@ -461,7 +462,10 @@ local function allowed(player,mutation)
  if not limit or limit.second~=now then limit={second=now,read=0,write=0};limits[guid]=limit end
  local key=mutation and "write" or "read"
  limit[key]=limit[key]+1
- if now%60==0 then for id,l in pairs(limits) do if l.second<now-60 then limits[id]=nil end end end
+ if now-lastLimitCleanup>=60 then
+  lastLimitCleanup=now
+  for id,l in pairs(limits) do if l.second<now-60 then limits[id]=nil end end
+ end
  return limit[key]<=(mutation and 3 or 8)
 end
 function onExtendedOpcode(player,opcode,buffer)
