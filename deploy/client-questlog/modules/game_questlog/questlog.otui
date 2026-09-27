@@ -1,0 +1,236 @@
+QuestRow < Panel
+  height: 45
+  background-color: #343434
+  border: 1 #505050
+  focusable: true
+
+  Label
+    id: title
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 4 6 0 6
+    height: 14
+    text-align: left
+    color: #d3d3d3
+    phantom: true
+
+  Label
+    id: status
+    anchors.top: title.bottom
+    anchors.left: title.left
+    anchors.right: title.right
+    margin-top: 3
+    height: 14
+    text-align: left
+    color: #b9b19c
+    phantom: true
+
+QuestStep < Panel
+  height: 43
+  background-color: #ffffff04
+
+  Label
+    id: title
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin: 4 5 0 5
+    height: 14
+    text-align: left
+    color: #d0d0d0
+
+  Label
+    id: progress
+    anchors.left: title.left
+    anchors.right: title.right
+    anchors.top: title.bottom
+    margin-top: 3
+    height: 14
+    text-align: left
+    color: #b9b19c
+
+MainWindow
+  id: questLogWindow
+  text: Quest Log
+  size: 720 480
+  @onEscape: modules.game_questlog.hide()
+
+  ComboBox
+    id: filter
+    anchors.top: parent.top
+    anchors.left: parent.left
+    width: 158
+    height: 22
+
+  Label
+    id: count
+    anchors.left: filter.right
+    anchors.right: parent.right
+    anchors.verticalCenter: filter.verticalCenter
+    margin-left: 10
+    height: 16
+    text-align: right
+    color: #c4b894
+    text: Your character's quest journal
+
+  TextList
+    id: quests
+    anchors.left: parent.left
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    margin-top: 7
+    margin-bottom: 7
+    width: 286
+    padding: 1
+    vertical-scrollbar: questScroll
+    focusable: false
+
+  VerticalScrollBar
+    id: questScroll
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    anchors.left: quests.right
+    margin-top: 7
+    margin-bottom: 7
+    margin-left: 2
+    step: 45
+    pixels-scroll: true
+
+  ScrollablePanel
+    id: detail
+    anchors.left: questScroll.right
+    anchors.right: detailScroll.left
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    margin: 7 3 7 9
+    padding: 7
+    background-color: #29292988
+    vertical-scrollbar: detailScroll
+    layout:
+      type: verticalBox
+      spacing: 7
+      fit-children: false
+
+    Label
+      id: title
+      text: Select a quest
+      height: 30
+      text-wrap: false
+      text-auto-resize: false
+      text-align: topleft
+      color: #d8c9a8
+
+    Label
+      id: state
+      height: 28
+      text-wrap: false
+      text-align: topleft
+      color: #c3c3c3
+
+    Label
+      id: description
+      height: 80
+      text-wrap: false
+      text-align: topleft
+      color: #c3c3c3
+
+    Label
+      id: reward
+      height: 60
+      text-wrap: false
+      text-align: topleft
+      color: #bbb29c
+
+    Panel
+      id: steps
+      layout:
+        type: verticalBox
+        spacing: 3
+        fit-children: true
+
+  VerticalScrollBar
+    id: detailScroll
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    anchors.right: parent.right
+    margin-top: 7
+    margin-bottom: 7
+    step: 40
+    pixels-scroll: true
+
+  TextEdit
+    id: search
+    anchors.left: parent.left
+    anchors.right: clear.left
+    anchors.bottom: message.top
+    margin-right: 3
+    margin-bottom: 7
+    height: 22
+    max-length: 48
+    placeholder: Search quest or region...
+
+  Button
+    id: clear
+    anchors.right: parent.right
+    anchors.bottom: message.top
+    margin-bottom: 7
+    size: 24 22
+    text: X
+    tooltip: Clear search
+    @onClick: self:getParent().search:setText('')
+
+  Label
+    id: message
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: close.top
+    margin-bottom: 8
+    height: 26
+    text-wrap: true
+    text-align: left
+    color: #aaa79e
+    text: Read-only progress. Claim rewards in the world, not in this window.
+
+  Button
+    id: refresh
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    size: 70 22
+    text: Refresh
+    @onClick: modules.game_questlog.refresh()
+
+  Button
+    id: previous
+    anchors.left: refresh.right
+    anchors.bottom: parent.bottom
+    margin-left: 8
+    size: 28 22
+    text: <
+    @onClick: modules.game_questlog.changePage(-1)
+
+  Label
+    id: page
+    anchors.left: previous.right
+    anchors.bottom: parent.bottom
+    margin-left: 3
+    size: 84 22
+    text-align: center
+    text: Page 1 / 1
+
+  Button
+    id: next
+    anchors.left: page.right
+    anchors.bottom: parent.bottom
+    margin-left: 3
+    size: 28 22
+    text: >
+    @onClick: modules.game_questlog.changePage(1)
+
+  Button
+    id: close
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 62 22
+    text: Close
+    @onClick: modules.game_questlog.hide()

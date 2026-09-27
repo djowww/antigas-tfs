@@ -79,6 +79,7 @@ Unmute Player: /unmute nick.
 	player:registerEvent('KillDeathCount')
 	player:registerEvent("Reward")
 	player:registerEvent("Bestiary")
+	player:registerEvent("QuestLog")
 	player:registerEvent("BestiaryKill")
 	return true
 end
