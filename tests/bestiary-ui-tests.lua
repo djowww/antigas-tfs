@@ -84,7 +84,7 @@ local function run()
   m.show()
   packet({action = 'progress', data = {amazon = 347, ['ancient scarab'] = 1000, assassin = 99, badger = 500}})
   assert(cards()[1].killProgressText:getText():find('347 / 1000', 1, true), 'Opcode re-registers after module reload')
-  local catalog = dofile('/modules/game_wiki/data/imperium_monster.lua')
+  local catalog = dofile('/modules/game_wiki/data/antigas_monster.lua')
   local longLists = 0
   for id, monster in ipairs(catalog) do
     m.selectCreature(id)

@@ -20,9 +20,9 @@
 #ifndef FS_DEFINITIONS_H_877452FEC245450C9F96B8FD268D8963
 #define FS_DEFINITIONS_H_877452FEC245450C9F96B8FD268D8963
 
-static constexpr auto STATUS_SERVER_NAME = "Imperium";
+static constexpr auto STATUS_SERVER_NAME = "Antigas";
 static constexpr auto STATUS_SERVER_VERSION = "1.2";
-static constexpr auto STATUS_SERVER_DEVELOPERS = "Imperium";
+static constexpr auto STATUS_SERVER_DEVELOPERS = "Antigas";
 
 static constexpr auto CLIENT_VERSION_MIN = 772;
 static constexpr auto CLIENT_VERSION_MAX = 772;
