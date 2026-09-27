@@ -47,10 +47,9 @@ bool Database::ensureConnection()
 	if (handle) mysql_close(handle);
 	handle = mysql_init(nullptr);
 	if (!handle) { connectionFailed(); return false; }
-	// Never replay a statement implicitly, particularly an ambiguous write.
-	bool reconnect = false;
+	// Automatic reconnect is disabled by default. Keep recovery explicit so
+	// an ambiguous write is never replayed behind a transaction's back.
 	unsigned int timeout = 1;
-	mysql_options(handle, MYSQL_OPT_RECONNECT, &reconnect);
 	mysql_options(handle, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 	mysql_options(handle, MYSQL_OPT_READ_TIMEOUT, &timeout);
 	mysql_options(handle, MYSQL_OPT_WRITE_TIMEOUT, &timeout);
