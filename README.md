@@ -1,5 +1,15 @@
 # Antigas 7.4 — servidor
 
+## Build
+
+Build on Linux with CMake 3.16+, a C++11 compiler, Boost system/filesystem,
+LuaJIT, PugiXML, GMP, and MySQL/MariaDB client development packages:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+```
+
 Repositório privado do servidor Antigas 7.4. O repositório contém o código-fonte do TFS, scripts e dados do jogo, inclusive o mapa versionado. Não contém o executável compilado nem o arquivo local de configuração com credenciais.
 
 ## Estrutura

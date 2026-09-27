@@ -4,6 +4,10 @@
 	<event type="kill" name="BestiaryKill" script="bestiary.lua"/>
 	<event type="extendedopcode" name="Bestiary" script="bestiary.lua"/>
 	<event type="extendedopcode" name="QuestLog" script="questlog.lua"/>
+	<event type="kill" name="AchievementsKill" script="achievements.lua"/>
+	<event type="death" name="AchievementsDeath" script="achievements.lua"/>
+	<event type="advance" name="AchievementsAdvance" script="achievements.lua"/>
+	<event type="extendedopcode" name="AchievementsOpcode" script="achievements.lua"/>
 	<event type="login" name="FirstItems" script="firstitems.lua"/>
 	<event type="death" name="PlayerDeath" script="playerdeath.lua"/>
     <event type="death" name="death_animation_fireelemental" script="fireelemental.lua"/>
