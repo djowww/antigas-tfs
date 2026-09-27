@@ -755,7 +755,7 @@ void Game::playerMoveCreature(Player* player, Creature* movingCreature, const Po
 ReturnValue Game::internalMoveCreature(Creature* creature, Direction direction, uint32_t flags /*= 0*/)
 {
 	creature->setLastPosition(creature->getPosition());
-	const Position& currentPos = creature->getPosition();
+	const Position currentPos = creature->getPosition();
 	Position destPos = getNextPosition(direction, currentPos);
 	
 	Player* player = creature->getPlayer();
@@ -789,7 +789,11 @@ ReturnValue Game::internalMoveCreature(Creature* creature, Direction direction, 
 	if (!toTile) {
 		return RETURNVALUE_NOTPOSSIBLE;
 	}
-	return internalMoveCreature(*creature, *toTile, flags);
+	ReturnValue ret = internalMoveCreature(*creature, *toTile, flags);
+	if (ret == RETURNVALUE_NOERROR && player && (flags & FLAG_IGNOREFIELDDAMAGE) != 0) {
+		g_events->eventPlayerOnMoveCreature(player, creature, currentPos, creature->getPosition());
+	}
+	return ret;
 }
 
 ReturnValue Game::internalMoveCreature(Creature& creature, Tile& toTile, uint32_t flags /*= 0*/)

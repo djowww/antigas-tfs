@@ -25,6 +25,9 @@
 #include "weapons.h"
 #include "configmanager.h"
 
+#include <cmath>
+#include <limits>
+
 extern Game g_game;
 extern Weapons* g_weapons;
 extern ConfigManager g_config;
@@ -461,9 +464,25 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 
 	if (damage.value < 0 && caster) {
 		Player* targetPlayer = target->getPlayer();
+		if (Player* attackerPlayer = caster->getPlayer()) {
+			int32_t attackBonus = 0;
+			attackerPlayer->getStorageValue(17804, attackBonus);
+			attackBonus = std::max<int32_t>(0, std::min<int32_t>(1000, attackBonus));
+			if (attackBonus > 0) {
+				const double scaled = std::floor(std::abs(static_cast<double>(damage.value)) * (100.0 + attackBonus) / 100.0);
+				damage.value = -static_cast<int32_t>(std::min<double>(scaled, std::numeric_limits<int32_t>::max()));
+			}
+		}
 		if (targetPlayer && caster->getPlayer()) {
 			damage.value /= 2;
 			damage.value *= params.pvpDamage / 100;
+			int32_t pvpBonus = 0;
+			caster->getPlayer()->getStorageValue(17805, pvpBonus);
+			pvpBonus = std::max<int32_t>(0, std::min<int32_t>(1000, pvpBonus));
+			if (pvpBonus > 0) {
+				const double scaled = std::floor(std::abs(static_cast<double>(damage.value)) * (100.0 + pvpBonus) / 100.0);
+				damage.value = -static_cast<int32_t>(std::min<double>(scaled, std::numeric_limits<int32_t>::max()));
+			}
 		}
 	}
 

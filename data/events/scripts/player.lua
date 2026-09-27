@@ -114,6 +114,14 @@ function Player:onItemMoved(item, count, fromPosition, toPosition, fromCylinder,
 end
 
 function Player:onMoveCreature(creature, fromPosition, toPosition)
+	if creature and creature:getId() == self:getId() then
+		local position = self:getPosition()
+		-- The movement callback is also used before a pushed creature moves.
+		-- Count only the post-move callback emitted by the walk path.
+		if position.x == toPosition.x and position.y == toPosition.y and position.z == toPosition.z then
+			AntigasAchievements.onWalk(self, fromPosition, toPosition)
+		end
+	end
 	return true
 end
 
