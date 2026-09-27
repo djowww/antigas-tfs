@@ -32,4 +32,11 @@ contas ou arquivos de desenvolvimento. Publicação mantém a v33 e backup da
 página e do manifesto. Não requer reiniciar o servidor do jogo.
 
 SHA-256 do pacote v34 validado localmente:
-`e05268221d4eaf6b29233e7d2872b90c4407198466e064abdf04af1e9e88ec1c`.
+`8a7cae4c7d70840e9b85ec351540fa674e6264989ce063592167d2b01d73ee5c`.
+Os metadados do PNG no ZIP são fixos para que Windows e Linux produzam o
+mesmo pacote byte a byte.
+
+Publicada em 27/09/2026: https://tibia74.tech/Antigas-7.4-Client-v34.zip.
+ZIP local e da VPS com SHA-256 idêntico; manifesto e link público na v34,
+download HTTP 200 (25.717.880 bytes), PHP sem erro de sintaxe e serviço
+`imperium772` ativo. Backup da página/manifesto no estágio protegido da VPS.

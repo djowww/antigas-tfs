@@ -94,6 +94,7 @@ def package(web, stage, root):
         for entry in source.infolist():
             target.writestr(entry, changed.get(entry.filename, source.read(entry.filename)))
         crest = zipfile.ZipInfo(FILES[2], (2026, 9, 27, 0, 0, 0))
+        crest.create_system = 3  # Stable ZIP metadata on Windows and Linux.
         crest.compress_type = zipfile.ZIP_DEFLATED
         crest.external_attr = 0o100644 << 16
         target.writestr(crest, changed[FILES[2]])
