@@ -50,3 +50,23 @@ function Player:applyOnlineStayBonus(amount, remainderStorage)
 	self:setStorageValue(remainderStorage, numerator - extra * denominator)
 	return extra
 end
+
+function Player:applyBestiaryExperienceBonus(amount)
+	local bestiary = AntigasBestiary
+	if not bestiary then
+		return 0
+	end
+
+	local completed = bestiary.getCompletedCount(self)
+	local bonusUnits = completed * bestiary.XP_BONUS_UNITS_PER_COMPLETION
+	if bonusUnits == 0 then
+		return 0
+	end
+
+	local denominator = bestiary.XP_BONUS_DENOMINATOR
+	local remainder = math.max(0, math.min(denominator - 1, self:getStorageValue(bestiary.XP_REMAINDER_STORAGE)))
+	local numerator = math.floor(math.max(0, amount) * bonusUnits + remainder + 1e-9)
+	local extra = math.floor(numerator / denominator)
+	self:setStorageValue(bestiary.XP_REMAINDER_STORAGE, numerator - extra * denominator)
+	return extra
+end

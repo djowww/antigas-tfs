@@ -4,7 +4,7 @@ require (getenv('ANTIGAS_WEB_LIB')?:'/opt/antigas-web/private').'/security.php';
 webStart();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Client-v38.zip';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Client-v39.zip';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       </section>
       <nav class="side-news" aria-label="Notícias em destaque">
         <h2>No mural</h2>
+        <a href="#bestiary-xp">Bônus de XP do Bestiary<time datetime="2026-09-27">27 set 2026</time></a>
         <a href="#questlog">Quest Log no cliente<time datetime="2026-09-27">27 set 2026</time></a>
         <a href="#bestiary">Bestiary com progresso<time datetime="2026-09-26">26 set 2026</time></a>
         <a href="#hunt">Hunt e bônus online<time datetime="2026-09-25">25 set 2026</time></a>
@@ -106,6 +107,13 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="welcome-crest" aria-hidden="true"><img src="/classic-assets/crest.svg" width="126" height="142" alt=""><span>7.4 Classic</span></div>
       </section>
       <section class="page-title" id="noticias"><h2>Últimas notícias</h2><p>Sistemas novos e melhorias no mundo Antigas 7.4.</p></section>
+      <article id="bestiary-xp" class="news-article update-article">
+        <h3 class="news-ribbon"><span>Recompensa por bestiário completo</span><time datetime="2026-09-27">27 set 2026 · Cliente v39</time></h3>
+        <div class="news-body">
+          <p class="dropcap">Complete os 1.000 abates de uma criatura para receber <strong>+0,2% de experiência permanente</strong> por bestiário completo.</p>
+          <p>O bônus acumula entre criaturas. O Bestiary exibe o total atual, e conclusões anteriores são sincronizadas automaticamente ao entrar no servidor.</p>
+        </div>
+      </article>
       <article id="questlog" class="news-article update-article">
         <h3 class="news-ribbon"><span>Seu diário de aventuras: Quest Log</span><time datetime="2026-09-27">27 set 2026 · Cliente v35</time></h3>
         <div class="news-body">

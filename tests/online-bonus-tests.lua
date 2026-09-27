@@ -25,6 +25,7 @@ function stopEvent(eventId)
 end
 
 dofile("data/lib/custom/onlineBonus.lua")
+dofile("data/lib/custom/antigasBestiary.lua")
 
 local function makePlayer(playerId, storedBonus)
 	local player = {
@@ -182,7 +183,7 @@ APPLY_SKILL_MULTIPLIER = true
 
 dofile("data/events/scripts/player.lua")
 
-local function makeGrowthPlayer(bonusUnits)
+local function makeGrowthPlayer(bonusUnits, completedBestiaries)
 	local player = {storage = {}, analyzerExperience = 0}
 	setmetatable(player, {__index = Player})
 
@@ -199,6 +200,9 @@ local function makeGrowthPlayer(bonusUnits)
 		return true
 	end
 	player:setOnlineStayBonusUnits(bonusUnits)
+	if completedBestiaries ~= nil then
+		player:setStorageValue(AntigasBestiary.COMPLETION_STORAGE, completedBestiaries)
+	end
 
 	function player:getLevel()
 		return 10
@@ -241,6 +245,19 @@ for _ = 1, 5 do
 	totalXp = totalXp + fractionalPlayer:onGainExperience(monster, 100, 100)
 end
 assert(totalXp == 501, "fractional XP bonus was lost between events")
+
+local bestiaryPlayer = makeGrowthPlayer(0, 5) -- Five completions grant +1.0% XP.
+assert(bestiaryPlayer:onGainExperience(monster, 1000, 1000) == 1010, "completed bestiaries must add 0.2% XP each")
+
+local bestiaryFractionalPlayer = makeGrowthPlayer(0, 1)
+local bestiaryTotalXp = 0
+for _ = 1, 5 do
+	bestiaryTotalXp = bestiaryTotalXp + bestiaryFractionalPlayer:onGainExperience(monster, 100, 100)
+end
+assert(bestiaryTotalXp == 501, "fractional bestiary XP bonus was lost between events")
+
+local stackedBonusPlayer = makeGrowthPlayer(50, 5)
+assert(stackedBonusPlayer:onGainExperience(monster, 1000, 1000) == 1060, "online and bestiary bonuses must stack additively")
 
 local zeroBonusPlayer = makeGrowthPlayer(0)
 assert(zeroBonusPlayer:onGainExperience(monster, 100, 100) == 100, "zero XP bonus changed experience")

@@ -1,5 +1,5 @@
 function onLogin(player)
-	local loginStr = "Welcome to Antigas 7.4\nOfficial client: v38 - https://tibia74.tech/Antigas-7.4-Client-v38.zip"
+	local loginStr = "Welcome to Antigas 7.4\nOfficial client: v39 - https://tibia74.tech/Antigas-7.4-Client-v39.zip"
 	if player:getLastLoginSaved() <= 0 then
 		player:sendOutfitWindow()
 	else
@@ -8,6 +8,15 @@ function onLogin(player)
 		player:openChannel(7)
 	end
 	player:sendTextMessage(MESSAGE_STATUS_DEFAULT, loginStr)
+
+	local completedBestiaries, migrated = AntigasBestiary.migrateCompletedCount(player)
+	if migrated and completedBestiaries > 0 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, string.format(
+			"Bestiary XP bonus synchronized: +%.1f%% permanent bonus from %d completed bestiaries.",
+			completedBestiaries * 0.2,
+			completedBestiaries
+		))
+	end
 	
 	-- Maintenance mode
     --if (player:getGroup():getId() < 2) then
