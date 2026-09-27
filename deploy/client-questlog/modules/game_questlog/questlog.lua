@@ -1,9 +1,10 @@
 local OPCODE = 125
-local window, button, pollEvent, searchEvent, timeoutEvent, layoutEvent
+local window, button, pollEvent, searchEvent, timeoutEvent, layoutEvent, selectionEvent, scrollEvent
 local selected, detailData, rows, pending = nil, nil, {}, {}
 local page, pages, serial, filter = 1, 1, 0, 'all'
 local resetting = false
-local statusText = {unstarted='Not recorded',active='In progress',completed='Completed'}
+local statusText = {active='In progress',completed='Completed'}
+local journalHint = 'Your journal grows with the paths you discover. Seek answers in the world.'
 
 local function cancel(event) if event then removeEvent(event) end end
 local function int(value,low,high)
@@ -16,6 +17,18 @@ local function fit(label,text)
   local lines, current = {}, ''
   local width = math.max(40,label:getWidth()-2)
   for word in text:gmatch('%S+') do
+    -- Also wrap a single long name; whitespace-only wrapping can overflow.
+    label:setText(word)
+    if label:getTextSize().width>width then
+      if current~='' then lines[#lines+1]=current; current='' end
+      local part=''
+      for char in word:gmatch('.') do
+        label:setText(part..char)
+        if part~='' and label:getTextSize().width>width then lines[#lines+1]=part; part=char
+        else part=part..char end
+      end
+      word=part
+    end
     local candidate = current=='' and word or current..' '..word
     label:setText(candidate)
     if current~='' and label:getTextSize().width>width then
@@ -29,32 +42,43 @@ end
 
 local function clearDetail()
   detailData=nil
-  window.detail.title:setText('Select a quest')
-  window.detail.state:setText('')
-  window.detail.description:setText('Choose a quest on the left to view your recorded progress.')
-  window.detail.reward:setText('')
+  fit(window.detail.title,'Unwritten pages')
+  fit(window.detail.state,'A personal journal')
+  window.detail.state:setColor('#bcbcbc')
+  fit(window.detail.description,'Your next adventure is still out there. Speak with the people you meet, explore forgotten places and keep their stories in mind. New entries appear as your discoveries are recorded.')
+  window.detail.reward:setText(''); window.detail.reward:hide()
+  window.detail.entriesTitle:hide()
   window.detail.steps:destroyChildren()
 end
 
 local function renderDetail()
   if not window or not detailData then return end
   local q=detailData
+  local scroll=window.detailScroll:getValue()
   fit(window.detail.title,q.name)
   fit(window.detail.state,statusText[q.status]..'  |  '..q.region)
   fit(window.detail.description,q.description)
-  fit(window.detail.reward,q.rewards~='' and ('Map reward: '..q.rewards) or
-    'Rewards and permissions remain with the original quest NPCs and scripts.')
+  window.detail.state:setColor(q.status=='completed' and '#bdb08b' or '#bcbcbc')
+  fit(window.detail.reward,q.rewards~='' and ('Recorded find: '..q.rewards) or '')
+  window.detail.reward:setVisible(q.rewards~='')
+  window.detail.entriesTitle:show()
   window.detail.steps:destroyChildren()
   for _,s in ipairs(q.steps) do
     local row=g_ui.createWidget('QuestStep',window.detail.steps)
     fit(row.title,s.name)
-    row.progress:setText((s.completed and 'Done' or 'Recorded')..': '..s.current..' / '..s.target)
+    row.progress:setText(s.completed and 'Remembered' or 'Unfinished')
     row.progress:setColor(s.completed and '#c6b785' or '#bababa')
     row:setHeight(row.title:getHeight()+25)
   end
+  cancel(scrollEvent)
+  scrollEvent=scheduleEvent(function()
+    scrollEvent=nil
+    if window and detailData==q then window.detailScroll:setValue(scroll) end
+  end,30)
 end
 
 local function send(action,data)
+  if pending[action] then return false end
   if not g_game.isOnline() or not g_game.getFeature(GameExtendedOpcode) then return false end
   local protocol=g_game.getProtocolGame()
   if not protocol then return false end
@@ -65,13 +89,18 @@ local function send(action,data)
   if not timeoutEvent then timeoutEvent=scheduleEvent(function()
     timeoutEvent=nil
     if window and window:isVisible() and next(pending) then
-      window.message:setText('No reply yet. Reconnect after a server update, or use Refresh.')
+      pending={}
+      window.message:setText('Your journal could not be updated. Try Refresh.')
     end
   end,8000) end
   return true
 end
 
 function selectQuest(id)
+  if not window or not window:isVisible() then return end
+  cancel(selectionEvent)
+  pending.detail=nil
+  if not next(pending) then cancel(timeoutEvent); timeoutEvent=nil end
   if selected~=id then clearDetail(); window.detailScroll:setValue(0) end
   selected=id
   for _,row in ipairs(window.quests:getChildren()) do
@@ -79,7 +108,10 @@ function selectQuest(id)
     row:setBorderColor(active and '#aaa28c' or '#505050')
     row:setBackgroundColor(active and '#42423e' or '#343434')
   end
-  send('detail',{id=id})
+  selectionEvent=scheduleEvent(function()
+    selectionEvent=nil
+    if selected==id and window and window:isVisible() then send('detail',{id=id}) end
+  end,180)
 end
 
 local function validSummary(q)
@@ -92,6 +124,11 @@ function onQuestOpcode(protocol,opcode,buffer)
   local ok,data=pcall(json.decode,buffer)
   if not ok or type(data)~='table' or not int(data.requestId,1,1000000000) or
     pending[data.action]~=data.requestId then return end
+  if data.journal~=2 then
+    window.message:setText('The journal is not available in this world yet.')
+    pending={}; cancel(timeoutEvent); timeoutEvent=nil
+    return
+  end
   if data.action=='list' then
     if type(data.entries)~='table' or #data.entries>35 or not int(data.pages,1,1000) or
       not int(data.page,1,data.pages) or not int(data.total,0,10000) or
@@ -106,7 +143,7 @@ function onQuestOpcode(protocol,opcode,buffer)
       row.questId=q.id
       fit(row.title,q.name)
       row:setHeight(row.title:getHeight()+27)
-      row.status:setText(statusText[q.status]..'  |  '..q.done..' / '..q.total..' stages')
+      row.status:setText(statusText[q.status]..'  |  '..q.total..(q.total==1 and ' note' or ' notes'))
       row:setTooltip(q.name..'\n'..q.region)
       row.onClick=function() selectQuest(q.id) end
       local active=q.id==selected
@@ -115,15 +152,28 @@ function onQuestOpcode(protocol,opcode,buffer)
       found=found or active
     end
     window.questScroll:setValue(scroll)
-    window.count:setText(data.completed..' / '..data.total..' completed  |  '..data.matched..' matched')
+    window.count:setText(data.total..' discovered  |  '..data.completed..' completed')
     window.page:setText('Page '..page..' / '..pages)
     window.previous:setEnabled(page>1); window.next:setEnabled(page<pages)
+    pending.list=nil
     if not found then
       selected=nil; pending.detail=nil; clearDetail()
       if rows[1] then selectQuest(rows[1].id) end
+    elseif selected then
+      -- Refresh details after the list, preventing mixed generations of replies.
+      selectQuest(selected)
     end
-    if #rows==0 then window.detail.title:setText('No matching quests') end
+    if #rows==0 and data.total>0 then
+      fit(window.detail.title,'No matching entries')
+      fit(window.detail.description,'Try another search or return to All entries to read your journal.')
+    end
   elseif data.action=='detail' then
+    if data.unavailable==true then
+      selected=nil; clearDetail(); pending.detail=nil
+      window.message:setText(journalHint)
+      if not next(pending) then cancel(timeoutEvent); timeoutEvent=nil end
+      return
+    end
     local q=data.quest
     if not validSummary(q) or q.id~=selected or not str(q.description,1800) or
       not str(q.rewards,3000) or type(q.steps)~='table' or #q.steps~=q.total then return end
@@ -135,17 +185,17 @@ function onQuestOpcode(protocol,opcode,buffer)
   else return end
   pending[data.action]=nil
   if not next(pending) then cancel(timeoutEvent); timeoutEvent=nil end
-  window.message:setText('Read-only progress. Updates every 6 seconds while open; claim rewards in the world.')
+  window.message:setText(journalHint)
 end
 
 function refresh()
   if not window or not window:isVisible() then return end
+  if pending.list or pending.detail or searchEvent or selectionEvent then return end
   local query=window.search:getText():sub(1,48):gsub('[%c]','')
   if not send('list',{page=page,filter=filter,query=query}) then
-    window.message:setText('Connect to Antigas to load your quest progress.')
+    window.message:setText('Enter the world to open your journal.')
     return
   end
-  if selected then send('detail',{id=selected}) end
 end
 
 local function poll()
@@ -158,7 +208,10 @@ end
 function changedSearch()
   if resetting then return end
   cancel(searchEvent)
+  cancel(selectionEvent); selectionEvent=nil
+  cancel(timeoutEvent); timeoutEvent=nil
   pending={}; selected=nil; page=1; clearDetail()
+  rows={}; window.quests:destroyChildren()
   window.questScroll:setValue(0)
   searchEvent=scheduleEvent(function() searchEvent=nil; refresh() end,350)
 end
@@ -166,7 +219,11 @@ end
 function changePage(delta)
   local target=math.max(1,math.min(pages,page+delta))
   if target==page then return end
+  cancel(searchEvent); searchEvent=nil
+  cancel(selectionEvent); selectionEvent=nil
+  cancel(timeoutEvent); timeoutEvent=nil
   page=target; selected=nil; pending={}; clearDetail()
+  rows={}; window.quests:destroyChildren()
   window.questScroll:setValue(0); refresh()
 end
 
@@ -182,7 +239,7 @@ function resize()
     for i,row in ipairs(window.quests:getChildren()) do
       if rows[i] then fit(row.title,rows[i].name); row:setHeight(row.title:getHeight()+27) end
     end
-    renderDetail()
+    if detailData then renderDetail() else clearDetail() end
   end,30)
 end
 
@@ -195,6 +252,8 @@ end
 
 function hide()
   cancel(pollEvent); cancel(searchEvent); cancel(timeoutEvent)
+  cancel(selectionEvent); cancel(scrollEvent)
+  selectionEvent,scrollEvent=nil,nil
   pollEvent,searchEvent,timeoutEvent=nil,nil,nil
   pending={}
   if window then window:hide() end
@@ -209,9 +268,9 @@ function offline()
   hide(); selected,detailData,rows=nil,nil,{}
   page,pages,filter=1,1,'all'
   resetting=true
-  window.search:setText(''); window.filter:setCurrentOption('All',true)
+  window.search:setText(''); window.filter:setCurrentOption('All entries',true)
   window.quests:destroyChildren(); clearDetail()
-  window.count:setText("Your character's quest journal")
+  window.count:setText('A personal journal')
   window.page:setText('Page 1 / 1')
   resetting=false
 end
@@ -220,7 +279,7 @@ function init()
   window=g_ui.displayUI('questlog'); window:hide()
   button=modules.client_topmenu.addRightGameToggleButton('questLogButton','Quest Log (Ctrl+J)',
     '/images/topbuttons/questlog',toggle,false)
-  for _,entry in ipairs({{'All','all'},{'In progress','active'},{'Completed','completed'},{'Not recorded','unstarted'}}) do
+  for _,entry in ipairs({{'All entries','all'},{'In progress','active'},{'Completed','completed'}}) do
     window.filter:addOption(entry[1],entry[2])
   end
   window.filter.onOptionChange=function(widget,text,value) filter=value; changedSearch() end
@@ -229,6 +288,7 @@ function init()
   connect(g_ui.getRootWidget(),{onGeometryChange=resize})
   ProtocolGame.registerExtendedOpcode(OPCODE,onQuestOpcode,true)
   g_keyboard.bindKeyDown('Ctrl+J',toggle)
+  clearDetail()
 end
 
 function terminate()

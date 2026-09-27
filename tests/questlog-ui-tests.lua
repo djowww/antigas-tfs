@@ -24,6 +24,7 @@ local function run()
   assert(window:isVisible() and sent[#sent].action=='list')
   local function response(data,request)
     data.requestId=request.requestId
+    data.journal=2
     module.onQuestOpcode(nil,125,json.encode(data))
   end
   local entries={}
@@ -34,18 +35,29 @@ local function run()
   end
   listing()
   assert(window.quests:getChildCount()==35,'Full page renders')
+  checked(function()
   assert(sent[#sent].action=='detail','Selection requests detail')
   local quest={id='quest-1',name='The Explorer Society',region='Port Hope / Northport',
     status='active',done=2,total=13,description=string.rep('Existing mission progress is read from your character. ',5),
     rewards=string.rep('Gold coins and original quest rewards. ',8),steps={}}
-  for i=1,13 do quest.steps[i]={name='Research mission '..i..' with a longer objective name',current=i<3 and 2 or 0,target=2,completed=i<3} end
+  for i=1,13 do quest.steps[i]={name='Research mission '..i..' with a longer objective name',current=i<3 and 1 or 0,target=1,completed=i<3} end
   response({action='detail',quest=quest},sent[#sent])
-  assert(window.detail.steps:getChildCount()==13,'All mission steps render')
+  assert(window.detail.steps:getChildCount()==13,'Known mission steps render')
+  assert(not window.detail.steps:getFirstChild().progress:getText():find('/'),'No raw storage counters')
+  assert(not window.count:getText():find(' / '),'No global catalog completion percentage')
   local pending=sent[#sent]
   module.onQuestOpcode(nil,125,'{bad')
   response({action='detail',quest=quest},{requestId=pending.requestId-1})
   assert(window.detail.steps:getChildCount()==13,'Malformed and stale packets ignored')
   report('PASS: module, open, list, automatic selection, details, long descriptions, malformed/stale replies')
+  local beforeClick=#sent
+  module.selectQuest('quest-2'); module.selectQuest('quest-3'); module.selectQuest('quest-1')
+  response({action='detail',quest=quest},pending)
+  assert(window.detail.steps:getChildCount()==0,'Old detail rejected during new selection')
+  checked(function()
+  assert(#sent==beforeClick+1 and sent[#sent].id=='quest-1','Rapid selection coalesces to the last item')
+  response({action='detail',quest=quest},sent[#sent])
+  report('PASS: rapid selection coalesces and old detail cannot repopulate the journal')
   local sizes={{width=800,height=600},{width=1024,height=768},{width=1366,height=768}}
   local function nextSize(i)
     if not sizes[i] then
@@ -60,16 +72,31 @@ local function run()
           module.show(); assert(window:isVisible() and #sent>oldCount,'Reopen refreshes')
           module.offline()
           assert(window.quests:getChildCount()==0 and window.search:getText()=='','Clear character data on logout')
+          module.show()
+          response({action='list',entries={},page=1,pages=1,total=0,matched=0,completed=0},sent[#sent])
+          assert(window.detail.title:getText()=='Unwritten pages','Immersive empty journal')
+          assert(not window.detail.reward:isVisible(),'Empty journal has no reward spoilers')
+          assert(window.detail.steps:getChildCount()==0,'No phantom stages')
+          module.hide()
           g_game.isOnline,g_game.getFeature,g_game.getProtocolGame=oldOnline,oldFeature,oldProtocol
           report('PASS: search, filters, close/reopen, logout clears private progress')
           if QUESTLOG_QA_PREVIEW then
             g_game.isOnline=function() return true end
             g_game.getFeature=function() return true end
-            g_game.getProtocolGame=function() return {sendExtendedOpcode=function(self,op,b) sent[#sent+1]=json.decode(b) end} end
-            module.show(); listing(); response({action='detail',quest=quest},sent[#sent])
+            local sample={id='blue-djinn',name='Blue Djinn - Marid',region="Ashta'daramai",kind='story',status='active',done=0,total=1,
+              description='I have become involved in the affairs of the Marid. Their trust is not easily earned; these pages hold only what I have learned so far.',
+              rewards='',steps={{name='The dwarven cookbook',current=0,target=1,completed=false}}}
+            g_game.getProtocolGame=function() return {sendExtendedOpcode=function(self,op,b)
+              local r=json.decode(b); sent[#sent+1]=r
+              scheduleEvent(function()
+                if r.action=='list' then response({action='list',entries={sample},page=1,pages=1,total=1,matched=1,completed=0},r)
+                else response({action='detail',quest=sample},r) end
+              end,35)
+            end} end
+            module.show()
             checked(function()
-              assert(window.detail.title:getText()=='The Explorer Society','Preview detail survives layout')
-            end,120)
+              assert(window.detail.title:getText()=='Blue Djinn - Marid','Preview detail survives layout')
+            end,420)
             report('PREVIEW: ready')
             scheduleEvent(function() g_app.exit() end,240000)
           else g_app.exit() end
@@ -108,5 +135,7 @@ local function run()
     end,280)
   end
   nextSize(1)
+  end,220)
+  end,220)
 end
 checked(run,1200)
