@@ -176,6 +176,9 @@ class Map
 		static constexpr int32_t maxViewportY = 11; //min value: maxClientViewportY + 1
 		static constexpr int32_t maxClientViewportX = 8;
 		static constexpr int32_t maxClientViewportY = 6;
+		// Network observers only: do not change AI/pathfinding/combat ranges.
+		static constexpr int32_t maxPlayerViewportX = 16;
+		static constexpr int32_t maxPlayerViewportY = 11;
 
 		uint32_t clean() const;
 

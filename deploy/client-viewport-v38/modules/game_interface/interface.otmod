@@ -1,0 +1,37 @@
+Module
+  name: game_interface
+  description: Create the game interface, where the ingame stuff starts
+  author: OTClient team
+  website: https://github.com/edubart/otclient
+  sandboxed: true
+  scripts: [ widgets/uigamemap, viewport, gameinterface ]
+  load-later:
+    - game_hotkeys
+    - game_textmessage
+    - game_console
+    - game_outfit
+    - game_minimap
+    - game_healthinfo
+    - game_inventory
+    - game_playerbars
+    - game_skills
+    - game_containers
+    - game_viplist
+    - game_battle
+    - game_npctrade
+    - game_textwindow
+    - game_playertrade
+    - game_bugreport
+    - game_playerdeath
+    - game_playermount
+    - game_ruleviolation
+    - game_wiki
+    - game_spelllist
+    - client_profiles
+    - game_modaldialog
+    - game_walking
+    - game_shop
+    - game_itemselector
+    - game_textedit
+  @onLoad: init()
+  @onUnload: terminate()

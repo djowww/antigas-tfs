@@ -454,6 +454,14 @@ void Map::getSpectators(SpectatorVec& list, const Position& centerPos, bool mult
 		}
 
 		getSpectatorsInternal(list, centerPos, minRangeX, maxRangeX, minRangeY, maxRangeY, minRangeZ, maxRangeZ, onlyPlayers);
+		// Extend only the player audience of ordinary world updates. Monsters
+		// keep the original discovery range and individual protocols filter
+		// the final packets by their acknowledged viewport.
+		if (minRangeX == -maxViewportX && maxRangeX == maxViewportX &&
+		    minRangeY == -maxViewportY && maxRangeY == maxViewportY) {
+			getSpectatorsInternal(list, centerPos, -maxPlayerViewportX, maxPlayerViewportX,
+			                      -maxPlayerViewportY, maxPlayerViewportY, minRangeZ, maxRangeZ, true);
+		}
 
 		if (cacheResult) {
 			if (onlyPlayers) {

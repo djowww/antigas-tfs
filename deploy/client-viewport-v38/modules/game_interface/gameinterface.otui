@@ -1,0 +1,93 @@
+GameSidePanel < UIMiniWindowContainer
+  image-source: /images/ui/panel_side
+  image-border: 4
+  padding: 4
+  padding-top: 5
+  width: 185
+  focusable: false
+  on: true
+  layout:
+    type: verticalBox
+    //spacing: 1
+
+GameBottomPanel < Panel
+
+GameMapPanel < UIGameMap
+  padding: 4
+  image-source: /images/ui/panel_map
+  image-border: 4
+
+  $on:
+    padding: 0
+
+UIWidget
+  id: gameRootPanel
+  anchors.fill: parent
+  anchors.top: topMenu.bottom
+  
+  GameMapPanel
+    id: gameMapPanel
+    anchors.left: gameLeftPanels.right
+    anchors.right: gameRightPanels.left
+    anchors.top: parent.top
+    anchors.bottom: gameBottomPanel.top
+    focusable: false    
+    
+  Panel
+    id: gameLeftPanels
+    anchors.left: parent.left
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom    
+    focusable: false
+    layout:
+      type: horizontalBox
+      fit-children: true
+      spacing: -1
+
+  TopMenuFrameCounterLabel
+    id: fpsLabel
+    text-auto-resize: true
+    anchors.top: parent.top
+    anchors.left: gameLeftPanels.right
+
+  TopMenuPingLabel
+    color: white
+    id: pingLabel
+    text-auto-resize: true
+    anchors.top: fpsLabel.bottom
+    anchors.left: fpsLabel.left
+
+  Panel
+    id: gameRightPanels
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    focusable: false
+    layout:
+      type: horizontalBox
+      fit-children: true      
+      spacing: -1
+    
+  Splitter
+    id: bottomSplitter
+    anchors.left: gameLeftPanels.right
+    anchors.right: gameRightPanels.left
+    anchors.bottom: parent.bottom
+    relative-margin: bottom
+    margin-bottom: 150
+    @canUpdateMargin: function(self, newMargin) if modules.client_options.getOption('gameView') ~= 2 and modules.client_options.getOption('dontStretchShrink') then return self:getMarginBottom() end return math.max(math.min(newMargin, self:getParent():getHeight() - 150), 80) end
+    @onGeometryChange: function(self) self:setMarginBottom(math.min(math.max(self:getParent():getHeight() - 150, 80), self:getMarginBottom())) end
+
+  GameBottomPanel
+    id: gameBottomPanel
+    anchors.left: bottomSplitter.left
+    anchors.right: bottomSplitter.right
+    anchors.top: bottomSplitter.top
+    anchors.bottom: parent.bottom
+    margin-top: 3
+    
+  UIWidget
+    id: mouseGrabber
+    focusable: false
+    visible: false
+
