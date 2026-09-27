@@ -27,6 +27,7 @@ PORT = 7176
 ACCOUNT_BASE = 980001
 PLAYER_COUNT = 50
 NETWORK_ONLY = False
+MAINTENANCE_WINDOW = False
 ACCOUNT_END = ACCOUNT_BASE + PLAYER_COUNT - 1
 RSA_PUBLIC = Path("/opt/antigas-security-v26/rsa-public.json")
 MARKET_OPCODE = b"\x32\xca"
@@ -42,6 +43,8 @@ created = []
 clients = []
 stop = threading.Event()
 keepalive_threads = []
+connection_lock = threading.Lock()
+last_connection = 0.0
 
 
 def run(args, *, text=True):
@@ -139,6 +142,9 @@ def seed_player(index, role):
     buyer_index = index - 2 * group_count
     bank = 50000 if role == "buyer" and buyer_index < max(1, group_count // 2) else 0
     level, experience, sword_skill = (8, 4200, 70) if role == "hunter" else (8, 4200, 20)
+    # Durable synthetic hunters must survive the paced login ramp before
+    # combat begins. This is a capacity fixture, not a combat-balance test.
+    health = 5000 if role == "hunter" else 150
 
     sql(
         "INSERT INTO accounts(id,password,type,email) VALUES "
@@ -147,7 +153,7 @@ def seed_player(index, role):
     sql(
         "INSERT INTO players(name,account_id,group_id,level,experience,health,healthmax,"
         "conditions,comment,cap,town_id,posx,posy,posz,looktype,lastlogin,balance,skill_sword) VALUES "
-        f"('{name}',{account_id},{group_id},{level},{experience},150,150,'','',100000,2,"
+        f"('{name}',{account_id},{group_id},{level},{experience},{health},{health},'','',100000,2,"
         f"{x},{y},{z},128,1,{bank},{sword_skill})"
     )
     player_id = int(sql(f"SELECT id FROM players WHERE account_id={account_id}"))
@@ -178,8 +184,14 @@ def seed_player(index, role):
 
 class StageClient(Client):
     def __init__(self, account, password, name):
+        global last_connection
         self.key = struct.unpack("<IIII", secrets.token_bytes(16))
-        self.sock = socket.create_connection(("127.0.0.1", PORT), timeout=30)
+        # Ban::acceptConnection blocks bursts from the same source IP. Space
+        # openings while retaining every established session for real load.
+        with connection_lock:
+            time.sleep(max(0, 0.75 - (time.monotonic() - last_connection)))
+            self.sock = socket.create_connection(("127.0.0.1", PORT), timeout=30)
+            last_connection = time.monotonic()
         self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         block = (b"\0" + struct.pack("<IIII", *self.key) + b"\0"
                  + struct.pack("<I", account) + string(name) + string(password))
@@ -521,6 +533,10 @@ def run_load():
         client.close()
     clients.clear()
     time.sleep(2)
+    if MAINTENANCE_WINDOW:
+        assert run(["systemctl", "show", "imperium772", "-p", "ActiveState", "--value"]) == "inactive"
+        run(["systemctl", "stop", "imperium772-staging"])
+        print("logout_mode=graceful_staging_stop", flush=True)
     wait_for_logout([record["player"] for record in records])
     remaining_online = int(sql(f"SELECT COUNT(*) FROM players_online WHERE player_id IN ({online_ids})"))
     if remaining_online:
@@ -557,9 +573,10 @@ def main():
     parser.add_argument("--maintenance-window", action="store_true",
                         help="require production to be stopped for the isolated staging load")
     args = parser.parse_args()
-    global PLAYER_COUNT, NETWORK_ONLY
+    global PLAYER_COUNT, NETWORK_ONLY, MAINTENANCE_WINDOW
     PLAYER_COUNT = args.players
     NETWORK_ONLY = args.network_only
+    MAINTENANCE_WINDOW = args.maintenance_window
     if NETWORK_ONLY and PLAYER_COUNT != 10:
         parser.error("--network-only is limited to --players 10")
     assert_isolated_staging(require_production_active=not args.maintenance_window)
