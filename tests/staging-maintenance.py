@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Bounded offline staging run. Requires an explicitly approved maintenance window.
+
+Run under a systemd transient service with RuntimeMaxSec=570 and an ExecStopPost
+that stops staging, restores MemoryMax=1G, and starts production. This gives the
+recovery an independent owner even if the test process is killed.
+"""
+import argparse
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import threading
+import time
+
+ROOT = Path('/opt/antigas-stability-20260927')
+SAMPLES = []
+STOP = threading.Event()
+
+def run(*args, **kwargs):
+    return subprocess.run(args, check=True, timeout=30, **kwargs)
+
+def value(unit, prop):
+    return subprocess.check_output(['systemctl', 'show', unit, '-p', prop, '--value'], text=True).strip()
+
+def sample():
+    while not STOP.wait(1):
+        try:
+            pid = int(value('imperium772-staging', 'MainPID'))
+            if not pid:
+                continue
+            stat = Path(f'/proc/{pid}/stat').read_text().split(') ', 1)[1].split()
+            SAMPLES.append({'time': time.time(), 'rss_bytes': int(stat[21])*os.sysconf('SC_PAGE_SIZE'),
+                            'cpu_seconds': (int(stat[11])+int(stat[12]))/os.sysconf('SC_CLK_TCK'),
+                            'memory_current': int(value('imperium772-staging', 'MemoryCurrent'))})
+        except (OSError, ValueError, subprocess.SubprocessError):
+            pass
+
+def interrupt(signum, frame):
+    raise KeyboardInterrupt(f'signal {signum}')
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--approved-maintenance', action='store_true', required=True)
+    parser.parse_args()
+    assert value('imperium772', 'ActiveState') == 'active'
+    assert value('imperium772-staging', 'ActiveState') == 'inactive'
+    assert os.environ.get('INVOCATION_ID'), 'Run under the documented systemd watchdog'
+    signal.signal(signal.SIGTERM, interrupt)
+    signal.signal(signal.SIGINT, interrupt)
+    monitor = threading.Thread(target=sample, daemon=True)
+    result = {'started': time.time(), 'status': 'failed'}
+    try:
+        run('systemctl', 'stop', 'imperium772')
+        available = int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:')))
+        assert available >= 2600*1024, 'Insufficient available memory even with production stopped'
+        run('systemctl', 'set-property', '--runtime', 'imperium772-staging', 'MemoryMax=3G')
+        run('systemctl', 'start', 'imperium772-staging')
+        monitor.start()
+        time.sleep(8)
+        assert value('imperium772-staging', 'ActiveState') == 'active'
+        for args in (['--smoke'], ['--players', '50']):
+            subprocess.run(['python3', str(ROOT/'tests/load-test-50.py'), '--maintenance-window', *args], check=True, timeout=220)
+        result['status'] = 'passed'
+    finally:
+        STOP.set()
+        monitor.join(timeout=2) if monitor.is_alive() else None
+        # Each operation is independent so a failed stop does not skip recovery.
+        recovery = []
+        for command in (['systemctl', 'stop', 'imperium772-staging'],
+                        ['systemctl', 'set-property', '--runtime', 'imperium772-staging', 'MemoryMax=1G'],
+                        ['systemctl', 'start', 'imperium772']):
+            try:
+                recovery.append(subprocess.run(command, timeout=45).returncode)
+            except (OSError, subprocess.TimeoutExpired) as error:
+                recovery.append(str(error))
+        result.update(ended=time.time(), recovery_codes=recovery, production=value('imperium772', 'ActiveState'),
+                      staging=value('imperium772-staging', 'ActiveState'), samples=SAMPLES)
+        if SAMPLES:
+            result['peak_rss_mib'] = max(s['rss_bytes'] for s in SAMPLES)/1024**2
+            result['peak_memory_mib'] = max(s['memory_current'] for s in SAMPLES)/1024**2
+            result['cpu_seconds'] = SAMPLES[-1]['cpu_seconds'] - SAMPLES[0]['cpu_seconds']
+        (ROOT/'load-result.json').write_text(json.dumps(result, indent=2))
+        print(json.dumps({k:v for k,v in result.items() if k!='samples'}), flush=True)
+
+if __name__ == '__main__':
+    main()

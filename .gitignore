@@ -10,6 +10,8 @@
 /tfs.exe
 /build/
 /cmake-build-*/
+__pycache__/
+*.py[cod]
 *.o
 *.a
 *.so
