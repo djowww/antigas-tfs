@@ -18,6 +18,7 @@
  */
 
 #include "otpch.h"
+#include "hunt_supply.h"
 
 #include <bitset>
 
@@ -1664,6 +1665,7 @@ BlockType_t Player::blockHit(Creature* attacker, CombatType_t combatType, int32_
 
 			const ItemType& it = Item::items[item->getID()];
 			if (it.abilities) {
+				HuntSupplyUse supply(this, item);
 				const int16_t& absorbPercent = it.abilities->absorbPercent[combatTypeToIndex(combatType)];
 				if (absorbPercent != 0) {
 					damage -= std::round(damage * (absorbPercent / 100.));
@@ -1676,7 +1678,7 @@ BlockType_t Player::blockHit(Creature* attacker, CombatType_t combatType, int32_
 					}
 				}
 
-				if (field) {
+				if (field && !item->isRemoved()) {
 					const int16_t& fieldAbsorbPercent = it.abilities->fieldAbsorbPercent[combatTypeToIndex(combatType)];
 					if (fieldAbsorbPercent != 0) {
 						damage -= std::round(damage * (fieldAbsorbPercent / 100.));
@@ -1714,6 +1716,7 @@ void Player::dropLoot(Container* corpse, Creature*)
     if (corpse && lootDrop) {
         Skulls_t playerSkull = getSkull();
         if (inventory[CONST_SLOT_NECKLACE] && inventory[CONST_SLOT_NECKLACE]->getID() == ITEM_AMULETOFLOSS && playerSkull != SKULL_RED) {
+            HuntSupplyUse supply(this, inventory[CONST_SLOT_NECKLACE]);
             g_game.internalRemoveItem(inventory[CONST_SLOT_NECKLACE], 1);
         } else {
             for (int32_t i = CONST_SLOT_FIRST; i <= CONST_SLOT_LAST; ++i) {

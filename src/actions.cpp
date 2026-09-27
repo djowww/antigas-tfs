@@ -17,6 +17,7 @@
  */
 
 #include "otpch.h"
+#include "hunt_supply.h"
 
 #include "actions.h"
 #include "bed.h"
@@ -336,6 +337,7 @@ bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* 
 		}
 	}
 
+	HuntSupplyUse supply(player, item);
 	ReturnValue ret = internalUseItem(player, pos, index, item);
 	if (ret != RETURNVALUE_NOERROR) {
 		player->sendCancelMessage(ret);
@@ -367,7 +369,11 @@ bool Actions::useItemEx(Player* player, const Position& fromPos, const Position&
 		return false;
 	}
 
-	if (!action->executeUse(player, item, fromPos, action->getTarget(player, creature, toPos, toStackPos), toPos)) {
+	Thing* target = action->getTarget(player, creature, toPos, toStackPos);
+	HuntSupplyUse supply(player, item, target && target->getCreature());
+	Item* targetItem = target ? target->getItem() : nullptr;
+	HuntSupplyUse ingredient(player, targetItem != item && targetItem && targetItem->getTopParent() == player ? targetItem : nullptr);
+	if (!action->executeUse(player, item, fromPos, target, toPos)) {
 		if (!action->hasOwnErrorHandler()) {
 			player->sendCancelMessage(RETURNVALUE_CANNOTUSETHISOBJECT);
 		}

@@ -1,11 +1,15 @@
-ONLINE_STAY_BONUS_STORAGE = 17592
-ONLINE_STAY_BONUS_MAX = 24
 MESSAGE_EVENT_ADVANCE = 19
 
 local scheduledEvents = {}
 local canceledEvents = {}
 local players = {}
 local nextEventId = 0
+
+Player = setmetatable({}, {
+	__call = function(_, playerId)
+		return players[playerId]
+	end
+})
 
 function addEvent(callback, delay, ...)
 	assert(delay == 60 * 60 * 1000, "bonus interval must be one hour")
@@ -20,19 +24,21 @@ function stopEvent(eventId)
 	return true
 end
 
-function Player(playerId)
-	return players[playerId]
-end
+dofile("data/lib/custom/onlineBonus.lua")
 
-local function makePlayer(playerId, bonus)
+local function makePlayer(playerId, storedBonus)
 	local player = {
 		id = playerId,
-		bonus = bonus,
+		storage = {},
 		ip = 1,
 		messages = {},
 		effects = 0,
 		registeredEvents = {}
 	}
+	if storedBonus ~= nil then
+		player.storage[ONLINE_STAY_BONUS_STORAGE] = storedBonus
+	end
+	setmetatable(player, {__index = Player})
 
 	function player:getId()
 		return self.id
@@ -43,13 +49,15 @@ local function makePlayer(playerId, bonus)
 	end
 
 	function player:getStorageValue(key)
-		assert(key == ONLINE_STAY_BONUS_STORAGE, "unexpected storage key")
-		return self.bonus or -1
+		return self.storage[key] or 0
 	end
 
 	function player:setStorageValue(key, value)
-		assert(key == ONLINE_STAY_BONUS_STORAGE, "unexpected storage key")
-		self.bonus = value
+		if value == -1 then
+			self.storage[key] = nil
+		else
+			self.storage[key] = value
+		end
 		return true
 	end
 
@@ -89,38 +97,54 @@ end
 
 dofile("data/creaturescripts/scripts/others/onlineBonus.lua")
 
--- One uninterrupted session grants exactly one percentage point per hour,
--- persists the accumulated value, and stops scheduling at the 24% cap.
-local player = makePlayer(1001, nil)
+-- Legacy whole-percent values migrate without losing already-earned bonus.
+local legacyPlayer = makePlayer(1000, 23)
+assert(legacyPlayer:getOnlineStayBonusUnits() == 50, "legacy bonus was not clamped to the new 5% cap")
+assert(legacyPlayer.storage[ONLINE_STAY_BONUS_STORAGE] == 1050, "legacy storage was not encoded")
+local legacyCappedPlayer = makePlayer(1004, 24)
+assert(legacyCappedPlayer:getOnlineStayBonusUnits() == 50, "legacy cap did not clamp to 5%")
+assert(onLogin(legacyCappedPlayer) == true)
+assert(next(scheduledEvents) == nil, "migrated capped player received another timer")
+
+-- Each uninterrupted hour adds 0.2 percentage points, preserving the 5% cap.
+local player = makePlayer(1001)
 assert(onLogin(player) == true)
 assert(player.registeredEvents.OnlineBonusLogout)
-
-for expectedBonus = 1, ONLINE_STAY_BONUS_MAX do
+for expectedBonus = ONLINE_STAY_BONUS_STEP, ONLINE_STAY_BONUS_MAX * ONLINE_STAY_BONUS_SCALE, ONLINE_STAY_BONUS_STEP do
 	local _, event = popEvent()
 	event.callback(unpack(event.args))
-	assert(player.bonus == expectedBonus, "incorrect hourly bonus")
-	assert(#player.messages == expectedBonus, "missing hourly notification")
-	assert(player.messages[#player.messages]:find("+" .. expectedBonus .. "%", 1, true))
-	if expectedBonus < ONLINE_STAY_BONUS_MAX then
+	assert(player:getOnlineStayBonusUnits() == expectedBonus, "incorrect hourly bonus")
+	assert(#player.messages == expectedBonus / ONLINE_STAY_BONUS_STEP, "missing hourly notification")
+	assert(player.messages[#player.messages]:find("+" .. string.format("%.1f", expectedBonus / ONLINE_STAY_BONUS_SCALE) .. "%", 1, true))
+	if expectedBonus < ONLINE_STAY_BONUS_MAX * ONLINE_STAY_BONUS_SCALE then
 		assert(next(scheduledEvents) ~= nil, "timer stopped before reaching the cap")
 	else
 		assert(next(scheduledEvents) == nil, "timer continued after reaching the cap")
-		assert(OnlineBonusEvents[player.id] == nil, "timer registry was not cleared at the cap")
+assert(OnlineBonusEvents[player.id] == nil, "timer registry was not cleared at the cap")
 	end
 end
+
+-- A migrated 3% character continues from 3.0% to 3.2% after one hour.
+local migratedProgressPlayer = makePlayer(1005, 3)
+assert(onLogin(migratedProgressPlayer) == true)
+local _, migratedEvent = popEvent()
+migratedEvent.callback(unpack(migratedEvent.args))
+assert(migratedProgressPlayer:getOnlineStayBonusUnits() == 32, "migrated bonus did not continue in 0.2% steps")
+assert(migratedProgressPlayer.messages[1]:find("+3.2%", 1, true), "migrated total was displayed incorrectly")
+assert(onLogout(migratedProgressPlayer) == true)
 
 -- Reconnecting at the cap does not schedule another reward.
 assert(onLogin(player) == true)
 assert(next(scheduledEvents) == nil)
 
 -- Logout cancels the pending timer; invoking a stale callback cannot reward.
-local logoutPlayer = makePlayer(1002, 3)
+local logoutPlayer = makePlayer(1002, 3) -- legacy +3.0%
 assert(onLogin(logoutPlayer) == true)
 local logoutEventId, logoutEvent = popEvent()
 assert(onLogout(logoutPlayer) == true)
 assert(canceledEvents[logoutEventId])
 logoutEvent.callback(unpack(logoutEvent.args))
-assert(logoutPlayer.bonus == 3, "stale callback granted a reward after logout")
+assert(logoutPlayer:getOnlineStayBonusUnits() == 30, "stale callback granted a reward after logout")
 
 -- A callback for a disconnected player does not award or reschedule anything.
 local disconnectedPlayer = makePlayer(1003, 4)
@@ -128,13 +152,11 @@ assert(onLogin(disconnectedPlayer) == true)
 local _, disconnectedEvent = popEvent()
 disconnectedPlayer.ip = 0
 disconnectedEvent.callback(unpack(disconnectedEvent.args))
-assert(disconnectedPlayer.bonus == 4, "disconnected player received a reward")
+assert(disconnectedPlayer:getOnlineStayBonusUnits() == 40, "disconnected player received a reward")
 assert(OnlineBonusEvents[disconnectedPlayer.id] == nil)
 assert(next(scheduledEvents) == nil)
 
--- Load the real player callbacks with a minimal game API and verify their
--- actual XP, magic skill, and regular skill multipliers.
-Player = {}
+-- Load the real player callbacks with a minimal game API and verify growth.
 CONDITION_SOUL = 1
 CONDITIONID_DEFAULT = 1
 CONDITION_PARAM_SOULGAIN = 2
@@ -160,16 +182,23 @@ APPLY_SKILL_MULTIPLIER = true
 
 dofile("data/events/scripts/player.lua")
 
-local function makeGrowthPlayer(bonus)
-	local player = {bonus = bonus, analyzerExperience = 0}
+local function makeGrowthPlayer(bonusUnits)
+	local player = {storage = {}, analyzerExperience = 0}
 	setmetatable(player, {__index = Player})
 
 	function player:getStorageValue(key)
-		if key == ONLINE_STAY_BONUS_STORAGE then
-			return self.bonus or -1
-		end
-		return -1
+		return self.storage[key] or 0
 	end
+
+	function player:setStorageValue(key, value)
+		if value == -1 then
+			self.storage[key] = nil
+		else
+			self.storage[key] = value
+		end
+		return true
+	end
+	player:setOnlineStayBonusUnits(bonusUnits)
 
 	function player:getLevel()
 		return 10
@@ -199,22 +228,36 @@ end
 local monster = {isPlayer = function()
 	return false
 end}
-local growthPlayer = makeGrowthPlayer(24)
-assert(growthPlayer:onGainExperience(monster, 100, 100) == 124, "XP bonus was not applied")
-assert(growthPlayer.analyzerExperience == 124, "analyzer did not receive final XP")
-assert(growthPlayer:onGainSkillTries(SKILL_MAGLEVEL, 100) == 124, "magic skill bonus was not applied")
-assert(growthPlayer:onGainSkillTries(1, 100) == 124, "regular skill bonus was not applied")
+local growthPlayer = makeGrowthPlayer(50)
+assert(growthPlayer:onGainExperience(monster, 100, 100) == 105, "XP bonus was not applied")
+assert(growthPlayer.analyzerExperience == 105, "analyzer did not receive final XP")
+assert(growthPlayer:onGainSkillTries(SKILL_MAGLEVEL, 100) == 105, "magic skill bonus was not applied")
+assert(growthPlayer:onGainSkillTries(1, 100) == 105, "regular skill bonus was not applied")
 
-growthPlayer.bonus = 0
-assert(growthPlayer:onGainExperience(monster, 100, 100) == 100, "zero XP bonus changed experience")
-assert(growthPlayer:onGainSkillTries(1, 100) == 100, "zero bonus changed skill tries")
+-- Small fractional bonuses accumulate instead of being rounded away per event.
+local fractionalPlayer = makeGrowthPlayer(2) -- +0.2%
+local totalXp = 0
+for _ = 1, 5 do
+	totalXp = totalXp + fractionalPlayer:onGainExperience(monster, 100, 100)
+end
+assert(totalXp == 501, "fractional XP bonus was lost between events")
 
-growthPlayer.bonus = 100
-assert(growthPlayer:onGainExperience(monster, 100, 100) == 124, "XP bonus exceeded the cap")
-assert(growthPlayer:onGainSkillTries(SKILL_MAGLEVEL, 100) == 124, "skill bonus exceeded the cap")
+local zeroBonusPlayer = makeGrowthPlayer(0)
+assert(zeroBonusPlayer:onGainExperience(monster, 100, 100) == 100, "zero XP bonus changed experience")
+assert(zeroBonusPlayer:onGainSkillTries(1, 100) == 100, "zero bonus changed skill tries")
 
-growthPlayer.bonus = 24
+local cappedPlayer = makeGrowthPlayer(2400)
+assert(cappedPlayer:getOnlineStayBonusUnits() == 50, "stored bonus was not clamped to 5%")
+assert(cappedPlayer:onGainExperience(monster, 100, 100) == 105, "XP bonus exceeded the cap")
+assert(cappedPlayer:onGainSkillTries(SKILL_MAGLEVEL, 100) == 105, "skill bonus exceeded the cap")
+
+-- Script-granted skill tries receive the online bonus without reapplying rates.
+local scriptedSkillPlayer = makeGrowthPlayer(2)
 APPLY_SKILL_MULTIPLIER = false
-assert(growthPlayer:onGainSkillTries(1, 100) == 100, "manual skill additions were unexpectedly multiplied")
+local totalTries = 0
+for _ = 1, 500 do
+	totalTries = totalTries + scriptedSkillPlayer:onGainSkillTries(1, 1)
+end
+assert(totalTries == 501, "fractional online skill bonus did not accumulate for script grants")
 
-print("PASS: hourly accumulation/cap, login at cap, logout cancellation, disconnected callback, XP, magic skill, regular skill, analyzer value, and manual skill bypass")
+print("PASS: legacy migration, 0.2% hourly accumulation/5% cap, logout safety, fractional XP and skill carries, standard and scripted skill bonuses")
