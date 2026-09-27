@@ -7,9 +7,11 @@ Repositório privado do servidor Antigas 7.4. O repositório contém o código-f
 - `src/`: código-fonte C++ do servidor.
 - `data/`: scripts Lua, definições XML/NPC, itens e conteúdo do mundo.
 - `data/sql/`: estrutura e migrações do Market.
-- `deploy/`: procedimentos e ferramentas de releases específicas.
+- `deploy/`: arquivos de implantação em uso: fonte pública do site e configurações operacionais do systemd. Os pacotes e scripts de releases anteriores foram retirados dessa pasta; cópias locais recuperáveis ficam em `../../backup/TFS-deploy-antigo-20260927/`.
 - `docs/`: documentação operacional e funcional; comece pelo [índice](docs/INDEX.md).
 - `tests/`: validações isoladas, sem dados de jogadores.
+
+`tests/` é necessário para desenvolvimento, auditoria e manutenção; não faz parte do binário do servidor, da unidade systemd nem do pacote público do cliente. Os testes de regressão e o roteiro isolado de carga continuam versionados.
 - `config.example.lua`: exemplo sem credenciais. Copie para `config.lua` no servidor e configure os dados locais. `config.lua` é ignorado pelo Git.
 
 ## Trabalho seguro

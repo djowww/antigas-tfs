@@ -27,7 +27,7 @@ O teste anterior da v16 não demonstrava ausência de avaliação de Lua no cami
 
 Pacote: `Antigas-7.4-Client-v17.zip`, SHA-256 `48137ae568ac8a0a31dd7651d3c570d71233cfb2329767622e4e51c45b15219d`.
 
-Os módulos corrigidos e o teste ficam em `deploy/client-v17/` para rastrear a mudança. São arquivos complementares ao pacote completo, não um cliente independente. O manifesto e o link do site apontam para v17. Pacotes anteriores e cópias dos três arquivos alterados estão preservados no histórico local; a publicação anterior do site foi salva em `/root/backups/client-loot-v17`.
+Na publicação v17, os módulos alterados e seus testes foram mantidos como cópias auxiliares ao ZIP completo, não como cliente independente. Após a substituição dessa release, os snapshots e scripts correspondentes saíram de `deploy/` e foram arquivados localmente em `../../backup/TFS-deploy-antigo-20260927/`. O pacote histórico continua no arquivo Git; a publicação anterior do site foi salva em `/root/backups/client-loot-v17`.
 
 É necessário fechar e abrir o cliente local atualizado, ou extrair o novo pacote para quem usa outra instalação. Contadores são de sessão: loot descartado pela v16 não pode ser reconstruído. Não houve reinício do servidor principal nesta correção.
 

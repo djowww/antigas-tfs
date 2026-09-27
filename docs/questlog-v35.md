@@ -72,11 +72,12 @@ apenas por números. A auditoria não modifica o mapa.
   longos, scrollbar e botões em 800×600, 1024×768 e 1366×768.
 - `tests/questlog-live.py`: smoke test limitado na VPS com dois jogadores comuns
   descartáveis; não chama scripts de recompensas nem altera jogadores existentes.
-- `deploy/questlog-v35-release.py`: valida fontes e arquivos-base antes de aplicar,
-  backup, LuaJIT, empacotamento reprodutível e publicação atômica do site.
+- O script específico de publicação v35 foi arquivado após ser substituído por
+  releases posteriores. O fluxo antigo não faz parte dos arquivos de deploy atuais.
 
-As cópias versionadas do cliente ficam em `deploy/client-questlog/`. O ZIP público
-não inclui fixtures, contas, credenciais ou ferramentas de desenvolvimento.
+Naquela release, as cópias do cliente ficavam em `deploy/client-questlog/`; após
+a publicação, o snapshot foi arquivado localmente em `../../backup/TFS-deploy-antigo-20260927/`.
+O ZIP público não inclui fixtures, contas, credenciais ou ferramentas de desenvolvimento.
 
 ### Conferência independente do mapa online
 

@@ -74,7 +74,8 @@ reexecutadas; a rodada final completa passou. Não eram defeitos do viewport.
 
 ## Arquivos da mudança
 
-Cliente (cópia versionada em `deploy/client-viewport-v38/`):
+Cliente (cópia versionada na release; snapshot arquivado localmente em
+`../../backup/TFS-deploy-antigo-20260927/`):
 
 - `init.lua`, `LEIA-ME.txt`;
 - `modules/game_interface/{viewport.lua,interface.otmod,gameinterface.lua,gameinterface.otui}`;
@@ -82,7 +83,7 @@ Cliente (cópia versionada em `deploy/client-viewport-v38/`):
 
 Servidor: `src/{mapviewport.h,protocolgame.cpp,protocolgame.h,map.cpp,map.h,combat.cpp,spawn.cpp}`.
 Testes: `tests/viewport-*`, `tests/viewport_qa.lua`.
-Publicação: `deploy/viewport-v38-release.py`.
+Publicação: script de release v38 arquivado localmente com os demais artefatos antigos.
 
 ## Publicação e recuperação
 
@@ -92,7 +93,7 @@ Publicação: `deploy/viewport-v38-release.py`.
 - Reinício gracioso oficial em 27/09/2026, 13:14 BRT; havia zero jogadores.
 - Backup no host: `/opt/antigas-viewport-v38/release-final/server-before` e
   `website-before`. O download v37 foi mantido.
-- Testes de interface e relatórios brutos locais: `Historico/viewport-v38/`.
+- Testes de interface e relatórios brutos locais: `../../backup/Historico/viewport-v38/`.
 - Para rollback, parar graciosamente o serviço, restaurar binário/fontes do backup
   com a propriedade `tfs74`, iniciar, e restaurar o link/manifest do site. Não
   restaurar banco nem dados de jogadores: esta release não mudou o schema.
@@ -102,7 +103,7 @@ Publicação: `deploy/viewport-v38-release.py`.
 ```sh
 g++ -std=c++11 -Wall -Wextra tests/viewport-geometry.cpp -o /tmp/viewport-geometry
 /tmp/viewport-geometry
-luajit tests/viewport-policy.lua deploy/client-viewport-v38/modules/game_interface/viewport.lua
+luajit tests/viewport-policy.lua ../../backup/TFS-deploy-antigo-20260927/deploy/client-viewport-v38/modules/game_interface/viewport.lua
 python3 tests/viewport-status.py 127.0.0.1 7173
 ```
 

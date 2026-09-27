@@ -50,7 +50,7 @@ accepted stage after reconnect. It removes only its own marked test accounts.
 
 ## Release and recovery
 
-`deploy/questlog-v36-release.py` checks the current server endpoint and catalog
+The v36 release helper checked the current server endpoint and catalog
 against the staged baseline, runs LuaJIT tests, and saves the previous endpoint.
 The client package is rebuilt from the checksum-verified public v35 ZIP; only
 the two Quest Log UI files and APP_VERSION change. Packaging is reproducible

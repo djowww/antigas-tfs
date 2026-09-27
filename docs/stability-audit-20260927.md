@@ -61,9 +61,10 @@ A recuperação independente usada está em `deploy/systemd/staging-maintenance-
 
 ## Organização e recuperação
 
-- Backups privados locais centralizados em `Historico/Backups-privados/`.
-- ZIPs v37/v38 locais arquivados em `Historico/Pacotes-antigos/`; alias `Antigas-7.4-Client-atual.zip` permanece na raiz. Download online v38 foi preservado.
-- Binário alternativo e fontes/instruções antigas arquivados em `Historico/Executaveis-antigos/` e `Historico/implantacao-20260924/`.
+- Backups privados locais centralizados em `../../backup/Historico/Backups-privados/`.
+- ZIPs v37/v38 locais arquivados em `../../backup/Historico/Pacotes-antigos/`; alias `Antigas-7.4-Client-atual.zip` permanece na raiz. Download online v38 foi preservado.
+- Binário alternativo, fontes e instruções antigas reunidos em `../../backup/Historico/`.
+- Releases e ferramentas antigas retiradas de `deploy/` e arquivadas em `../../backup/TFS-deploy-antigo-20260927/`; só os arquivos atuais do site e do systemd permanecem em `deploy/`.
 - Log legado do cliente arquivado; o log aberto pelo processo atual foi preservado. Diretório vazio `data/globalevents/scripts/events` removido.
 - Módulos carregados dinamicamente, editor de mapa, bibliotecas privadas, migrações e backups úteis preservados. Ausência de referência textual não foi usada sozinha para apagar recursos.
 - Backup da publicação na VPS: `/root/backups/antigas-stability-20260927`. Para rollback de código, restaurar somente os arquivos envolvidos; não restaurar banco sobre operações recentes.
