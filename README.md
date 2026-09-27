@@ -7,6 +7,9 @@ Repositório privado do servidor Antigas 7.4. O repositório contém o código-f
 - `src/`: código-fonte C++ do servidor.
 - `data/`: scripts Lua, definições XML/NPC, itens e conteúdo do mundo.
 - `data/sql/`: estrutura e migrações do Market.
+- `deploy/`: procedimentos e ferramentas de releases específicas.
+- `docs/`: documentação operacional e funcional; comece pelo [índice](docs/INDEX.md).
+- `tests/`: validações isoladas, sem dados de jogadores.
 - `config.example.lua`: exemplo sem credenciais. Copie para `config.lua` no servidor e configure os dados locais. `config.lua` é ignorado pelo Git.
 
 ## Trabalho seguro
