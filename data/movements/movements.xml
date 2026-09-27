@@ -5,9 +5,6 @@
 	<movevent event="StepIn" movementid="2013" script="arena/leavearena.lua" />
 	<movevent event="StepIn" movementid="2014" script="arena/enterarena.lua" />
 	
-	<movevent event="StepIn" movementid="14876" script="trainers/trainertp.lua" />
-	<movevent event="StepIn" movementid="14877" script="trainers/trainertp2.lua" />
-	
 	<movevent event="StepIn" movementid="1000" script="main/1000.lua" />
 	<movevent event="StepIn" movementid="1001" script="main/1001.lua" />
 	<movevent event="StepIn" movementid="1002" script="main/1002.lua" />

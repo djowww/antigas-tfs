@@ -55,16 +55,6 @@ function Player:onLook(thing, position, distance)
 		end
 	end
 	
-	if thing:isCreature() and thing:isPlayer() then
-    local killStorage = 3000
-    local deathStorage = 3001
-    local killAmount, deathAmount = thing:getStorageValue(killStorage), thing:getStorageValue(deathStorage)
-    if killAmount == -1 then killAmount = 0 end
-    if deathAmount == -1 then deathAmount = 0 end
-	
-    description = description .. '\nKilled: [' ..killAmount..']' .. '\nDeaths: ['..deathAmount..']'
-end
-
 	self:sendTextMessage(MESSAGE_INFO_DESCR, description)
 end
 
@@ -208,10 +198,8 @@ function Player:onGainExperience(source, exp, rawExp)
     exp = exp * 1.25
     end
 
-	local onlineBonus = math.max(0, math.min(ONLINE_STAY_BONUS_MAX, self:getStorageValue(ONLINE_STAY_BONUS_STORAGE)))
-	if onlineBonus > 0 then
-		exp = exp * (1 + onlineBonus / 100)
-	end
+	local onlineBonusExtra = self:applyOnlineStayBonus(exp, ONLINE_STAY_BONUS_XP_REMAINDER_STORAGE)
+	exp = exp + onlineBonusExtra
 	
 	-- Custom Lines
     if getGlobalStorageValue(17589) > os.time() then
@@ -232,12 +220,11 @@ function Player:onLoseExperience(exp)
 end
 
 function Player:onGainSkillTries(skill, tries)
+    local remainderStorage = ONLINE_STAY_BONUS_SKILL_REMAINDER_BASE + skill
     if APPLY_SKILL_MULTIPLIER == false then
-        return tries
+        local onlineBonusExtra = self:applyOnlineStayBonus(tries, remainderStorage)
+        return tries + onlineBonusExtra
     end
-
-    local onlineBonus = math.max(0, math.min(ONLINE_STAY_BONUS_MAX, self:getStorageValue(ONLINE_STAY_BONUS_STORAGE)))
-    local onlineMultiplier = 1 + onlineBonus / 100
 
     if skill == SKILL_MAGLEVEL then
         tries = tries * configManager.getNumber(configKeys.RATE_MAGIC)
@@ -246,7 +233,8 @@ function Player:onGainSkillTries(skill, tries)
             tries = tries * (1 + getGlobalStorageValue(17587) / 100)
         end
         -- Custom Lines
-        return tries * onlineMultiplier
+        local onlineBonusExtra = self:applyOnlineStayBonus(tries, remainderStorage)
+        return tries + onlineBonusExtra
     end
     
     tries = tries * configManager.getNumber(configKeys.RATE_SKILL)
@@ -255,30 +243,16 @@ function Player:onGainSkillTries(skill, tries)
         tries = tries * (1 + getGlobalStorageValue(17586) / 100)
     end
     -- Custom Lines
-    return tries * onlineMultiplier
+    local onlineBonusExtra = self:applyOnlineStayBonus(tries, remainderStorage)
+    return tries + onlineBonusExtra
 end
 
 function Player:onUseItem(item, target)
-    if itemWorth[item:getId()] then
-        self:addAnalyzerSupplies(itemWorth[item:getId()].value * item:getCount())
-        
-        local supplyAnalyzer = {}
-            table.insert(supplyAnalyzer, item:getName())
-            table.insert(supplyAnalyzer, item:getCount())
-            table.insert(supplyAnalyzer, item:getId())
-        self:addAnalyzerSupply(supplyAnalyzer)
-    end
-return true
+    -- Consumption is reported by the engine after the actual item/charge change.
+    -- This hook remains available for permission checks, never for counting clicks.
+    return true
 end
 
 function Player:onRemoveCount(item, count)
-	if itemWorth[item:getId()] then
-        self:addAnalyzerSupplies(itemWorth[item:getId()].value * count)
-        
-        local supplyAnalyzer = {}
-            table.insert(supplyAnalyzer, item:getName())
-            table.insert(supplyAnalyzer, count)
-            table.insert(supplyAnalyzer, item:getId())
-        self:addAnalyzerSupply(supplyAnalyzer)
-    end
+    return true
 end

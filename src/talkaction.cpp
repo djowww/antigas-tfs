@@ -98,6 +98,13 @@ TalkActionResult_t TalkActions::playerSaySpell(Player* player, SpeakClasses type
 			}
 		}
 
+		// Player-facing bang commands are reserved for staff. Party shared
+		// experience remains available through the client's native party UI.
+		if (!talkactionWords.empty() && talkactionWords.front() == '!' && !player->getGroup()->access) {
+			player->sendCancelMessage("This command is reserved for Gamemasters.");
+			return TALKACTION_BREAK;
+		}
+
 		if (talkAction->executeSay(player, param, type)) {
 			return TALKACTION_CONTINUE;
 		} else {

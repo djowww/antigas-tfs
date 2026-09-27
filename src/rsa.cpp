@@ -20,6 +20,41 @@
 #include "otpch.h"
 
 #include "rsa.h"
+#include <fstream>
+#include <sstream>
+
+bool RSA::loadKey(const char* filename)
+{
+	if (!filename || !*filename) return false;
+	std::ifstream file(filename, std::ios::binary);
+	if (!file) return false;
+	char bytes[400];
+	file.read(bytes, sizeof(bytes));
+	if (!file.eof() || file.bad()) return false;
+	std::istringstream input(std::string(bytes, static_cast<size_t>(file.gcount())));
+	std::string pText, qText, extra;
+	if (!(input >> pText >> qText) || (input >> extra)) return false;
+	if (pText.empty() || qText.empty() || pText.size() > 160 || qText.size() > 160 ||
+	    pText.find_first_not_of("0123456789") != std::string::npos ||
+	    qText.find_first_not_of("0123456789") != std::string::npos) return false;
+
+	mpz_t p, q, modulus, phi, p1, q1, exponent, gcd;
+	mpz_inits(p, q, modulus, phi, p1, q1, exponent, gcd, nullptr);
+	bool valid = mpz_set_str(p, pText.c_str(), 10) == 0 && mpz_set_str(q, qText.c_str(), 10) == 0;
+	valid = valid && mpz_cmp(p, q) != 0 && mpz_probab_prime_p(p, 32) > 0 && mpz_probab_prime_p(q, 32) > 0;
+	mpz_mul(modulus, p, q);
+	// The legacy game protocol has a fixed 128-byte RSA block.
+	valid = valid && mpz_sizeinbase(modulus, 2) == 1024;
+	mpz_sub_ui(p1, p, 1);
+	mpz_sub_ui(q1, q, 1);
+	mpz_mul(phi, p1, q1);
+	mpz_set_ui(exponent, 65537);
+	mpz_gcd(gcd, exponent, phi);
+	valid = valid && mpz_cmp_ui(gcd, 1) == 0;
+	if (valid) setKey(pText.c_str(), qText.c_str());
+	mpz_clears(p, q, modulus, phi, p1, q1, exponent, gcd, nullptr);
+	return valid;
+}
 
 RSA::RSA()
 {

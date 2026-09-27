@@ -2,8 +2,6 @@
 dofile('data/lib/core/core.lua')
 dofile('data/lib/lamp_states.lua')
 
-dofile('data/lib/custom/antigasBestiary.lua')
-
 -- Compatibility library for our old Lua API
 dofile('data/lib/compat/compat.lua')
 
@@ -15,6 +13,8 @@ dofile('data/lib/custom/economy.lua')
 -- Online Time System
 dofile('data/lib/custom/onlineTime.lua')
 
--- Persistent bonus earned for each uninterrupted hour online.
-ONLINE_STAY_BONUS_STORAGE = 17592
-ONLINE_STAY_BONUS_MAX = 24
+-- Persistent online bonus and fixed-point fractional gain accounting.
+dofile('data/lib/custom/onlineBonus.lua')
+
+-- Persistent per-character Bestiary kill progress.
+dofile('data/lib/custom/antigasBestiary.lua')

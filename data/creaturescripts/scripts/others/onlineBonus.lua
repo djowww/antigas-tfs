@@ -22,20 +22,23 @@ local function grantOnlineBonus(playerId, token)
         return
     end
 
-    local currentBonus = math.max(0, player:getStorageValue(ONLINE_STAY_BONUS_STORAGE))
-    if currentBonus >= ONLINE_STAY_BONUS_MAX then
-        player:setStorageValue(ONLINE_STAY_BONUS_STORAGE, ONLINE_STAY_BONUS_MAX)
+    local currentBonus = player:getOnlineStayBonusUnits()
+    local maxBonus = ONLINE_STAY_BONUS_MAX * ONLINE_STAY_BONUS_SCALE
+    if currentBonus >= maxBonus then
+        player:setOnlineStayBonusUnits(maxBonus)
         events[playerId] = nil
         return
     end
 
-    local newBonus = math.min(ONLINE_STAY_BONUS_MAX, currentBonus + 1)
-    player:setStorageValue(ONLINE_STAY_BONUS_STORAGE, newBonus)
+    local newBonus = player:setOnlineStayBonusUnits(currentBonus + ONLINE_STAY_BONUS_STEP)
+    local bonusIncrease = newBonus - currentBonus
     player:getPosition():sendMagicEffect(13)
     player:sendTextMessage(MESSAGE_EVENT_ADVANCE,
-        "Your online bonus increased by 1%. You now receive +" .. newBonus .. "% experience and skills (maximum +" .. ONLINE_STAY_BONUS_MAX .. "%).")
+        "Your online bonus increased by " .. string.format("%.1f", bonusIncrease / ONLINE_STAY_BONUS_SCALE) ..
+        "%. You now receive +" .. string.format("%.1f", newBonus / ONLINE_STAY_BONUS_SCALE) ..
+        "% experience and skills (maximum +" .. ONLINE_STAY_BONUS_MAX .. "%).")
 
-    if newBonus < ONLINE_STAY_BONUS_MAX then
+    if newBonus < maxBonus then
         token.eventId = addEvent(grantOnlineBonus, rewardInterval, playerId, token)
     else
         events[playerId] = nil
@@ -47,9 +50,9 @@ function onLogin(player)
     local playerId = player:getId()
     cancelReward(playerId)
 
-    local currentBonus = math.max(0, player:getStorageValue(ONLINE_STAY_BONUS_STORAGE))
-    if currentBonus >= ONLINE_STAY_BONUS_MAX then
-        player:setStorageValue(ONLINE_STAY_BONUS_STORAGE, ONLINE_STAY_BONUS_MAX)
+    local currentBonus = player:getOnlineStayBonusUnits()
+    if currentBonus >= ONLINE_STAY_BONUS_MAX * ONLINE_STAY_BONUS_SCALE then
+        player:setOnlineStayBonusUnits(ONLINE_STAY_BONUS_MAX * ONLINE_STAY_BONUS_SCALE)
         return true
     end
 

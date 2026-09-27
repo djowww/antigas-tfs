@@ -1,5 +1,5 @@
 -- Example only. Set real values in config.lua on your own server.
--- Never commit the operational securityKey or database credentials.
+-- Never commit database credentials or the private RSA key.
 worldType = "pvp"
 protectionLevel = 1
 pzLocked = 60000
@@ -21,7 +21,6 @@ killsWeekBanishment = 10
 killsMonthBanishment = 20
 
 ip = "127.0.0.1"
-securityKey = "CHANGE_ME"
 bindOnlyGlobalAddress = false
 loginProtocolPort = 7173
 gameProtocolPort = 7174
@@ -74,10 +73,10 @@ newbieTownId = 11
 newbieLevelThreshold = 5
 
 
-rateExp = 999
-rateSkill = 100
-rateLoot = 5
-rateMagic = 100
+rateExp = 1
+rateSkill = 1
+rateLoot = 1
+rateMagic = 1
 rateSpawn = 0
 
 deSpawnRange = 0

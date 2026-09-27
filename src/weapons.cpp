@@ -18,6 +18,7 @@
  */
 
 #include "otpch.h"
+#include "hunt_supply.h"
 
 #include "combat.h"
 #include "configmanager.h"
@@ -365,6 +366,7 @@ void Weapon::internalUseWeapon(Player* player, Item* item, Creature* target, int
 		LuaVariant var;
 		var.type = VARIANT_NUMBER;
 		var.number = target->getID();
+		HuntSupplyUse scriptedSupply(player, item);
 		executeUseWeapon(player, var);
 	} else {
 		CombatDamage damage;
@@ -382,6 +384,7 @@ void Weapon::internalUseWeapon(Player* player, Item* item, Tile* tile) const
 		LuaVariant var;
 		var.type = VARIANT_TARGETPOSITION;
 		var.pos = tile->getPosition();
+		HuntSupplyUse scriptedSupply(player, item);
 		executeUseWeapon(player, var);
 	} else {
 		Combat::postCombatEffects(player, tile->getPosition(), params);
@@ -412,16 +415,20 @@ void Weapon::onUsedWeapon(Player* player, Item* item, Tile* destTile) const
 	}
 
 	if (breakChance != 0 && uniform_random(1, 100) <= breakChance) {
+		HuntSupplyUse supply(player, item);
 		Weapon::decrementItemCount(item);
 		return;
 	}
 
 	switch (action) {
-		case WEAPONACTION_REMOVECOUNT:
+		case WEAPONACTION_REMOVECOUNT: {
+			HuntSupplyUse supply(player, item);
 			Weapon::decrementItemCount(item);
 			break;
+		}
 
 		case WEAPONACTION_REMOVECHARGE: {
+			HuntSupplyUse supply(player, item);
 			uint16_t charges = item->getCharges() - 1;
 			if (charges != 0) {
 				g_game.transformItem(item, item->getID(), charges);

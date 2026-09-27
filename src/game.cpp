@@ -18,6 +18,7 @@
  */
 
 #include "otpch.h"
+#include "hunt_supply.h"
 
 #include "pugicast.h"
 
@@ -3901,7 +3902,11 @@ void Game::startDecay(Item* item)
 
 void Game::internalDecayItem(Item* item)
 {
+	// Only equipped timed items belong to a player's hunt (rings, lit torches).
+	Player* owner = dynamic_cast<Player*>(item->getParent());
 	const ItemType& it = Item::items[item->getID()];
+	const bool exhausted = it.decayTo <= 0 || Item::items[it.decayTo].decayTime == 0;
+	HuntSupplyUse supply(exhausted ? owner : nullptr, item, false, true);
 	if (it.decayTo != 0) {
 		Item* newItem = transformItem(item, it.decayTo);
 		startDecay(newItem);

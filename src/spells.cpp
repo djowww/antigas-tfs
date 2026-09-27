@@ -18,6 +18,7 @@
  */
 
 #include "otpch.h"
+#include "hunt_supply.h"
 
 #include "combat.h"
 #include "configmanager.h"
@@ -1571,6 +1572,7 @@ bool ConjureSpell::conjureItem(Creature* creature) const
             return false;
         }
 
+        HuntSupplyUse reagent(player, item, false, true);
         Item* ret = g_game.transformItem(item, conjureId, conjureCount);
         if (!ret) {
             player->sendCancelMessage(RETURNVALUE_NOERROR);
@@ -1819,10 +1821,6 @@ bool RuneSpell::executeUse(Player* player, Item* item, const Position&, Thing* t
 	if (hasCharges && item && g_config.getBoolean(ConfigManager::REMOVE_RUNE_CHARGES)) {
 		int32_t newCount = std::max<int32_t>(0, item->getCharges() - 1);
 		g_game.transformItem(item, item->getID(), newCount);
-		
-	    if (player) {
-			g_events->eventPlayerOnRemoveCount(player, item, 0);
-		}
 	}
 	return true;
 }
