@@ -118,9 +118,10 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 	 * 12 bytes: dat, spr, pic signatures (4 bytes each)
 	 */
 	
-	// CUSTOM
-	if (msg.getString() != g_config.getString(ConfigManager::SECURITY_KEY)) {
-		disconnect();
+	// Public version marker, not a secret or account authentication factor.
+	// Check before RSA decoding so old clients receive a useful update notice.
+	if (msg.getString() != "Antigas-26") {
+		disconnectClient("Please download Antigas client v26 or newer at https://tibia74.tech");
 		return;
 	}
 	

@@ -63,7 +63,6 @@ bool ConfigManager::load()
 		integer[GAME_PORT] = getGlobalNumber(L, "gameProtocolPort", 7172);
 		integer[LOGIN_PORT] = getGlobalNumber(L, "loginProtocolPort", 7171);
 		integer[STATUS_PORT] = getGlobalNumber(L, "statusProtocolPort", 7171);
-		string[SECURITY_KEY] = getGlobalString(L, "securityKey", "");
 	}
 
 	boolean[SHOW_MONSTER_LOOT] = getGlobalBoolean(L, "showMonsterLoot", true);

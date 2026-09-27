@@ -30,12 +30,6 @@ function init()
 	regenerationCategory.addItem(80, 5102, 1, "Antigas Ring", "Eternal Light, + 1HP/2s + 2MP/3s.")
 	regenerationCategory.addItem(50, 3549, 1, "Pair Of Soft Boots", "INFINITE Regen + 1 HP/MP per 2 second.")
    
-	local outfitsCategory = addCategory({
-		type="item",
-		item=ItemType(5169):getId(),
-		name="Outfits"
-	})
-	outfitsCategory.addItem(200, 5153, 1, "GM Doll", "Thank you for playing. We will do our best for you.")
 	local scrollsCategory = addCategory({
 		type="item",
 		item=ItemType(5100):getId(),

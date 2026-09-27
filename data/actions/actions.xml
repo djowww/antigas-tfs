@@ -396,19 +396,7 @@
 	<action itemid="5085" script="others/doors.lua" />
 	<action itemid="2180" script="others/doors.lua" />
 
-	<!-- Custom Items -->
-	
-	<action itemid="5215" script="addons/norseman.lua" />
-	<action itemid="5208" script="addons/assassin_second.lua" />
-
-	<action itemid="5186" script="addons/wizard_addon1.lua" />
-	<action itemid="3006" script="addons/wizard_addon.lua" />
-
-	<action itemid="5170" script="addons/outfits1.lua" />	
-	<action itemid="5169" script="addons/outfits.lua" />
-	<action itemid="5242" script="addons/outfits3.lua" />
-	<action itemid="5153" script="addons/outfits4.lua" />
-	<action itemid="5249" script="addons/outfits5.lua" />
+	<!-- Legacy outfit-addon item actions removed; addons are not used by this client. -->
 	
 	<action itemid="3061" script="others/changecrystal.lua" />
 	<action itemid="5171" script="others/skinning-knife.lua" />

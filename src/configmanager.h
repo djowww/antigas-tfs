@@ -69,7 +69,6 @@ class ConfigManager
 			MYSQL_SOCK,
 			DEFAULT_PRIORITY,
 			MAP_AUTHOR,
-			SECURITY_KEY,
 			BLOCK_LOGIN_TEXT,
 
 			LAST_STRING_CONFIG /* this must be the last one */

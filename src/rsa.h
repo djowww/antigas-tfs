@@ -33,6 +33,7 @@ class RSA
 		RSA& operator=(const RSA&) = delete;
 
 		void setKey(const char* pString, const char* qString);
+		bool loadKey(const char* filename);
 		void decrypt(char* msg) const;
 
 	private:
