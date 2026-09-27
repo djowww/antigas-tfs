@@ -1,7 +1,7 @@
 QuestRow < Panel
-  height: 45
+  height: 43
   background-color: #343434
-  border: 1 #505050
+  border: 1 #454545
   focusable: true
 
   Label
@@ -72,7 +72,7 @@ MainWindow
     height: 16
     text-align: right
     color: #c4b894
-    text: Your character's quest journal
+    text: A personal journal
 
   TextList
     id: quests
@@ -105,7 +105,7 @@ MainWindow
     anchors.bottom: search.top
     margin: 7 3 7 9
     padding: 7
-    background-color: #29292988
+    background-color: #292929aa
     vertical-scrollbar: detailScroll
     layout:
       type: verticalBox
@@ -114,7 +114,7 @@ MainWindow
 
     Label
       id: title
-      text: Select a quest
+      text: Unwritten pages
       height: 30
       text-wrap: false
       text-auto-resize: false
@@ -142,6 +142,13 @@ MainWindow
       text-align: topleft
       color: #bbb29c
 
+    Label
+      id: entriesTitle
+      text: Notes from my travels
+      height: 18
+      text-align: left
+      color: #bdb08b
+
     Panel
       id: steps
       layout:
@@ -168,7 +175,7 @@ MainWindow
     margin-bottom: 7
     height: 22
     max-length: 48
-    placeholder: Search quest or region...
+    placeholder: Search my journal...
 
   Button
     id: clear
@@ -190,7 +197,7 @@ MainWindow
     text-wrap: true
     text-align: left
     color: #aaa79e
-    text: Read-only progress. Claim rewards in the world, not in this window.
+    text: Your journal grows with the paths you discover. Seek answers in the world.
 
   Button
     id: refresh
