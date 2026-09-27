@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <h2>Guia do jogador</h2>
         <a href="#noticias">Últimas notícias</a>
         <a href="#primeiros-passos">Primeiros passos</a>
-        <a href="https://pt.wikipedia.org/wiki/Tibia" target="_blank" rel="noopener noreferrer" aria-label="Tibia na Wikipédia (abre em nova aba)">Wikipédia ↗</a>
+        <a href="https://antigas-jogador-wiki.ricardozordan1994.chatgpt.site/#/home" target="_blank" rel="noopener noreferrer" aria-label="Wiki Antigas do jogo (abre em nova aba)">Wiki do jogo ↗</a>
         <a href="#sobre">Sobre o Antigas</a>
         <div class="side-rule" aria-hidden="true"></div>
       </nav>
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
           <p class="eyebrow">Tibia 7.4 clássico</p>
           <h1 id="welcome-heading">Sua aventura começa aqui</h1>
           <p class="intro">Reúna seus amigos, explore cavernas e escreva sua história. O mundo de Antigas espera por você, como nos velhos tempos.</p>
-          <div class="welcome-actions"><a class="button" href="#criar-conta">Criar conta</a><a class="button button-secondary" href="#download">Baixar cliente</a><a class="button button-secondary" href="https://pt.wikipedia.org/wiki/Tibia" target="_blank" rel="noopener noreferrer" aria-label="Tibia na Wikipédia (abre em nova aba)">Wikipédia ↗</a></div>
+          <div class="welcome-actions"><a class="button" href="#criar-conta">Criar conta</a><a class="button button-secondary" href="#download">Baixar cliente</a><a class="button button-secondary" href="https://antigas-jogador-wiki.ricardozordan1994.chatgpt.site/#/home" target="_blank" rel="noopener noreferrer" aria-label="Wiki Antigas do jogo (abre em nova aba)">Wiki do jogo ↗</a></div>
           <ol class="journey-steps" aria-label="Como começar"><li><b aria-hidden="true">1</b><a href="#criar-conta">Crie sua conta</a></li><li><b aria-hidden="true">2</b><a href="#download">Baixe o cliente</a></li><li><b aria-hidden="true">3</b><a href="#primeiros-passos">Entre no mundo</a></li></ol>
         </div>
         <div class="welcome-crest" aria-hidden="true"><img src="/classic-assets/crest.svg" width="126" height="142" alt=""><span>7.4 Classic</span></div>

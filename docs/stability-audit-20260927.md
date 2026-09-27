@@ -11,7 +11,7 @@ A VPS tem 3.911 MiB de RAM, sem swap; o serviço oficial consumia aproximadament
 - Market: a limpeza do controle de frequência ocorria em todos os pedidos recebidos no segundo exato da virada do minuto, ou nunca ocorria se não houvesse pedidos naquele segundo. Agora é feita uma vez a cada intervalo de 60 segundos. Os limites continuam em oito consultas e três mutações por jogador/segundo.
 - Três XMLs locais de monstros declaravam `UTF - 8`: `raids/orc.xml`, `raids/orcwarlord.xml` e `arena/ultimate/tentacles.xml`. Corrigidos para `UTF-8`. A VPS já continha a declaração correta; o problema era divergência local/Git.
 - Removida `data/spells/spells x 1.xml`, uma cópia sem referências. O carregador usa `data/spells/spells.xml`. A versão anterior permanece no Git e no backup privado da publicação.
-- Fonte pública do site passou a integrar `deploy/site-public/`: botão Wikipédia para o artigo Tibia em português, ajuda de formulário associada aos campos, URL canônica e respeito à preferência por movimento reduzido. Bibliotecas e configurações privadas não foram incluídas.
+- Fonte pública do site integra `deploy/site-public/`: botão “Wiki do jogo” para a Wiki Antigas publicada no ChatGPT, ajuda de formulário associada aos campos, URL canônica e respeito à preferência por movimento reduzido. Bibliotecas e configurações privadas não foram incluídas.
 
 ## Testes realizados
 

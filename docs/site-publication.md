@@ -10,6 +10,6 @@ Fonte pública de https://tibia74.tech, também mantida na pasta de trabalho `Si
 
 As bibliotecas de segurança/Pix e a configuração do banco são privadas e não integram esta pasta. O caminho padrão das bibliotecas é `/opt/antigas-web/private`, configurável por `ANTIGAS_WEB_LIB`. Não copie credenciais, dumps, backups, arquivos de teste ou documentos de operação para a raiz pública.
 
-A publicação desta pasta não altera a versão do cliente nem reinicia o jogo. Valide os PHP com `php -l` antes de publicar. O README é documentação do repositório; não precisa ser publicado na raiz web.
+A publicação desta pasta não altera a versão do cliente nem reinicia o jogo. Valide os PHP com `php -l` antes de publicar. Os documentos deste repositório não pertencem à raiz web.
 
-Revisão de 27/09/2026: acesso ao artigo Tibia na Wikipédia em português, descrição acessível para a abertura de nova aba, ajuda de formulário associada aos campos, URL canônica e respeito à preferência de movimento reduzido.
+O botão “Wiki do jogo” abre a Wiki Antigas publicada no ChatGPT: https://antigas-jogador-wiki.ricardozordan1994.chatgpt.site/#/home. O acesso abre em uma nova aba e inclui atributos de segurança. A página mantém ajuda de formulário associada aos campos, URL canônica e respeito à preferência de movimento reduzido.
