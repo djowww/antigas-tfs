@@ -199,7 +199,8 @@ function Player:onGainExperience(source, exp, rawExp)
     end
 
 	local onlineBonusExtra = self:applyOnlineStayBonus(exp, ONLINE_STAY_BONUS_XP_REMAINDER_STORAGE)
-	exp = exp + onlineBonusExtra
+	local bestiaryBonusExtra = self:applyBestiaryExperienceBonus(exp)
+	exp = exp + onlineBonusExtra + bestiaryBonusExtra
 	
 	-- Custom Lines
     if getGlobalStorageValue(17589) > os.time() then
