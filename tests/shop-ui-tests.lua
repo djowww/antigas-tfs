@@ -38,10 +38,15 @@ local function run()
   assert(window:isVisible(), 'Open Shop')
   shopModule.processStatus({points=123,
     buyUrl='https://tibia74.tech/coins.php',
-    ad={text='ANTIGAS 7.4  |  A classic Tibia world'}})
+    ad={image='https://tibia74.tech/antigas-shop-banner.png',
+      url='https://tibia74.tech/coins.php', text=''}})
   assert(window.infoPanel:getWidth() == 210, 'Compact sidebar')
   assert(window.infoPanel:getHeight() == 68, 'Compact points block')
-  assert(window.adPanel:getHeight() == 54, 'Compact banner')
+  assert(window.adPanel:getHeight() == 68, 'Local branded header')
+  assert(window.adPanel.ad:getWidth() == 56 and
+    window.adPanel.ad:getHeight() == 64, 'Fixed crest geometry')
+  assert(type(window.adPanel.ad.onMouseRelease) == 'function', 'Existing crest link')
+  assert(window.categories:getY() == window.offers:getY(), 'Aligned column tops')
   assert(window.infoPanel.buy:isVisible() and
     type(window.infoPanel.buy.onMouseRelease) == 'function', 'Buy Points callback')
   assert(window.infoPanel.points:getText() == 'Points: 123', 'Live points')
@@ -90,6 +95,9 @@ local function run()
     window.categories:getChildByIndex(index):focus()
     assert(window.offers:getChildCount() == #entry.offers,
       'Offer count for ' .. entry.name)
+    assert(window.adPanel.heading:getText() == entry.name, 'Category heading')
+    assert(window.adPanel.summary:getText():find(tostring(#entry.offers), 1, true),
+      'Offer count in header')
     local previousPrice, previousBuy
     for _, row in ipairs(window.offers:getChildren()) do
       assert(row:getHeight() == 56, 'Consistent row height')
@@ -128,9 +136,16 @@ local function run()
     report('PASS: BUY confirmation callback; purchase not submitted')
     shopModule.processStatus({points=98, buyUrl='https://tibia74.tech/coins.php'})
     assert(window.infoPanel.points:getText() == 'Points: 98', 'Points refresh')
+    assert(window.adPanel.ad.onMouseRelease == nil, 'Missing ad clears old link')
+    shopModule.processStatus({points=0})
+    assert(not window.infoPanel.buy:isVisible(), 'No missing payment URL callback')
+    assert(window.infoPanel:getHeight() == 68 and window.adPanel:getHeight() == 68,
+      'Stable header without remote ad or payment URL')
+    shopModule.processStatus({points=98, buyUrl='https://tibia74.tech/coins.php'})
     shopModule.processHistory({offer(5291, 'Exp Scroll', 'Bought on test date.', 25)})
     shopModule.showHistory()
     assert(window.offers:getChildCount() == 1, 'History lists purchases')
+    assert(window.adPanel.heading:getText() == 'Transaction history', 'History heading')
     assert(not window.offers:getChildByIndex(1).buyButton:isVisible(),
       'History cannot be bought again')
     shopModule.hide()
@@ -147,7 +162,15 @@ local function run()
       local size = sizes[index]
       if not size then
         report('PASS: Shop OTUI and Lua runtime at all tested sizes')
-        g_app.exit()
+        if SHOP_QA_PREVIEW then
+          window.categories:getChildByIndex(1):focus()
+          window.offersScrollBar:setValue(0)
+          window.categories:getLastChild():destroy() -- Remove synthetic name test from preview.
+          report('PREVIEW: ready for visual review')
+          scheduleEvent(function() g_app.exit() end, 240000)
+        else
+          g_app.exit()
+        end
         return
       end
       g_window.resize(size)
