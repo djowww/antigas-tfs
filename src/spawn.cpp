@@ -183,6 +183,11 @@ bool Spawn::findPlayer(const Position& pos)
 	SpectatorVec list;
 	g_game.map.getSpectators(list, pos, false, true);
 	for (Creature* spectator : list) {
+		// Expanded network spectators must not enlarge spawn blocking.
+		if (Position::getDistanceX(pos, spectator->getPosition()) > Map::maxViewportX ||
+		    Position::getDistanceY(pos, spectator->getPosition()) > Map::maxViewportY) {
+			continue;
+		}
 		if (!spectator->getPlayer()->hasFlag(PlayerFlag_IgnoredByMonsters)) {
 			return true;
 		}
