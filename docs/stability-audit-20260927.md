@@ -2,9 +2,9 @@
 
 ## Resultado e limite da validação
 
-O site foi publicado e validado. A correção do Market foi instalada em disco na VPS; **a ativação por reload/reinício está pendente**. Não foi executado teste com 50 ou 100 jogadores dentro do mundo nesta rodada. A manutenção de até dez minutos foi solicitada ao proprietário e aguarda resposta. O oficial permaneceu online, com um jogador na última consulta.
+O site foi publicado e validado. Após autorização explícita de manutenção, o teste final confirmou **50 jogadores simultâneos dentro do mundo**. A correção do Market foi ativada no oficial ao reiniciar. O servidor oficial voltou às 18:29:55 UTC (15:29:55 de Brasília), com resposta de status e acesso de jogador confirmados. O staging está desligado, limitado novamente a 1 GiB, e todas as contas/personagens sintéticos foram removidos. Não foi executado teste de 100 jogadores.
 
-A VPS tem 3.911 MiB de RAM, sem swap; o serviço oficial consumia aproximadamente 1.738 MiB e havia 1.559 MiB disponíveis. O staging continua parado, limitado a 1 GiB. Carregar dois mapas completos nessa máquina já provocou OOM em rodada anterior. Esses números descrevem o estado observado, não a capacidade com 50 jogadores.
+A VPS tem 3.911 MiB de RAM, sem swap; o serviço oficial consumia aproximadamente 1.738 MiB e havia 1.559 MiB disponíveis. O staging continua parado, limitado a 1 GiB. Carregar dois mapas completos nessa máquina já provocou OOM em rodada anterior. Esses números descrevem o estado anterior ao ensaio; os resultados medidos com 50 jogadores estão abaixo.
 
 ## Correções verificadas
 
@@ -24,12 +24,13 @@ A VPS tem 3.911 MiB de RAM, sem swap; o serviço oficial consumia aproximadament
 | Quest Log | Descoberta, ocultação de conteúdo, paginação de 242 entradas, isolamento e validação aprovados |
 | Bônus online | Migração, acúmulo/teto, logout e frações de experiência/skills aprovados |
 | Roteiro de carga Python | Cinco regressões offline aprovadas: transporte, frames fragmentados/ping, alvo, inventário e recibos |
+| Carga real no staging | 50/50 conectados; 20 ofertas, 20 negociações, 40 históricos, zero entregas pendentes; limpeza completa |
 | PHP | `index.php`, `account.php` e `coins.php` aprovados em `php -l` |
 | Site publicado | HTTP 200; links conferidos; desktop e mobile 390×844 sem overflow horizontal |
 
 O arquivo `data/globalevents/lib/lamp_states.lua` guarda uma tabela serializada de estado e é lido como dados pela biblioteca de lâmpadas. Não é um script executável; foi corretamente excluído da checagem de sintaxe e preservado.
 
-O teste unitário do Market usa 100 objetos de jogador em memória. **Ele não equivale a 100 conexões/jogadores online**. Cadastro, pagamentos, combate prolongado, uso de todos os itens e todos os caminhos dos scripts não receberam validação ponta a ponta nesta rodada. A inspeção não garante ausência de outros defeitos.
+O teste unitário do Market usa 100 objetos de jogador em memória. **Ele não equivale a 100 conexões/jogadores online**. Cadastro web, pagamentos, combate prolongado, uso de todos os itens e todos os caminhos dos scripts não receberam validação ponta a ponta nesta rodada. A inspeção não garante ausência de outros defeitos.
 
 ## Roteiro de carga corrigido e preparado
 
@@ -37,9 +38,26 @@ O teste unitário do Market usa 100 objetos de jogador em memória. **Ele não e
 
 O staging recebeu uma cópia do executável/data atuais. O SHA256 dos dois executáveis foi conferido: `af27c7c444d3e511c74bf62d80cbb9b935a976596e438af59b7dce57c4225ca3`. Configuração, banco e credenciais continuam separados; portas 7175/7176 em loopback. Server Save permanece desativado apenas no staging.
 
-`tests/staging-maintenance.py` prepara smoke seguido de 50 jogadores, coleta memória/CPU e restaura o oficial ao terminar. Sua sintaxe foi verificada, mas o ciclo de manutenção não foi executado. Ele exige aprovação explícita e execução sob systemd com limite de duração e recuperação independente em `ExecStopPost`, conforme seu cabeçalho. Não iniciar outro mapa com produção ativa nem elevar o limite de memória fora da janela.
+`tests/staging-maintenance.py` prepara smoke seguido de 50 jogadores, coleta memória/CPU e restaura o oficial ao terminar. O ciclo de manutenção foi executado com sucesso. Ele exige aprovação explícita e execução sob systemd com limite de duração e recuperação independente em `ExecStopPost`, conforme seu cabeçalho. A espera de inicialização agora confirma ambas as portas em vez de usar oito segundos fixos. Não iniciar outro mapa com produção ativa nem elevar o limite de memória fora da janela.
 
-Depois da autorização: confirmar o watchdog, iniciar a janela, executar smoke e então 50 jogadores, medir sessões/CPU/RAM e os resultados reais do Market/caça, desligar staging, restaurar MemoryMax=1G, religar oficial e verificar ausência de contas sintéticas. Se caça não encontrar alvos ou não registrar mortes, declarar essa cobertura incompleta.
+### Resultado medido da carga
+
+O ensaio final durou 91,3 segundos incluindo a subida gradual e o encerramento. Os 50 jogadores foram confirmados no registro do servidor e permaneceram online durante **30 segundos monitorados após as transações**, além do período das operações do Market. Isso é um teste curto, não um teste prolongado nem uma certificação de capacidade para 100 jogadores.
+
+- Pico RSS do TFS: **1.723,97 MiB (~1,68 GiB)**.
+- CPU média do processo TFS durante os 30 segundos de manutenção das 50 sessões, após as transações do Market: **3,20% de uma CPU**; maior intervalo amostrado de aproximadamente um segundo: **6,92%**. A VPS tem uma vCPU. Não inclui MariaDB nem mede latência de rede ou uso total da VPS.
+- Market: **20 ofertas criadas, 20 negociações concluídas, 40 registros de histórico, zero entregas pendentes**, usando Gold e Antigas Coin.
+- Chat e movimento: comandos repetidos durante a carga; todas as sessões monitoradas permaneceram online. O roteiro não confirma cada posição final individualmente.
+- Caça: **10/10 alvos identificados; 3/10 caçadores registraram morte de rato** no storage persistido. Cobertura parcial de caça; não afirmar sucesso para os demais.
+- Sem crash/OOM observado na rodada final. A parada final foi administrativa e graciosa. Após ela: zero contas/personagens sintéticos, zero ofertas/entregas de teste, staging sem portas abertas, oficial respondendo em 7173/7174.
+
+A primeira tentativa acionou o limitador de novas conexões por IP ao abrir um lote simultâneo; o servidor encerrou sockets sem resposta e a recuperação automática funcionou. O roteiro passou a espaçar somente as aberturas em **750 ms**, preservando as proteções do servidor. A segunda tentativa autenticou 50 personagens, mas cinco caçadores morreram enquanto esperavam a rampa; foi corretamente rejeitada como carga de 50.
+
+Na rodada válida, os dez caçadores sintéticos receberam **5.000 HP** para sobreviver à preparação. Nenhuma regra de combate, criatura ou personagem real foi alterado. Isso valida carga e integrações, não balanceamento de combate. Personagens em combate podem recusar logout; no encerramento em manutenção o staging é parado normalmente antes da limpeza, permitindo salvar o estado e confirmar zero online sem apagar personagens conectados.
+
+Métricas publicadas em [validation/load-50-20260927.json](validation/load-50-20260927.json). As amostras completas e os logs das três tentativas estão no histórico local privado da auditoria.
+
+A recuperação independente usada está em `deploy/systemd/staging-maintenance-recovery.sh`. Foi instalada com permissão 0700 e configurada como `ExecStopPost` do serviço transitório, com `KillMode=control-group` e `RuntimeMaxSec` limitado à janela. A opção `--skip-smoke` da última rodada só foi usada porque o smoke do mesmo executável já havia passado duas vezes. Esses comandos não devem ser executados sem nova janela coordenada.
 
 ## Organização e recuperação
 
@@ -50,4 +68,4 @@ Depois da autorização: confirmar o watchdog, iniciar a janela, executar smoke 
 - Módulos carregados dinamicamente, editor de mapa, bibliotecas privadas, migrações e backups úteis preservados. Ausência de referência textual não foi usada sozinha para apagar recursos.
 - Backup da publicação na VPS: `/root/backups/antigas-stability-20260927`. Para rollback de código, restaurar somente os arquivos envolvidos; não restaurar banco sobre operações recentes.
 
-Pendências: aprovação da janela, carga real de 50 jogadores e ativação/verificação do Market no processo oficial. Não há resultado de desempenho sob carga a publicar antes desse ensaio.
+Concluído: carga curta de 50 jogadores, ativação do Market, restauração do oficial e limpeza dos dados sintéticos. Permanecem fora da cobertura testes prolongados, 100 jogadores, consumo de poções/runas/comida, cama, duplicação e exaustão de todos os caminhos de jogo.

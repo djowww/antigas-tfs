@@ -1,0 +1,37 @@
+{
+  "started": 1790533696.0997615,
+  "status": "passed",
+  "ended": 1790533795.8336952,
+  "recovery_codes": [
+    0,
+    0,
+    0
+  ],
+  "production": "active",
+  "staging": "inactive",
+  "peak_rss_mib": 1723.97265625,
+  "peak_memory_mib": 1716.65625,
+  "cpu_seconds": 6.1899999999999995,
+  "concurrent_players": 50,
+  "hold_seconds": 30,
+  "workload_duration_seconds": 91.3,
+  "market_create": 20,
+  "market_fill": 20,
+  "market_history": 40,
+  "market_pending_claims": 0,
+  "hunt_targets": 10,
+  "hunters_with_recorded_rat_kill": 3,
+  "cleanup": "complete",
+  "vcpus": 1,
+  "synthetic_hunter_health": 5000,
+  "cpu_avg_percent_during_hold": 3.2,
+  "rss_peak_mib_during_hold": 1723.95,
+  "cpu_interval_peak_percent_during_hold": 6.92,
+  "limitations": [
+    "Short bounded run; not a prolonged soak or 100-player certification",
+    "Hunt success recorded for 3 of 10 hunters",
+    "Durable synthetic hunters used 5000 health to survive the paced login ramp",
+    "Packets sent for chat/movement; no assertion of every resulting position",
+    "No potion/rune/food/bed/dupe end-to-end coverage in this run"
+  ]
+}

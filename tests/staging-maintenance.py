@@ -43,7 +43,8 @@ def interrupt(signum, frame):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--approved-maintenance', action='store_true', required=True)
-    parser.parse_args()
+    parser.add_argument('--skip-smoke', action='store_true', help='only after a passed smoke on this exact build')
+    options = parser.parse_args()
     assert value('imperium772', 'ActiveState') == 'active'
     assert value('imperium772-staging', 'ActiveState') == 'inactive'
     assert os.environ.get('INVOCATION_ID'), 'Run under the documented systemd watchdog'
@@ -58,9 +59,17 @@ def main():
         run('systemctl', 'set-property', '--runtime', 'imperium772-staging', 'MemoryMax=3G')
         run('systemctl', 'start', 'imperium772-staging')
         monitor.start()
-        time.sleep(8)
-        assert value('imperium772-staging', 'ActiveState') == 'active'
-        for args in (['--smoke'], ['--players', '50']):
+        deadline = time.monotonic() + 90
+        while True:
+            assert value('imperium772-staging', 'ActiveState') == 'active', 'Staging failed during startup'
+            listeners = subprocess.check_output(['ss', '-ltn'], text=True)
+            if '127.0.0.1:7175' in listeners and '127.0.0.1:7176' in listeners:
+                break
+            if time.monotonic() >= deadline:
+                raise TimeoutError('Staging did not open both loopback ports within 90 seconds')
+            time.sleep(1)
+        phases = [['--players', '50']] if options.skip_smoke else [['--smoke'], ['--players', '50']]
+        for args in phases:
             subprocess.run(['python3', str(ROOT/'tests/load-test-50.py'), '--maintenance-window', *args], check=True, timeout=220)
         result['status'] = 'passed'
     finally:
