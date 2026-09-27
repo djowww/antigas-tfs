@@ -1,0 +1,21 @@
+{
+  "release": 36,
+  "date_utc": "2026-09-27",
+  "server_unit_tests": "PASS under production LuaJIT: discovery filtering, hidden details/stages/rewards/counts, early initiation, old flags, pagination, character isolation, request validation and rate limits",
+  "ui_runtime": "Windows Antigas_gl.exe, isolated offline fixture",
+  "ui_resolutions": ["800x600", "1024x768", "1366x768"],
+  "ui_checks": ["open-close", "search and filters", "selection debounce", "stale and malformed replies", "long text wrapping", "both scrollbars and last rows", "empty journal", "logout clears progress", "classic layout visual review"],
+  "live_test": "PASS: two simultaneous ordinary players; only owned discoveries; hidden quest IDs denied; future steps and uncertain rewards omitted; mutation and impersonation rejected; next accepted stage discovered after reconnect",
+  "test_account_cleanup": "Confirmed zero questlogprobe accounts remaining",
+  "service": {"name": "imperium772", "active_since_utc": "2026-09-27 03:52:31", "pid": 87966, "automatic_restarts": 0, "state": "active/running"},
+  "shutdown": "SIGTERM graceful save confirmed in system journal",
+  "console": "No new errors in restart and live-test log review",
+  "website_php_syntax": "PASS",
+  "public_download_verified": true,
+  "public_zip": "https://tibia74.tech/Antigas-7.4-Client-v36.zip",
+  "zip_bytes": 25723363,
+  "sha256": "612733829dd78695f230efec133ee8f8f12dad327093d7ad899980d31482de91",
+  "windows_linux_package_identical": true,
+  "database_migration": false,
+  "original_quests_and_rewards_changed": false
+}

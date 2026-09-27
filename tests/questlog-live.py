@@ -58,24 +58,34 @@ try:
         if index == 0: sql(f'INSERT INTO player_storage(player_id,`key`,`value`) VALUES({player},203,1),({player},293,6)')
         client = Probe(account,password,name); clients.append(client)
         result = client.request(dict(action='list'))
-        assert result['total']==242 and result['pages']==7 and len(result['entries'])==35
-        assert client.request(dict(action='detail',id='chest-203'))['quest']['status']==('completed' if index==0 else 'unstarted')
-        quest = client.request(dict(action='detail',id='ape-city'))['quest']
-        assert quest['done']==(3 if index==0 else 0)
+        assert result['journal']==2 and result['total']==(2 if index==0 else 0) and result['pages']==1
+        assert len(result['entries'])==(2 if index==0 else 0)
+        chest = client.request(dict(action='detail',id='chest-203'))
+        ape = client.request(dict(action='detail',id='ape-city'))
+        if index==0:
+            assert chest['quest']['status']=='completed' and chest['quest']['rewards']==''
+            assert ape['quest']['done']==3 and ape['quest']['total']==3
+            assert 'hydra' not in json.dumps(ape).lower()
+        else:
+            assert chest['unavailable'] and ape['unavailable']
+            assert 'quest' not in chest and 'quest' not in ape
+        assert client.request(dict(action='detail',id='blue-djinn'))['unavailable']
         assert client.request(dict(action='list',query='APE CITY',filter='active'))['matched']==(1 if index==0 else 0)
         if index==0: reconnect=account,password,name
     assert sql('SELECT COUNT(*) FROM players_online WHERE player_id IN ('+','.join(map(str,players))+')')=='2'
     clients[0].request(dict(action='list',playerId=players[1]),expect=False)
     clients[0].request(dict(action='claim',id='chest-203'),expect=False)
     assert clients[0].request(dict(action='detail',id='chest-203'))['quest']['status']=='completed'
-    print('PASS live: two ordinary players, isolated chest/NPC progress, list/search/filter, rejected mutations and player impersonation',flush=True)
+    print('PASS live: two ordinary players, discovered-only counts/list/search/details, no future stages or hidden rewards, rejected mutations and impersonation',flush=True)
     for client in clients: client.close()
     clients.clear()
     time.sleep(2)
+    sql(f'UPDATE player_storage SET `value`=7 WHERE player_id={players[0]} AND `key`=293')
     client=Probe(*reconnect); clients.append(client)
-    assert client.request(dict(action='detail',id='ape-city'))['quest']['done']==3
+    quest=client.request(dict(action='detail',id='ape-city'))['quest']
+    assert quest['done']==3 and quest['total']==4 and not quest['steps'][3]['completed']
     assert client.request(dict(action='detail',id='chest-203'))['quest']['status']=='completed'
-    print('PASS live: quest progress preserved after logout/reconnect',flush=True)
+    print('PASS live: newly accepted stage discovered after reconnect; original completed progress preserved',flush=True)
 finally:
     for client in clients:
         try: client.close()
