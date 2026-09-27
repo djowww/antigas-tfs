@@ -18,3 +18,4 @@ dofile('data/lib/custom/onlineBonus.lua')
 
 -- Persistent per-character Bestiary kill progress.
 dofile('data/lib/custom/antigasBestiary.lua')
+dofile('data/lib/custom/antigasAchievements.lua')

@@ -11,6 +11,7 @@
 
 ## Sistemas e regras
 
+- [Achievements e recompensas do cliente v40](achievements-v40.md)
 - [Fórmulas atuais de dano e defesa](combat-formulas.md)
 - [Loot e suprimentos no cliente v17](loot-v17.md)
 - [Histórico do Quest Log v35](questlog-v35.md)

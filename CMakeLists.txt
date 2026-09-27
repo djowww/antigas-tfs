@@ -1,48 +1,31 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.16)
+project(tfs LANGUAGES CXX)
 
-set(CMAKE_DISABLE_SOURCE_CHANGES ON)
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(tfs)
-
-list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-include(cotire)
-
-add_compile_options(-Wall -fno-var-tracking -pipe -fvisibility=hidden)
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-    add_compile_options(-fno-strict-aliasing)
-endif()
-
-include(FindCXX11)
-
-# Find packages.
-find_package(GMP REQUIRED)
-find_package(PugiXML REQUIRED)
-find_package(LuaJIT)
-find_package(MySQL)
-find_package(Threads)
-
-option(USE_LUAJIT "Use LuaJIT" ${LUAJIT_FOUND})
-
-if(USE_LUAJIT)
-    find_package(LuaJIT REQUIRED)
-    if(APPLE)
-      set(CMAKE_EXE_LINKER_FLAGS "-pagezero_size 10000 -image_base 100000000")
-    endif()
-else()
-    find_package(Lua)
-endif()
-
-find_package(Boost 1.53.0 COMPONENTS system filesystem REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LUAJIT REQUIRED IMPORTED_TARGET luajit)
+pkg_check_modules(PUGIXML REQUIRED IMPORTED_TARGET pugixml)
+pkg_check_modules(MYSQL REQUIRED IMPORTED_TARGET mysqlclient)
+pkg_check_modules(GMP REQUIRED IMPORTED_TARGET gmp)
+find_package(Threads REQUIRED)
+find_package(Boost 1.53 REQUIRED COMPONENTS system filesystem)
 
 include(src/CMakeLists.txt)
 add_executable(tfs ${tfs_SRC})
 
-include_directories(${MYSQL_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${PUGIXML_INCLUDE_DIR} ${GMP_INCLUDE_DIR})
-target_link_libraries(tfs ${MYSQL_CLIENT_LIBS} ${LUA_LIBRARIES} ${Boost_LIBRARIES} ${Boost_FILESYSTEM_LIBRARIES} ${PUGIXML_LIBRARIES} ${GMP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(tfs PRIVATE src ${Boost_INCLUDE_DIRS})
+target_link_libraries(tfs PRIVATE
+	PkgConfig::LUAJIT
+	PkgConfig::PUGIXML
+	PkgConfig::MYSQL
+	PkgConfig::GMP
+	${Boost_LIBRARIES}
+	Threads::Threads
+)
 
-set_target_properties(tfs PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "src/otpch.h")
-set_target_properties(tfs PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(tfs)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_compile_options(tfs PRIVATE -Wall -fno-var-tracking -pipe -fvisibility=hidden -fno-strict-aliasing)
+endif()

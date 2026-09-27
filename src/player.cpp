@@ -3830,6 +3830,10 @@ bool Player::isPromoted() const
 double Player::getLostPercent() const
 {
 	int32_t blessingCount = std::bitset<5>(blessings).count();
+	int32_t achievementReduction = 0;
+	getStorageValue(17806, achievementReduction);
+	achievementReduction = std::max<int32_t>(0, std::min<int32_t>(100, achievementReduction));
+	const double achievementMultiplier = (100 - achievementReduction) / 100.0;
 
 	int32_t deathLosePercent = g_config.getNumber(ConfigManager::DEATH_LOSE_PERCENT);
 	if (deathLosePercent != -1) {
@@ -3838,7 +3842,7 @@ double Player::getLostPercent() const
 		}
 
 		deathLosePercent -= blessingCount;
-		return std::max<int32_t>(0, deathLosePercent) / 100.;
+		return std::max<int32_t>(0, deathLosePercent) / 100. * achievementMultiplier;
 	}
 
 	double lossPercent;
@@ -3853,7 +3857,7 @@ double Player::getLostPercent() const
 		lossPercent *= 0.7;
 	}
 
-	return lossPercent * pow(0.92, blessingCount) / 100;
+	return lossPercent * pow(0.92, blessingCount) / 100 * achievementMultiplier;
 }
 
 void Player::learnInstantSpell(const std::string& spellName)
