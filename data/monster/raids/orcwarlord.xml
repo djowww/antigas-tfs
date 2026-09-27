@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF - 8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <monster name="Orc Warlord" nameDescription="an Orc Warlord" race="blood" experience="670" speed="234" manacost="0">
 	<health now="950" max="950" />
 	<look type="2" head="0" body="0" legs="0" feet="0" corpse="4148" />

@@ -4,6 +4,7 @@
 
 ## Operação e segurança
 
+- [Auditoria de estabilidade e preparação da carga de 50 jogadores](stability-audit-20260927.md)
 - [Recuperação do banco e concorrência do Market](database-recovery.md)
 - [Configuração da chave RSA de login v26](security-v26.md)
 - [Estabilidade e encerramento do servidor](stability-v16.md)

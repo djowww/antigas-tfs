@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF - 8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <monster name="Tentacles" nameDescription="a tentacles" race="blood" experience="2000" speed="234" manacost="0">
 	<health now="3000" max="3000" />
 	<look type="220" head="0" body="0" legs="0" feet="0" corpse="2118" />

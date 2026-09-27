@@ -31,13 +31,15 @@ def prepare(workspace):
     stage=workspace/'Historico/viewport-v38/release-final'
     stage.mkdir(exist_ok=False)
     repo=workspace/'Servidor/TFS'
-    assert sha((workspace/OLD).read_bytes())==OLD_SHA
+    old_package=workspace/OLD
+    if not old_package.is_file(): old_package=workspace/'Historico/Pacotes-antigos'/OLD
+    assert sha(old_package.read_bytes())==OLD_SHA
     changed={name:(workspace/'Cliente'/name).read_bytes() for name in CLIENT}
     assert b'APP_VERSION = 38' in changed['init.lua']
-    with zipfile.ZipFile(workspace/OLD) as old,zipfile.ZipFile(stage/NEW,'x',zipfile.ZIP_DEFLATED) as new:
+    with zipfile.ZipFile(old_package) as old,zipfile.ZipFile(stage/NEW,'x',zipfile.ZIP_DEFLATED) as new:
         for entry in old.infolist(): new.writestr(entry,changed.get(entry.filename,old.read(entry.filename)))
         for name in sorted(set(changed)-set(old.namelist())): new.writestr(name,changed[name])
-    with zipfile.ZipFile(workspace/OLD) as old,zipfile.ZipFile(stage/NEW) as new:
+    with zipfile.ZipFile(old_package) as old,zipfile.ZipFile(stage/NEW) as new:
         assert new.testzip() is None and len(new.namelist())==len(set(new.namelist()))
         assert set(new.namelist())==set(old.namelist())|set(CLIENT)
         for name in old.namelist(): assert new.read(name)==changed.get(name,old.read(name)),name
