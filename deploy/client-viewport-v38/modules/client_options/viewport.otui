@@ -1,0 +1,29 @@
+Panel
+  Label
+    id: gameViewLabel
+    text: Game View
+    anchors.top: parent.top
+    anchors.left: parent.left
+    margin-top: 9
+
+  ComboBox
+    id: gameView
+    anchors.top: gameViewLabel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 7
+    margin-right: 4
+    @onSetup: |
+      self:addOption('Classic')
+      self:addOption('Widescreen')
+
+  Label
+    anchors.top: gameView.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 12
+    height: 144
+    text-wrap: true
+    text-align: topLeft
+    color: #b8b8b8
+    !text: tr('Classic: original 15 x 11 view.\n\nWidescreen: more map, square tiles. Adjusts to the window size.\n\nLeft and right panels remain available in Graphics.\n\nUses Classic on servers without expanded view support.')

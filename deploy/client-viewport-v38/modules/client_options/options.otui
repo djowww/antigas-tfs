@@ -1,0 +1,97 @@
+OptionCheckBox < CheckBox
+  @onCheckChange: modules.client_options.setOption(self:getId(), self:isChecked())
+  height: 16
+
+  $first:
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-top: 9
+
+  $!first:
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 9
+
+OptionScrollbar < HorizontalScrollBar
+  step: 1
+  @onValueChange: modules.client_options.setOption(self:getId(), self:getValue())
+    
+MainWindow
+  id: optionsWindow
+  !text: tr('Options')
+  size: 415 350
+
+  @onEnter: modules.client_options.hide()
+  @onEscape: modules.client_options.hide()
+
+  TabBarVertical
+    id: optionsTabBar
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin-top: -5
+
+  Panel
+    id: optionsTabContent
+    anchors.top: optionsTabBar.top
+    anchors.left: optionsTabBar.right
+    anchors.right: parent.right
+    anchors.bottom: optionsTabBar.bottom
+    margin-left: 20
+
+  HorizontalSeparator
+    id: separator
+    anchors.top: optionsTabBar.top
+    anchors.left: optionsTabBar.left
+    anchors.right: optionsTabBar.right
+    margin-top: 155
+    margin-left: 6
+    margin-right: 6
+
+  Button
+    id: hotkeysButton
+    !text: tr('Hotkeys')
+    width: 86
+    anchors.top: separator.top
+    anchors.left: optionsTabBar.left
+    margin-top: 12
+    margin-left: 10
+    enabled: true
+    @onClick: modules.game_hotkeys.toggle()
+
+  HorizontalSeparator
+    id: separator2
+    anchors.top: hotkeysButton.bottom
+    anchors.left: optionsTabBar.left
+    anchors.right: optionsTabBar.right
+    margin-top: 12
+    margin-left: 6
+    margin-right: 6
+
+  Button
+    !text: tr('Discord')
+    width: 86
+    anchors.top: separator2.bottom
+    anchors.left: optionsTabBar.left
+    margin-top: 12
+    margin-left: 11
+    @onClick: openDiscord()
+
+  Button
+    !text: tr('Motd')
+    width: 86
+    anchors.top: separator2.bottom
+    anchors.left: optionsTabBar.left
+    margin-top: 40
+    margin-left: 11
+    @onClick: modules.client_entergame.EnterGame.displayMotd()
+
+  Button
+    !text: tr('Ok')
+    width: 45
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    @onClick: modules.client_options.toggle()
+

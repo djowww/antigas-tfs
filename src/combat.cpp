@@ -642,8 +642,8 @@ void Combat::CombatFunc(Creature* caster, const Position& pos, const AreaCombat*
 		}
 	}
 
-	const int32_t rangeX = maxX + Map::maxViewportX;
-	const int32_t rangeY = maxY + Map::maxViewportY;
+	const int32_t rangeX = maxX + Map::maxPlayerViewportX;
+	const int32_t rangeY = maxY + Map::maxPlayerViewportY;
 	g_game.map.getSpectators(list, pos, true, true, rangeX, rangeX, rangeY, rangeY);
 
 	for (Tile* tile : tileList) {

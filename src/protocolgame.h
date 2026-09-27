@@ -25,6 +25,7 @@
 #include "creature.h"
 #include "tasks.h"
 #include "walkmatrix.h"
+#include "mapviewport.h"
 #include <set>
 
 class NetworkMessage;
@@ -261,6 +262,10 @@ class ProtocolGame final : public Protocol
 		
 		//OTCv8
 		void sendFeatures();
+		void parseChangeMapAwareRange(NetworkMessage& msg);
+		void changeMapAwareRange(uint8_t width, uint8_t height);
+		MapViewport mapViewport;
+		int64_t lastMapRangeChange = 0;
 		
 		void parseNewWalking(NetworkMessage& msg);
 		void checkPredictiveWalking(const Position& pos);
