@@ -178,8 +178,6 @@ function onContainerOpen(container, previousContainer)
   container.window = containerWindow
   container.itemsPanel = containerPanel
 
-  if rarity then rarity.requestContainerPage(container) end
-
   toggleContainerPages(containerWindow, container:hasPages())
   refreshContainerPages(container)
 

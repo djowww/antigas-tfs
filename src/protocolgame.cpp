@@ -1274,8 +1274,9 @@ void ProtocolGame::sendContainer(uint8_t cid, const Container* container, bool h
 	msg.addByte(hasParent ? 0x01 : 0x00);
 
 	uint32_t containerSize = container->size();
+	uint8_t itemsToSend = 0;
 	if (firstIndex < containerSize) {
-		uint8_t itemsToSend = std::min<uint32_t>(std::min<uint32_t>(container->capacity(), containerSize - firstIndex), std::numeric_limits<uint8_t>::max());
+		itemsToSend = std::min<uint32_t>(std::min<uint32_t>(container->capacity(), containerSize - firstIndex), std::numeric_limits<uint8_t>::max());
 
 		msg.addByte(itemsToSend);
 		for (auto it = container->getItemList().begin() + firstIndex, end = it + itemsToSend; it != end; ++it) {
@@ -1283,6 +1284,35 @@ void ProtocolGame::sendContainer(uint8_t cid, const Container* container, bool h
 		}
 	} else {
 		msg.addByte(0x00);
+	}
+
+	// Ship rarity metadata in the same packet as the container contents. The
+	// client can then color loot as soon as the native container is opened,
+	// without waiting for a separate Lua extended-opcode round trip.
+	if (player && (otclientV8 || player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX) && firstIndex < containerSize) {
+		constexpr uint32_t rarityPageSize = 40;
+		const auto containerItems = container->getItemList().begin();
+		for (uint32_t offset = 0; offset < itemsToSend; offset += rarityPageSize) {
+			const uint32_t count = std::min<uint32_t>(rarityPageSize, itemsToSend - offset);
+			std::string payload = "P|C|" + std::to_string(cid) + "|" + std::to_string(firstIndex + offset) + "|";
+			for (uint32_t slot = 0; slot < count; ++slot) {
+				const uint32_t index = firstIndex + offset + slot;
+				const Item* item = *(containerItems + index);
+				if (slot != 0) payload.push_back(';');
+				payload += std::to_string(index);
+				payload.push_back(',');
+				payload += std::to_string(item && item->hasRarity() ? static_cast<uint8_t>(item->getRarityTier()) : 0);
+				payload.push_back(',');
+				payload += std::to_string(item && item->hasRarity() ? static_cast<uint8_t>(item->getRarityBonusType()) : 0);
+				payload.push_back(',');
+				payload += std::to_string(item && item->hasRarity() ? item->getRarityBonusValue() : 0);
+				payload.push_back(',');
+				payload += std::to_string(item && item->hasRarity() ? item->getRarityBonusSubtype() : 0);
+			}
+			msg.addByte(0x32);
+			msg.addByte(127);
+			msg.addString(payload);
+		}
 	}
 	writeToOutputBuffer(msg);
 }
