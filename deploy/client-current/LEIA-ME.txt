@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v46
+ANTIGAS 7.4 — CLIENTE v47
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
@@ -32,6 +32,8 @@ Recompensas pendentes ficam salvas e nao sao deixadas no chao.
 
 RARIDADES DOS ITENS
 - Itens incomuns, raros, épicos, lendários e míticos aparecem com bordas verdes, azuis, roxas, amarelas e vermelhas.
+- Itens raros no chão recebem uma pulsação de cor lenta e discreta; o sprite original continua visível.
+- Ao abrir um corpo, o container já mostra as cores de raridade junto com os itens.
 - Passe o mouse sobre equipamentos no inventário ou em containers para consultar a raridade e seu bônus. Os atributos são definidos pelo servidor.
 
 CANAL LOOT

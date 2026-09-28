@@ -73,6 +73,11 @@ receive(snapshot(pos,{record(0,1)}))
 check(rare.color==nil, 'No unauthenticated pre-ready mark')
 receive({event='ready',version=1})
 local colors={'#42C96B','#3E8BFF','#A855F7','#F5C542','#EF4444'}
+local pulseColors={'#4ACF72','#4B93FF','#AE63F9','#F7CD4B','#F04E4E'}
+local function hasTierTint(target,tier)
+  local bright=upvalue(updateMarks,'pulseBright')
+  return target.color==(bright and pulseColors[tier] or colors[tier])
+end
 for tier=1,5 do
   receive(snapshot(pos,{record(0,tier)}))
   check(rare.color==colors[tier], 'Exact sprite rarity color '..tier)
@@ -80,17 +85,21 @@ for tier=1,5 do
 end
 step(500)
 check(rare.color==colors[5], 'Ground tint is steady')
-native.things={common,rare}; step(500)
+native.things={common,rare}; step(1000)
+check(rare.color=='#F04E4E', 'Ground rarity tint receives a subtle shared pulse')
+step(1500)
+check(rare.color==colors[5], 'Ground rarity pulse returns to the original rarity color')
+step(500)
 check(restoreMark(rare) and not restoreMark(common), 'Native identity survives shifted stack')
 receive(snapshot(pos,{record(1,3)}))
-check(rare.color==colors[3] and common.color==nil, 'Server stack refresh retains correct item')
+check(hasTierTint(rare,3) and common.color==nil, 'Server stack refresh retains correct item')
 map.markedThing=rare; rare:setMarked('yellow'); step(500)
-check(rare.mark=='yellow' and rare.color==colors[3], 'Cursor mark and sprite tint coexist independently')
+check(rare.mark=='yellow' and hasTierTint(rare,3), 'Cursor mark and sprite tint coexist independently')
 map.markedThing=nil; rare:setMarked('')
-check(restoreMark(rare) and rare.color==colors[3], 'Hover departure restores tier tint')
+check(restoreMark(rare) and hasTierTint(rare,3), 'Hover departure restores tier tint')
 local stale=snapshot(pos,{record(0,1)}); seq=seq+1
 receive({event='tile',position=pos,seq=seq,items={record(1,5)}}); receive(stale)
-check(rare.color==colors[5] and common.color==nil, 'Older sequence cannot recolor replacement')
+check(hasTierTint(rare,5) and common.color==nil, 'Older sequence cannot recolor replacement')
 native.things={common}; rare.position={x=65535,y=1,z=0}; step(500)
 check(rare.color=='' and common.color==nil and not restoreMark(common), 'Pickup clears old object without tinting common duplicate')
 rare.position=pos; native.things={rare,common}
@@ -98,7 +107,7 @@ receive(snapshot(pos,{record(0,2)}))
 local replacement=item(2376,pos); native.things={replacement,common}; step(500)
 check(rare.color=='' and replacement.color==nil, 'Recreated same-ID object cannot inherit old metadata')
 receive(snapshot(pos,{record(0,4)}))
-check(replacement.color==colors[4], 'Fresh ordered snapshot binds replacement')
+check(hasTierTint(replacement,4), 'Fresh ordered snapshot binds replacement')
 receive(snapshot(pos,{}))
 check(replacement.color=='', 'Empty authoritative snapshot clears tile')
 native.things={}
@@ -125,12 +134,12 @@ for _, cleanedBeforeReturn in ipairs({false, true}) do
     tile(p,{returnedCommon,returnedRare})
     local instant=now
     receive(snapshot(p,{record(1,tier,3264)}))
-    check(now==instant and returnedRare.color==colors[tier],
+    check(now==instant and hasTierTint(returnedRare,tier),
       'Re-entered rare native item colors immediately, tier '..tier..', cleaned '..tostring(cleanedBeforeReturn))
     check(departed.color=='' and returnedCommon.color==nil,
       'Re-entry clears the departed instance and preserves common duplicate, tier '..tier)
     receive(previousSnapshot)
-    check(returnedCommon.color==nil and returnedRare.color==colors[tier],
+    check(returnedCommon.color==nil and hasTierTint(returnedRare,tier),
       'Old strip snapshot cannot transfer rarity to a common duplicate, tier '..tier)
     local secondReturn=item(3264,p)
     nativeTiles[key(p)]=nil
@@ -149,10 +158,10 @@ tile(corner,{cornerFirst}); receive(snapshot(corner,{record(0,4,3264)}))
 local cornerFinal,cornerCommon=item(3264,corner),item(3264,corner)
 tile(corner,{cornerCommon,cornerFinal})
 receive(snapshot(corner,{record(1,4,3264)}))
-check(cornerFirst.color=='' and cornerFinal.color==colors[4] and cornerCommon.color==nil,
+check(cornerFirst.color=='' and hasTierTint(cornerFinal,4) and cornerCommon.color==nil,
   'Diagonal corner reconstruction replaces its tint synchronously')
 step(500)
-check(cornerFinal.color==colors[4] and cornerCommon.color==nil,
+check(hasTierTint(cornerFinal,4) and cornerCommon.color==nil,
   'Previous cleanup timer preserves the final diagonal corner binding')
 local oldFloorSnapshot=snapshot(corner,{record(0,2,3264)})
 receive({event='reset'})
@@ -162,7 +171,7 @@ check(cornerFinal.color=='' and cornerCommon.color==nil,
 local newFloor={x=212,y=212,z=8}
 local newFloorRare=item(3264,newFloor)
 tile(newFloor,{newFloorRare}); receive(snapshot(newFloor,{record(0,2,3264)}))
-check(newFloorRare.color==colors[2], 'New-floor native item colors immediately after map reset')
+check(hasTierTint(newFloorRare,2), 'New-floor native item colors immediately after map reset')
 
 native=tile(pos,{replacement,common})
 receive(snapshot(pos,{record(0,3)}))
@@ -179,7 +188,7 @@ end
 callback(protocol,129,string.rep(' ',4097))
 callback(protocol,129,string.rep('[',20)..string.rep(']',20))
 callback({},129,json.encode(snapshot(pos,{record(0,1)})))
-check(replacement.color==colors[3], 'Invalid, excessive and foreign-connection packets ignored')
+check(hasTierTint(replacement,3), 'Invalid, excessive and foreign-connection packets ignored')
 receive({event='reset'})
 check(replacement.color=='' and not restoreMark(replacement), 'Map reset clears old viewport colors')
 receive(snapshot(pos,{record(0,2)}))
