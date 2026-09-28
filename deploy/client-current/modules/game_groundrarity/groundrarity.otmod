@@ -1,0 +1,11 @@
+Module
+  name: game_groundrarity
+  description: Server-confirmed rarity tint on individual ground items
+  author: Antigas
+  sandboxed: true
+  autoload: true
+  autoload-priority: 1002
+  dependencies: [ game_interface ]
+  scripts: [ groundrarity ]
+  @onLoad: init()
+  @onUnload: terminate()

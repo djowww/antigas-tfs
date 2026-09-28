@@ -1,0 +1,16 @@
+ground-rarity-ui-tests: 36 assertions passed
+PASS lua52: tests/ground-rarity-ui-tests.lua
+loot-ui-tests: 38 assertions passed
+PASS lua52: tests/loot-ui-tests.lua
+PASS: 68 loot channel checks (read-only denial, registration, automatic login channel)
+PASS lua52: tests/loot-channel-tests.lua
+PASS rarity UI/protocol: 105 assertions
+PASS lua52: tests/rarity-ui-tests.lua
+PASS luajit21: tests/ground-rarity-ui-tests.lua
+PASS luajit21: tests/loot-ui-tests.lua
+PASS luajit21: tests/loot-channel-tests.lua
+PASS luajit21: tests/rarity-ui-tests.lua
+ground-rarity-ui-tests: 36 assertions passed
+loot-ui-tests: 38 assertions passed
+PASS: 68 loot channel checks (read-only denial, registration, automatic login channel)
+PASS rarity UI/protocol: 105 assertions

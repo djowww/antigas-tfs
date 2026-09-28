@@ -1,0 +1,2 @@
+START: native ground rarity
+PASS: native ground rarity, 42 assertions, rendered frame, localhost stub only

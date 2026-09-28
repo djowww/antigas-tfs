@@ -1,0 +1,11 @@
+{
+  "archive": "Antigas-7.4-Client-v46.zip",
+  "sha256": "5b87c70945a1fbc6cd4228f1d4f4b0f30c6ca2c369c88f3bab28a6ca8b6f2fc4",
+  "exact_shipped_modules": true,
+  "native_assertions": 42,
+  "exit_code": 0,
+  "rendered_frame": true,
+  "loopback_only": true,
+  "production_connection": false,
+  "report": "native-client.txt"
+}

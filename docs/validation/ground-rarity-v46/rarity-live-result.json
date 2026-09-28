@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "login applies health/mana/skill without advancing the character",
+    "opcode127 exact inventory metadata and Look for all six fixtures",
+    "all six items move backpack/equipment without losing metadata; health/mana/speed/skill remove and reapply exactly",
+    "logout saves exact rarity metadata and unmodified base stats; no extra items",
+    "second login/logout retains bonuses exactly once and saves metadata again"
+  ],
+  "cleanup": true,
+  "elapsed_seconds": 34.43,
+  "limitations": [
+    "No combat/resistance probability validation",
+    "No visual border screenshot",
+    "Targeted protocol parsing using known fixture stats; not a full client decoder"
+  ],
+  "status": "passed",
+  "test": "rarity-live"
+}

@@ -12,6 +12,7 @@
 #include "npc.h"
 #include "behaviourdatabase.h"
 #include "loot.h"
+#include "groundrarity.h"
 #include "actions.h"
 #include "spells.h"
 #include "housetile.h"
@@ -226,6 +227,86 @@ static void lootTests()
 	}
 	const LootContents capped = LootTracker::collect(*overflowing);
 	require(capped.items.size() == 128 && capped.omitted == 12, "oversized corpse must bound displayed entries and count omitted items");
+}
+
+static void groundRarityTests()
+{
+	Group group = {};
+	Player observer(nullptr);
+	observer.setGroup(&group);
+	DynamicTile tile(123, 124, 7);
+	const uint16_t groundId = findType([](const ItemType& type) { return type.isGroundTile() && !type.isMagicField(); });
+	tile.internalAddThing(Item::CreateItem(groundId));
+	require(GroundRarity::collect(tile, observer).empty(), "ordinary ground must not acquire equipment rarity");
+	Item* rare = Item::CreateItem(3264);
+	rare->setRarityData(ITEM_RARITY_LEGENDARY, ITEM_RARITY_BONUS_ATTACK, 4, 0);
+	tile.internalAddThing(rare);
+	Item* common = Item::CreateItem(3264);
+	tile.internalAddThing(common);
+	auto entries = GroundRarity::collect(tile, observer);
+	require(entries.size() == 1 && entries[0].tier == 4, "ground stream must read rarity from the actual equipment instance");
+	require(entries[0].stackpos == tile.getStackposOfItem(&observer, rare) && entries[0].stackpos != tile.getStackposOfItem(&observer, common), "identical rare/common sprites must retain distinct native stack identity");
+	common->setRarityData(ITEM_RARITY_RARE, ITEM_RARITY_BONUS_ATTACK, 2, 0);
+	entries = GroundRarity::collect(tile, observer);
+	require(entries.size() == 2 && entries[0].tier == 2 && entries[1].tier == 4, "two rarities with identical sprites on one tile must stay distinct");
+	const std::string description = GroundRarity::describe(tile.getPosition(), entries);
+	lua_State* lua = g_luaEnvironment.getLuaState();
+	const std::string json = '{' + description + '}';
+	lua_pushlstring(lua, json.data(), json.size());
+	lua_setglobal(lua, "groundFixtureJson");
+	luaCheck("local p=json.decode(groundFixtureJson); assert(p.position.x==123 and p.position.y==124 and p.position.z==7 and #p.items==2 and p.items[1].itemId==p.items[2].itemId and p.items[1].stackpos~=p.items[2].stackpos)");
+	Container* bag = Item::CreateItem(2853)->getContainer();
+	Item* hidden = Item::CreateItem(3264);
+	hidden->setRarityData(ITEM_RARITY_MYTHIC, ITEM_RARITY_BONUS_ATTACK, 5, 0);
+	bag->internalAddThing(hidden);
+	tile.internalAddThing(bag);
+	entries = GroundRarity::collect(tile, observer);
+	require(entries.size() == 2 && entries[0].tier == 2 && entries[1].tier == 4, "rarity inside a ground bag must never leak into its bag or visible ground stream");
+	Player bystander(nullptr);
+	bystander.setGroup(&group);
+	const auto bystanderEntries = GroundRarity::collect(tile, bystander);
+	require(GroundRarity::describe(tile.getPosition(), entries) == GroundRarity::describe(tile.getPosition(), bystanderEntries), "visible ground equipment must be colored for bystanders without loot-owner restrictions");
+	const uint8_t before = entries.back().stackpos;
+	tile.removeThing(common, 1);
+	entries = GroundRarity::collect(tile, observer);
+	require(entries.size() == 1 && entries[0].stackpos + 1 == before && entries[0].tier == 4, "removing a duplicate must immediately rebuild the surviving native stack index");
+	delete common;
+	tile.removeThing(rare, 1);
+	bag->internalAddThing(rare);
+	require(GroundRarity::collect(tile, observer).empty(), "picking equipment into a container must remove all ground rarity entries");
+	bag->removeThing(rare, 1);
+	tile.internalAddThing(rare);
+	require(GroundRarity::collect(tile, observer).size() == 1, "existing rarity must reappear when equipment is dropped from a bag");
+	rare->setIntAttr(ITEM_ATTRIBUTE_RARITY, 255);
+	require(GroundRarity::collect(tile, observer).empty(), "invalid stored rarity metadata must never become a colored ground item");
+	rare->setRarityData(ITEM_RARITY_UNCOMMON, ITEM_RARITY_BONUS_ATTACK, 1, 0);
+	require(GroundRarity::collect(tile, observer).at(0).tier == 1, "in-place equipment rarity changes must update the stream");
+	for (unsigned i = 0; i < 12; ++i) tile.internalAddThing(Item::CreateItem(3264));
+	require(GroundRarity::collect(tile, observer).empty(), "equipment below native ten-thing tile limit must remain undisclosed");
+	for (unsigned i = 0; i < 12; ++i) {
+		Item* item = Item::CreateItem(3264);
+		item->setRarityData(ITEM_RARITY_MYTHIC, ITEM_RARITY_BONUS_ATTACK, 5, 0);
+		tile.internalAddThing(item);
+	}
+	entries = GroundRarity::collect(tile, observer);
+	require(entries.size() == 9, "a ground tile plus oversized equipment stack may expose only nine equipment slots");
+	for (const GroundRarityEntry& entry : entries) require(entry.stackpos < 10 && entry.tier == 5, "every transmitted stack slot must exist in the native tile frame");
+	std::vector<GroundRarityEntry> overflow(10000, {65535, 9, 5});
+	const std::string bounded = GroundRarity::describe(Position(65535, 65535, 15), overflow);
+	require(bounded.size() < 1024, "oversized synthetic ground list must produce a packet safely below the 8192-byte limit");
+	const std::string boundedJson = '{' + bounded + '}';
+	lua_pushlstring(lua, boundedJson.data(), boundedJson.size());
+	lua_setglobal(lua, "groundFixtureJson");
+	luaCheck("local p=json.decode(groundFixtureJson); assert(#p.items==10 and p.position.z==15)");
+	GroundRarity::handleRequest(observer, "S|1");
+	GroundRarity::handleRequest(observer, std::string(10000, 'H'));
+	GroundRarity::handleRequest(observer, "{\"event\":\"tile\",\"tier\":5}");
+	require(GroundRarity::describe(tile.getPosition(), GroundRarity::collect(tile, observer)) == GroundRarity::describe(tile.getPosition(), entries), "unsolicited and forged ground messages must not mutate any ground equipment");
+	GroundRarity::handleRequest(observer, "H|1");
+	GroundRarity::handleRequest(observer, "H|1");
+	GroundRarity::resetMap(observer);
+	GroundRarity::resetSession(observer);
+	require(GroundRarity::describe(tile.getPosition(), GroundRarity::collect(tile, observer)) == GroundRarity::describe(tile.getPosition(), entries), "handshake, map reset and session reset must leave actual world items unchanged");
 }
 
 int main()
@@ -510,6 +591,7 @@ int main()
 		require(!player.isItemAbilityEnabled(CONST_SLOT_RING) && !player.isItemRarityEnabled(CONST_SLOT_RING), "native and rarity state must clear on unequip");
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill && player.getMagicLevel() == magicBase, "native and magic rarity bonuses must both remove exactly");
 		lootTests();
+		groundRarityTests();
 		g_game.cleanup();
 		std::cout << "PASS: " << checks << " rarity core checks (production C++, isolated from live data)." << std::endl;
 		return 0;

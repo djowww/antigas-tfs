@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-28",
+  "version": 46,
+  "shutdown_saved_cleanly": true,
+  "shutdown_finished_utc": "2026-09-28T17:44:23Z",
+  "server_online_utc": "2026-09-28T17:44:59Z",
+  "backup": "/root/antigas-backups/groundrarity-v46-20260928T174422Z",
+  "database_snapshots": [
+    "before-stop",
+    "after-stop"
+  ],
+  "binary_sha256": "eceb3937795720583a724e46ef45715faca7b9adb865bccbdd183edce5929686",
+  "client_sha256": "5b87c70945a1fbc6cd4228f1d4f4b0f30c6ca2c369c88f3bab28a6ca8b6f2fc4",
+  "runtime_changes": [
+    "data/creaturescripts/scripts/login.lua"
+  ],
+  "live_physical_drop_pickup": "skipped: adjacent empty plain ground could not be confirmed",
+  "live_test_cleanup": true
+}

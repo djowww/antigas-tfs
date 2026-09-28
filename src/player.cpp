@@ -20,6 +20,7 @@
 #include "otpch.h"
 #include "hunt_supply.h"
 #include "loot.h"
+#include "groundrarity.h"
 
 #include <bitset>
 
@@ -1405,6 +1406,7 @@ void Player::onThink(uint32_t interval)
 {
 	Creature::onThink(interval);
 	LootTracker::sync(*this);
+	GroundRarity::sync(*this);
 
 	sendPing();
 

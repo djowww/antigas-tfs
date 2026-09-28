@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-28",
+  "status": "passed",
+  "core_cpp_assertions": 4105,
+  "lua_runtimes": [
+    "Lua 5.2",
+    "LuaJIT 2.1"
+  ],
+  "ground_rarity_ui_assertions_per_runtime": 36,
+  "loot_ui_assertions_per_runtime": 38,
+  "loot_channel_assertions_per_runtime": 68,
+  "rarity_ui_assertions_per_runtime": 105,
+  "regression_suites": [
+    "rarity-economy",
+    "market-rate-limit",
+    "achievements",
+    "achievements-ui",
+    "bestiary",
+    "questlog",
+    "killdeathcount"
+  ],
+  "ground_live_parser_assertions": 12,
+  "native_client_assertions": 42,
+  "native_client_exit_code": 0,
+  "scope": "C++ uses isolated objects. Native rendering uses only a dummy localhost transport. Production smokes are recorded separately."
+}

@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v45
+ANTIGAS 7.4 — CLIENTE v46
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
@@ -38,3 +38,7 @@ CANAL LOOT
 - O canal Loot mostra os drops com os nomes coloridos pela raridade.
 - Um aviso visual destaca o melhor item raro de cada drop.
 - Corpos com loot ainda fechado recebem um brilho discreto ate serem abertos.
+
+RARIDADE DOS ITENS NO CHAO
+- Equipamentos com raridade recebem uma camada colorida no proprio sprite.
+- O destaque acompanha o item ao soltar, mover e recolher; itens comuns mantem sua aparencia.

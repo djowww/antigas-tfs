@@ -38,6 +38,7 @@ local function widget(heldItem)
     setItem = function(self, value) self.item = value end,
     setBorderWidth = function(self, value) self.borderWidth = value end,
     setBorderColor = function(self, value) self.borderColor = value end,
+    setColor = function(self, value) self.color = value end,
     setTooltip = function(self, value) self.tooltip = value end,
     isVirtual = function() return false end,
     setStyle = function() end,

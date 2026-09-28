@@ -23,6 +23,7 @@
 
 #include "protocolgame.h"
 #include "loot.h"
+#include "groundrarity.h"
 
 #include "outputmessage.h"
 
@@ -46,6 +47,7 @@ void ProtocolGame::release()
 	//dispatcher thread
 	if (player && player->client == shared_from_this()) {
 		LootTracker::resetSession(*player);
+		GroundRarity::resetSession(*player);
 		player->client.reset();
 		player->decrementReferenceCounter();
 		player = nullptr;
@@ -203,6 +205,7 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 
 	player->client = getThis();
 	LootTracker::resetSession(*player);
+	GroundRarity::resetSession(*player);
 	sendAddCreature(player, player->getPosition(), 0, false);
 	if (ChatChannel* lootChannel = g_chat->addUserToChannel(*player, 10)) {
 		player->sendChannel(10, lootChannel->getName());
@@ -1557,6 +1560,7 @@ void ProtocolGame::sendMapDescription(const Position& pos)
 				for (const Tile* tile : tiles) sendUpdateTile(tile, tile->getPosition());
 			}
 		}
+		GroundRarity::resetMap(*player);
 		return;
 	}
 	NetworkMessage msg;
@@ -1564,6 +1568,7 @@ void ProtocolGame::sendMapDescription(const Position& pos)
 	msg.addPosition(player->getPosition());
 	GetMapDescription(pos.x - mapViewport.x, pos.y - mapViewport.y, pos.z, mapViewport.width(), mapViewport.height(), msg);
 	writeToOutputBuffer(msg);
+	GroundRarity::resetMap(*player);
 }
 
 void ProtocolGame::sendAddTileItem(const Position& pos, const Item* item, uint32_t stackpos)
@@ -1582,6 +1587,7 @@ void ProtocolGame::sendAddTileItem(const Position& pos, const Item* item, uint32
 	writeToOutputBuffer(msg);
 	
 	checkPredictiveWalking(pos);
+	GroundRarity::updateTile(*player, pos);
 }
 
 void ProtocolGame::sendUpdateTileItem(const Position& pos, uint32_t stackpos, const Item* item)
@@ -1598,6 +1604,7 @@ void ProtocolGame::sendUpdateTileItem(const Position& pos, uint32_t stackpos, co
 	writeToOutputBuffer(msg);
 	
 	checkPredictiveWalking(pos);
+	GroundRarity::updateTile(*player, pos);
 }
 
 void ProtocolGame::sendRemoveTileThing(const Position& pos, uint32_t stackpos)
@@ -1609,6 +1616,7 @@ void ProtocolGame::sendRemoveTileThing(const Position& pos, uint32_t stackpos)
 	NetworkMessage msg;
 	RemoveTileThing(msg, pos, stackpos);
 	writeToOutputBuffer(msg);
+	GroundRarity::updateTile(*player, pos);
 }
 
 void ProtocolGame::sendUpdateTile(const Tile* tile, const Position& pos)
@@ -1631,6 +1639,7 @@ void ProtocolGame::sendUpdateTile(const Tile* tile, const Position& pos)
 	}
 
 	writeToOutputBuffer(msg);
+	GroundRarity::updateTile(*player, pos);
 }
 
 void ProtocolGame::sendFightModes()
@@ -1671,6 +1680,7 @@ void ProtocolGame::sendAddCreature(const Creature* creature, const Position& pos
 		}
 
 		checkPredictiveWalking(pos);
+		GroundRarity::updateTile(*player, pos);
 		return;
 	}
 
@@ -1804,6 +1814,10 @@ void ProtocolGame::sendMoveCreature(const Creature* creature, const Position& ne
 	} else if (canSee(creature->getPosition())) {
 		sendAddCreature(creature, newPos, newStackPos, false);
 	}
+	GroundRarity::updateTile(*player, oldPos);
+	GroundRarity::updateTile(*player, newPos);
+	// Movement may transmit new map strips and recreate existing client Items.
+	// The bounded periodic replay handles those strips without rescanning every step.
 }
 
 void ProtocolGame::sendInventoryItem(slots_t slot, const Item* item)

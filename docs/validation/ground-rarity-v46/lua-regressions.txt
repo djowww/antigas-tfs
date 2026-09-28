@@ -1,0 +1,30 @@
+PASS: rarity Market exclusion, repeated refinement, downgrade, partial/full rollback and metadata preservation
+PASS lua52: tests/rarity-economy-tests.lua
+PASS: Market limits, 100-player cleanup, missed minute and retention
+PASS lua52: tests/market-rate-limit-tests.lua
+[AntigasAchievements] Progress page exceeds the safe packet size.
+PASS Achievements: inventory-safe persistent rewards, retry after level loss, pure reads, batched claims, cooldown, movement, PvP and real JSON catalogs (largest packet: 2274 bytes)
+PASS lua52: tests/achievements-tests.lua
+PASS Achievements UI: 60 objectives, default next goals/proximity, all filters, pending rewards/claim click/cooldown/timeouts, stable pagination, real OTUI anchors, old-server compatibility and timer cleanup
+PASS lua52: tests/achievements-ui-tests.lua
+PASS Bestiary: isolation, summons, cap, queries, throttling and malformed requests
+PASS lua52: tests/bestiary-tests.lua
+PASS: discovered-only journal, hidden quests/steps/rewards/counts, early NPC discovery, access scrolls, resets, 242-entry pagination, isolation, validation and rate limits
+PASS lua52: tests/questlog-tests.lua
+PASS legacy PvP: self last hit, self most damage, victim aliases, legitimate credits and deduplication
+PASS lua52: tests/killdeathcount-tests.lua
+PASS luajit21: tests/rarity-economy-tests.lua
+PASS luajit21: tests/market-rate-limit-tests.lua
+PASS luajit21: tests/achievements-tests.lua
+PASS luajit21: tests/achievements-ui-tests.lua
+PASS luajit21: tests/bestiary-tests.lua
+PASS luajit21: tests/questlog-tests.lua
+PASS luajit21: tests/killdeathcount-tests.lua
+PASS: rarity Market exclusion, repeated refinement, downgrade, partial/full rollback and metadata preservation
+PASS: Market limits, 100-player cleanup, missed minute and retention
+[AntigasAchievements] Progress page exceeds the safe packet size.
+PASS Achievements: inventory-safe persistent rewards, retry after level loss, pure reads, batched claims, cooldown, movement, PvP and real JSON catalogs (largest packet: 2274 bytes)
+PASS Achievements UI: 60 objectives, default next goals/proximity, all filters, pending rewards/claim click/cooldown/timeouts, stable pagination, real OTUI anchors, old-server compatibility and timer cleanup
+PASS Bestiary: isolation, summons, cap, queries, throttling and malformed requests
+PASS: discovered-only journal, hidden quests/steps/rewards/counts, early NPC discovery, access scrolls, resets, 242-entry pagination, isolation, validation and rate limits
+PASS legacy PvP: self last hit, self most damage, victim aliases, legitimate credits and deduplication
