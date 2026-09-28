@@ -26,6 +26,7 @@
 #include "weapons.h"
 #include "configmanager.h"
 #include "game.h"
+#include "tools.h"
 
 #include "pugicast.h"
 
@@ -44,6 +45,77 @@ spellBlock_t::~spellBlock_t()
 uint32_t Monsters::getLootRandom()
 {
 	return uniform_random(0, MAX_LOOTCHANCE);
+}
+
+static ItemRarity_t rollItemRarity()
+{
+	static const uint8_t weights[] = {50, 27, 14, 7, 2};
+	const uint32_t roll = uniform_random(1, 100);
+	uint32_t cumulative = 0;
+	for (uint8_t index = 0; index < sizeof(weights) / sizeof(weights[0]); ++index) {
+		cumulative += weights[index];
+		if (roll <= cumulative) {
+			return static_cast<ItemRarity_t>(index + 1);
+		}
+	}
+	return ITEM_RARITY_UNCOMMON;
+}
+
+static void applyItemRarity(Item* item)
+{
+	if (!item) {
+		return;
+	}
+
+	const ItemType& itemType = Item::items[item->getID()];
+	if (itemType.stackable || itemType.isContainer() || itemType.weaponType == WEAPON_AMMO) {
+		return;
+	}
+
+	const bool canBeWeapon = itemType.weaponType != WEAPON_NONE;
+	const bool canBeArmorPiece = itemType.slotPosition & (SLOTP_ARMOR | SLOTP_LEGS | SLOTP_FEET | SLOTP_NECKLACE | SLOTP_RING);
+	if (!canBeWeapon && !canBeArmorPiece) {
+		return;
+	}
+
+	const int32_t chance = std::max<int32_t>(0, std::min<int32_t>(10000, g_config.getNumber(ConfigManager::ITEM_RARITY_LOOT_CHANCE)));
+	if (chance == 0 || uniform_random(1, 10000) > chance) {
+		return;
+	}
+
+	const ItemRarity_t rarity = rollItemRarity();
+	const uint8_t tier = static_cast<uint8_t>(rarity);
+	ItemRarityBonus_t bonusType = ITEM_RARITY_BONUS_NONE;
+	uint8_t bonusValue = tier;
+	uint8_t subtype = 0;
+
+	if (itemType.weaponType != WEAPON_NONE) {
+		bonusType = itemType.weaponType == WEAPON_SHIELD ? ITEM_RARITY_BONUS_DEFENSE : ITEM_RARITY_BONUS_ATTACK;
+	} else if (itemType.slotPosition & SLOTP_FEET) {
+		bonusType = ITEM_RARITY_BONUS_SPEED_PERCENT;
+		bonusValue = uniform_random(2 * tier - 1, 2 * tier);
+	} else if (itemType.slotPosition & (SLOTP_NECKLACE | SLOTP_RING)) {
+		bonusType = ITEM_RARITY_BONUS_SKILL;
+		// Skills 0-6 are combat/fishing skills; 7 is magic level.
+		subtype = uniform_random(static_cast<uint8_t>(SKILL_FIST), static_cast<uint8_t>(SKILL_MAGLEVEL));
+	} else if (itemType.slotPosition & (SLOTP_ARMOR | SLOTP_LEGS)) {
+		const uint8_t attributeRoll = uniform_random(0, 2);
+		if (attributeRoll == 0) {
+			bonusType = ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT;
+		} else if (attributeRoll == 1) {
+			bonusType = ITEM_RARITY_BONUS_MAX_MANA_PERCENT;
+		} else {
+			static const CombatType_t resistibleTypes[] = {
+				COMBAT_PHYSICALDAMAGE, COMBAT_ENERGYDAMAGE, COMBAT_EARTHDAMAGE, COMBAT_FIREDAMAGE, COMBAT_ICEDAMAGE
+			};
+			bonusType = ITEM_RARITY_BONUS_RESISTANCE;
+			subtype = static_cast<uint8_t>(combatTypeToIndex(resistibleTypes[uniform_random(0, 4)]));
+		}
+	} else {
+		return;
+	}
+
+	item->setRarityData(rarity, bonusType, bonusValue, subtype);
 }
 
 void MonsterType::createLoot(Container* corpse)
@@ -161,6 +233,8 @@ std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock)
 		if (!lootBlock.text.empty()) {
 			tmpItem->setText(lootBlock.text);
 		}
+
+		applyItemRarity(tmpItem);
 
 		itemList.push_back(tmpItem);
 	}

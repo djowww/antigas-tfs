@@ -313,19 +313,18 @@ uint32_t MoveEvents::onCreatureMove(Creature* creature, const Tile* tile, MoveEv
 uint32_t MoveEvents::onPlayerEquip(Player* player, Item* item, slots_t slot, bool isCheck)
 {
 	MoveEvent* moveEvent = getEvent(item, MOVE_EVENT_EQUIP, slot);
-	if (!moveEvent) {
-		return 1;
+	const uint32_t result = moveEvent ? moveEvent->fireEquip(player, item, slot, isCheck) : 1;
+	if (result && !isCheck) {
+		player->equipItemRarity(slot, player->getInventoryItem(slot));
 	}
-	return moveEvent->fireEquip(player, item, slot, isCheck);
+	return result;
 }
 
 uint32_t MoveEvents::onPlayerDeEquip(Player* player, Item* item, slots_t slot)
 {
+	player->deEquipItemRarity(slot, item);
 	MoveEvent* moveEvent = getEvent(item, MOVE_EVENT_DEEQUIP, slot);
-	if (!moveEvent) {
-		return 1;
-	}
-	return moveEvent->fireEquip(player, item, slot, true);
+	return moveEvent ? moveEvent->fireEquip(player, item, slot, true) : 1;
 }
 
 uint32_t MoveEvents::onItemMove(Item* item, Tile* tile, bool isAdd)
@@ -714,8 +713,10 @@ uint32_t MoveEvent::DeEquipItem(MoveEvent*, Player* player, Item* item, slots_t 
 
 	const ItemType& it = Item::items[item->getID()];
 	if (it.transformDeEquipTo != 0) {
-		g_game.transformItem(item, it.transformDeEquipTo);
-		g_game.startDecay(item);
+		Item* transformedItem = g_game.transformItem(item, it.transformDeEquipTo);
+		if (transformedItem) {
+			g_game.startDecay(transformedItem);
+		}
 	}
 
 	if (!it.abilities) {

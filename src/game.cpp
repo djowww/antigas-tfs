@@ -1578,6 +1578,9 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
 					if (newItem == nullptr) {
 						return nullptr;
 					}
+					if (item->hasRarity()) {
+						newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY, item->getIntAttr(ITEM_ATTRIBUTE_RARITY));
+					}
 
 					cylinder->replaceThing(itemIndex, newItem);
 					cylinder->postAddNotification(newItem, cylinder, itemIndex);
@@ -1623,6 +1626,9 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
 
 	if (newItem == nullptr) {
 		return nullptr;
+	}
+	if (item->hasRarity()) {
+		newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY, item->getIntAttr(ITEM_ATTRIBUTE_RARITY));
 	}
 
 	cylinder->replaceThing(itemIndex, newItem);

@@ -1,0 +1,15 @@
+{
+  "MainPID": "123120",
+  "NRestarts": "0",
+  "ActiveState": "active",
+  "SubState": "running",
+  "timestamp": "2026-09-28T16:44:27.139972+00:00",
+  "server_sha256": "56ebec1f1dfcd845f78af0b60ac2f1d6cb4848e4ecec0d65fdb3b19494d3bdc1",
+  "client_sha256": "cb48865197d7982b0cd0effbbcac302fc573da0a6f568226dfebfe74adcdb145",
+  "core_checks": 4048,
+  "native_client_checks": 67,
+  "ui_checks_per_runtime": 105,
+  "compat_checks": 10,
+  "backup": "/root/antigas-backups/rarity-v44-20260928T163701Z",
+  "shutdown_issue_recorded": true
+}

@@ -284,6 +284,10 @@ class BehaviourDatabase
 		std::string string;
 		
 		bool full_digit = false;
+		bool protectRaritySale = false;
+		bool excludedRarityFromCount = false;
+		bool raritySaleFailed = false;
+		uint64_t pendingSaleMoney = 0;
 
 		Npc* npc = nullptr;
 		NpcBehaviour* previousBehaviour = nullptr;

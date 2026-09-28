@@ -648,6 +648,17 @@ void BehaviourDatabase::react(BehaviourSituation_t situation, Player* player, co
 			continue;
 		}
 
+		bool createsMoney = false;
+		bool deletesItems = false;
+		for (const NpcBehaviourAction* action : behaviour->actions) {
+			createsMoney = createsMoney || action->type == BEHAVIOUR_TYPE_CREATEMONEY;
+			deletesItems = deletesItems || action->type == BEHAVIOUR_TYPE_DELETE;
+		}
+		protectRaritySale = createsMoney && deletesItems;
+		excludedRarityFromCount = false;
+		raritySaleFailed = false;
+		pendingSaleMoney = 0;
+
 		for (const NpcBehaviourCondition* condition : behaviour->conditions) {
 			if (!checkCondition(condition, player, message)) {
 				fulfilled = false;
@@ -656,6 +667,23 @@ void BehaviourDatabase::react(BehaviourSituation_t situation, Player* player, co
 		}
 
 		if (!fulfilled) {
+			if (protectRaritySale && excludedRarityFromCount) {
+				// Only reject the sale if this complete dialogue would match using all items.
+				// A Count condition must not suppress an unrelated word/topic fallback.
+				protectRaritySale = false;
+				bool matchesWithRarity = true;
+				for (const NpcBehaviourCondition* condition : behaviour->conditions) {
+					if (!checkCondition(condition, player, message)) {
+						matchesWithRarity = false;
+						break;
+					}
+				}
+				protectRaritySale = true;
+				if (matchesWithRarity) {
+					npc->doSay("I only buy ordinary items. Keep your rare items safe.");
+					return;
+				}
+			}
 			continue;
 		}
 		
@@ -678,6 +706,12 @@ void BehaviourDatabase::react(BehaviourSituation_t situation, Player* player, co
 
 		for (const NpcBehaviourAction* action : behaviour->actions) {
 			checkAction(action, player, message);
+			if (raritySaleFailed) {
+				break;
+			}
+		}
+		if (protectRaritySale && !raritySaleFailed && pendingSaleMoney > 0) {
+			g_game.addMoney(player, pendingSaleMoney);
 		}
 		
 		if (player->getID() == npc->focusCreature) {
@@ -821,7 +855,12 @@ void BehaviourDatabase::checkAction(const NpcBehaviourAction* action, Player* pl
 		break;
 	}
 	case BEHAVIOUR_TYPE_CREATEMONEY:
-		g_game.addMoney(player, price);
+		if (protectRaritySale) {
+			// Award only after every deletion succeeds, even if CreateMoney precedes Delete.
+			pendingSaleMoney += std::max<int32_t>(0, price);
+		} else {
+			g_game.addMoney(player, price);
+		}
 		break;
 	case BEHAVIOUR_TYPE_DELETEMONEY:
 		g_game.removeMoney(player, price);
@@ -874,8 +913,10 @@ void BehaviourDatabase::checkAction(const NpcBehaviourAction* action, Player* pl
 			data = -1;
 		}
 
-		if (!player->removeItemOfType(type, amount, data, true)) {
-			player->removeItemOfType(type, amount, data, false);
+		if (!player->removeItemOfType(type, amount, data, true, protectRaritySale) &&
+			!player->removeItemOfType(type, amount, data, false, protectRaritySale) && protectRaritySale) {
+			raritySaleFailed = true;
+			npc->doSay("I only buy ordinary items. Keep your rare items safe.");
 		}
 		break;
 	}
@@ -1064,7 +1105,11 @@ int32_t BehaviourDatabase::evaluate(NpcBehaviourNode* node, Player* player, cons
 		if (itemType.stackable || !itemType.hasSubType()) {
 			data = -1;
 		}
-		return player->getItemTypeCount(itemId, data);
+		const uint32_t count = player->getItemTypeCount(itemId, data, protectRaritySale);
+		if (protectRaritySale && count != player->getItemTypeCount(itemId, data)) {
+			excludedRarityFromCount = true;
+		}
+		return count;
 	}
 	case BEHAVIOUR_TYPE_COUNTMONEY:
 		return player->getMoney();

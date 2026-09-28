@@ -103,6 +103,7 @@ enum AttrTypes_t {
 	ATTR_ARMOR = 36,
 	ATTR_HITCHANCE = 37,
 	ATTR_SHOOTRANGE = 38,
+	ATTR_RARITY = 39,
 };
 
 enum Attr_ReadValue {
@@ -325,7 +326,7 @@ class ItemAttributes
 
 	public:
 		inline static bool isIntAttrType(itemAttrTypes type) {
-			return (type & 0xFFFFE13) != 0;
+			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY;
 		}
 		inline static bool isStrAttrType(itemAttrTypes type) {
 			return (type & 0x1EC) != 0;
@@ -415,6 +416,37 @@ class Item : virtual public Thing
 		void setIntAttr(itemAttrTypes type, int32_t value) {
 			getAttributes()->setIntAttr(type, value);
 		}
+		static bool isValidRarityData(uint32_t data);
+		void setRarityData(ItemRarity_t rarity, ItemRarityBonus_t bonusType, uint8_t bonusValue, uint8_t subtype) {
+			if (rarity == ITEM_RARITY_NONE) {
+				removeAttribute(ITEM_ATTRIBUTE_RARITY);
+				return;
+			}
+
+			const uint32_t packed = static_cast<uint8_t>(rarity) |
+				(static_cast<uint32_t>(static_cast<uint8_t>(bonusType)) << 8) |
+				(static_cast<uint32_t>(bonusValue) << 16) |
+				(static_cast<uint32_t>(subtype) << 24);
+			if (isValidRarityData(packed)) {
+				setIntAttr(ITEM_ATTRIBUTE_RARITY, static_cast<int32_t>(packed));
+			}
+		}
+		bool hasRarity() const {
+			return isValidRarityData(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)));
+		}
+		ItemRarity_t getRarityTier() const {
+			return static_cast<ItemRarity_t>(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)) & 0xFF);
+		}
+		ItemRarityBonus_t getRarityBonusType() const {
+			return static_cast<ItemRarityBonus_t>((static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)) >> 8) & 0xFF);
+		}
+		uint8_t getRarityBonusValue() const {
+			return static_cast<uint8_t>((static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)) >> 16) & 0xFF);
+		}
+		uint8_t getRarityBonusSubtype() const {
+			return static_cast<uint8_t>((static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)) >> 24) & 0xFF);
+		}
+		std::string getRarityDescription() const;
 		void increaseIntAttr(itemAttrTypes type, int32_t value) {
 			getAttributes()->increaseIntAttr(type, value);
 		}
@@ -605,10 +637,8 @@ class Item : virtual public Thing
 			return items[id].weight;
 		}
 		int32_t getAttack() const {
-			if (hasAttribute(ITEM_ATTRIBUTE_ATTACK)) {
-				return getIntAttr(ITEM_ATTRIBUTE_ATTACK);
-			}
-			return items[id].attack;
+			const int32_t attack = hasAttribute(ITEM_ATTRIBUTE_ATTACK) ? getIntAttr(ITEM_ATTRIBUTE_ATTACK) : items[id].attack;
+			return attack + (hasRarity() && getRarityBonusType() == ITEM_RARITY_BONUS_ATTACK ? getRarityBonusValue() : 0);
 		}
 		int32_t getArmor() const {
 			if (hasAttribute(ITEM_ATTRIBUTE_ARMOR)) {
@@ -617,10 +647,8 @@ class Item : virtual public Thing
 			return items[id].armor;
 		}
 		int32_t getDefense() const {
-			if (hasAttribute(ITEM_ATTRIBUTE_DEFENSE)) {
-				return getIntAttr(ITEM_ATTRIBUTE_DEFENSE);
-			}
-			return items[id].defense;
+			const int32_t defense = hasAttribute(ITEM_ATTRIBUTE_DEFENSE) ? getIntAttr(ITEM_ATTRIBUTE_DEFENSE) : items[id].defense;
+			return defense + (hasRarity() && getRarityBonusType() == ITEM_RARITY_BONUS_DEFENSE ? getRarityBonusValue() : 0);
 		}
 		int32_t getSlotPosition() const {
 			return items[id].slotPosition;

@@ -1,0 +1,13 @@
+{
+  "version": 44,
+  "manifest": "passed",
+  "homepage_download": "passed",
+  "zip_http_status": 200,
+  "zip_bytes": 25723308,
+  "zip_sha256": "cb48865197d7982b0cd0effbbcac302fc573da0a6f568226dfebfe74adcdb145",
+  "public_tcp_ports": [
+    7173,
+    7174
+  ],
+  "status": "passed"
+}
