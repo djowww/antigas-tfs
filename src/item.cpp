@@ -542,6 +542,20 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
 			break;
 		}
 
+		case ATTR_RARITY: {
+			uint32_t rarityData;
+			if (!propStream.read<uint32_t>(rarityData)) {
+				return ATTR_READ_ERROR;
+			}
+
+			if (!isValidRarityData(rarityData)) {
+				return ATTR_READ_ERROR;
+			}
+
+			setIntAttr(ITEM_ATTRIBUTE_RARITY, static_cast<int32_t>(rarityData));
+			break;
+		}
+
 		case ATTR_KEYNUMBER: {
 			uint16_t keyNumber;
 			if (!propStream.read<uint16_t>(keyNumber)) {
@@ -812,6 +826,90 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
 		propWriteStream.write<uint8_t>(ATTR_CHESTQUESTNUMBER);
 		propWriteStream.write<uint16_t>(getIntAttr(ITEM_ATTRIBUTE_CHESTQUESTNUMBER));
 	}
+
+	if (hasAttribute(ITEM_ATTRIBUTE_RARITY)) {
+		propWriteStream.write<uint8_t>(ATTR_RARITY);
+		propWriteStream.write<uint32_t>(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)));
+	}
+}
+
+bool Item::isValidRarityData(uint32_t data)
+{
+	const uint8_t tier = data & 0xFF;
+	const uint8_t type = (data >> 8) & 0xFF;
+	const uint8_t value = (data >> 16) & 0xFF;
+	const uint8_t subtype = (data >> 24) & 0xFF;
+	if (tier < ITEM_RARITY_UNCOMMON || tier > ITEM_RARITY_MYTHIC || value == 0) {
+		return false;
+	}
+	if (type == ITEM_RARITY_BONUS_SPEED_PERCENT) {
+		return value <= 10 && subtype == 0;
+	}
+	if (value > 5) {
+		return false;
+	}
+	switch (type) {
+		case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
+		case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
+		case ITEM_RARITY_BONUS_ATTACK:
+		case ITEM_RARITY_BONUS_DEFENSE:
+			return subtype == 0;
+		case ITEM_RARITY_BONUS_RESISTANCE:
+			return subtype <= 3 || subtype == 8;
+		case ITEM_RARITY_BONUS_SKILL:
+			return subtype <= SKILL_MAGLEVEL;
+		default:
+			return false;
+	}
+}
+
+std::string Item::getRarityDescription() const
+{
+	if (!hasRarity()) {
+		return std::string();
+	}
+
+	static const char* rarityNames[] = {"None", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"};
+	static const char* combatNames[COMBAT_COUNT] = {"physical", "energy", "earth", "fire", "undefined", "life drain", "mana drain", "healing", "ice"};
+	static const char* skillNames[] = {"fist", "club", "sword", "axe", "distance", "shield", "fishing", "magic level"};
+	const uint8_t tier = static_cast<uint8_t>(getRarityTier());
+
+	std::ostringstream description;
+	description << "Rarity: " << rarityNames[std::min<uint8_t>(tier, static_cast<uint8_t>(ITEM_RARITY_MYTHIC))];
+	description << "\nBonus: ";
+	switch (getRarityBonusType()) {
+		case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% maximum health";
+			break;
+		case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% maximum mana";
+			break;
+		case ITEM_RARITY_BONUS_RESISTANCE: {
+			const uint8_t subtype = getRarityBonusSubtype();
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% ";
+			description << (subtype < COMBAT_COUNT ? combatNames[subtype] : "unknown") << " resistance";
+			break;
+		}
+		case ITEM_RARITY_BONUS_SPEED_PERCENT:
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% speed";
+			break;
+		case ITEM_RARITY_BONUS_SKILL: {
+			const uint8_t subtype = getRarityBonusSubtype();
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << ' ';
+			description << (subtype < sizeof(skillNames) / sizeof(skillNames[0]) ? skillNames[subtype] : "skill");
+			break;
+		}
+		case ITEM_RARITY_BONUS_ATTACK:
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << " attack";
+			break;
+		case ITEM_RARITY_BONUS_DEFENSE:
+			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << " defense";
+			break;
+		default:
+			description << "unknown";
+			break;
+	}
+	return description.str();
 }
 
 bool Item::hasProperty(ITEMPROPERTY prop) const
@@ -873,25 +971,27 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 		}
 		s << ".";
 	} else if (it.weaponType != WEAPON_NONE) {
+		const int32_t attack = item ? item->getAttack() : it.attack;
+		const int32_t defense = item ? item->getDefense() : it.defense;
 		if (it.weaponType == WEAPON_DISTANCE && it.ammoType != AMMO_NONE) {
-			if (it.attack != 0) {
-				s << ", Atk" << std::showpos << it.attack << std::noshowpos;
+			if (attack != 0) {
+				s << ", Atk" << std::showpos << attack << std::noshowpos;
 			}
-		} else if (it.weaponType != WEAPON_AMMO && it.weaponType != WEAPON_WAND && (it.attack != 0 || it.defense != 0)) {
+		} else if (it.weaponType != WEAPON_AMMO && it.weaponType != WEAPON_WAND && (attack != 0 || defense != 0)) {
 			s << " (";
-			if (it.attack != 0) {
-				s << "Atk:" << static_cast<int>(it.attack);
+			if (attack != 0) {
+				s << "Atk:" << attack;
 			}
 
-			if (it.attack == 0) {
+			if (attack == 0) {
 				s << "Atk:0 ";
 			}
 
-			if (it.defense != 0) {
-				if (it.attack != 0)
+			if (defense != 0) {
+				if (attack != 0)
 					s << " ";
 
-				s << "Def:" << static_cast<int>(it.defense);
+				s << "Def:" << defense;
 			}
 
 			s << ")";
@@ -1022,6 +1122,13 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 		s << std::endl << item->getSpecialDescription().c_str();
 	} else if (it.description.length() && lookDistance <= 1) {
 		s << std::endl << it.description << ".";
+	}
+
+	if (item) {
+		const std::string rarityDescription = item->getRarityDescription();
+		if (!rarityDescription.empty()) {
+			s << std::endl << rarityDescription;
+		}
 	}
 
 	return s.str();

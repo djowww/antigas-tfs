@@ -1831,6 +1831,8 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Item", "decay", LuaScriptInterface::luaItemDecay);
 
 	registerMethod("Item", "getDescription", LuaScriptInterface::luaItemGetDescription);
+	registerMethod("Item", "getRarityInfo", LuaScriptInterface::luaItemGetRarityInfo);
+	registerMethod("Item", "getRarityDescription", LuaScriptInterface::luaItemGetRarityDescription);
 
 	registerMethod("Item", "hasProperty", LuaScriptInterface::luaItemHasProperty);
 
@@ -6326,6 +6328,34 @@ int LuaScriptInterface::luaItemGetDescription(lua_State* L)
 	return 1;
 }
 
+int LuaScriptInterface::luaItemGetRarityInfo(lua_State* L)
+{
+	// item:getRarityInfo() -> tier, bonusType, bonusValue, subtype
+	Item* item = getUserdata<Item>(L, 1);
+	if (!item || !item->hasRarity()) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushnumber(L, static_cast<uint8_t>(item->getRarityTier()));
+	lua_pushnumber(L, static_cast<uint8_t>(item->getRarityBonusType()));
+	lua_pushnumber(L, item->getRarityBonusValue());
+	lua_pushnumber(L, item->getRarityBonusSubtype());
+	return 4;
+}
+
+int LuaScriptInterface::luaItemGetRarityDescription(lua_State* L)
+{
+	// item:getRarityDescription()
+	Item* item = getUserdata<Item>(L, 1);
+	if (item) {
+		pushString(L, item->getRarityDescription());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
 int LuaScriptInterface::luaItemHasProperty(lua_State* L)
 {
 	// item:hasProperty(property)
@@ -7097,10 +7127,13 @@ int LuaScriptInterface::luaCreatureSetMaxHealth(lua_State* L)
 	}
 
 	creature->healthMax = getNumber<uint32_t>(L, 2);
-	creature->health = std::min<int32_t>(creature->health, creature->healthMax);
-	g_game.addCreatureHealth(creature);
 
 	Player* player = creature->getPlayer();
+	if (player) {
+		player->refreshItemRarityBonuses();
+	}
+	creature->health = std::min<int32_t>(creature->health, creature->getMaxHealth());
+	g_game.addCreatureHealth(creature);
 	if (player) {
 		player->sendStats();
 	}
@@ -7793,7 +7826,8 @@ int LuaScriptInterface::luaPlayerSetMaxMana(lua_State* L)
 	Player* player = getPlayer(L, 1);
 	if (player) {
 		player->manaMax = getNumber<int32_t>(L, 2);
-		player->mana = std::min<int32_t>(player->mana, player->manaMax);
+		player->refreshItemRarityBonuses();
+		player->mana = std::min<int32_t>(player->mana, player->getMaxMana());
 		player->sendStats();
 		pushBoolean(L, true);
 	} else {

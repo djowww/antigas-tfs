@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v43
+ANTIGAS 7.4 — CLIENTE v44
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
@@ -29,3 +29,7 @@ expandir. Novas conquistas continuam destacadas no cabecalho recolhido.
 Achievements: Next objectives mostra a proxima meta de cada categoria.
 Claim rewards recebe premios pendentes apos liberar espaco/capacidade.
 Recompensas pendentes ficam salvas e nao sao deixadas no chao.
+
+RARIDADES DOS ITENS
+- Itens incomuns, raros, épicos, lendários e míticos aparecem com bordas verdes, azuis, roxas, amarelas e vermelhas.
+- Passe o mouse sobre equipamentos no inventário ou em containers para consultar a raridade e seu bônus. Os atributos são definidos pelo servidor.

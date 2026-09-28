@@ -14,10 +14,13 @@ find_package(Threads REQUIRED)
 find_package(Boost 1.53 REQUIRED COMPONENTS system filesystem)
 
 include(src/CMakeLists.txt)
-add_executable(tfs ${tfs_SRC})
+list(REMOVE_ITEM tfs_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/otserv.cpp")
+add_library(tfs_core STATIC ${tfs_SRC})
+add_executable(tfs src/otserv.cpp)
+target_link_libraries(tfs PRIVATE tfs_core)
 
-target_include_directories(tfs PRIVATE src ${Boost_INCLUDE_DIRS})
-target_link_libraries(tfs PRIVATE
+target_include_directories(tfs_core PUBLIC src ${Boost_INCLUDE_DIRS})
+target_link_libraries(tfs_core PUBLIC
 	PkgConfig::LUAJIT
 	PkgConfig::PUGIXML
 	PkgConfig::MYSQL
@@ -27,5 +30,15 @@ target_link_libraries(tfs PRIVATE
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	target_compile_options(tfs_core PRIVATE -Wall -fno-var-tracking -pipe -fvisibility=hidden -fno-strict-aliasing)
 	target_compile_options(tfs PRIVATE -Wall -fno-var-tracking -pipe -fvisibility=hidden -fno-strict-aliasing)
+endif()
+
+option(TFS_BUILD_RARITY_TESTS "Build isolated rarity integration tests against the server core" OFF)
+if(TFS_BUILD_RARITY_TESTS)
+	enable_testing()
+	add_executable(rarity-core-tests tests/rarity-core-tests.cpp)
+	target_link_libraries(rarity-core-tests PRIVATE tfs_core)
+	add_test(NAME rarity-core COMMAND rarity-core-tests)
+	set_tests_properties(rarity-core PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endif()

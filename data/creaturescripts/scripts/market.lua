@@ -116,6 +116,8 @@ end
 -- getUniqueId() in this engine is a script handle, not a quest attribute.
 -- Match persistent attributes against an untouched item with the same count.
 local function clean(item)
+ -- Offers store only item type/count, so instance bonuses cannot be delivered.
+ if item:getRarityInfo() then return false end
  if item:getActionId()~=0 or item:getMovementId()~=0 then return false end
  local id,t=item:getId(),ItemType(item:getId())
  if t:isContainer() then return false end
@@ -366,7 +368,7 @@ function actions.create(ctx,data)
  local counts=rows("SELECT COUNT(*) AS n FROM market_offers WHERE owner_guid="..ctx.player:getGuid().." AND status=1",{n="n"})
  if not counts[1] or counts[1].n>=15 then return ctx:fail("Maximum: 15 active offers per character.") end
  if side==0 then
-  if not ctx:takeItems(item.id,item.subtype,amount) then return ctx:fail("Not enough unmodified items with full charges in your inventory.") end
+  if not ctx:takeItems(item.id,item.subtype,amount) then return ctx:fail("Not enough ordinary, unmodified items with full charges in your backpack. Rarity and refined items cannot be traded in this Market.") end
  elseif not ctx:pay(currency,amount*price) then return ctx:fail("Not enough funds. Gold includes your bank and carried gold/platinum/crystal coins.") end
  if not db.query("INSERT INTO market_offers(owner_guid,side,item_id,item_subtype,item_name,category,remaining,unit_price,currency_id,status) VALUES ("..ctx.player:getGuid()..","..side..","..item.id..","..item.subtype..","..db.escapeString(item.name)..","..db.escapeString(item.category)..","..amount..","..price..","..currency..",1)") then return false end
  ctx.text="Offer created. Its items or money are reserved until traded or cancelled."
@@ -384,7 +386,7 @@ function actions.fill(ctx,data)
   if not ctx:pay(offer.currency,total) then return ctx:fail("Not enough funds in your inventory and bank.") end
   itemReceiver,moneyReceiver=ctx.player:getGuid(),offer.owner
  else
-  if not ctx:takeItems(offer.itemId,offer.subtype,amount) then return ctx:fail("Not enough unmodified items with full charges in your inventory.") end
+  if not ctx:takeItems(offer.itemId,offer.subtype,amount) then return ctx:fail("Not enough ordinary, unmodified items with full charges in your backpack. Rarity and refined items cannot be traded in this Market.") end
   itemReceiver,moneyReceiver=offer.owner,ctx.player:getGuid()
  end
  if not changed("UPDATE market_offers SET status=IF(remaining="..amount..",2,1),remaining=remaining-"..amount.." WHERE id="..id.." AND status=1 AND remaining>="..amount) then return false end

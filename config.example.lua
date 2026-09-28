@@ -76,6 +76,8 @@ newbieLevelThreshold = 5
 rateExp = 1
 rateSkill = 1
 rateLoot = 1
+-- Rarity chance per eligible monster equipment drop, from 0 to 10000 (1000 = 10%).
+itemRarityLootChance = 1000
 rateMagic = 1
 rateSpawn = 0
 

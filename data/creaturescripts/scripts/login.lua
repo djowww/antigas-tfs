@@ -1,5 +1,5 @@
 function onLogin(player)
-	local loginStr = "Welcome to Antigas 7.4\nOfficial client: v40 - https://tibia74.tech/Antigas-7.4-Client-v40.zip"
+	local loginStr = "Welcome to Antigas 7.4\nOfficial client: v44 - https://tibia74.tech/Antigas-7.4-Client-v44.zip"
 	if player:getLastLoginSaved() <= 0 then
 		player:sendOutfitWindow()
 	else
@@ -88,6 +88,7 @@ Unmute Player: /unmute nick.
 	player:registerEvent('KillDeathCount')
 	player:registerEvent("Reward")
 	player:registerEvent("Bestiary")
+	player:registerEvent("ItemRaritySync")
 	player:registerEvent("QuestLog")
 	player:registerEvent("BestiaryKill")
 	player:registerEvent("AchievementsKill")
