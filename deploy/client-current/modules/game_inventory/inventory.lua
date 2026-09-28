@@ -84,6 +84,9 @@ function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, su
   locked = not not locked
   local item = widget:getItem()
   local color = item and itemRarityColors[tier]
+  -- UIItem uses its own draw color; native Item:setMarked only affects the map.
+  -- Restore white on reuse so an ordinary replacement never inherits the tint.
+  widget:setColor(color or '#FFFFFF')
   widget.rarityTier = color and tier or nil
   widget.rarityLocked = locked
   widget.rarityBonusType = tonumber(bonusType) or nil

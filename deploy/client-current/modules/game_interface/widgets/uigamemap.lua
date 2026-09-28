@@ -25,6 +25,8 @@ function UIGameMap:markThing(thing, color)
   self.markedThing = thing
   if previous then
     previous:setMarked('')
+    local rarity = modules.game_groundrarity
+    if rarity and rarity.restoreMark then rarity.restoreMark(previous) end
     local loot = modules.game_loot
     if loot and loot.restoreMark then loot.restoreMark(previous) end
   end
