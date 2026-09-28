@@ -1,10 +1,7 @@
 MESSAGE_EVENT_ADVANCE = 19
 SKILL_FIST, SKILL_CLUB, SKILL_SWORD, SKILL_AXE = 0, 1, 2, 3
 SKILL_DISTANCE, SKILL_SHIELD, SKILL_MAGLEVEL, SKILL_LEVEL = 4, 5, 7, 8
-json = {
-	encode = function(value) return value end,
-	decode = function() return _G.request end
-}
+dofile('data/lib/core/json.lua')
 
 dofile('data/lib/custom/antigasAchievements.lua')
 
@@ -20,6 +17,8 @@ local function makePlayer(guid)
 	end
 	function player:sendExtendedOpcode(opcode, payload)
 		assert(opcode == AntigasAchievements.OPCODE)
+		assert(type(payload) == 'string', 'wire payloads must use the real JSON encoder')
+		assert(#payload <= 7000 and #payload <= 8192, 'payload must fit NetworkMessage.addString')
 		self.sent[#self.sent + 1] = payload
 	end
 	function player:changeSpeed(value) self.speed = self.speed + value end
@@ -51,6 +50,9 @@ AntigasAchievements.onAdvance(player, SKILL_LEVEL, 19, 20)
 assert(player.items[1].id == 5291, 'level milestones award the existing XP scroll')
 AntigasAchievements.onAdvance(player, SKILL_SWORD, 39, 40)
 assert(player.items[2].id == 5141, 'sword skill milestone awards a sword training weapon')
+AntigasAchievements.onAdvance(player, SKILL_LEVEL, 19, 20)
+AntigasAchievements.onAdvance(player, SKILL_SWORD, 39, 40)
+assert(#player.items == 2, 'already claimed level and skill rewards cannot be duplicated')
 
 local previous = {x=1,y=1,z=7}
 for step = 1, 100 do
@@ -66,17 +68,25 @@ AntigasAchievements.onWalk(player, previous, {x=1000,y=1,z=7}) -- Teleports are 
 AntigasAchievements.onWalk(player, {x=1000,y=1,z=7}, {x=1001,y=1,z=7})
 assert(player:getStorageValue(AntigasAchievements.STORAGE.STEPS) == 101)
 
-request = {action='markSeen'}
-AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, '{}')
+AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, json.encode({action='markSeen'}))
 assert(player:getStorageValue(AntigasAchievements.STORAGE.UNREAD) == 0)
-assert(player.sent[#player.sent].action == 'seen')
-request = {action='getProgress'}
-AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, '{}')
+assert(json.decode(player.sent[#player.sent]).action == 'seen')
+player.sent = {}
+AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, json.encode({action='getProgress', steps=1000000}))
 local found = false
-for _, entry in ipairs(player.sent[#player.sent].entries) do
-	if entry.id == 'monsterKills_1' then found = entry.completed and entry.progress == 100 end
+for _, encoded in ipairs(player.sent) do
+	for _, entry in ipairs(json.decode(encoded).entries) do
+		if entry.id == 'monsterKills_1' then found = entry.completed and entry.progress == 100 end
+	end
 end
 assert(found, 'achievement summary returns server-owned progress')
+assert(player:getStorageValue(AntigasAchievements.STORAGE.STEPS) == 101, 'client cannot set progress')
+local sentCount = #player.sent
+AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, json.encode({action='getProgress'}))
+assert(#player.sent == sentCount, 'repeated queries are throttled')
+assert(not AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, '{invalid'))
+assert(not AntigasAchievements.onExtendedOpcode(player, AntigasAchievements.OPCODE, string.rep('a', 513)))
+assert(not AntigasAchievements.onExtendedOpcode(player, 125, '{}'))
 
 local legacy = makePlayer(2)
 legacy.storage[3000], legacy.storage[3001] = 10, 10
@@ -85,5 +95,58 @@ assert(legacy:getStorageValue(AntigasAchievements.STORAGE.PVP_KILLS) == 10)
 assert(legacy:getStorageValue(AntigasAchievements.STORAGE.PVP_DAMAGE_PERCENT) == 2)
 assert(legacy:getStorageValue(AntigasAchievements.STORAGE.DEATHS) == 10)
 assert(legacy:getStorageValue(AntigasAchievements.STORAGE.DEATH_REDUCTION_PERCENT) == 2)
+local messageCount = #legacy.messages
+AntigasAchievements.applySpeed(legacy)
+assert(#legacy.messages == messageCount, 'legacy migrations only award each milestone once')
 
-print('PASS Achievements: persistent milestones, rewards, movement filtering, PvP and progress protocol')
+local previousSnapshotId, largestPacket = 0, 0
+local function verifyCatalog(subject, expectedCompleted)
+	subject.sent = {}
+	assert(AntigasAchievements.sendProgress(subject))
+	assert(#subject.sent == 5, 'all 60 achievements are sent in five bounded pages')
+	local entries, ids, snapshotId = {}, {}, nil
+	for page, encoded in ipairs(subject.sent) do
+		assert(#encoded <= AntigasAchievements.MAX_PACKET_BYTES and #encoded <= 8192)
+		largestPacket = math.max(largestPacket, #encoded)
+		local payload = json.decode(encoded)
+		assert(payload.action == 'progress' and payload.page == page and payload.pages == #subject.sent)
+		assert(#payload.entries == 12, 'each page carries at most twelve entries')
+		assert(type(payload.snapshotId) == 'number' and payload.snapshotId > previousSnapshotId)
+		snapshotId = snapshotId or payload.snapshotId
+		assert(payload.snapshotId == snapshotId, 'a response must use one coherent snapshot')
+		assert(payload.unread == math.max(0, subject:getStorageValue(AntigasAchievements.STORAGE.UNREAD)))
+		assert(payload.bonuses.speed == math.max(0, subject:getStorageValue(AntigasAchievements.STORAGE.SPEED)))
+		for _, entry in ipairs(payload.entries) do
+			assert(not ids[entry.id], 'pages cannot duplicate achievements')
+			ids[entry.id] = true
+			entries[#entries + 1] = entry
+			assert(entry.completed == expectedCompleted)
+			assert(entry.progress >= 0 and entry.progress <= entry.target)
+		end
+	end
+	assert(#entries == 60 and ids.steps_1 and ids.monsterKills_5 and ids.level_5 and ids.skill_7_5)
+	previousSnapshotId = snapshotId
+	-- This reproduces the old regression: even a new character's complete
+	-- catalog exceeds the engine's 8192-byte string limit when sent at once.
+	assert(#json.encode({action='progress', entries=entries}) > 8192)
+end
+
+verifyCatalog(makePlayer(3), false)
+local maximum = makePlayer(4)
+maximum.level = 2147483647
+for _, key in pairs(AntigasAchievements.STORAGE) do maximum.storage[key] = 2147483647 end
+for index = 1, 5 do maximum.storage[AntigasAchievements.STORAGE.LEVEL_REWARD_BASE + index] = 1 end
+for _, skill in ipairs({SKILL_FIST, SKILL_CLUB, SKILL_SWORD, SKILL_AXE, SKILL_DISTANCE, SKILL_SHIELD, SKILL_MAGLEVEL}) do
+	maximum.skills[skill] = 2147483647
+	for index = 1, 5 do maximum.storage[AntigasAchievements.STORAGE.SKILL_REWARD_BASE + skill * 8 + index] = 1 end
+end
+verifyCatalog(maximum, true)
+
+local packetLimit = AntigasAchievements.MAX_PACKET_BYTES
+AntigasAchievements.MAX_PACKET_BYTES = 1
+maximum.sent = {}
+assert(not AntigasAchievements.sendProgress(maximum) and #maximum.sent == 0,
+	'an oversized future page cannot send truncated packets or a partial snapshot')
+AntigasAchievements.MAX_PACKET_BYTES = packetLimit
+
+print(string.format('PASS Achievements: rewards, idempotence, movement, PvP, real JSON and 60-entry paginated catalogs (largest packet: %d bytes)', largestPacket))

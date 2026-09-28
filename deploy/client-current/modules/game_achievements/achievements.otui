@@ -1,0 +1,133 @@
+AchievementEntry < Panel
+  height: 63
+  background-color: #303030
+  border: 1 #48443a
+
+  Label
+    id: title
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 4 6 0 6
+    height: 14
+    color: #d8c9a8
+    text-align: left
+
+  Label
+    id: reward
+    anchors.top: title.bottom
+    anchors.left: title.left
+    anchors.right: title.right
+    margin-top: 1
+    height: 14
+    color: #bdb08b
+    text-align: left
+
+  Label
+    id: progress
+    anchors.top: reward.bottom
+    anchors.left: title.left
+    anchors.right: title.right
+    margin-top: 1
+    height: 14
+    color: #bdbdbd
+    text-align: left
+
+  UIProgressBar
+    id: bar
+    anchors.top: progress.bottom
+    anchors.left: title.left
+    anchors.right: title.right
+    margin-top: 2
+    height: 6
+    background-color: #928255
+    border: 1 #171717
+    background-border: 1
+
+MainWindow
+  id: achievementWindow
+  text: Achievements
+  size: 660 500
+  @onEscape: modules.game_achievements.hide()
+
+  ComboBox
+    id: filter
+    anchors.top: parent.top
+    anchors.left: parent.left
+    width: 148
+    height: 22
+
+  ComboBox
+    id: category
+    anchors.top: parent.top
+    anchors.left: filter.right
+    margin-left: 6
+    width: 208
+    height: 22
+
+  Button
+    id: refreshButton
+    anchors.top: parent.top
+    anchors.right: parent.right
+    width: 76
+    height: 22
+    text: Refresh
+    @onClick: modules.game_achievements.refresh()
+
+  Label
+    id: summary
+    anchors.top: filter.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 8
+    height: 16
+    color: #d8c9a8
+    text: Achievement objectives
+    text-align: left
+
+  Label
+    id: bonuses
+    anchors.top: summary.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 3
+    height: 16
+    color: #bdb08b
+    text: Progress and rewards are saved per character.
+    text-align: left
+
+  ScrollablePanel
+    id: entries
+    anchors.top: bonuses.bottom
+    anchors.left: parent.left
+    anchors.right: entriesScroll.left
+    anchors.bottom: message.top
+    margin-top: 8
+    margin-right: 3
+    margin-bottom: 6
+    padding: 2
+    vertical-scrollbar: entriesScroll
+    layout:
+      type: verticalBox
+      spacing: 3
+      fit-children: false
+
+  VerticalScrollBar
+    id: entriesScroll
+    anchors.top: bonuses.bottom
+    anchors.right: parent.right
+    anchors.bottom: message.top
+    margin-top: 8
+    margin-bottom: 6
+    step: 66
+    pixels-scroll: true
+
+  Label
+    id: message
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 16
+    color: #bdbdbd
+    text-align: left
+    text: Connect to the game to view your achievement progress.

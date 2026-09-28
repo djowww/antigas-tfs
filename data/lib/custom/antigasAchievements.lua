@@ -2,6 +2,8 @@
 -- the 17800 range; counters are server-owned and never accepted from clients.
 AntigasAchievements = {
 	OPCODE = 126,
+	MAX_PACKET_BYTES = 7000,
+	ENTRIES_PER_PAGE = 12,
 	STORAGE = {
 		STEPS = 17800,
 		MONSTER_KILLS = 17801,
@@ -27,6 +29,7 @@ AntigasAchievements = {
 
 local A = AntigasAchievements
 local progressRequests, lastRequestCleanup = {}, 0
+local progressSnapshotId = 0
 local counterOrder = {'steps', 'monsterKills', 'deaths', 'pvpKills'}
 
 local function storage(player, key)
@@ -161,10 +164,32 @@ function A.sendProgress(player)
 				completed=completed, reward=reward.item == 5291 and 'One 25% experience scroll' or string.format('One %s training weapon', reward.name:lower())}
 		end
 	end
-	local encoded = json.encode({action='progress', entries=milestones, unread=storage(player, A.STORAGE.UNREAD),
-		bonuses={speed=storage(player,A.STORAGE.SPEED), attack=storage(player,A.STORAGE.ATTACK_PERCENT),
-			pvp=storage(player,A.STORAGE.PVP_DAMAGE_PERCENT), deathReduction=storage(player,A.STORAGE.DEATH_REDUCTION_PERCENT)}})
-	if #encoded <= 16000 then player:sendExtendedOpcode(A.OPCODE, encoded) end
+	-- NetworkMessage.addString rejects strings above 8192 bytes. A complete
+	-- catalog exceeds that limit, so send bounded pages from one snapshot.
+	progressSnapshotId = progressSnapshotId % 2147483647 + 1
+	local pages = math.ceil(#milestones / A.ENTRIES_PER_PAGE)
+	local packets = {}
+	local unread = storage(player, A.STORAGE.UNREAD)
+	local bonuses = {speed=storage(player,A.STORAGE.SPEED), attack=storage(player,A.STORAGE.ATTACK_PERCENT),
+		pvp=storage(player,A.STORAGE.PVP_DAMAGE_PERCENT), deathReduction=storage(player,A.STORAGE.DEATH_REDUCTION_PERCENT)}
+	for page = 1, pages do
+		local entries = {}
+		local first = (page - 1) * A.ENTRIES_PER_PAGE + 1
+		for index = first, math.min(first + A.ENTRIES_PER_PAGE - 1, #milestones) do
+			entries[#entries + 1] = milestones[index]
+		end
+		local encoded = json.encode({action='progress', snapshotId=progressSnapshotId, page=page, pages=pages,
+			entries=entries, unread=unread, bonuses=bonuses})
+		-- Validate every page before sending any, preventing a partial snapshot
+		-- or malformed opcode packet if a future catalog change grows a page.
+		if #encoded > A.MAX_PACKET_BYTES then
+			print('[AntigasAchievements] Progress page exceeds the safe packet size.')
+			return false
+		end
+		packets[#packets + 1] = encoded
+	end
+	for _, encoded in ipairs(packets) do player:sendExtendedOpcode(A.OPCODE, encoded) end
+	return true
 end
 
 function A.onWalk(player, fromPosition, toPosition)
