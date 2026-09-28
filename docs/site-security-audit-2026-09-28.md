@@ -21,6 +21,7 @@ Scope: public pages and downloads, local PHP source, the private web security he
 ## Residual work
 
 - Passwords use SHA-1 because the existing game server uses that credential format. A site-only change would break game logins; migration requires coordinated game-server support and a safe rehash strategy.
+- PHP 8.1 reached upstream end of life on 2025-12-31. The host has Ubuntu's updated Jammy package at this audit date; schedule a compatibility-tested move to an upstream-supported branch rather than changing runtime versions during this hardening.
 - There is no email-based account recovery or MFA. Adding either requires a verified recovery channel or compatible game-server changes.
 - Cloudflare IP ranges are pinned in Nginx and UFW. Review them periodically and update before Cloudflare changes its list: https://www.cloudflare.com/ips-v4 and https://www.cloudflare.com/ips-v6.
 - The account-wide login throttle limits repeated guesses, but a distributed attacker can temporarily make a targeted account hit its threshold. Revisit this trade-off if recovery or MFA is introduced.
