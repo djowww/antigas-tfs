@@ -755,6 +755,10 @@ void Creature::changeHealth(int32_t healthChange, bool sendHealthChange/* = true
 		health = std::max<int32_t>(0, health + healthChange);
 	}
 
+	if (oldHealth > 0 && health == 0) {
+		g_game.scheduleCreatureDeath(this);
+	}
+
 	if (sendHealthChange && oldHealth != health) {
 		g_game.addCreatureHealth(this);
 	}

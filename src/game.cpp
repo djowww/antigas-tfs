@@ -3360,6 +3360,29 @@ void Game::removeCreatureCheck(Creature* creature)
 	}
 }
 
+void Game::scheduleCreatureDeath(Creature* creature)
+{
+	if (!creature || creature->deathCheckPending) {
+		return;
+	}
+
+	creature->deathCheckPending = true;
+	g_dispatcher.addTask(createTask(std::bind(&Game::checkCreatureDeath, this, creature->getID())));
+}
+
+void Game::checkCreatureDeath(uint32_t creatureId)
+{
+	Creature* creature = getCreatureByID(creatureId);
+	if (!creature) {
+		return;
+	}
+
+	creature->deathCheckPending = false;
+	if (creature->getHealth() <= 0) {
+		creature->onDeath();
+	}
+}
+
 void Game::checkCreatures(size_t index)
 {
 	g_scheduler.addEvent(createSchedulerTask(EVENT_CHECK_CREATURE_INTERVAL, std::bind(&Game::checkCreatures, this, (index + 1) % EVENT_CREATURECOUNT)));
