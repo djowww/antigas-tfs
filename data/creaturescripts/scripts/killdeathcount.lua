@@ -4,13 +4,15 @@ local toMostDamage = true
 local toKiller = true
 function onDeath(creature, corpse, killer, mostDamageKiller, lastHitUnjustified, mostDamageUnjustified)
     if not creature:isPlayer() then return true end
+    local victimId = creature:getId()
     if creature then
-        if killer and killer:isPlayer() and toKiller then
+        if killer and killer:isPlayer() and toKiller and killer:getId() ~= victimId then
             local killAmount = killer:getStorageValue(killStorage)
             if killAmount == -1 then killAmount = 0 end
             killer:setStorageValue(killStorage, killAmount + 1)
         end
         if mostDamageKiller and mostDamageKiller:isPlayer() and toMostDamage
+            and mostDamageKiller:getId() ~= victimId
             and (not toKiller or not killer or killer:getId() ~= mostDamageKiller:getId()) then
             local killAmount = mostDamageKiller:getStorageValue(killStorage)
             if killAmount == -1 then killAmount = 0 end
