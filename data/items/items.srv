@@ -24203,7 +24203,7 @@ Attributes  = {Weight=2000,Range=7,Attack=35,Defense=0,MissileEffect=17,Brightne
 
 TypeID		= 5291
 Name		= "an exp scroll"
-Description = "25% experience for 1 day"
+Description = "25% experience for 1 hour"
 Flags       = {Take,UseEvent}
 Attributes  = {Weight=10}
 

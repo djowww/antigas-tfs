@@ -33,8 +33,8 @@ class Probe(Client):
         self.sock.sendall(struct.pack('<H', len(packet)) + packet)
         self.buffer = b''
 
-    def progress(self):
-        self.send(b'\x32\x7e' + string(json.dumps({'action': 'getProgress'})))
+    def progress(self, action='getProgress', fresh=True):
+        self.send(b'\x32\x7e' + string(json.dumps({'action': action})))
         raw = self.collect(2)
         pages, payloads, maximum, snapshot = {}, {}, 0, None
         for offset in range(len(raw) - 4):
@@ -58,12 +58,15 @@ class Probe(Client):
         assert sorted(pages) == [1, 2, 3, 4, 5], f'Incomplete catalogue: {sorted(pages)}'
         entries = [entry for page in sorted(pages) for entry in pages[page]]
         assert len(entries) == len({entry['id'] for entry in entries}) == 60
-        assert all(not entry['completed'] and entry['target'] > 0 and entry['reward'] for entry in entries)
+        assert all(entry['target'] > 0 and entry['reward'] for entry in entries)
+        if fresh:
+            assert all(not entry['completed'] and not entry.get('ready', False) for entry in entries)
         assert {'steps_1', 'steps_5', 'monsterKills_5', 'deaths_5', 'pvpKills_5', 'level_5', 'skill_7_5'} <= {entry['id'] for entry in entries}
         capture = os.environ.get('ANTIGAS_ACHIEVEMENTS_CAPTURE')
         if capture:
             Path(capture).write_text(json.dumps([payloads[page] for page in sorted(payloads)]), encoding='utf-8')
         print(f'PASS live Achievements: 60 objectives, 5 complete pages, largest payload {maximum} bytes', flush=True)
+        return {entry['id']: entry for entry in entries}
 
 
 def main():

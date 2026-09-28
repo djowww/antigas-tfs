@@ -36,10 +36,6 @@ local function storage(player, key)
 	return math.max(0, tonumber(player:getStorageValue(key)) or 0)
 end
 
-local function positionKey(position)
-	return string.format('%d:%d:%d', position.x, position.y, position.z)
-end
-
 local function unlockedTier(value, milestones)
 	local tier = 0
 	for index, milestone in ipairs(milestones) do
@@ -51,7 +47,6 @@ end
 local function notifyCompletion(player, title, reward)
 	player:setStorageValue(A.STORAGE.UNREAD, storage(player, A.STORAGE.UNREAD) + 1)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, string.format('Achievement completed: %s. Reward: %s.', title, reward))
-	A.sendProgress(player)
 end
 
 local function addCounterReward(player, counterKey, newValue)
@@ -59,7 +54,7 @@ local function addCounterReward(player, counterKey, newValue)
 	local key = A.STORAGE[string.upper(counterKey:gsub('(%l)(%u)', '%1_%2'))]
 	local oldValue = storage(player, key)
 	newValue = math.max(oldValue, math.floor(tonumber(newValue) or 0))
-	if newValue == oldValue then return end
+	if newValue == oldValue then return false end
 	player:setStorageValue(key, newValue)
 
 	local oldTier, newTier = unlockedTier(oldValue, milestones), unlockedTier(newValue, milestones)
@@ -71,7 +66,7 @@ local function addCounterReward(player, counterKey, newValue)
 			notifyCompletion(player, string.format('%s steps', milestones[tier][1]), string.format('+%d speed', bonus))
 		elseif counterKey == 'monsterKills' then
 			player:setStorageValue(A.STORAGE.ATTACK_PERCENT, storage(player, A.STORAGE.ATTACK_PERCENT) + bonus)
-			notifyCompletion(player, string.format('%s monster kills', milestones[tier][1]), string.format('+%d%% physical and magic damage', bonus))
+			notifyCompletion(player, string.format('%s monster kills', milestones[tier][1]), string.format('+%d%% direct physical and magic damage', bonus))
 		elseif counterKey == 'deaths' then
 			player:setStorageValue(A.STORAGE.DEATH_REDUCTION_PERCENT, storage(player, A.STORAGE.DEATH_REDUCTION_PERCENT) + bonus)
 			notifyCompletion(player, string.format('%s deaths', milestones[tier][1]), string.format('%d%% less death penalty loss', bonus))
@@ -80,16 +75,7 @@ local function addCounterReward(player, counterKey, newValue)
 			notifyCompletion(player, string.format('%s PvP kills', milestones[tier][1]), string.format('+%d%% PvP damage', bonus))
 		end
 	end
-end
-
-local function addItemReward(player, itemId, title, reward)
-	local item = player:addItem(itemId, 1)
-	if not item then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, string.format('%s is ready, but your inventory is full. Make space and gain another level or skill advance to receive it.', title))
-		return false
-	end
-	notifyCompletion(player, title, reward)
-	return true
+	return newTier > oldTier
 end
 
 local skillRewards = {
@@ -107,23 +93,39 @@ local function checkAdvanceRewards(player, skill, newLevel)
 	local milestones = skill == SKILL_LEVEL and A.LEVEL_MILESTONES or A.SKILL_MILESTONES
 	local base = skill == SKILL_LEVEL and A.STORAGE.LEVEL_REWARD_BASE or A.STORAGE.SKILL_REWARD_BASE + skill * 8
 	local reward = skill == SKILL_LEVEL and {item = 5291, name = 'Experience'} or skillRewards[skill]
-	if not reward then return end
+	if not reward then return false end
+	local changed = false
 	for index, threshold in ipairs(milestones) do
 		local key = base + index
-		if newLevel >= threshold and storage(player, key) ~= 1 then
+		local state = storage(player, key)
+		if state ~= 1 and (newLevel >= threshold or state == 2) then
 			local title = string.format('%s level %d', reward.name, threshold)
-			local label = reward.item == 5291 and 'an experience scroll' or string.format('a %s training weapon', reward.name:lower())
-			if addItemReward(player, reward.item, title, label) then player:setStorageValue(key, 1) end
+			local label = reward.item == 5291 and '25% XP scroll (1 hour)' or string.format('a %s training weapon', reward.name:lower())
+			-- Persist qualification before trying delivery. State 2 remains owed
+			-- even if death subsequently lowers the character's level or skill.
+			if state ~= 2 then player:setStorageValue(key, 2); changed = true end
+			-- The third argument is canDropOnMap: rewards must stay with their
+			-- owner, never appear on the ground when capacity or space runs out.
+			if player:addItem(reward.item, 1, false) then
+				player:setStorageValue(key, 1)
+				changed = true
+				notifyCompletion(player, title, label)
+			elseif state ~= 2 then
+				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, string.format('%s is ready. Make room and free capacity, then use Claim rewards in Achievements.', title))
+			end
 		end
 	end
+	return changed
 end
 
 function A.grantPendingRewards(player)
-	checkAdvanceRewards(player, SKILL_LEVEL, player:getLevel())
+	local changed = checkAdvanceRewards(player, SKILL_LEVEL, player:getLevel())
 	for _, skill in ipairs(skillOrder) do
 		local current = skill == SKILL_MAGLEVEL and player:getMagicLevel() or player:getSkillLevel(skill)
-		checkAdvanceRewards(player, skill, current)
+		changed = checkAdvanceRewards(player, skill, current) or changed
 	end
+	-- The calling operation emits one snapshot after every storage is settled.
+	return changed
 end
 
 function A.sendProgress(player)
@@ -142,26 +144,28 @@ function A.sendProgress(player)
 			local target = reward[1]
 			milestones[#milestones + 1] = {id=category .. '_' .. tier, category=definition.name,
 				title=string.format('%s: %d', definition.name, target), progress=math.min(value, target), target=target,
-				completed=value >= target, reward=category == 'steps' and string.format('+%d speed', reward[2])
-					or category == 'monsterKills' and '+1% physical and magic damage'
+				completed=value >= target, ready=false, reward=category == 'steps' and string.format('+%d speed', reward[2])
+					or category == 'monsterKills' and '+1% direct physical and magic damage'
 					or category == 'deaths' and '1% less death penalty loss' or '+1% PvP damage'}
 		end
 	end
 	for index, target in ipairs(A.LEVEL_MILESTONES) do
-		local completed = storage(player, A.STORAGE.LEVEL_REWARD_BASE + index) == 1
+		local state = storage(player, A.STORAGE.LEVEL_REWARD_BASE + index)
+		local completed, ready = state == 1, state == 2
 		milestones[#milestones + 1] = {id='level_' .. index, category='Character level',
-			title=string.format('Reach level %d', target), progress=math.min(player:getLevel(), target), target=target,
-			completed=completed, reward='One 25% experience scroll'}
+			title=string.format('Reach level %d', target), progress=(completed or ready) and target or math.min(player:getLevel(), target), target=target,
+			completed=completed, ready=ready, reward='25% XP scroll (1 hour)'}
 	end
 	for _, skill in ipairs(skillOrder) do
 		local reward = skillRewards[skill]
 		local current = skill == SKILL_MAGLEVEL and player:getMagicLevel() or player:getSkillLevel(skill)
 		for index, target in ipairs(A.SKILL_MILESTONES) do
 			local key = A.STORAGE.SKILL_REWARD_BASE + skill * 8 + index
-			local completed = storage(player, key) == 1
+			local state = storage(player, key)
+			local completed, ready = state == 1, state == 2
 			milestones[#milestones + 1] = {id='skill_' .. skill .. '_' .. index, category=reward.name .. ' skill',
-				title=string.format('Reach %s skill %d', reward.name:lower(), target), progress=math.min(current, target), target=target,
-				completed=completed, reward=reward.item == 5291 and 'One 25% experience scroll' or string.format('One %s training weapon', reward.name:lower())}
+				title=string.format('Reach %s skill %d', reward.name:lower(), target), progress=(completed or ready) and target or math.min(current, target), target=target,
+				completed=completed, ready=ready, reward=reward.item == 5291 and '25% XP scroll (1 hour)' or string.format('One %s training weapon', reward.name:lower())}
 		end
 	end
 	-- NetworkMessage.addString rejects strings above 8192 bytes. A complete
@@ -198,34 +202,37 @@ function A.onWalk(player, fromPosition, toPosition)
 	local dz = math.abs(toPosition.z - fromPosition.z)
 	-- Adjacent tiles (including stairs) are a step; teleports and jumps are not.
 	if dx <= 1 and dy <= 1 and dz <= 1 and dx + dy + dz > 0 then
-		addCounterReward(player, 'steps', storage(player, A.STORAGE.STEPS) + 1)
+		if addCounterReward(player, 'steps', storage(player, A.STORAGE.STEPS) + 1) then A.sendProgress(player) end
 	end
 	return true
 end
 
 function A.onKill(killer, target)
 	if not killer or not killer:isPlayer() or not target or not target:isCreature() then return true end
+	local changed = false
 	if target:isPlayer() then
-		addCounterReward(killer, 'pvpKills', storage(killer, A.STORAGE.PVP_KILLS) + 1)
+		if killer:getId() == target:getId() then return true end
+		changed = addCounterReward(killer, 'pvpKills', storage(killer, A.STORAGE.PVP_KILLS) + 1)
 	elseif target:isMonster() then
 		local master = target:getMaster()
 		if not (master and master:isPlayer()) then
-			addCounterReward(killer, 'monsterKills', storage(killer, A.STORAGE.MONSTER_KILLS) + 1)
+			changed = addCounterReward(killer, 'monsterKills', storage(killer, A.STORAGE.MONSTER_KILLS) + 1)
 		end
 	end
+	if changed then A.sendProgress(killer) end
 	return true
 end
 
 function A.onDeath(player, corpse, killer, mostDamageKiller, unjustified, mostDamageUnjustified)
 	if player and player:isPlayer() then
-		addCounterReward(player, 'deaths', storage(player, A.STORAGE.DEATHS) + 1)
+		if addCounterReward(player, 'deaths', storage(player, A.STORAGE.DEATHS) + 1) then A.sendProgress(player) end
 	end
 	return true
 end
 
 function A.onAdvance(player, skill, oldLevel, newLevel)
 	if newLevel <= oldLevel then return true end
-	checkAdvanceRewards(player, skill, newLevel)
+	if checkAdvanceRewards(player, skill, newLevel) then A.sendProgress(player) end
 	return true
 end
 
@@ -233,7 +240,7 @@ function A.onExtendedOpcode(player, opcode, buffer)
 	if opcode ~= A.OPCODE or type(buffer) ~= 'string' or #buffer > 512 then return false end
 	local ok, request = pcall(json.decode, buffer)
 	if not ok or type(request) ~= 'table' then return false end
-	if request.action == 'getProgress' then
+	if request.action == 'getProgress' or request.action == 'claimRewards' then
 		local now, guid = os.time(), player:getGuid()
 		local previous = progressRequests[guid]
 		if previous and now - previous < 2 then return true end
@@ -244,6 +251,7 @@ function A.onExtendedOpcode(player, opcode, buffer)
 				if timestamp < now - 120 then progressRequests[playerGuid] = nil end
 			end
 		end
+		if request.action == 'claimRewards' then A.grantPendingRewards(player) end
 		A.sendProgress(player)
 	elseif request.action == 'markSeen' then
 		if storage(player, A.STORAGE.UNREAD) > 0 then player:setStorageValue(A.STORAGE.UNREAD, 0) end
@@ -259,13 +267,15 @@ function A.applySpeed(player)
 	-- Seed those two achievements once so existing characters keep their history.
 	local legacyPvPKills = storage(player, 3000)
 	local legacyDeaths = storage(player, 3001)
+	local changed = false
 	if legacyPvPKills > storage(player, AntigasAchievements.STORAGE.PVP_KILLS) then
-		addCounterReward(player, 'pvpKills', legacyPvPKills)
+		changed = addCounterReward(player, 'pvpKills', legacyPvPKills) or changed
 	end
 	if legacyDeaths > storage(player, AntigasAchievements.STORAGE.DEATHS) then
-		addCounterReward(player, 'deaths', legacyDeaths)
+		changed = addCounterReward(player, 'deaths', legacyDeaths) or changed
 	end
 	local speed = storage(player, AntigasAchievements.STORAGE.SPEED)
 	if speed > 0 then player:changeSpeed(speed) end
-	A.grantPendingRewards(player)
+	changed = A.grantPendingRewards(player) or changed
+	if changed then A.sendProgress(player) end
 end

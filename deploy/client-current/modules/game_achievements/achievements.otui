@@ -74,6 +74,18 @@ MainWindow
     text: Refresh
     @onClick: modules.game_achievements.refresh()
 
+  Button
+    id: claimButton
+    anchors.top: parent.top
+    anchors.right: refreshButton.left
+    margin-right: 6
+    width: 114
+    height: 22
+    text: Claim rewards
+    enabled: false
+    tooltip: Receive earned item rewards after making room in your inventory.
+    @onClick: modules.game_achievements.claimRewards()
+
   Label
     id: summary
     anchors.top: filter.bottom
