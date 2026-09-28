@@ -1,0 +1,9 @@
+Module
+  name: game_achievements
+  description: Character achievement milestones and rewards
+  author: Antigas
+  reloadable: true
+  sandboxed: true
+  scripts: [ achievements ]
+  @onLoad: init()
+  @onUnload: terminate()
