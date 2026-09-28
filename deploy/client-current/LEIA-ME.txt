@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v42
+ANTIGAS 7.4 — CLIENTE v43
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
@@ -25,3 +25,7 @@ GAME VIEW
 
 Menu lateral: clique no cabecalho Menu [-] para recolher e Menu [+] para
 expandir. Novas conquistas continuam destacadas no cabecalho recolhido.
+
+Achievements: Next objectives mostra a proxima meta de cada categoria.
+Claim rewards recebe premios pendentes apos liberar espaco/capacidade.
+Recompensas pendentes ficam salvas e nao sao deixadas no chao.
