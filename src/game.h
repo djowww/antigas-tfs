@@ -231,6 +231,8 @@ class Game
 
 		void addCreatureCheck(Creature* creature);
 		static void removeCreatureCheck(Creature* creature);
+		void scheduleCreatureDeath(Creature* creature);
+		void checkCreatureDeath(uint32_t creatureId);
 
 		size_t getPlayersOnline() const {
 			return players.size();
