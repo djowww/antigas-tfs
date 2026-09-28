@@ -20,6 +20,7 @@
 #include "otpch.h"
 
 #include "container.h"
+#include "loot.h"
 #include "iomap.h"
 #include "game.h"
 
@@ -35,6 +36,7 @@ Container::Container(uint16_t type, uint16_t size) :
 
 Container::~Container()
 {
+	LootTracker::forget(this);
 	for (Item* item : itemlist) {
 		item->setParent(nullptr);
 		item->decrementReferenceCounter();

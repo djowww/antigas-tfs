@@ -20,6 +20,7 @@
 #include "otpch.h"
 
 #include "monsters.h"
+#include "loot.h"
 #include "monster.h"
 #include "spells.h"
 #include "combat.h"
@@ -176,17 +177,7 @@ void MonsterType::createLoot(Container* corpse)
 	}
 
 	if (g_config.getBoolean(ConfigManager::SHOW_MONSTER_LOOT)) {
-		Player* owner = g_game.getPlayerByID(corpse->getCorpseOwner());
-		if (owner) {
-			std::ostringstream ss;
-			ss << "Loot of " << nameDescription << ": " << corpse->getContentDescription();
-
-			if (owner->getParty()) {
-				owner->getParty()->broadcastPartyLoot(ss.str());
-			} else {
-				owner->sendTextMessage(MESSAGE_INFO_DESCR, ss.str());
-			}
-		}
+		LootTracker::publish(*corpse, nameDescription);
 	}
 
 	corpse->startDecaying();
