@@ -483,10 +483,10 @@ function siteLanguageSwitcher(): string
 {
     $language = $GLOBALS['antigasLanguage'] ?? 'en';
     $choices = [
-        'en' => ['flag' => '🇬🇧', 'code' => 'EN', 'name' => 'English', 'locale' => 'en'],
-        'pt' => ['flag' => '🇧🇷', 'code' => 'PT', 'name' => 'Português', 'locale' => 'pt-BR'],
-        'es' => ['flag' => '🇪🇸', 'code' => 'ES', 'name' => 'Español', 'locale' => 'es'],
-        'pl' => ['flag' => '🇵🇱', 'code' => 'PL', 'name' => 'Polski', 'locale' => 'pl'],
+        'en' => ['flag' => '<svg viewBox="0 0 60 40" focusable="false"><rect width="60" height="40" fill="#23406f"/><path d="M0 0L60 40M60 0L0 40" stroke="#fff" stroke-width="9"/><path d="M0 0L60 40M60 0L0 40" stroke="#c8102e" stroke-width="4"/><path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="13"/><path d="M30 0V40M0 20H60" stroke="#c8102e" stroke-width="7"/></svg>', 'code' => 'EN', 'name' => 'English', 'locale' => 'en'],
+        'pt' => ['flag' => '<svg viewBox="0 0 60 40" focusable="false"><rect width="60" height="40" fill="#009739"/><path d="M30 4L55 20 30 36 5 20Z" fill="#ffdf00"/><circle cx="30" cy="20" r="9" fill="#002776"/><path d="M22 18a17 17 0 0 1 17 4" fill="none" stroke="#fff" stroke-width="1.4"/></svg>', 'code' => 'PT', 'name' => 'Português', 'locale' => 'pt-BR'],
+        'es' => ['flag' => '<svg viewBox="0 0 60 40" focusable="false"><rect width="60" height="40" fill="#aa151b"/><path d="M0 10H60V30H0Z" fill="#f1bf00"/></svg>', 'code' => 'ES', 'name' => 'Español', 'locale' => 'es'],
+        'pl' => ['flag' => '<svg viewBox="0 0 60 40" focusable="false"><rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#dc143c"/></svg>', 'code' => 'PL', 'name' => 'Polski', 'locale' => 'pl'],
     ];
     $html = '<nav class="language-switcher" aria-label="' . siteT('Choose language') . '"><span class="language-label">' . siteT('Language') . '</span>';
     foreach ($choices as $code => $choice) {
