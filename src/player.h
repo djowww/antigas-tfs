@@ -1034,6 +1034,11 @@ class Player final : public Creature, public Cylinder
 		}
 
 	protected:
+		bool groundRarityProtocol = false;
+		uint64_t groundRaritySequence = 0;
+		int64_t lastGroundRaritySync = 0;
+		int64_t lastGroundRarityReplay = 0;
+		std::map<uint64_t, std::string> groundRarityTiles;
 		bool lootProtocol = false;
 		int64_t lastLootSync = 0;
 		int64_t lastLootFullSync = 0;
@@ -1241,6 +1246,7 @@ class Player final : public Creature, public Cylinder
 
 		friend class Game;
 		friend class LootTracker;
+		friend class GroundRarity;
 		friend class Npc;
 		friend class LuaScriptInterface;
 		friend class Map;
