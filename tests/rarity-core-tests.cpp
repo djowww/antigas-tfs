@@ -309,6 +309,81 @@ static void groundRarityTests()
 	require(GroundRarity::describe(tile.getPosition(), GroundRarity::collect(tile, observer)) == GroundRarity::describe(tile.getPosition(), entries), "handshake, map reset and session reset must leave actual world items unchanged");
 }
 
+static void groundRarityMovementTests()
+{
+	// Exercise the exact cache decision used by updateTile, without clocks or a
+	// network connection: an unchanged native frame still emits a new binding.
+	std::map<uint64_t, std::string> cache;
+	const Position position(30123, 30124, 7);
+	const std::vector<GroundRarityEntry> items = {{3264, 2, 4}, {3264, 3, 2}};
+	const std::string first = GroundRarity::replaceTile(cache, position, items);
+	require(!first.empty() && cache.size() == 1, "first visible native tile must produce a rarity frame");
+	require(GroundRarity::replaceTile(cache, position, items) == first, "rapid reentry with identical position, sprite, stack and tier must immediately resend a frame without waiting for replay");
+	require(GroundRarity::pruneCache(cache, [](const Position&) { return true; }).empty(), "still-visible cached frame must survive housekeeping");
+	require(GroundRarity::replaceTile(cache, position, items) == first, "native replacement after housekeeping must still resend an unchanged frame");
+	const auto removed = GroundRarity::pruneCache(cache, [](const Position&) { return false; });
+	require(removed.size() == 1 && removed[0] == position && cache.empty(), "leaving view must immediately produce the exact removed tile for clearing");
+	require(GroundRarity::replaceTile(cache, position, items) == first, "reentry after cache cleanup must immediately restore both identical-sprite rarities");
+	const std::string clear = GroundRarity::replaceTile(cache, position, {});
+	require(clear == GroundRarity::describe(position, {}) && cache.empty(), "a native tile that became common or empty must immediately emit an empty replacement frame");
+	require(GroundRarity::replaceTile(cache, position, {}).empty(), "untracked common tiles must not generate redundant rarity traffic");
+	for (uint16_t x = 1000; x < 1256; ++x) {
+		require(!GroundRarity::replaceTile(cache, Position(x, 2000, 7), items).empty(), "visible rarity cache must admit its documented 256 tile limit");
+	}
+	require(cache.size() == 256 && GroundRarity::replaceTile(cache, position, items).empty(), "new tiles may not exceed the bounded rarity cache");
+	const auto evicted = GroundRarity::pruneCache(cache, [](const Position& pos) { return pos.x >= 1004; });
+	require(evicted.size() == 4 && cache.size() == 252, "movement must free offscreen cache slots before considering new native strips");
+	require(GroundRarity::replaceTile(cache, position, items) == first && cache.size() == 253, "a previously full cache must immediately admit entering rarity after bounded pruning");
+
+	// Compare all eight step directions, all floors and classic/custom viewports
+	// against the set of newly visible native map coordinates.
+	for (const auto& ranges : {std::make_pair(8, 6), std::make_pair(10, 7), std::make_pair(15, 8)}) {
+		const int32_t width = 2 * (ranges.first + 1);
+		const int32_t height = 2 * (ranges.second + 1);
+		for (uint8_t floor = 0; floor < 16; ++floor) {
+			const Position oldPos(30000, 30000, floor);
+			for (int32_t dx = -1; dx <= 1; ++dx) {
+				for (int32_t dy = -1; dy <= 1; ++dy) {
+					if (!dx && !dy) continue;
+					const Position newPos(uint16_t(oldPos.x + dx), uint16_t(oldPos.y + dy), floor);
+					std::vector<GroundRarityMapStrip> strips;
+					if (dy < 0) strips.push_back({oldPos.x - ranges.first, newPos.y - ranges.second, floor, width, 1});
+					if (dy > 0) strips.push_back({oldPos.x - ranges.first, newPos.y + ranges.second + 1, floor, width, 1});
+					if (dx < 0) strips.push_back({newPos.x - ranges.first, newPos.y - ranges.second, floor, 1, height});
+					if (dx > 0) strips.push_back({newPos.x + ranges.first + 1, newPos.y - ranges.second, floor, 1, height});
+					const auto coordinates = GroundRarity::stripPositions(strips);
+					const std::set<Position> actual(coordinates.begin(), coordinates.end());
+					require(actual.size() == coordinates.size() && coordinates.size() <= 400, "movement refresh must deduplicate native tiles and stay within two bounded edge strips");
+					const int32_t firstFloor = floor <= 7 ? 0 : floor - 2;
+					const int32_t lastFloor = floor <= 7 ? 7 : std::min<int32_t>(15, floor + 2);
+					size_t entering = 0;
+					for (int32_t z = firstFloor; z <= lastFloor; ++z) {
+						const int32_t offset = int32_t(floor) - z;
+						const int32_t oldLeft = oldPos.x - ranges.first + offset;
+						const int32_t oldTop = oldPos.y - ranges.second + offset;
+						for (int32_t x = newPos.x - ranges.first + offset; x < newPos.x - ranges.first + offset + width; ++x) {
+							for (int32_t y = newPos.y - ranges.second + offset; y < newPos.y - ranges.second + offset + height; ++y) {
+								if (x >= oldLeft && x < oldLeft + width && y >= oldTop && y < oldTop + height) continue;
+								++entering;
+								require(actual.count(Position(uint16_t(x), uint16_t(y), uint8_t(z))) == 1, "every entering native tile on every visible floor must be replayed immediately, including diagonal corners");
+							}
+						}
+						// The player tile lies inside the old viewport, never in an entering strip.
+						require(actual.count(Position(uint16_t(newPos.x + offset), uint16_t(newPos.y + offset), uint8_t(z))) == 0, "ordinary movement must not rescan unaffected viewport interiors");
+					}
+					require(entering > 0 && entering <= coordinates.size(), "each movement direction must include its newly visible native map margin");
+				}
+			}
+		}
+	}
+	const GroundRarityMapStrip duplicate = {100, 101, 7, 18, 1};
+	require(GroundRarity::stripPositions({duplicate, duplicate}).size() == 18 * 8, "overlapping native rectangles must never duplicate rarity frames");
+	require(GroundRarity::stripPositions({{0, 0, 7, 1000000, 1}, {0, 0, 7, 32, 18}}).empty(), "invalid or full-viewport rectangles must not turn the walking path into an unbounded scan");
+	require(GroundRarity::stripPositions({{0, 0, -1, 1, 1}, {0, 0, 16, 1, 1}}).empty(), "walking strips must reject invalid floors");
+	const auto boundary = GroundRarity::stripPositions({{-8, -6, 7, 18, 1}, {65535, 65535, 7, 1, 18}});
+	require(boundary.size() <= 18 * 8 + 18 * 8, "world-edge strip coordinates must remain bounded without unsigned wrapping");
+}
+
 int main()
 {
 	try {
@@ -592,6 +667,7 @@ int main()
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill && player.getMagicLevel() == magicBase, "native and magic rarity bonuses must both remove exactly");
 		lootTests();
 		groundRarityTests();
+		groundRarityMovementTests();
 		g_game.cleanup();
 		std::cout << "PASS: " << checks << " rarity core checks (production C++, isolated from live data)." << std::endl;
 		return 0;

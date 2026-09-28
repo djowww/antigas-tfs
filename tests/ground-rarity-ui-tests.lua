@@ -109,6 +109,61 @@ check(restoreMark(replacement), 'Server replay safely recovers missing native it
 nativeTiles[key(pos)]=nil; step(500)
 check(replacement.color=='', 'Viewport tile removal clears retained object')
 
+-- Walking map strips recreate Item objects even if the server item and its
+-- rarity are unchanged. Re-entry must use the new authoritative snapshot in
+-- the same turn, including a quick return before the 500 ms cleanup runs.
+for _, cleanedBeforeReturn in ipairs({false, true}) do
+  for tier=1,5 do
+    local p={x=200+tier,y=cleanedBeforeReturn and 202 or 201,z=7}
+    local departed=item(3264,p)
+    tile(p,{departed})
+    local previousSnapshot=snapshot(p,{record(0,tier,3264)})
+    receive(previousSnapshot)
+    nativeTiles[key(p)]=nil
+    if cleanedBeforeReturn then step(500) end
+    local returnedCommon,returnedRare=item(3264,p),item(3264,p)
+    tile(p,{returnedCommon,returnedRare})
+    local instant=now
+    receive(snapshot(p,{record(1,tier,3264)}))
+    check(now==instant and returnedRare.color==colors[tier],
+      'Re-entered rare native item colors immediately, tier '..tier..', cleaned '..tostring(cleanedBeforeReturn))
+    check(departed.color=='' and returnedCommon.color==nil,
+      'Re-entry clears the departed instance and preserves common duplicate, tier '..tier)
+    receive(previousSnapshot)
+    check(returnedCommon.color==nil and returnedRare.color==colors[tier],
+      'Old strip snapshot cannot transfer rarity to a common duplicate, tier '..tier)
+    local secondReturn=item(3264,p)
+    nativeTiles[key(p)]=nil
+    tile(p,{secondReturn})
+    receive(snapshot(p,{}))
+    check(now==instant and returnedRare.color=='' and secondReturn.color==nil,
+      'A common-only return clears old rarity immediately, tier '..tier)
+  end
+end
+
+-- The corner of a diagonal move can occur in two serialized map strips.
+-- Each fresh snapshot must color only the last native object at that corner.
+local corner={x=212,y=212,z=7}
+local cornerFirst=item(3264,corner)
+tile(corner,{cornerFirst}); receive(snapshot(corner,{record(0,4,3264)}))
+local cornerFinal,cornerCommon=item(3264,corner),item(3264,corner)
+tile(corner,{cornerCommon,cornerFinal})
+receive(snapshot(corner,{record(1,4,3264)}))
+check(cornerFirst.color=='' and cornerFinal.color==colors[4] and cornerCommon.color==nil,
+  'Diagonal corner reconstruction replaces its tint synchronously')
+step(500)
+check(cornerFinal.color==colors[4] and cornerCommon.color==nil,
+  'Previous cleanup timer preserves the final diagonal corner binding')
+local oldFloorSnapshot=snapshot(corner,{record(0,2,3264)})
+receive({event='reset'})
+receive(oldFloorSnapshot)
+check(cornerFinal.color=='' and cornerCommon.color==nil,
+  'A frame from the previous floor cannot survive a sequenced reset')
+local newFloor={x=212,y=212,z=8}
+local newFloorRare=item(3264,newFloor)
+tile(newFloor,{newFloorRare}); receive(snapshot(newFloor,{record(0,2,3264)}))
+check(newFloorRare.color==colors[2], 'New-floor native item colors immediately after map reset')
+
 native=tile(pos,{replacement,common})
 receive(snapshot(pos,{record(0,3)}))
 for _,change in ipairs({

@@ -1,0 +1,26 @@
+{
+  "events": [
+    {
+      "time": "2026-09-28T18:03:16.487524+00:00",
+      "event": "private_backup_complete",
+      "backup": "/root/antigas-backups/groundrarity-scroll-20260928T180315Z"
+    },
+    {
+      "time": "2026-09-28T18:04:21.067158+00:00",
+      "event": "clean_shutdown_complete"
+    },
+    {
+      "time": "2026-09-28T18:04:21.190991+00:00",
+      "event": "server_installed",
+      "sha256": "bbaa5000d7809704672a0533b3c8f9d878262cab26370c47bc7690e080d6915d"
+    },
+    {
+      "time": "2026-09-28T18:04:21.209734+00:00",
+      "event": "hotfix_start_requested",
+      "client_version": 46
+    }
+  ],
+  "client_version": 46,
+  "server_only": true,
+  "production_visual_walking_test": "not performed; covered by isolated geometry/cache and native client reentry fixtures"
+}

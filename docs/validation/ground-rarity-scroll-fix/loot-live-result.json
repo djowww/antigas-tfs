@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "Both ordinary sessions reject invalid handshake, early sync and forged opened notification",
+    "Version 1 negotiation replies only to the requesting session",
+    "Channel 10 is listed, can close/reopen and rejects speech without relaying to another session",
+    "Malformed/forged messages leave both sessions healthy; own-corpse sync reveals no unrelated loot",
+    "Replacement login reuses the same player safely and renegotiates Loot on the new session",
+    "Both characters logout with zero rewards/items and unchanged level, experience and base stats"
+  ],
+  "cleanup": true,
+  "elapsed_seconds": 20.22,
+  "limitations": [
+    "No monster kill, real corpse or visual rendering in production",
+    "Targeted packet parsing; not a full game client decoder"
+  ],
+  "status": "passed",
+  "test": "loot-live"
+}

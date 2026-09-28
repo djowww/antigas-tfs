@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "date": "2026-09-28",
+  "core_cpp_assertions": 79076,
+  "cpp_movement_geometry_combinations": 384,
+  "cpp_movement_geometry_scope": "8 directions, 16 floors, 3 viewport sizes; real strip/cache helpers, not a full protocol transport fixture",
+  "lua_runtimes": [
+    "Lua 5.2",
+    "LuaJIT 2.1"
+  ],
+  "ground_rarity_ui_assertions_per_runtime": 80,
+  "rarity_ui_assertions_per_runtime": 105,
+  "loot_ui_assertions_per_runtime": 38,
+  "loot_channel_assertions_per_runtime": 68,
+  "regression_suites": [
+    "rarity-economy",
+    "market-rate-limit",
+    "achievements",
+    "achievements-ui",
+    "bestiary",
+    "questlog",
+    "killdeathcount"
+  ],
+  "native_assertions": 54,
+  "native_exit_code": 0,
+  "native_transport": "dummy localhost only; no production account or connection",
+  "native_archive": "Antigas-7.4-Client-v46.zip",
+  "native_archive_sha256": "5b87c70945a1fbc6cd4228f1d4f4b0f30c6ca2c369c88f3bab28a6ca8b6f2fc4",
+  "client_production_files_changed": false
+}

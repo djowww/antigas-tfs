@@ -9,6 +9,9 @@ local function run()
   check(not g_game.isOnline(), 'Native client remains disconnected')
   g_game.setClientVersion(772)
   g_game.setProtocolVersion(772)
+  -- The silent stub has no world-light packet. The production ForceLight
+  -- feature overwrites ambient setters each frame, so disable it only in QA.
+  g_game.disableFeature(GameForceLight)
   check(modules.game_things.isLoaded(), 'Native item definitions loaded')
   GROUND_BOOT_NATIVE_PLAYER()
   local nativePlayer=g_game.getLocalPlayer()
@@ -59,6 +62,57 @@ local function run()
   receive({event='reset'})
   check(not rarity.restoreMark(replacement), 'Server map reset clears native state')
   g_map.removeThing(second); g_map.removeThing(third); g_map.removeThing(replacement)
+
+  -- Exercise the exact native add/remove objects used by walking map strips.
+  -- Observe the real color API synchronously instead of calling restoreMark,
+  -- which itself recolors and could conceal a delayed initial application.
+  local colorize=g_map.colorizeThing
+  local coloringCalls={}
+  g_map.colorizeThing=function(item,color)
+    coloringCalls[#coloringCalls+1]={item=item,color=color}
+    return colorize(item,color)
+  end
+  local function lastColor(item)
+    for index=#coloringCalls,1,-1 do
+      if coloringCalls[index].item==item then return coloringCalls[index].color end
+    end
+  end
+  local tierColors={'#42C96B','#3E8BFF','#A855F7','#F5C542','#EF4444'}
+  for tier=1,5 do
+    local p={x=110+tier,y=110,z=7}
+    local departed=Item.create(3264)
+    g_map.addThing(departed,p,-1)
+    snapshot(p,{{itemId=3264,stackpos=stackOf(departed),tier=tier}})
+    g_map.removeThing(departed)
+    local returnedRare,returnedCommon=Item.create(3264),Item.create(3264)
+    g_map.addThing(returnedRare,p,-1); g_map.addThing(returnedCommon,p,-1)
+    -- No scheduleEvent, timer tick, or maintenance callback between the new
+    -- native map description and its rarity snapshot.
+    snapshot(p,{{itemId=3264,stackpos=stackOf(returnedRare),tier=tier}})
+    check(lastColor(returnedRare)==tierColors[tier] and not lastColor(returnedCommon),
+      'Native viewport re-entry colors immediately and excludes common duplicate '..tier)
+    g_map.removeThing(returnedRare); g_map.removeThing(returnedCommon)
+    local commonOnly=Item.create(3264); g_map.addThing(commonOnly,p,-1)
+    snapshot(p,{})
+    check(not lastColor(commonOnly) and not rarity.restoreMark(commonOnly),
+      'Native common-only return does not inherit removed rarity '..tier)
+    g_map.removeThing(commonOnly)
+  end
+  local corner={x=119,y=110,z=7}
+  local firstCorner=Item.create(3264)
+  g_map.addThing(firstCorner,corner,-1)
+  snapshot(corner,{{itemId=3264,stackpos=stackOf(firstCorner),tier=4}})
+  g_map.removeThing(firstCorner)
+  local finalCorner,commonCorner=Item.create(3264),Item.create(3264)
+  g_map.addThing(finalCorner,corner,-1); g_map.addThing(commonCorner,corner,-1)
+  snapshot(corner,{{itemId=3264,stackpos=stackOf(finalCorner),tier=4}})
+  check(lastColor(finalCorner)==tierColors[4] and not lastColor(commonCorner),
+    'Native diagonal corner reconstruction colors the final instance immediately')
+  rarity.updateMarks()
+  check(rarity.restoreMark(finalCorner) and not rarity.restoreMark(commonCorner),
+    'Native cleanup retains the final diagonal corner identity')
+  g_map.removeThing(finalCorner); g_map.removeThing(commonCorner); snapshot(corner,{})
+  g_map.colorizeThing=colorize
 
   -- Real map, six columns: common then the five rarity colors. A UIItem row
   -- separately verifies whether native inventory rendering honors setMarked.

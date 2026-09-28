@@ -1,5 +1,7 @@
 # Raridade sobre o próprio item — v46
 
+Correção posterior: [reaplicação imediata ao sair da tela e voltar](ground-rarity-scroll-fix.md). Compatível com o mesmo cliente v46.
+
 Equipamentos raros recebem uma camada de cor no sprite, inclusive quando estão no chão. A cor usa os metadados reais de cada exemplar: verde para incomum, azul para raro, roxo para épico, amarelo para lendário e vermelho para mítico. Itens comuns mantêm a aparência normal.
 
 A camada também aparece no inventário e nos containers abertos, junto às bordas de raridade existentes. A textura original continua visível.

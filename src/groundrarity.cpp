@@ -70,6 +70,67 @@ std::string GroundRarity::describe(const Position& position, const std::vector<G
 	return out.str();
 }
 
+std::vector<Position> GroundRarity::stripPositions(const std::vector<GroundRarityMapStrip>& strips)
+{
+	std::set<Position> positions;
+	// A walking packet has at most a horizontal and a vertical strip. Restrict
+	// this path to their native dimensions instead of scanning the whole viewport.
+	for (size_t i = 0; i < strips.size() && i < 2; ++i) {
+		const GroundRarityMapStrip& strip = strips[i];
+		if (strip.z < 0 || strip.z >= MAP_MAX_LAYERS || strip.width < 1 || strip.height < 1 ||
+			strip.width > 2 * (MapViewport::maxRangeX + 1) || strip.height > 2 * (MapViewport::maxRangeY + 1) ||
+			(strip.width != 1 && strip.height != 1)) continue;
+		// Exactly the same floors and perspective offset as GetMapDescription.
+		const int32_t first = strip.z > 7 ? strip.z - 2 : 7;
+		const int32_t last = strip.z > 7 ? std::min<int32_t>(MAP_MAX_LAYERS - 1, strip.z + 2) : 0;
+		const int32_t step = strip.z > 7 ? 1 : -1;
+		for (int32_t z = first; z != last + step; z += step) {
+			const int32_t offset = strip.z - z;
+			for (int32_t nx = 0; nx < strip.width; ++nx) {
+				for (int32_t ny = 0; ny < strip.height; ++ny) {
+					const int64_t x = int64_t(strip.x) + nx + offset;
+					const int64_t y = int64_t(strip.y) + ny + offset;
+					if (x < 0 || x > 65535 || y < 0 || y > 65535) continue;
+					positions.emplace(uint16_t(x), uint16_t(y), uint8_t(z));
+				}
+			}
+		}
+	}
+	return {positions.begin(), positions.end()};
+}
+
+std::string GroundRarity::replaceTile(std::map<uint64_t, std::string>& cache, const Position& position, const std::vector<GroundRarityEntry>& items)
+{
+	const uint64_t key = tileKey(position);
+	const auto previous = cache.find(key);
+	if (items.empty()) {
+		if (previous == cache.end()) return {};
+		cache.erase(previous);
+		return describe(position, {});
+	}
+	if (previous == cache.end() && cache.size() >= MAX_VISIBLE_TILES) return {};
+	const std::string description = describe(position, items);
+	cache[key] = description;
+	// Native map strips recreate client Item objects even if their serialized
+	// identity is unchanged. A fresh native frame always needs a fresh binding.
+	return description;
+}
+
+std::vector<Position> GroundRarity::pruneCache(std::map<uint64_t, std::string>& cache, const std::function<bool(const Position&)>& visible)
+{
+	std::vector<Position> removed;
+	for (auto it = cache.begin(); it != cache.end();) {
+		const Position position = tilePosition(it->first);
+		if (!visible(position)) {
+			removed.push_back(position);
+			it = cache.erase(it);
+		} else {
+			++it;
+		}
+	}
+	return removed;
+}
+
 void GroundRarity::send(Player& player, const std::string& fields)
 {
 	const std::string json = "{\"seq\":" + std::to_string(++player.groundRaritySequence) + ',' + fields + '}';
@@ -112,23 +173,21 @@ void GroundRarity::handleRequest(Player& player, const std::string& request)
 void GroundRarity::updateTile(Player& player, const Position& position)
 {
 	if (!player.groundRarityProtocol || !player.canSee(position)) return;
-	const uint64_t key = tileKey(position);
-	const auto previous = player.groundRarityTiles.find(key);
 	const Tile* tile = g_game.map.getTile(position);
 	const auto entries = tile ? collect(*tile, player) : std::vector<GroundRarityEntry>();
-	if (entries.empty()) {
-		if (previous != player.groundRarityTiles.end()) {
-			send(player, "\"event\":\"tile\"," + describe(position, {}));
-			player.groundRarityTiles.erase(previous);
-		}
-		return;
+	const std::string description = replaceTile(player.groundRarityTiles, position, entries);
+	if (!description.empty()) send(player, "\"event\":\"tile\"," + description);
+}
+
+void GroundRarity::refreshMapStrips(Player& player, const std::vector<GroundRarityMapStrip>& strips)
+{
+	if (!player.groundRarityProtocol) return;
+	// Free slots before adding entering tiles, including a rapid out-and-back
+	// movement that occurs before the periodic one-second housekeeping.
+	for (const Position& position : pruneCache(player.groundRarityTiles, [&](const Position& pos) { return player.canSee(pos); })) {
+		send(player, "\"event\":\"tile\"," + describe(position, {}));
 	}
-	if (previous == player.groundRarityTiles.end() && player.groundRarityTiles.size() >= MAX_VISIBLE_TILES) return;
-	const std::string description = describe(position, entries);
-	// Native update can replace an Item even when sprite/tier/stack are equal.
-	// Always bind a fresh frame immediately after the corresponding native packet.
-	send(player, "\"event\":\"tile\"," + description);
-	player.groundRarityTiles[key] = description;
+	for (const Position& position : stripPositions(strips)) updateTile(player, position);
 }
 
 void GroundRarity::sync(Player& player, bool force)

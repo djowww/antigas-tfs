@@ -18,6 +18,7 @@
 - [Raridades dos equipamentos](item-rarity.md)
 - [Canal Loot e avisos visuais no cliente v45](loot-v45.md)
 - [Cor da raridade no próprio item, inclusive no chão — v46](ground-rarity-v46.md)
+- [Correção da cor ao sair da tela e voltar](ground-rarity-scroll-fix.md)
 - [Histórico do Quest Log v35](questlog-v35.md)
 - [Histórico do Quest Log v36](questlog-v36.md)
 - [Organização do pacote público do cliente v36](client-package-v36.md)
