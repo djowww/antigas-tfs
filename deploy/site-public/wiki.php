@@ -27,7 +27,7 @@ $sections = [
   <title><?= siteT('Wiki Antigas') ?> · Antigas 7.4</title>
   <link rel="stylesheet" href="/classic-2004.css?v=20260924-1">
   <link rel="stylesheet" href="/wiki.css?v=1">
-  <link rel="stylesheet" href="/language.css?v=1">
+  <link rel="stylesheet" href="/language.css?v=2">
 </head>
 <body class="wiki-page">
   <div class="skyline">
