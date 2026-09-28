@@ -9,6 +9,7 @@ achievementsButton = nil
 
 local bindings = {}
 local syncing = false
+local achievementUnread = 0
 local targets = {skills = 'game_skills', battle = 'game_battle', vip = 'game_viplist', hunt = 'game_lootstatistics'}
 
 function syncPanel(name)
@@ -101,6 +102,7 @@ function init()
 	playerBarsWindow:open()
 	playerBarsWindow:setup()
   resizeButtons()
+  updateMenuToggle()
 end
 
 function terminate()
@@ -114,11 +116,30 @@ function terminate()
   playerBarsWindow, skillsButton, battleButton, vipButton, huntButton, marketButton, achievementsButton = nil, nil, nil, nil, nil, nil, nil
 end
 
+function updateMenuToggle()
+  if not playerBarsWindow then return end
+  local button = playerBarsWindow:getChildById('menuToggle')
+  if not button then return end
+  local collapsed = playerBarsWindow:isOn()
+  local badge = achievementUnread > 0 and (' [' .. achievementUnread .. ']') or ''
+  button:setText('Menu' .. badge .. (collapsed and ' [+]' or ' [-]'))
+  button:setTooltip(collapsed and 'Expand menu' or 'Minimize menu')
+  button:setColor(achievementUnread > 0 and '#ffd36a' or '#e2d4b2')
+end
+
+function toggleMenu()
+  if not playerBarsWindow then return end
+  if playerBarsWindow:isOn() then playerBarsWindow:maximize()
+  else playerBarsWindow:minimize() end
+end
+
 function setAchievementsUnread(count)
-  if not achievementsButton then return end
-  local unread = math.max(0, tonumber(count) or 0)
-  achievementsButton:setText(unread > 0 and ('Achievements  [' .. unread .. ']') or 'Achievements')
-  achievementsButton:setColor(unread > 0 and '#ffd36a' or '#c6c6c6')
+  achievementUnread = math.max(0, tonumber(count) or 0)
+  if achievementsButton then
+    achievementsButton:setText(achievementUnread > 0 and ('Achievements  [' .. achievementUnread .. ']') or 'Achievements')
+    achievementsButton:setColor(achievementUnread > 0 and '#ffd36a' or '#c6c6c6')
+  end
+  updateMenuToggle()
 end
 
 function offline()

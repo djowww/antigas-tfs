@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v41
+ANTIGAS 7.4 — CLIENTE v42
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
@@ -22,3 +22,6 @@ GAME VIEW
 - Options > Graphics: Left panels e Right panels continuam disponíveis.
 - Widescreen se adapta ao espaço entre os painéis. Em servidores sem suporte, usa Classic.
 - Sprites, equipamentos, minimap e chat mantêm o estilo clássico.
+
+Menu lateral: clique no cabecalho Menu [-] para recolher e Menu [+] para
+expandir. Novas conquistas continuam destacadas no cabecalho recolhido.
