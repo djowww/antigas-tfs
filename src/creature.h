@@ -552,6 +552,7 @@ class Creature : virtual public Thing
 		bool isUpdatingPath = false;
 		bool creatureCheck = false;
 		bool inCheckCreaturesVector = false;
+		bool deathCheckPending = false;
 		bool skillLoss = true;
 		bool lootDrop = true;
 		bool cancelNextWalk = false;
