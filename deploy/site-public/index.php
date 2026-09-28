@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   <link rel="stylesheet" href="/classic-2004.css?v=20260924-1">
   <link rel="stylesheet" href="/home-improvements.css?v=20260927-2">
   <link rel="stylesheet" href="/news-changelog.css?v=20260927-1">
-  <link rel="stylesheet" href="/language.css?v=1">
+  <link rel="stylesheet" href="/language.css?v=2">
 </head>
 <body class="portal-home">
   <a class="skip-link" href="#conteudo"><?= siteT('Skip to content') ?></a>
