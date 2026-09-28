@@ -1,0 +1,11 @@
+Module
+  name: game_loot
+  description: Personal loot channel, rarity alerts and unopened corpse highlights
+  author: Antigas
+  sandboxed: true
+  autoload: true
+  autoload-priority: 1001
+  dependencies: [ game_interface, game_console ]
+  scripts: [ loot ]
+  @onLoad: init()
+  @onUnload: terminate()

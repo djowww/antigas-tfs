@@ -5,5 +5,6 @@
 ## Sistemas e regras
 
 - [Fórmulas atuais de dano e defesa](combat-formulas.md)
+- [Raridades dos equipamentos](item-rarity.md)
 - [Sistemas legados removidos](retired-legacy-systems.md)
 

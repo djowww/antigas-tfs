@@ -17,6 +17,7 @@
  */
 
 #include "otpch.h"
+#include "loot.h"
 #include "hunt_supply.h"
 
 #include "actions.h"
@@ -294,6 +295,9 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 			} else {
 				player->addContainer(index, openContainer);
 				player->onSendContainer(openContainer);
+				if (player->getContainerID(openContainer) != -1) {
+					LootTracker::opened(*openContainer);
+				}
 			}
 
 			return RETURNVALUE_NOERROR;

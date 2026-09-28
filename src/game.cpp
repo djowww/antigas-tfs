@@ -18,6 +18,7 @@
  */
 
 #include "otpch.h"
+#include "loot.h"
 #include "hunt_supply.h"
 
 #include "pugicast.h"
@@ -4566,6 +4567,10 @@ void Game::parsePlayerExtendedOpcode(uint32_t playerId, uint8_t opcode, const st
 {
 	Player* player = getPlayerByID(playerId);
 	if (!player) {
+		return;
+	}
+	if (opcode == 128) {
+		LootTracker::handleRequest(*player, buffer);
 		return;
 	}
 
