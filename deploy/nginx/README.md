@@ -1,0 +1,9 @@
+# Nginx security deployment for tibia74.tech
+
+apply-hardening.sh installs the Cloudflare real-IP trust list and the response-header snippet, updates /etc/nginx/sites-available/otclient-download idempotently, validates the Nginx configuration, and reloads Nginx. It saves the previous files under /root/backups/antigas-site-security-* and restores them automatically if nginx -t fails.
+
+After applying the Nginx changes and confirming that the public domain still works, restrict-web-to-cloudflare.sh allows ports 80 and 443 only from the same official Cloudflare ranges and removes the prior unrestricted web rules. SSH and game ports are not changed. It verifies both IPv4 and IPv6 rules before removing the open rules, checks the public site through Cloudflare afterward, and reopens HTTP/HTTPS automatically if the final check fails. It also keeps a copy of both UFW rule files under /root/backups/antigas-site-firewall-*.
+
+The real-IP list is copied from Cloudflare's official public lists on 2026-09-28. Review and refresh it periodically. Only requests whose TCP peer is inside one of these ranges may set the visitor address through CF-Connecting-IP; requests reaching the origin directly keep their socket address.
+
+The deployment adds HSTS for tibia74.tech and www.tibia74.tech with a one-year lifetime. It intentionally omits includeSubDomains and preload until all subdomains and their TLS configuration have been inventoried. PHP pages continue to use the response headers already set by /opt/antigas-web/private/security.php; Nginx fills the gap for CSS, images, JSON, downloads, and retired-client redirects.
