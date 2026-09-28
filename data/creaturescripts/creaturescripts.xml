@@ -3,6 +3,7 @@
 	<event type="login" name="PlayerLogin" script="login.lua"/>
 	<event type="kill" name="BestiaryKill" script="bestiary.lua"/>
 	<event type="extendedopcode" name="Bestiary" script="bestiary.lua"/>
+	<event type="extendedopcode" name="ItemRaritySync" script="rarity.lua"/>
 	<event type="extendedopcode" name="QuestLog" script="questlog.lua"/>
 	<event type="kill" name="AchievementsKill" script="achievements.lua"/>
 	<event type="death" name="AchievementsDeath" script="achievements.lua"/>

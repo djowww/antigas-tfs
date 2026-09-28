@@ -101,6 +101,7 @@ bool ConfigManager::load()
 	integer[RATE_EXPERIENCE] = getGlobalNumber(L, "rateExp", 1);
 	integer[RATE_SKILL] = getGlobalNumber(L, "rateSkill", 1);
 	integer[RATE_LOOT] = getGlobalNumber(L, "rateLoot", 1);
+	integer[ITEM_RARITY_LOOT_CHANCE] = getGlobalNumber(L, "itemRarityLootChance", 1000);
 	integer[RATE_MAGIC] = getGlobalNumber(L, "rateMagic", 1);
 	integer[RATE_SPAWN] = getGlobalNumber(L, "rateSpawn", 2);
 	integer[RATE_REGENERATION] = getGlobalNumber(L, "rateRegen", 1);

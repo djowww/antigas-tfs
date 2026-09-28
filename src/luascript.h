@@ -701,6 +701,8 @@ class LuaScriptInterface
 
 		static int luaItemGetPosition(lua_State* L);
 		static int luaItemGetTile(lua_State* L);
+		static int luaItemGetRarityInfo(lua_State* L);
+		static int luaItemGetRarityDescription(lua_State* L);
 
 		static int luaItemHasAttribute(lua_State* L);
 		static int luaItemGetAttribute(lua_State* L);
