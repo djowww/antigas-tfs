@@ -1,0 +1,8 @@
+.language-switcher{display:flex;align-items:center;justify-content:flex-end;gap:7px;max-width:1200px;margin:0 auto;padding:7px 12px;background:linear-gradient(#41433f,#282a27);border:2px ridge #6e7063;border-top:0;color:#eee2c3;font:12px/1.2 Verdana,Arial,sans-serif}
+.language-label{margin-right:4px;color:#d5c398}
+.language-switcher a{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:4px 8px;border:1px solid #80785c;background:#373833;color:#f6edd8;text-decoration:none;border-radius:3px;font-weight:bold}
+.language-switcher a:hover{background:#4c4d42;color:#ffe987}
+.language-switcher a[aria-current=true]{border-color:#e1c86b;background:#554622;color:#fff0a6;box-shadow:inset 0 0 0 1px #141411}
+.language-switcher a:focus-visible{outline:3px solid #f3d76f;outline-offset:2px}
+.language-flag{font:18px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+@media(max-width:640px){.language-switcher{justify-content:center;gap:5px;padding:7px 4px;flex-wrap:wrap}.language-label{width:100%;margin:0;text-align:center}.language-switcher a{min-height:36px;padding:5px 8px}}
