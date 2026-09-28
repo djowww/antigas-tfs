@@ -176,6 +176,29 @@ end
 
 local function onItemRarityOpcode(protocol, opcode, buffer)
   if protocol ~= g_game.getProtocolGame() or type(buffer) ~= 'string' or #buffer > 4096 then return end
+  local pushedContainerId, pushedFirstIndex, pushedRecords = buffer:match('^P|C|(%d+)|(%d+)|(.+)$')
+  if pushedContainerId then
+    pushedContainerId, pushedFirstIndex = tonumber(pushedContainerId), tonumber(pushedFirstIndex)
+    local containers = g_game.getContainers()
+    local container = containers[pushedContainerId] or containers[tostring(pushedContainerId)]
+    if not container or not container.itemsPanel then return end
+    local visibleFirstIndex = container:getFirstIndex()
+    if pushedFirstIndex < visibleFirstIndex or pushedFirstIndex >= visibleFirstIndex + container:getCapacity() then return end
+    local locked = not container:isUnlocked()
+    for record in pushedRecords:gmatch('[^;]+') do
+      local index, tier, bonusType, bonusValue, subtype = record:match('^(%d+),(%d+),(%d+),(%d+),(%d+)$')
+      index, tier = tonumber(index), tonumber(tier)
+      if index and tier then
+        local visibleSlot = index - visibleFirstIndex
+        if visibleSlot >= 0 and visibleSlot < container:getCapacity() then
+          local widget = container.itemsPanel:getChildById('item' .. visibleSlot)
+          if widget then AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype) end
+        end
+      end
+    end
+    return
+  end
+
   local kind, requestId, payload = buffer:match('^R|([IC])|(%d+)|(.+)$')
   if not kind then return end
   requestId = tonumber(requestId)

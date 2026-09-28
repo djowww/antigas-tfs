@@ -171,6 +171,22 @@ check(#requests == 3, 'Large container page split into bounded queries')
 roundtrip()
 check(bag.widgets.item0.rarityTier == 1 and bag.widgets.item84.rarityTier == 5, 'Absolute server indices map to visible page slots')
 
+local chunkPushCount = #requests
+callback(protocol, 127, 'P|C|4|120|120,4,5,4,7;121,0,0,0,0')
+check(#requests == chunkPushCount and bag.widgets.item40.rarityTier == 4,
+  'Later pushed metadata chunks map to their absolute visible slots')
+callback(protocol, 127, 'P|C|4|165|165,5,6,5,0')
+check(bag.widgets.item0.rarityTier == 1, 'Out-of-view pushed metadata is rejected')
+
+local pushedBag = container(11, 0, 2)
+setContainerItem(pushedBag, 0, item())
+setContainerItem(pushedBag, 1, item(5, 6, 3, 0))
+local requestCountBeforePush = #requests
+callback(protocol, 127, 'P|C|11|0|0,0,0,0,0;1,5,6,3,0')
+check(#requests == requestCountBeforePush, 'Container push colors loot without a query round trip')
+check(pushedBag.widgets.item1.rarityTier == 5 and pushedBag.widgets.item1.borderColor == colors[5],
+  'Same-packet container metadata applies and preserves the rarity border immediately')
+
 rarity.requestContainerPage(bag)
 sendRequests()
 setContainerItem(bag, 0, item(3, 2, 3, 0))

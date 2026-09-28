@@ -1,9 +1,15 @@
 -- Tile snapshots arrive directly after the native map update they describe.
 -- Bind immediately to actual Item objects; sprite IDs alone are not identity.
-local OPCODE, MAX_TILES, CHECK_MS = 129, 256, 500
+local OPCODE, MAX_TILES, CHECK_MS, PULSE_MS = 129, 256, 500, 1500
 local colors = {'#42C96B', '#3E8BFF', '#A855F7', '#F5C542', '#EF4444'}
+local pulseColors = {'#4ACF72', '#4B93FF', '#AE63F9', '#F7CD4B', '#F04E4E'}
 local tiles, tileCount, sequence = {}, 0, 0
 local checkEvent, helloEvent, ready, helloAttempts
+local pulseBright, lastPulse = false, 0
+
+local function colorize(mark)
+  g_map.colorizeThing(mark.item, pulseBright and pulseColors[mark.tier] or colors[mark.tier])
+end
 
 local function integer(value, minimum, maximum)
   return type(value) == 'number' and value == math.floor(value) and value >= minimum and value <= maximum
@@ -48,6 +54,7 @@ local function clearTiles()
   if checkEvent then removeEvent(checkEvent); checkEvent = nil end
   for key in pairs(tiles) do removeTile(key) end
   tiles, tileCount, sequence = {}, 0, 0
+  pulseBright, lastPulse = false, 0
 end
 
 -- The sprite keeps its rarity color independently of cursor highlight marks.
@@ -58,7 +65,7 @@ function restoreMark(item)
   local tile = g_map.getTile(entry.position)
   for _, mark in ipairs(entry.items) do
     if mark.item == item and containsItem(tile, mark, entry.position) then
-      g_map.colorizeThing(item, colors[mark.tier])
+      colorize(mark)
       return true
     end
   end
@@ -68,6 +75,12 @@ end
 function updateMarks()
   if checkEvent then removeEvent(checkEvent); checkEvent = nil end
   if not ready or not g_game.isOnline() then return end
+  local now = g_clock.millis()
+  local pulse = now - lastPulse >= PULSE_MS
+  if pulse then
+    lastPulse = now
+    pulseBright = not pulseBright
+  end
   for key, entry in pairs(tiles) do
     local tile = g_map.getTile(entry.position)
     for index = #entry.items, 1, -1 do
@@ -75,6 +88,8 @@ function updateMarks()
       if not containsItem(tile, mark, entry.position) then
         table.remove(entry.items, index)
         clearMark(mark)
+      elseif pulse then
+        colorize(mark)
       end
     end
     if #entry.items == 0 then removeTile(key) end
@@ -122,7 +137,7 @@ local function applySnapshot(data)
   end
   tiles[key], tileCount = entry, tileCount + 1
   for _, mark in ipairs(entry.items) do
-    g_map.colorizeThing(mark.item, colors[mark.tier])
+    colorize(mark)
   end
   if not checkEvent then checkEvent = scheduleEvent(updateMarks, CHECK_MS) end
 end
