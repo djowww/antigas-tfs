@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-28",
+  "status": "passed",
+  "core_cpp_assertions": 4078,
+  "lua_runtimes": [
+    "Lua 5.2",
+    "LuaJIT 2.1"
+  ],
+  "loot_ui_assertions_per_runtime": 38,
+  "loot_channel_assertions_per_runtime": 68,
+  "rarity_ui_assertions_per_runtime": 105,
+  "regression_suites": [
+    "rarity-economy",
+    "market-rate-limit",
+    "achievements",
+    "achievements-ui",
+    "bestiary",
+    "questlog",
+    "killdeathcount"
+  ],
+  "loot_live_parser_assertions": 11,
+  "native_client_assertions": 32,
+  "native_client_exit_code": 0,
+  "scope": "C++ core uses isolated objects; native UI is offline. Live production smokes are recorded separately."
+}

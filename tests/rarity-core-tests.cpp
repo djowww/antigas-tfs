@@ -11,6 +11,11 @@
 #include "tools.h"
 #include "npc.h"
 #include "behaviourdatabase.h"
+#include "loot.h"
+#include "actions.h"
+#include "spells.h"
+#include "housetile.h"
+#include "house.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <stdexcept>
@@ -92,6 +97,135 @@ static void unequip(Player& player, Item* item, slots_t slot)
 	static_cast<Cylinder&>(player).removeThing(item, item->getItemCount());
 	g_moveEvents->onPlayerDeEquip(&player, item, slot);
 	delete item;
+}
+
+static void lootTests()
+{
+	const size_t initial = LootTracker::size();
+	Group group = {};
+	Player owner(nullptr);
+	owner.setGroup(&group);
+	owner.setID();
+	owner.setGUID(990001);
+	owner.setName("Loot Fixture Owner");
+	DynamicTile ground(100, 100, 7);
+	owner.setParent(&ground);
+	std::unique_ptr<Container> corpse(Item::CreateItem(2853)->getContainer());
+	corpse->setParent(&ground);
+	require(LootTracker::collect(*corpse).items.empty(), "empty corpse must not invent packaging loot");
+	Container* bag = Item::CreateItem(2853)->getContainer();
+	Item* sword = Item::CreateItem(3264);
+	sword->setRarityData(ITEM_RARITY_LEGENDARY, ITEM_RARITY_BONUS_ATTACK, 4, 0);
+	bag->internalAddThing(sword);
+	corpse->internalAddThing(bag);
+	corpse->internalAddThing(Item::CreateItem(3031, 37));
+	const LootContents contents = LootTracker::collect(*corpse);
+	require(contents.items.size() == 2 && contents.tier == 4, "loot must flatten generated bag and retain maximum rarity");
+	bool sawSword = false, sawGold = false;
+	for (const LootEntry& entry : contents.items) {
+		sawSword |= entry.id == 3264 && entry.count == 1 && entry.tier == 4;
+		sawGold |= entry.id == 3031 && entry.count == 37 && entry.tier == 0;
+	}
+	require(sawSword && sawGold, "structured loot must describe exact generated item instances and stack counts");
+	const uint64_t first = LootTracker::track(*corpse, {990001, 990002}, 4);
+	require(first != 0 && LootTracker::track(*corpse, {990003}, 1) == first, "corpse token must remain stable and cannot replace eligible recipients");
+	require(LootTracker::eligible(corpse.get(), 990001) && LootTracker::eligible(corpse.get(), 990002), "owner and original party member must be eligible");
+	require(!LootTracker::eligible(corpse.get(), 990003), "bystander and later party member must not become eligible");
+	std::unique_ptr<Container> second(Item::CreateItem(2853)->getContainer());
+	second->setParent(&ground);
+	const uint64_t other = LootTracker::track(*second, {990001}, 1);
+	require(other != first, "same-tile identical corpses must receive distinct tokens");
+	std::unique_ptr<Item> clone(corpse->clone());
+	require(LootTracker::token(clone->getContainer()) == 0, "clone must not inherit transient unopened identity");
+	DynamicTile destination(101, 100, 7);
+	corpse->setParent(&destination);
+	require(LootTracker::token(corpse.get()) == first, "moving a live corpse must preserve its instance token");
+	const std::string payload = LootTracker::notification(*corpse, contents, "a black knight", first, owner);
+	require(payload.size() < 8192 && payload.find("\"stackpos\":-1") != std::string::npos, "offscreen log must be valid while refusing a visible marker");
+	lua_State* lua = g_luaEnvironment.getLuaState();
+	require(luaL_dofile(lua, "data/lib/core/json.lua") == 0, "production JSON decoder must load");
+	lua_pushlstring(lua, payload.data(), payload.size());
+	lua_setglobal(lua, "lootFixtureJson");
+	luaCheck("local p=json.decode(lootFixtureJson); assert(p.event=='loot' and p.tier==4 and #p.items==2 and p.position.x==101 and p.unopened==false)");
+	LootContents large;
+	large.tier = 5;
+	for (unsigned i = 0; i < 128; ++i) {
+		large.items.push_back({3264, 1, 5, std::string(160, static_cast<char>(0xE9))});
+	}
+	const std::string bounded = LootTracker::notification(*corpse, large, std::string(80, '\\'), first, owner);
+	require(bounded.size() < 8192, "fully escaped maximum-size loot must respect real NetworkMessage string limit");
+	lua_pushlstring(lua, bounded.data(), bounded.size());
+	lua_setglobal(lua, "lootFixtureJson");
+	luaCheck("local p=json.decode(lootFixtureJson); assert(#p.items>0 and p.omitted>0 and #p.items+p.omitted==128 and p.tier==5)");
+	LootTracker::handleRequest(owner, "{\"event\":\"opened\",\"id\":\"" + std::to_string(first) + "\"}");
+	LootTracker::handleRequest(owner, std::string(10000, 'H'));
+	require(LootTracker::token(corpse.get()) == first, "malformed handshakes and forged opened messages must not change corpse state");
+	LootTracker::opened(*corpse);
+	require(!LootTracker::token(corpse.get()) && LootTracker::token(second.get()) == other, "opening one identical corpse must preserve the other");
+	second.reset();
+	require(LootTracker::size() == initial, "destroying tracked corpse must erase dangling index immediately");
+
+	// Exercise the real native use handler, including house permission and invalid window ids.
+	extern Spells* g_spells;
+	Spells spells;
+	Spells* oldSpells = g_spells;
+	g_spells = &spells;
+	Actions actions;
+	LootTracker::track(*corpse, {990001}, 4);
+	require(actions.canUse(&owner, Position(200, 200, 7)) == RETURNVALUE_TOOFARAWAY, "far-away native use must fail before opening");
+	require(LootTracker::token(corpse.get()) != 0, "failed range check must preserve unopened state");
+	actions.useItem(&owner, corpse->getPosition(), 255, corpse.get());
+	require(LootTracker::token(corpse.get()) != 0 && owner.getContainerID(corpse.get()) == -1, "invalid container window must not acknowledge opening");
+	House house(900001);
+	HouseTile houseTile(102, 100, 7, &house);
+	corpse->setParent(&houseTile);
+	require(!actions.useItem(&owner, corpse->getPosition(), 0, corpse.get()), "uninvited player must fail native house container use");
+	require(LootTracker::token(corpse.get()) != 0, "permission failure must preserve unopened state");
+	corpse->setParent(&destination);
+	require(actions.useItem(&owner, corpse->getPosition(), 0, corpse.get()), "permitted native container open must succeed");
+	require(!LootTracker::token(corpse.get()) && owner.getContainerID(corpse.get()) == 0, "successful registered open alone must consume unopened marker");
+	owner.closeContainer(0);
+	g_spells = oldSpells;
+
+	// Publish through actual owner/party selection, excluding invited or unrelated players.
+	Player member(nullptr), outsider(nullptr);
+	member.setGroup(&group);
+	member.setGUID(990002);
+	member.setID();
+	member.setName("Loot Fixture Member");
+	outsider.setGroup(&group);
+	outsider.setGUID(990003);
+	outsider.setID();
+	outsider.setName("Loot Fixture Outsider");
+	Party party(&owner);
+	party.getMembers().push_back(&member);
+	member.setParty(&party);
+	g_game.addPlayer(&owner);
+	corpse->setCorpseOwner(owner.getID());
+	LootTracker::publish(*corpse, "a black knight");
+	require(LootTracker::eligible(corpse.get(), owner.getGUID()) && LootTracker::eligible(corpse.get(), member.getGUID()), "actual publisher must snapshot owner and party");
+	require(!LootTracker::eligible(corpse.get(), outsider.getGUID()), "actual publisher must never grant bystander loot access");
+	member.setParty(nullptr);
+	owner.setParty(nullptr);
+	g_game.removePlayer(&owner);
+	LootTracker::forget(corpse.get());
+
+	std::vector<std::unique_ptr<Container>> flood;
+	for (unsigned i = 0; i < 4100; ++i) {
+		flood.emplace_back(Item::CreateItem(2853)->getContainer());
+		LootTracker::track(*flood.back(), {990001}, 1);
+	}
+	require(LootTracker::size() <= 4096, "unopened registry must have a hard memory bound");
+	require(!LootTracker::token(flood.front().get()) && LootTracker::token(flood.back().get()), "pruning must evict oldest tokens before recent loot");
+	flood.clear();
+	require(LootTracker::size() == initial, "mass corpse destruction must leave no dangling tracking entries");
+
+	std::unique_ptr<Container> overflowing(Item::CreateItem(2853)->getContainer());
+	for (unsigned i = 0; i < 140; ++i) {
+		overflowing->internalAddThing(Item::CreateItem(3264));
+	}
+	const LootContents capped = LootTracker::collect(*overflowing);
+	require(capped.items.size() == 128 && capped.omitted == 12, "oversized corpse must bound displayed entries and count omitted items");
 }
 
 int main()
@@ -375,6 +509,7 @@ int main()
 		require(nativeRing->getID() == nativeRingId && nativeRing->hasRarity(), "native unequip transformation must preserve rarity");
 		require(!player.isItemAbilityEnabled(CONST_SLOT_RING) && !player.isItemRarityEnabled(CONST_SLOT_RING), "native and rarity state must clear on unequip");
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill && player.getMagicLevel() == magicBase, "native and magic rarity bonuses must both remove exactly");
+		lootTests();
 		g_game.cleanup();
 		std::cout << "PASS: " << checks << " rarity core checks (production C++, isolated from live data)." << std::endl;
 		return 0;

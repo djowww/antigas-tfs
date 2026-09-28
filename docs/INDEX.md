@@ -15,6 +15,8 @@
 - [Correção da lista de objetivos e do menu no cliente v41](achievements-v41.md)
 - [Fórmulas atuais de dano e defesa](combat-formulas.md)
 - [Loot e suprimentos no cliente v17](loot-v17.md)
+- [Raridades dos equipamentos](item-rarity.md)
+- [Canal Loot e avisos visuais no cliente v45](loot-v45.md)
 - [Histórico do Quest Log v35](questlog-v35.md)
 - [Histórico do Quest Log v36](questlog-v36.md)
 - [Organização do pacote público do cliente v36](client-package-v36.md)

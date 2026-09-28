@@ -19,6 +19,7 @@
 
 #include "otpch.h"
 #include "hunt_supply.h"
+#include "loot.h"
 
 #include <bitset>
 
@@ -999,6 +1000,7 @@ void Player::onUpdateTileItem(const Tile* tile, const Position& pos, const Item*
 	const ItemType& oldType, const Item* newItem, const ItemType& newType)
 {
 	Creature::onUpdateTileItem(tile, pos, oldItem, oldType, newItem, newType);
+	LootTracker::invalidate(*this, oldItem);
 
 	if (oldItem != newItem) {
 		onRemoveTileItem(tile, pos, oldType, oldItem);
@@ -1015,6 +1017,7 @@ void Player::onRemoveTileItem(const Tile* tile, const Position& pos, const ItemT
 	const Item* item)
 {
 	Creature::onRemoveTileItem(tile, pos, iType, item);
+	LootTracker::invalidate(*this, item);
 
 	if (tradeState != TRADE_TRANSFER) {
 		checkTradeState(item);
@@ -1401,6 +1404,7 @@ uint32_t Player::getNextActionTime() const
 void Player::onThink(uint32_t interval)
 {
 	Creature::onThink(interval);
+	LootTracker::sync(*this);
 
 	sendPing();
 

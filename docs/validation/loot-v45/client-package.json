@@ -1,0 +1,24 @@
+{
+  "package": "Antigas-7.4-Client-v45.zip",
+  "version": 45,
+  "sha256": "a26c10020fd19dad95968e4d32a1efaabd3951d3361a11c544634772ca29a4e7",
+  "size_bytes": 25726950,
+  "entries": 682,
+  "changed_entries": [
+    "init.lua",
+    "LEIA-ME.txt",
+    "modules/game_console/console.lua",
+    "modules/game_interface/widgets/uigamemap.lua"
+  ],
+  "added_entries": [
+    "modules/game_loot/loot.lua",
+    "modules/game_loot/loot.otmod"
+  ],
+  "unchanged_entries": 676,
+  "zip_integrity": "PASS",
+  "unwanted_files_scan": "PASS",
+  "packaged_lua_syntax": [
+    "lua52 PASS",
+    "luajit21 PASS"
+  ]
+}

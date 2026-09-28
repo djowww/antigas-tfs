@@ -1034,6 +1034,10 @@ class Player final : public Creature, public Cylinder
 		}
 
 	protected:
+		bool lootProtocol = false;
+		int64_t lastLootSync = 0;
+		int64_t lastLootFullSync = 0;
+		std::map<uint64_t, std::string> lootMarkers;
 		std::forward_list<Condition*> getMuteConditions() const;
 
 		void checkTradeState(const Item* item);
@@ -1236,6 +1240,7 @@ class Player final : public Creature, public Cylinder
 		void getPathSearchParams(const Creature* creature, FindPathParams& fpp) const final;
 
 		friend class Game;
+		friend class LootTracker;
 		friend class Npc;
 		friend class LuaScriptInterface;
 		friend class Map;

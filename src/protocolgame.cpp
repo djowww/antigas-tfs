@@ -22,6 +22,7 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 #include "protocolgame.h"
+#include "loot.h"
 
 #include "outputmessage.h"
 
@@ -44,6 +45,7 @@ void ProtocolGame::release()
 {
 	//dispatcher thread
 	if (player && player->client == shared_from_this()) {
+		LootTracker::resetSession(*player);
 		player->client.reset();
 		player->decrementReferenceCounter();
 		player = nullptr;
@@ -200,7 +202,11 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 	player->isConnecting = false;
 
 	player->client = getThis();
+	LootTracker::resetSession(*player);
 	sendAddCreature(player, player->getPosition(), 0, false);
+	if (ChatChannel* lootChannel = g_chat->addUserToChannel(*player, 10)) {
+		player->sendChannel(10, lootChannel->getName());
+	}
 	player->lastIP = player->getIP();
 	player->lastLoginSaved = std::max<time_t>(time(nullptr), player->lastLoginSaved + 1);
 	acceptPackets = true;

@@ -1,0 +1,3 @@
+START: native loot UI
+CAPABILITY: setColoredText on native ConsoleLabel and selection work
+PASS: native loot UI, 32 assertions, no connection
