@@ -1757,6 +1757,13 @@ void ProtocolGame::sendMoveCreature(const Creature* creature, const Position& ne
 			sendMapDescription(newPos);
 		} else {
 			NetworkMessage msg;
+			std::vector<GroundRarityMapStrip> rarityStrips;
+			auto addMapStrip = [&](uint8_t opcode, int32_t x, int32_t y, int32_t width, int32_t height) {
+				msg.addByte(opcode);
+				GetMapDescription(x, y, newPos.z, width, height, msg);
+				// Record precisely the rectangle written to this native packet.
+				rarityStrips.push_back({x, y, newPos.z, width, height});
+			};
 			if (oldPos.z == 7 && newPos.z >= 8) {
 				RemoveTileThing(msg, oldPos, oldStackPos);
 			} else {
@@ -1776,21 +1783,24 @@ void ProtocolGame::sendMoveCreature(const Creature* creature, const Position& ne
 			}
 
 			if (oldPos.y > newPos.y) { // north, for old x
-				msg.addByte(0x65);
-				GetMapDescription(oldPos.x - mapViewport.x, newPos.y - mapViewport.y, newPos.z, mapViewport.width(), 1, msg);
+				addMapStrip(0x65, oldPos.x - mapViewport.x, newPos.y - mapViewport.y, mapViewport.width(), 1);
 			} else if (oldPos.y < newPos.y) { // south, for old x
-				msg.addByte(0x67);
-				GetMapDescription(oldPos.x - mapViewport.x, newPos.y + mapViewport.y + 1, newPos.z, mapViewport.width(), 1, msg);
+				addMapStrip(0x67, oldPos.x - mapViewport.x, newPos.y + mapViewport.y + 1, mapViewport.width(), 1);
 			}
 
 			if (oldPos.x < newPos.x) { // east, [with new y]
-				msg.addByte(0x66);
-				GetMapDescription(newPos.x + mapViewport.x + 1, newPos.y - mapViewport.y, newPos.z, 1, mapViewport.height(), msg);
+				addMapStrip(0x66, newPos.x + mapViewport.x + 1, newPos.y - mapViewport.y, 1, mapViewport.height());
 			} else if (oldPos.x > newPos.x) { // west, [with new y]
-				msg.addByte(0x68);
-				GetMapDescription(newPos.x - mapViewport.x, newPos.y - mapViewport.y, newPos.z, 1, mapViewport.height(), msg);
+				addMapStrip(0x68, newPos.x - mapViewport.x, newPos.y - mapViewport.y, 1, mapViewport.height());
 			}
 			writeToOutputBuffer(msg);
+			if (newPos.z != oldPos.z) {
+				// Classic floor packets also introduce full floors and compensating
+				// strips. Rebind the bounded new viewport immediately after them.
+				GroundRarity::resetMap(*player);
+			} else {
+				GroundRarity::refreshMapStrips(*player, rarityStrips);
+			}
 		}
 	} else if (canSee(oldPos) && canSee(creature->getPosition())) {
 		if (teleport || (oldPos.z == 7 && newPos.z >= 8) || oldStackPos >= 10) {
@@ -1816,8 +1826,6 @@ void ProtocolGame::sendMoveCreature(const Creature* creature, const Position& ne
 	}
 	GroundRarity::updateTile(*player, oldPos);
 	GroundRarity::updateTile(*player, newPos);
-	// Movement may transmit new map strips and recreate existing client Items.
-	// The bounded periodic replay handles those strips without rescanning every step.
 }
 
 void ProtocolGame::sendInventoryItem(slots_t slot, const Item* item)
