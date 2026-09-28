@@ -23,3 +23,5 @@
 ## Validações arquivadas
 
 Os arquivos JSON em [`validation/`](validation/) registram metadados e resultados das verificações das releases correspondentes. São registros históricos; não representam uma execução automática dos testes atuais.
+
+- [Correção do menu e botões v42](menu-v42.md)
