@@ -10,6 +10,10 @@ needs no DB.
 The wire checks locate fixed-format stats/skills messages using this fixture's
 known low stats; this is a targeted smoke, not a full map/protocol decoder.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import hashlib
 import json
 import math

@@ -1,4 +1,8 @@
 """Isolated staging smoke test with disposable, unprivileged characters."""
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import hashlib
 import json
 from pathlib import Path

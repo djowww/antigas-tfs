@@ -16,6 +16,10 @@ import sys
 import tarfile
 import time
 
+def require(condition, message='Deployment precondition failed'):
+    if not condition:
+        raise RuntimeError(message)
+
 PREP = Path('/opt/antigas-groundrarity-scroll-20260928')
 SERVER = Path('/opt/imperium772/server')
 SOURCE = Path('/opt/antigas-rarity-20260928/source')
@@ -45,12 +49,24 @@ def state():
 
 
 def preflight():
-    assert digest(SERVER / 'tfs') == OLD_BINARY, 'Production changed since review'
+    require(
+        (digest(SERVER / 'tfs') == OLD_BINARY),
+        ('Production changed since review'),
+    )
     for name in ('build.exit', 'core-test.exit'):
-        assert (PREP / name).read_text().strip() == '0', 'Build and core tests must pass'
-    assert digest(PREP / 'tfs') == json.loads((PREP / 'binary-manifest.json').read_text())['sha256']
+        require(
+            ((PREP / name).read_text().strip() == '0'),
+            ('Build and core tests must pass'),
+        )
+    require(
+        (digest(PREP / 'tfs') == json.loads((PREP / 'binary-manifest.json').read_text())['sha256']),
+        ('Staged server binary checksum does not match its manifest'),
+    )
     for name, expected in json.loads((PREP / 'source-manifest.json').read_text()).items():
-        assert digest(SOURCE / name) == expected, 'Build source drift: ' + name
+        require(
+            (digest(SOURCE / name) == expected),
+            ('Build source drift: ' + name),
+        )
 
 
 def database_snapshot(path):
@@ -61,9 +77,15 @@ def database_snapshot(path):
         with gzip.GzipFile(fileobj=target, mode='wb') as compressed:
             shutil.copyfileobj(process.stdout, compressed)
         error = process.stderr.read()
-        assert process.wait(timeout=60) == 0, 'Database backup failed; inspect private diagnostics'
+        require(
+            (process.wait(timeout=60) == 0),
+            ('Database backup failed; inspect private diagnostics'),
+        )
     os.chmod(path, 0o600)
-    assert path.stat().st_size > 1000
+    require(
+        (path.stat().st_size > 1000),
+        ('Database backup is unexpectedly small'),
+    )
     run(['gzip', '-t', str(path)])
 
 
@@ -80,7 +102,10 @@ def replace_binary(source):
 
 def backup():
     preflight()
-    assert not (PREP / 'backup-path.txt').exists(), 'Backup already exists; inspect before repeating'
+    require(
+        (not (PREP / 'backup-path.txt').exists()),
+        ('Backup already exists; inspect before repeating'),
+    )
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     folder = Path('/root/antigas-backups') / ('groundrarity-scroll-' + stamp)
     folder.mkdir(mode=0o700)
@@ -96,12 +121,21 @@ def backup():
 def install():
     preflight()
     folder = Path((PREP / 'backup-path.txt').read_text().strip())
-    assert folder.parent == Path('/root/antigas-backups') and folder.name.startswith('groundrarity-scroll-')
-    assert digest(folder / 'tfs-v46') == OLD_BINARY
+    require(
+        (folder.parent == Path('/root/antigas-backups') and folder.name.startswith('groundrarity-scroll-')),
+        ('Backup directory does not match this deployment'),
+    )
+    require(
+        (digest(folder / 'tfs-v46') == OLD_BINARY),
+        ('Backup server binary checksum mismatch'),
+    )
     marker = PREP / 'shutdown-start.txt'
     current = state()
     if current['MainPID'] == '0' and current['ActiveState'] == 'inactive':
-        assert marker.exists(), 'An earlier supervised stop must be recorded before resuming'
+        require(
+            (marker.exists()),
+            ('An earlier supervised stop must be recorded before resuming'),
+        )
         started = marker.read_text().strip()
     else:
         started = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
@@ -112,12 +146,18 @@ def install():
         current = state()
         if current['MainPID'] == '0' and current['ActiveState'] == 'inactive':
             break
-        assert time.monotonic() < deadline, 'Graceful stop still pending; inspect without forcing termination'
+        require(
+            (time.monotonic() < deadline),
+            ('Graceful stop still pending; inspect without forcing termination'),
+        )
         time.sleep(0.25)
     journal = run(['journalctl', '-u', SERVICE, '--since', started, '--no-pager', '-o', 'cat'],
                   capture_output=True, text=True).stdout
     (PREP / 'shutdown.log').write_text(journal)
-    assert current['Result'] == 'success' and re.search(r'Shutting down\.\.\.\s*done!', journal), 'Clean shutdown not confirmed'
+    require(
+        (current['Result'] == 'success' and re.search(r'Shutting down\.\.\.\s*done!', journal)),
+        ('Clean shutdown not confirmed'),
+    )
     note('clean_shutdown_complete')
     try:
         database_snapshot(folder / 'database-after-stop.sql.gz')

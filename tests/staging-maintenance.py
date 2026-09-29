@@ -5,6 +5,10 @@ Run under a systemd transient service with RuntimeMaxSec=570 and an ExecStopPost
 that stops staging, restores MemoryMax=1G, and starts production. This gives the
 recovery an independent owner even if the test process is killed.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import argparse
 import json
 import os
