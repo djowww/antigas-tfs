@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include "commands.h"
+#include "timeutils.h"
 #include "player.h"
 #include "npc.h"
 #include "game.h"
@@ -178,11 +179,15 @@ bool Commands::exeCommand(Player& player, const std::string& cmd)
 		std::ofstream out(logFile.str(), std::ios::app);
 		if (out.is_open()) {
 			time_t ticks = time(nullptr);
-			const tm* now = localtime(&ticks);
-			char buf[32];
-			strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M", now);
-
-			out << '[' << buf << "] " << cmd << std::endl;
+			tm now;
+			std::string timestamp = "time unavailable";
+			if (getLocalTime(ticks, now)) {
+				char buf[32];
+				if (strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M", &now) != 0) {
+					timestamp = buf;
+				}
+			}
+			out << '[' << timestamp << "] " << cmd << std::endl;
 			out.close();
 		}
 	}
