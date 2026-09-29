@@ -18,5 +18,16 @@ class ReportBugPathTests(unittest.TestCase):
         self.assertIn('file:write("Name: " .. name)', handler)
 
 
+class CommandLogPathTests(unittest.TestCase):
+    def test_command_log_uses_numeric_guid_for_path_separators(self):
+        source = (ROOT / "src" / "commands.cpp").read_text(encoding="utf-8")
+
+        self.assertIn("std::string logName = player.getName();", source)
+        self.assertIn("logName.find('/') != std::string::npos", source)
+        self.assertIn(r"logName.find('\\') != std::string::npos", source)
+        self.assertIn("logName = std::to_string(player.getGUID());", source)
+        self.assertIn('logFile << "data/logs/" << logName << " commands.log";', source)
+
+
 if __name__ == "__main__":
     unittest.main()

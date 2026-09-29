@@ -175,7 +175,12 @@ bool Commands::exeCommand(Player& player, const std::string& cmd)
 		player.sendTextMessage(MESSAGE_STATUS_CONSOLE_RED, cmd);
 
 		std::ostringstream logFile;
-		logFile << "data/logs/" << player.getName() << " commands.log";
+		// Keep imported or legacy path-like names out of the server's log directory path.
+		std::string logName = player.getName();
+		if (logName.empty() || logName.find('/') != std::string::npos || logName.find('\\') != std::string::npos) {
+			logName = std::to_string(player.getGUID());
+		}
+		logFile << "data/logs/" << logName << " commands.log";
 		std::ofstream out(logFile.str(), std::ios::app);
 		if (out.is_open()) {
 			time_t ticks = time(nullptr);
