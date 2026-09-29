@@ -410,7 +410,8 @@ class Game
 
 		static void updatePremium(Account& account);
 
-		void cleanup();
+		// Set final only after decay scheduling has stopped.
+		void cleanup(bool final = false);
 		void shutdown();
 		void ReleaseCreature(Creature* creature);
 		void ReleaseItem(Item* item);

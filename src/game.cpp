@@ -4096,7 +4096,7 @@ void Game::shutdown()
 	std::cout << " done!" << std::endl;
 }
 
-void Game::cleanup()
+void Game::cleanup(bool final)
 {
 	//free memory
 	for (auto creature : ToReleaseCreatures) {
@@ -4108,6 +4108,22 @@ void Game::cleanup()
 		item->decrementReferenceCounter();
 	}
 	ToReleaseItems.clear();
+
+	if (final) {
+		for (Item* item : toDecayItems) {
+			item->setDecaying(DECAYING_FALSE);
+			item->decrementReferenceCounter();
+		}
+		toDecayItems.clear();
+		for (auto& bucket : decayItems) {
+			for (Item* item : bucket) {
+				item->setDecaying(DECAYING_FALSE);
+				item->decrementReferenceCounter();
+			}
+			bucket.clear();
+		}
+		return;
+	}
 
 	for (Item* item : toDecayItems) {
 		const uint32_t dur = item->getDuration();
