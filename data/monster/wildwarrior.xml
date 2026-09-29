@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<monster name="Wild Warrior" nameDescription="a wild warrior" race="blood" experience="55" speed="190" manacost="420">
-	<health now="120" max="120" />
+<monster name="Wild Warrior" nameDescription="a wild warrior" race="blood" experience="60" speed="190" manacost="420">
+	<health now="135" max="135" />
 	<look type="131" head="38" body="38" legs="38" feet="38" corpse="4240" />
 	<targetchange interval="1000" chance="0" />
 	<targetstrategy nearest="100" weakest="0" mostdamage="0" random="0" />

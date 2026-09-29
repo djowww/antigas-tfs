@@ -115,6 +115,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="welcome-crest" aria-hidden="true"><img src="/classic-assets/crest.svg" width="126" height="142" alt=""><span>7.4 Classic</span></div>
       </section>
       <section class="page-title" id="noticias"><h2><?= siteT('Latest news') ?></h2><p><?= siteT('New systems and improvements in the world of Antigas 7.4.') ?></p></section>
+      <article id="monster-data-20260928" class="news-article update-article">
+        <h3 class="news-ribbon"><span><?= siteT('Creature data aligned with the classic reference') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · World data') ?></time></h3>
+        <div class="news-body">
+          <p class="dropcap"><?= siteT('Selected monster stats and loot chances were aligned more closely with the classic reference data.') ?></p>
+          <p><?= siteT('Health, experience, speed, mana cost, melee, armor and defense values, plus matching loot counts and chances, now follow the reference where the Antigas format supports a direct mapping. Antigas-specific drops were kept for existing quests.') ?></p>
+          <p><?= siteT('No NPC scripts were changed in this update.') ?></p>
+          <p class="news-note"><?= siteT('Monsters included in this update:') ?> Badger · Bandit · Bear · Beholder · Black Knight · Cave Rat · Chicken · Crypt Shambler · Demon · Dragon · Dragon Lord · Dwarf Guard · Efreet · Elf Arcanist · Fire Devil · Ghoul · Hyaena · Marid · Minotaur Mage · Mummy · Necromancer · Necropharus · Orc Leader · Orc Shaman · Priestess · Rat · Rotworm · Scarab · Serpent Spawn · Skunk · Terror Bird · Wild Warrior · Witch · Wolf</p>
+        </div>
+      </article>
       <article id="objectives-v43" class="news-article update-article">
         <h3 class="news-ribbon"><span><?= siteT('Your next goal') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v43') ?></time></h3>
         <div class="news-body">
