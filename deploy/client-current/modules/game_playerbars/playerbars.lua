@@ -11,6 +11,7 @@ achievementsButton = nil
 local bindings = {}
 local syncing = false
 local achievementUnread = 0
+local toolbarIconSize = 12 -- Keep in sync with the icon sizes in playerbars.otui.
 local targets = {skills = 'game_skills', battle = 'game_battle', vip = 'game_viplist', hunt = 'game_lootstatistics'}
 
 function setActionSelected(name, selected)
@@ -78,11 +79,11 @@ function resizeButtons()
   for index, button in ipairs(buttons) do
     button:setWidth(buttonWidth)
     button:setHeight(buttonWidth)
-    -- Icon-size defines a fixed draw rectangle from the button's top-left.
-    -- Move that rectangle to the center whenever responsive sizing changes.
-    local iconOffset = math.floor((buttonWidth - 14) / 2)
+    -- Keep the 12 px pixel-art glyph centered as the responsive button width changes.
+    local iconOffset = math.floor((buttonWidth - toolbarIconSize) / 2)
     button:setIconOffsetX(iconOffset)
-    button:setIconOffsetY(iconOffset)
+    -- The achievement sprite is bottom-heavy; this one-pixel nudge centers its visible mass.
+    button:setIconOffsetY(iconOffset + (button == achievementsButton and -1 or 0))
     -- Sibling right anchors refer to the last pixel, not the next one.
     button:setMarginLeft(index == 1 and leftMargin or gap + 1)
   end

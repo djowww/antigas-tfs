@@ -6,7 +6,7 @@ AntigasSidebarToggle < ButtonBox
   image-border: 3
   image-color: #ffffffbb
   icon-color: #e8dfd0
-  icon-size: 14 14
+  icon-size: 12 12
   text-offset: 0 0
   border-width: 1
   border-top-color: #8b7b62
@@ -67,7 +67,7 @@ AntigasSidebarAction < Button
   image-color: #ffffffbb
   color: #ded2bd
   icon-color: #e8dfd0
-  icon-size: 14 14
+  icon-size: 12 12
   text-align: center
   text-offset: 0 0
   border-width: 1
@@ -118,6 +118,21 @@ AntigasSidebarAction < Button
     color: #8b857b
     icon-color: #817b71
     change-cursor-image: false
+
+AntigasSidebarAchievementAction < AntigasSidebarAction
+  icon-color: #dddddd
+
+  $hover !disabled:
+    icon-color: #ffffff
+
+  $on:
+    icon-color: #ffe0a0
+
+  $on hover:
+    icon-color: #fff5de
+
+  $disabled:
+    icon-color: #817b71
 
 SpecialMiniWindow
   id: playerBarsWindow
@@ -220,9 +235,12 @@ SpecialMiniWindow
       @onClick: modules.game_market_antigas.toggle()
 
       UIWidget
+        id: marketIcon
         anchors.centerIn: parent
-        size: 14 14
+        margin-top: -1
+        size: 12 12
         image-source: /images/game/slots/coins
+        image-color: #e6e6e6
         phantom: true
 
     AntigasSidebarAction
@@ -233,7 +251,7 @@ SpecialMiniWindow
       tooltip: Diário de missões (Ctrl+J).
       @onClick: modules.game_questlog.toggle()
 
-    AntigasSidebarAction
+    AntigasSidebarAchievementAction
       id: achievementsButton
       anchors.left: questButton.right
       anchors.top: SkillsButton.top
