@@ -1,6 +1,6 @@
 -- Tile snapshots arrive directly after the native map update they describe.
 -- Bind immediately to actual Item objects; sprite IDs alone are not identity.
-local OPCODE, MAX_TILES, CHECK_MS, PULSE_MS = 129, 256, 500, 1500
+local OPCODE, MAX_TILES, CHECK_MS, PULSE_MS = 129, 256, 500, 500
 local colors = {'#42C96B', '#3E8BFF', '#A855F7', '#F5C542', '#EF4444'}
 local pulseColors = {'#4ACF72', '#4B93FF', '#AE63F9', '#F7CD4B', '#F04E4E'}
 local tiles, tileCount, sequence = {}, 0, 0
