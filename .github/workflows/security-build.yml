@@ -129,6 +129,52 @@ jobs:
           print(f'Parsed {sum(bool(path) for path in paths)} Python files')
           PY
 
+  protocol-fuzz:
+    name: Protocol parser fuzz smoke (ASan/UBSan)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install fuzzer and server headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            clang libclang-rt-dev cmake pkg-config \
+            libboost-system-dev libboost-filesystem-dev \
+            libluajit-5.1-dev luajit libpugixml-dev \
+            libmariadb-dev libmariadb-dev-compat libgmp-dev
+
+      - name: Configure Clang/libFuzzer target
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER=clang++ -DTFS_BUILD_PROTOCOL_FUZZER=ON
+
+      - name: Build packet fuzzer
+        run: cmake --build build --target protocol-input-fuzzer --parallel 2
+
+      - name: Fuzz packet cursor and walking parser
+        run: |
+          set -euo pipefail
+          mkdir -p build/fuzz-corpus build/fuzz-artifacts
+          printf '\x02\x00\x00\x01\x08' > build/fuzz-corpus/valid-walk
+          printf '\x02\x00\x00\x01' > build/fuzz-corpus/truncated-walk
+          printf '\x01\x10\x00' > build/fuzz-corpus/over-limit-count
+          printf '\x01\x00\x02' > build/fuzz-corpus/cursor-past-end
+          ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1 \
+          UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 \
+            ./build/protocol-input-fuzzer build/fuzz-corpus \
+              -max_total_time=30 -max_len=65500 -timeout=2 \
+              -artifact_prefix=build/fuzz-artifacts/
+
+      - name: Preserve crash inputs and mutated corpus
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: protocol-fuzz-failure-corpus
+          path: |
+            build/fuzz-artifacts/
+            build/fuzz-corpus/
+          if-no-files-found: ignore
+
   launcher-build:
     name: Windows launcher and release signer
     runs-on: windows-2025
