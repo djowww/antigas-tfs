@@ -278,9 +278,26 @@ class ProtocolGame final : public Protocol
 		friend class GroundRarity;
 
 		// Helpers so we don't need to bind every time
+		// Packet-driven tasks are dispatched only if parsing stayed within the declared body.
+		template <typename Callable, typename... Args>
+		void addGameTask(const NetworkMessage& msg, Callable function, Args&&... args) {
+			if (!msg.isReadPositionValid()) {
+				return;
+			}
+			addGameTask(function, std::forward<Args>(args)...);
+		}
+
 		template <typename Callable, typename... Args>
 		void addGameTask(Callable function, Args&&... args) {
 			g_dispatcher.addTask(createTask(std::bind(function, &g_game, std::forward<Args>(args)...)));
+		}
+
+		template <typename Callable, typename... Args>
+		void addGameTaskTimed(const NetworkMessage& msg, uint32_t delay, Callable function, Args&&... args) {
+			if (!msg.isReadPositionValid()) {
+				return;
+			}
+			addGameTaskTimed(delay, function, std::forward<Args>(args)...);
 		}
 
 		template <typename Callable, typename... Args>

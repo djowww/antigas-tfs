@@ -145,6 +145,11 @@ class NetworkMessage
 			return info.overrun;
 		}
 
+		bool isReadPositionValid() const {
+			return !info.overrun && info.position < NETWORKMESSAGE_MAXSIZE
+				&& info.position <= static_cast<uint32_t>(info.length) + INITIAL_BUFFER_POSITION;
+		}
+
 		uint8_t* getBuffer() {
 			return buffer;
 		}
