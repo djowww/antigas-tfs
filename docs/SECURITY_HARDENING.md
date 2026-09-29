@@ -21,6 +21,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Added a strict `NetworkMessage::isReadPositionValid` check and routed packet-derived dispatcher tasks through guarded overloads. Truncated text, house-access and extended-opcode messages can no longer enqueue mutations before the packet-level disconnect check.
 - Fixed `Economy.inventory` traversal of sparse containers: empty slots returned by `Container:getItem` are skipped instead of dereferenced as nil, and the scan cap now rejects the first node beyond 10,000. Added `tests/economy-inventory-tests.lua` for sparse/nested containers and exact scan-limit behavior; the LuaJIT CI content job runs it.
 - Added `BoundedContentReader` to cap manifest response bytes during streaming, including when the HTTP response has no trustworthy `Content-Length`; the helper regression accepts exactly 64 KiB and rejects a 64 KiB + 1 byte response. The launcher now checks a local manifest's file size before deserializing it.
+- Initialize and release MySQL client thread-specific state in `DatabaseTasks::threadMain`; async queries use a database handle created on the dispatcher, so the worker must initialize its own client TLS. Initialization failure now stops that worker instead of calling MySQL APIs without the required thread state. Added a static source-invariant regression to the CI Python suite.
 
 Enable the isolated C++ regressions when configuring the server build, then build and run CTest:
 
@@ -38,7 +39,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity -v
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
@@ -55,6 +56,12 @@ The production confirmation flags only prevent accidental invocation; they are n
 - Compiled tests/status-query-rate-limiter-tests.cpp with Visual Studio 18 MSVC using strict warnings and ran it 20 consecutive times. Timeout boundaries, the 65,536-IP cache cap, the 256-entry cleanup budget, reclamation of 10,000 expired IPs across bounded batches, nonpositive timeouts and concurrent distinct/same-IP requests all passed. This tests the isolated cache helper; it does not build/link the server.
 - The new Economy inventory regression source is wired into the CI LuaJIT job, but could not be executed locally because neither Lua nor LuaJIT is installed. The GitHub workflow has not run from this checkout; local syntax parsing does not replace the behavioral regression run.
 - The launcher Release build passed with zero warnings/errors, and the standalone bounded-read regression passed locally. Its GitHub Windows job is source-configured but has not run from this checkout.
+
+## Follow-up verification — 2026-09-29 (database thread initialization)
+
+- The worker now initializes MySQL client thread-specific state before any async query and releases it before the worker exits. `Database::databaseLock` serializes calls that share the handle with the dispatcher during shutdown.
+- All 15 local Python regression tests passed, including the new source-invariant check; all three workflows passed `actionlint`; `git diff --check` passed.
+- This Windows environment has no server C++ build toolchain/dependencies or reachable staging database configured, so the changed C++ code and actual MySQL/MariaDB threaded behavior have not been compiled or exercised here. The source-level test only guards call ordering and cleanup placement.
 
 ## Deferred changes
 

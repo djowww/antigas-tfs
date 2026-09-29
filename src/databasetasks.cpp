@@ -33,6 +33,13 @@ void DatabaseTasks::start()
 
 void DatabaseTasks::threadMain()
 {
+	// This worker uses the shared MySQL handle, so initialize its client TLS first.
+	if (mysql_thread_init() != 0) {
+		std::cerr << "[DatabaseTasks] Failed to initialize MySQL thread state." << std::endl;
+		setState(THREAD_STATE_TERMINATED);
+		return;
+	}
+
 	std::unique_lock<std::mutex> taskLockUnique(taskLock, std::defer_lock);
 	while (getState() != THREAD_STATE_TERMINATED) {
 		taskLockUnique.lock();
@@ -49,6 +56,8 @@ void DatabaseTasks::threadMain()
 			taskLockUnique.unlock();
 		}
 	}
+
+	mysql_thread_end();
 }
 
 void DatabaseTasks::addTask(const std::string& query, const std::function<void(DBResult_ptr, bool)>& callback/* = nullptr*/, bool store/* = false*/)
