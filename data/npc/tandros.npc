@@ -18,10 +18,10 @@ VANISH,!           -> "Farewell."
 "bye"      -> "Farewell.", Idle
 "farewell" -> *
 "name"     -> "I am Tandros the magnificent."
-"job"      -> "I am selling items of magic power such as runes, wands, rods, life fluids and mana fluids."
+"job"      -> "I am selling items of magic power such as runes, life fluids and mana fluids."
 "sorcerer" -> "There is a sorcerer guild in Thais. Just go in the east of the town, it is easly to find."
 
-"offer"           -> "I'm selling life and mana fluids, runes, wands, rods and spellbooks."
+"offer"           -> "I'm selling life and mana fluids, runes and spellbooks."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *

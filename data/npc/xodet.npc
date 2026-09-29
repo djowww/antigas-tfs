@@ -21,7 +21,7 @@ VANISH,!           -> "Good bye."
 "job"      -> "I'm sorcerer and trade with all kinds of magic items."
 "sorcerer" -> "There is a sorcerer guild in Thais. Just go in the east of the town, it is easly to find."
 
-"offer"           -> "I'm selling life and mana fluids, runes, wands, rods and spellbooks."
+"offer"           -> "I'm selling life and mana fluids, runes and spellbooks."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
