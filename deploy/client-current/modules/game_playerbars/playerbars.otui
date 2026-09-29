@@ -1,135 +1,264 @@
 AntigasSidebarToggle < ButtonBox
   height: 22
-  width: 41
-  color: #c6c6c6
+  width: 22
+  image-source: /images/ui/button
+  image-clip: 0 0 22 23
+  image-border: 3
+  image-color: #ffffffbb
+  icon-color: #e8dfd0
+  icon-size: 14 14
   text-offset: 0 0
-  border-width: 0
+  border-width: 1
+  border-top-color: #8b7b62
+  border-left-color: #8b7b62
+  border-right-color: #30271c
+  border-bottom-color: #30271c
+  change-cursor-image: true
+  cursor: pointer
 
   $hover !disabled:
-    color: #ffffff
+    image-clip: 0 23 22 23
+    image-color: #ffffff
+    icon-color: #ffffff
+    border-top-color: #d1b475
+    border-left-color: #d1b475
+    border-right-color: #5b4326
+    border-bottom-color: #5b4326
 
   $checked:
+    image-clip: 0 46 22 23
     text-offset: 0 0
-    color: #f4d99a
+    icon-color: #ffe0a0
+    image-color: #e0ad55
     border-width: 1
-    border-top-color: #242424
-    border-left-color: #242424
-    border-right-color: #909090
-    border-bottom-color: #909090
+    border-top-color: #f4d27f
+    border-left-color: #f4d27f
+    border-right-color: #8e622c
+    border-bottom-color: #8e622c
 
   $checked hover:
-    image-clip: 0 46 22 23
-    border-right-color: #b0b0b0
-    border-bottom-color: #b0b0b0
+    icon-color: #fff5de
+    image-color: #f2cf82
+    border-top-color: #fff0b4
+    border-left-color: #fff0b4
 
   $pressed:
+    image-clip: 0 46 22 23
+    image-color: #b58c4b
+    icon-offset: 1 1
+    border-top-color: #30271c
+    border-left-color: #30271c
+    border-right-color: #9a7841
+    border-bottom-color: #9a7841
+
+  $disabled:
+    image-color: #ffffff33
+    icon-color: #817b71
+    color: #999187
+    change-cursor-image: false
+
+AntigasSidebarAction < Button
+  height: 22
+  width: 22
+  padding: 0
+  image-source: /images/ui/button
+  image-clip: 0 0 22 23
+  image-border: 3
+  image-color: #ffffffbb
+  color: #ded2bd
+  icon-color: #e8dfd0
+  icon-size: 14 14
+  text-align: center
+  text-offset: 0 0
+  border-width: 1
+  border-top-color: #8b7b62
+  border-left-color: #8b7b62
+  border-right-color: #30271c
+  border-bottom-color: #30271c
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !disabled:
+    image-clip: 0 23 22 23
+    image-color: #ffffff
+    color: #ffffff
+    icon-color: #ffffff
+    border-top-color: #d1b475
+    border-left-color: #d1b475
+    border-right-color: #5b4326
+    border-bottom-color: #5b4326
+
+  $on:
+    image-clip: 0 46 22 23
+    image-color: #e0ad55
+    icon-color: #ffe0a0
+    border-top-color: #f4d27f
+    border-left-color: #f4d27f
+    border-right-color: #8e622c
+    border-bottom-color: #8e622c
+
+  $on hover:
+    image-color: #f2cf82
+    icon-color: #fff5de
+    border-top-color: #fff0b4
+    border-left-color: #fff0b4
+
+  $pressed:
+    image-clip: 0 46 22 23
+    image-color: #b58c4b
+    icon-offset: 1 1
     text-offset: 1 1
+    border-top-color: #30271c
+    border-left-color: #30271c
+    border-right-color: #9a7841
+    border-bottom-color: #9a7841
+
+  $disabled:
+    image-color: #ffffff33
+    color: #8b857b
+    icon-color: #817b71
+    change-cursor-image: false
 
 SpecialMiniWindow
-
   id: playerBarsWindow
-  height: 108
+  height: 30
+  image-border-top: 4
   text:
   @onClose: modules.game_playerbars.onMiniWindowClose()
   @onGeometryChange: modules.game_playerbars.resizeButtons()
   &save: true
-  &minimizedHeight: 28
+  &minimizedHeight: 18
   @onMinimize: modules.game_playerbars.updateMenuToggle()
   @onMaximize: modules.game_playerbars.updateMenuToggle()
 
-  Button
+  UIButton
     id: menuToggle
     anchors.top: parent.top
-    anchors.left: parent.left
     anchors.right: parent.right
-    margin-top: 2
-    margin-left: 6
-    margin-right: 6
-    height: 24
-    text: Menu [-]
-    text-align: center
-    color: #e2d4b2
-    tooltip: Minimize menu
+    margin-top: 7
+    margin-right: 12
+    size: 14 14
+    image-source: /images/ui/miniwindow_buttons
+    image-clip: 0 0 14 14
+    change-cursor-image: true
+    cursor: pointer
+    tooltip: Minimizar menu
     @onClick: modules.game_playerbars.toggleMenu()
 
-    $hover !disabled:
-      color: #ffffff
+    $hover:
+      image-clip: 0 14 14 14
+
+    $pressed:
+      image-clip: 0 28 14 14
+
+    $on:
+      image-clip: 14 0 14 14
+
+    $on hover:
+      image-clip: 14 14 14 14
+
+    $on pressed:
+      image-clip: 14 28 14 14
+
+    $disabled:
+      image-color: #ffffff55
+
+    UIWidget
+      id: menuUnreadIndicator
+      anchors.top: parent.top
+      anchors.right: parent.right
+      size: 3 3
+      background-color: #ffd36a
+      phantom: true
+      visible: false
 
   MiniWindowContents
     anchors.right: parent.right
     margin-left: 0
     margin-right: 0
-    margin-top: 28
-    margin-bottom: 0
+    margin-top: 4
+    margin-bottom: 4
 
     AntigasSidebarToggle
       id: SkillsButton
-      text: Skills
       anchors.left: parent.left
       anchors.top: parent.top
-      margin-top: 5
-      tooltip: Show or hide your character skills.
+      margin-top: 0
+      icon-source: /images/topbuttons/skills
+      tooltip: Habilidades.
       @onCheckChange: modules.game_playerbars.togglePanel('skills')
 
     AntigasSidebarToggle
       id: BattleButton
       anchors.left: SkillsButton.right
       anchors.top: SkillsButton.top
-      text: Battle
-      tooltip: Show or hide the battle list (Ctrl+B).
+      icon-source: /images/topbuttons/battle
+      tooltip: Lista de batalha (Ctrl+B).
       @onCheckChange: modules.game_playerbars.togglePanel('battle')
 
     AntigasSidebarToggle
       id: VipButton
       anchors.left: BattleButton.right
-      anchors.top: BattleButton.top
-      text: VIP
-      tooltip: Show or hide your VIP list (Ctrl+P).
+      anchors.top: SkillsButton.top
+      icon-source: /images/topbuttons/viplist
+      tooltip: Lista VIP (Ctrl+P).
       @onCheckChange: modules.game_playerbars.togglePanel('vip')
 
     AntigasSidebarToggle
       id: huntButton
       anchors.left: VipButton.right
-      anchors.top: VipButton.top
-      text: Hunt
-      tooltip: Hunt session: experience, collected loot and consumed supplies.
+      anchors.top: SkillsButton.top
+      icon-source: /images/topbuttons/huntinganalyzer
+      tooltip: Estatísticas de caça e loot.
       @onCheckChange: modules.game_playerbars.togglePanel('hunt')
 
-    Button
+    AntigasSidebarAction
       id: marketButton
-      anchors.left: SkillsButton.left
-      anchors.right: BattleButton.right
-      anchors.top: SkillsButton.bottom
-      height: 22
-      padding: 0
-      text: Market
-      text-align: center
-      color: #dedede
-      tooltip: Open the Market catalog or bring it to the front.
+      anchors.left: huntButton.right
+      anchors.top: huntButton.top
+      tooltip: Mercado.
       @onClick: modules.game_market_antigas.toggle()
 
-    Button
+      UIWidget
+        anchors.centerIn: parent
+        size: 14 14
+        image-source: /images/game/slots/coins
+        phantom: true
+
+    AntigasSidebarAction
       id: questButton
-      anchors.left: VipButton.left
-      anchors.right: huntButton.right
-      anchors.top: marketButton.top
-      height: 22
-      padding: 0
-      text: Quests
-      text-align: center
-      color: #dedede
-      tooltip: Quest Log: missions and recorded progress (Ctrl+J).
+      anchors.left: marketButton.right
+      anchors.top: huntButton.top
+      icon-source: /images/topbuttons/questlog
+      tooltip: Diário de missões (Ctrl+J).
       @onClick: modules.game_questlog.toggle()
 
-    Button
+    AntigasSidebarAction
       id: achievementsButton
-      anchors.left: SkillsButton.left
-      anchors.right: huntButton.right
-      anchors.top: marketButton.bottom
-      height: 22
-      padding: 0
-      text: Achievements
-      text-align: center
-      color: #dedede
-      tooltip: View your completed and upcoming achievements.
+      anchors.left: questButton.right
+      anchors.top: SkillsButton.top
+      icon-source: /images/game/viplist/icons
+      icon-clip: 60 0 12 12
+      icon-rect: 5 5 12 12
+      tooltip: Conquistas.
       @onClick: modules.game_achievements.toggle()
+
+      UIWidget
+        id: achievementsUnreadIndicator
+        anchors.top: parent.top
+        anchors.right: parent.right
+        margin-top: 2
+        margin-right: 2
+        size: 3 3
+        background-color: #ffd36a
+        phantom: true
+        visible: false
+
+  UIWidget
+    id: menuSeparator
+    anchors.verticalCenter: menuToggle.verticalCenter
+    anchors.right: menuToggle.left
+    margin-right: 4
+    size: 1 12
+    background-color: #78664a
+    phantom: true

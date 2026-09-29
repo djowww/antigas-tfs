@@ -5,12 +5,19 @@ vipButton = nil
 logoutButton = nil
 huntButton = nil
 marketButton = nil
+questButton = nil
 achievementsButton = nil
 
 local bindings = {}
 local syncing = false
 local achievementUnread = 0
 local targets = {skills = 'game_skills', battle = 'game_battle', vip = 'game_viplist', hunt = 'game_lootstatistics'}
+
+function setActionSelected(name, selected)
+  local buttons = {market = marketButton, quest = questButton, achievements = achievementsButton}
+  local button = buttons[name]
+  if button then button:setOn(selected == true) end
+end
 
 function syncPanel(name)
   local entry = bindings[name]
@@ -54,24 +61,31 @@ function togglePanel(name)
 end
 
 function resizeButtons()
-  if not playerBarsWindow or not marketButton or not achievementsButton then return end
-  local buttons = {skillsButton, battleButton, vipButton, huntButton}
+  if not playerBarsWindow or not skillsButton or not questButton or not achievementsButton then return end
+  local buttons = {skillsButton, battleButton, vipButton, huntButton, marketButton, questButton, achievementsButton}
+  local toggle = playerBarsWindow:getChildById('menuToggle')
+  local separator = playerBarsWindow:getChildById('menuSeparator')
+  if not toggle or not separator then return end
   local width = playerBarsWindow:getWidth()
-  -- The UI uses integer pixels. An odd container needs an odd gap to keep
-  -- four equal columns AND identical outer margins; otherwise prefer 2 px.
-  local gap = 2 + width % 2
-  local columnWidth = math.floor((width - 2 * 6 - 3 * gap) / 4)
-  local gridWidth = 4 * columnWidth + 3 * gap
-  for i, button in ipairs(buttons) do
-    button:setWidth(columnWidth)
-    -- Right/bottom sibling anchors refer to the last pixel, not the next one.
-    button:setMarginLeft(i == 1 and (width - gridWidth) / 2 or gap + 1)
+  local gap = 1
+  -- Reserve room for the divider and minimize control before sizing the icons.
+  local fixedWidth = (#buttons - 1) * (gap + 1) + 3 + separator:getWidth()
+    + separator:getMarginRight() + toggle:getWidth()
+  local buttonWidth = math.max(16, math.min(22, math.floor((width - fixedWidth) / #buttons)))
+  local toolbarWidth = #buttons * buttonWidth + fixedWidth
+  local leftMargin = math.max(0, math.floor((width - toolbarWidth) / 2))
+  local rightMargin = math.max(0, width - toolbarWidth - leftMargin)
+  for index, button in ipairs(buttons) do
+    button:setWidth(buttonWidth)
+    button:setHeight(buttonWidth)
+    -- Sibling right anchors refer to the last pixel, not the next one.
+    button:setMarginLeft(index == 1 and leftMargin or gap + 1)
   end
-  -- Service buttons span the corresponding pair via sibling anchors in OTUI.
-  marketButton:setMarginTop(gap + 1)
-  achievementsButton:setMarginTop(gap + 1)
+  toggle:setMarginRight(rightMargin)
   local contents = playerBarsWindow:getChildById('contentsPanel')
-  local height = contents:getMarginTop() + contents:getMarginBottom() + 2 * 5 + 3 * skillsButton:getHeight() + 2 * gap
+  local height = contents:getMarginTop() + contents:getMarginBottom() + skillsButton:getHeight()
+  local visibleHeight = playerBarsWindow:isOn() and playerBarsWindow.minimizedHeight or height
+  toggle:setMarginTop(math.floor((visibleHeight - toggle:getHeight()) / 2))
   -- Preserve UIMiniWindow's collapsed title-bar height during geometry changes.
   if not playerBarsWindow:isOn() and contents:isVisible() and playerBarsWindow:getHeight() ~= height then
     playerBarsWindow:setHeight(height)
@@ -92,6 +106,7 @@ function init()
 	vipButton = playerBarsWindow:recursiveGetChildById('VipButton')
 	huntButton = playerBarsWindow:recursiveGetChildById('huntButton')
   marketButton = playerBarsWindow:recursiveGetChildById('marketButton')
+  questButton = playerBarsWindow:recursiveGetChildById('questButton')
   achievementsButton = playerBarsWindow:recursiveGetChildById('achievementsButton')
 
     -- Anti-steal code
@@ -113,7 +128,7 @@ function terminate()
 	})
 
 	playerBarsWindow:destroy()
-  playerBarsWindow, skillsButton, battleButton, vipButton, huntButton, marketButton, achievementsButton = nil, nil, nil, nil, nil, nil, nil
+  playerBarsWindow, skillsButton, battleButton, vipButton, huntButton, marketButton, questButton, achievementsButton = nil, nil, nil, nil, nil, nil, nil, nil
 end
 
 function updateMenuToggle()
@@ -121,10 +136,12 @@ function updateMenuToggle()
   local button = playerBarsWindow:getChildById('menuToggle')
   if not button then return end
   local collapsed = playerBarsWindow:isOn()
-  local badge = achievementUnread > 0 and (' [' .. achievementUnread .. ']') or ''
-  button:setText('Menu' .. badge .. (collapsed and ' [+]' or ' [-]'))
-  button:setTooltip(collapsed and 'Expand menu' or 'Minimize menu')
-  button:setColor(achievementUnread > 0 and '#ffd36a' or '#e2d4b2')
+  local unreadHint = achievementUnread > 0 and (' (' .. achievementUnread .. ' '
+    .. (achievementUnread == 1 and 'nova' or 'novas') .. ')') or ''
+  button:setOn(collapsed)
+  button:setTooltip((collapsed and 'Expandir barra' or 'Recolher barra') .. unreadHint)
+  button:getChildById('menuUnreadIndicator'):setVisible(achievementUnread > 0)
+  resizeButtons()
 end
 
 function toggleMenu()
@@ -136,8 +153,10 @@ end
 function setAchievementsUnread(count)
   achievementUnread = math.max(0, tonumber(count) or 0)
   if achievementsButton then
-    achievementsButton:setText(achievementUnread > 0 and ('Achievements  [' .. achievementUnread .. ']') or 'Achievements')
-    achievementsButton:setColor(achievementUnread > 0 and '#ffd36a' or '#c6c6c6')
+    local unreadHint = achievementUnread > 0 and (': ' .. achievementUnread
+      .. (achievementUnread == 1 and ' nova' or ' novas')) or ''
+    achievementsButton:setTooltip('Conquistas' .. unreadHint)
+    achievementsButton:getChildById('achievementsUnreadIndicator'):setVisible(achievementUnread > 0)
   end
   updateMenuToggle()
 end

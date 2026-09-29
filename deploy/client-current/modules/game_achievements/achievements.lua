@@ -7,6 +7,13 @@ local readyCount = 0
 
 local function cancel(event) if event then removeEvent(event) end end
 
+local function syncPlayerBarSelection()
+  local playerBars = modules.game_playerbars
+  if playerBars and playerBars.setActionSelected then
+    playerBars.setActionSelected('achievements', window and window:isVisible())
+  end
+end
+
 local function send(action)
   if not g_game.isOnline() or not g_game.getFeature(GameExtendedOpcode) then return false end
   local protocol = g_game.getProtocolGame()
@@ -216,6 +223,8 @@ end
 
 function init()
   window=g_ui.displayUI('achievements'); window:hide()
+  connect(window, {onVisibilityChange=syncPlayerBarSelection})
+  syncPlayerBarSelection()
   for _,option in ipairs({{'Next objectives','next'},{'All objectives','all'},{'In progress','active'},{'Completed','completed'},{'Ready to claim','ready'}}) do
     window.filter:addOption(option[1],option[2])
   end
@@ -231,6 +240,7 @@ end
 function terminate()
   onGameEnd()
   disconnect(g_game,{onGameStart=onGameStart,onGameEnd=onGameEnd})
+  if window then disconnect(window, {onVisibilityChange=syncPlayerBarSelection}) end
   ProtocolGame.unregisterExtendedOpcode(OPCODE)
   if window then window:destroy() end
   window=nil
