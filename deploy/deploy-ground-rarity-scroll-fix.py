@@ -142,6 +142,10 @@ def install():
     note('hotfix_start_requested', client_version=46)
 
 
-if len(sys.argv) != 2 or sys.argv[1] not in ('backup', 'install'):
-    raise SystemExit('Select backup or install')
-{'backup': backup, 'install': install}[sys.argv[1]]()
+if __name__ == '__main__':
+    phases = {'backup': backup, 'install': install}
+    if len(sys.argv) != 3 or sys.argv[2] != '--confirm-production-deploy':
+        raise SystemExit('Legacy production script: pass a phase and --confirm-production-deploy explicitly')
+    if sys.argv[1] not in phases:
+        raise SystemExit('Select backup or install')
+    phases[sys.argv[1]]()

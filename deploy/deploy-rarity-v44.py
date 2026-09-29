@@ -134,9 +134,12 @@ def website():
     atomic(PREP / 'client-release.json', WEB / 'client-release.json')
     note('client_and_download_published', version=44, sha256=CLIENT_HASH)
 
-if sys.argv[1:] == ['server']:
-    server()
-elif sys.argv[1:] == ['website']:
-    website()
-else:
-    raise SystemExit('Select server or website explicitly')
+if __name__ == '__main__':
+    if len(sys.argv) != 3 or sys.argv[2] != '--confirm-production-deploy':
+        raise SystemExit('Legacy production script: pass a phase and --confirm-production-deploy explicitly')
+    if sys.argv[1] == 'server':
+        server()
+    elif sys.argv[1] == 'website':
+        website()
+    else:
+        raise SystemExit('Select server or website')
