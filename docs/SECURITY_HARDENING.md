@@ -14,6 +14,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Added unit/regression coverage for staging target validation and recovery behavior.
 - Added `.github/workflows/security-build.yml` with release, release-hardened, ASan/UBSan, and separate TSan builds, plus Lua/Python and Windows launcher checks; added C++/C# CodeQL and full-history Gitleaks workflows and monthly Dependabot checks. Third-party Actions are pinned to full SHAs.
 - Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. LuaJIT is unavailable locally; the existing CI syntax step remains unrun on GitHub.
+- Updated the Lua syntax workflow to treat data/globalevents/lib/lamp_states.lua as persisted table data: it prefixes the file with return in a temporary path and compiles the wrapper without executing its contents.
 
 ## How to run safe regression tests
 
@@ -29,10 +30,10 @@ The production confirmation flags only prevent accidental invocation; they are n
 
 ## Follow-up verification — 2026-09-29
 
-- `actionlint` 1.7.12 passed against all four files in `.github/workflows/`. Its Windows AMD64 release archive and the checksum file were verified against the checksum published on the official release page.
+- `actionlint` 1.7.12 passed against all three workflow files in `.github/workflows/`. Its Windows AMD64 release archive and the checksum file were verified against the checksum published on the official release page.
 - Gitleaks 8.30.1 reported zero findings in both the complete local Git history and current working tree, with nested archive depth 2. Its Windows x32 release archive and checksum file were verified against the official release checksum. This is local repository evidence only; it does not inspect GitHub-side secrets or other clones.
 - Re-ran the local Python regression suite using the workspace-bundled Python runtime: all 14 tests passed.
-- After the Market inventory change, the same 14 Python tests passed again, all four workflows passed `actionlint`, the current-tree Gitleaks scan reported zero findings, and a focused source-invariant check confirmed iterative traversal, the cap, and fail-closed callers. These checks do not parse or execute Lua; LuaJIT validation remains pending.
+- After the Market inventory change, the same 14 Python tests passed again, all three workflows passed `actionlint`, the current-tree Gitleaks scan reported zero findings, and a focused source-invariant check confirmed iterative traversal, the cap, and fail-closed callers. These checks do not parse or execute Lua; LuaJIT validation remains pending.
 - `git diff --check` passed. No C++ build, Lua runtime validation, CI-hosted workflow, production or staging test was available in this environment.
 
 ## Deferred changes
