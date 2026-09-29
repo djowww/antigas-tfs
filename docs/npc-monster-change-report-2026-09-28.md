@@ -32,4 +32,4 @@ As linhas de loot da referência foram incorporadas com seus IDs, quantidades m�
 
 ## Validação
 
-Os XMLs finais foram analisados pelo parser XML. A conferência confirmou os itens e valores de loot da referência nos 158 pares, preservou os drops exclusivos preexistentes e manteve a estrutura XML fora dos elementos `<item>` de loot. `git diff --check` não apontou erros. Não foi feito teste de inicialização do servidor nesta etapa.
+Os XMLs finais foram analisados pelo parser XML. A conferência confirmou os itens e valores de loot da referência nos 158 pares, preservou os drops exclusivos preexistentes e manteve a estrutura XML fora dos elementos `<item>` de loot. `git diff --check` não apontou erros. Nos NPCs, a validação confirmou as 39 substituições de fala elegíveis nos 13 arquivos, sem diferenças restantes nos gatilhos únicos comparáveis. Antes da publicação, os hashes dos 13 NPCs e dos dois arquivos do site foram conferidos; os PHPs passaram pela verificação de sintaxe. O servidor foi reiniciado de forma controlada, voltou a anunciar-se online e as portas 7173 e 7174 ficaram abertas. Não foi feito teste de gameplay com clientes conectados.
