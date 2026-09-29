@@ -57,6 +57,12 @@ class NetworkMessage
 		}
 
 		uint8_t getPreviousByte() {
+			if (info.position <= INITIAL_BUFFER_POSITION || info.position > info.length + 8
+				|| info.position >= NETWORKMESSAGE_MAXSIZE) {
+				info.overrun = true;
+				return 0;
+			}
+
 			return buffer[--info.position];
 		}
 
@@ -77,6 +83,11 @@ class NetworkMessage
 
 		// skips count unknown/unused bytes in an incoming message
 		void skipBytes(int16_t count) {
+			if (count < 0 || !canRead(count)) {
+				info.overrun = true;
+				return;
+			}
+
 			info.position += count;
 		}
 
