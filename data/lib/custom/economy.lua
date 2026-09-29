@@ -24,13 +24,16 @@ function Economy.inventory(player)
         if item then todo[#todo+1]={item=item,parent=player,slot=slot} end
     end
     while #todo>0 do
-        if #out>10000 then return nil end
+        if #out>=10000 then return nil end
         local e=table.remove(todo)
         local uid=e.item:getUniqueId()
         if not seen[uid] then
             seen[uid]=true;out[#out+1]=e
             if e.item:isContainer() then
-                for i=0,e.item:getSize()-1 do todo[#todo+1]={item=e.item:getItem(i),parent=e.item} end
+                for i=0,e.item:getSize()-1 do
+                    local child=e.item:getItem(i)
+                    if child then todo[#todo+1]={item=child,parent=e.item} end
+                end
             end
         end
     end
