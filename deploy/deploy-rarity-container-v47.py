@@ -255,6 +255,8 @@ def website():
 if __name__ == '__main__':
     import sys
     phases = {'backup': backup, 'install': install, 'website': website}
-    if len(sys.argv) != 2 or sys.argv[1] not in phases:
+    if len(sys.argv) != 3 or sys.argv[2] != '--confirm-production-deploy':
+        raise SystemExit('Legacy production script: pass a phase and --confirm-production-deploy explicitly')
+    if sys.argv[1] not in phases:
         raise SystemExit('Select exactly one phase: backup, install, or website')
     phases[sys.argv[1]]()

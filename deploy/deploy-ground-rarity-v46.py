@@ -160,6 +160,10 @@ def website():
     note('client_and_download_published', version=46, sha256=digest(PREP / CLIENT))
 
 
-if len(sys.argv) != 2 or sys.argv[1] not in ('backup', 'install', 'website'):
-    raise SystemExit('Select backup, install or website explicitly')
-{'backup': backup, 'install': install, 'website': website}[sys.argv[1]]()
+if __name__ == '__main__':
+    phases = {'backup': backup, 'install': install, 'website': website}
+    if len(sys.argv) != 3 or sys.argv[2] != '--confirm-production-deploy':
+        raise SystemExit('Legacy production script: pass a phase and --confirm-production-deploy explicitly')
+    if sys.argv[1] not in phases:
+        raise SystemExit('Select backup, install or website')
+    phases[sys.argv[1]]()

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ ${1:-} != "--confirm-production-change" || $# -ne 1 ]]; then
+  echo "This script changes the production Nginx configuration. Re-run with --confirm-production-change." >&2
+  exit 2
+fi
+
 if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
   echo "Run this script as root." >&2
   exit 1
