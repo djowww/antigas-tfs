@@ -104,6 +104,9 @@ jobs:
             fi
           done < <(git ls-files -z -- '*.lua')
 
+      - name: Run Economy inventory regression tests
+        run: luajit tests/economy-inventory-tests.lua
+
       - name: Run safe Python regression tests
         env:
           PYTHONPATH: tests
