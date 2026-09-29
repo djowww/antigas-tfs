@@ -1,6 +1,6 @@
 -- Market v2: inventory, bank, offers and deliveries commit together.
 local OPCODE, GOLD, PLATINUM, CRYSTAL, ANTIGAS = 202,3031,3035,3043,5130
-local MAX_AMOUNT, MAX_TOTAL, MAX_SAFE, PAGE_SIZE = 10000,100000000,9007199254740991,40
+local MAX_AMOUNT, MAX_TOTAL, MAX_SAFE, PAGE_SIZE, MAX_INVENTORY_SCAN = 10000,100000000,9007199254740991,40,10000
 local types, canonical, catalog, limits = {},{},nil,{}
 local lastLimitCleanup = 0
 local CATEGORIES = {
@@ -139,16 +139,29 @@ local function clean(item)
 end
 local function inventory(player)
  local entries,summary,seen={},{},{}
- local function visit(item,parent,slot)
-  if not item then return end
-  -- Equipment slots are not sellable inventory. Only recurse into the backpack.
-  if parent==player and slot~=CONST_SLOT_BACKPACK then return end
+ local pending={}
+ local backpack=player:getSlotItem(CONST_SLOT_BACKPACK)
+ if backpack then pending[1]={item=backpack,parent=player,slot=CONST_SLOT_BACKPACK} end
+ local scanned=0
+ while #pending>0 do
+  local current=pending[#pending]
+  pending[#pending]=nil
+  scanned=scanned+1
+  if scanned>MAX_INVENTORY_SCAN then return nil end
+  local item,parent,slot=current.item,current.parent,current.slot
   local id,t=item:getId(),ItemType(item:getId())
   if t:isContainer() then
    local uid=item:getUniqueId()
-   if seen[uid] then return end
-   seen[uid]=true
-   for i=0,item:getSize()-1 do visit(item:getItem(i),item,nil) end
+   if not seen[uid] then
+    seen[uid]=true
+    for i=item:getSize()-1,0,-1 do
+     local child=item:getItem(i)
+     if child then
+      if scanned+#pending>=MAX_INVENTORY_SCAN then return nil end
+      pending[#pending+1]={item=child,parent=item}
+     end
+    end
+   end
   elseif clean(item) then
    local subtype=not t:isStackable() and t:getCharges()>0 and item:getCharges() or -1
    local n=t:isStackable() and item:getCount() or 1
@@ -157,7 +170,6 @@ local function inventory(player)
    summary[key]=(summary[key] or 0)+n
   end
  end
- for slot=1,10 do visit(player:getSlotItem(slot),player,slot) end
  return entries,summary
 end
 local function balances(player,summary)
@@ -166,6 +178,7 @@ local function balances(player,summary)
 end
 local function sendBalances(player)
  local _,summary=inventory(player)
+ if not summary then error("Market inventory scan limit exceeded") end
  local data=balances(player,summary)
  local r=checkedQuery('SELECT COUNT(*) AS n,COALESCE(SUM(IF(kind=0,item_count,0)),0) AS items,COALESCE(SUM(IF(kind=1 AND currency_id=3031,currency_amount,0)),0) AS gold,COALESCE(SUM(IF(kind=1 AND currency_id=5130,currency_amount,0)),0) AS antigas FROM market_claims WHERE player_guid='..player:getGuid())
  if r then
@@ -200,6 +213,7 @@ local function sendCatalog(player,data)
   table.sort(catalog,function(a,b) if a.name:lower()==b.name:lower() then return a.id<b.id end return a.name:lower()<b.name:lower() end)
  end
  local _,summary=inventory(player)
+ if not summary then error("Market inventory scan limit exceeded") end
  local query=type(data.search)=="string" and data.search:sub(1,48):lower() or ""
  local cat=validCategories[data.category] and data.category or "all"
  local page,matched,items=pageOf(data),0,{}
@@ -262,7 +276,7 @@ local function context(player)
  end
  function ctx:takeItems(id,subtype,n)
   local entries,summary=inventory(self.player)
-  if (summary[id..":"..subtype] or 0)<n then return false end
+  if not entries or not summary or (summary[id..":"..subtype] or 0)<n then return false end
   for _,e in ipairs(entries) do
    if e.id==id and e.subtype==subtype and n>0 then
     local take=math.min(n,e.count)
@@ -276,6 +290,7 @@ local function context(player)
   if currency==ANTIGAS then return self:takeItems(ANTIGAS,-1,amount) end
   if currency~=GOLD then return false end
   local entries,summary=inventory(self.player)
+  if not entries or not summary then return false end
   local balance=balances(self.player,summary)
   if not integer(balance.bank,0,MAX_SAFE) or balance.bank+balance.wallet<amount then return false end
   -- Bank first, then physical denominations. Change is deposited into the bank.
