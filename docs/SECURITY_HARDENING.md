@@ -26,6 +26,13 @@ The mutating probes additionally support local self-tests where available. Never
 
 The production confirmation flags only prevent accidental invocation; they are not authorization, do not validate backups, and do not make an old release safe to deploy. No flag was supplied during this audit. New GitHub workflows are source-reviewed only; they need a GitHub run, and CodeQL availability depends on repository visibility/plan and settings.
 
+## Follow-up verification — 2026-09-29
+
+- `actionlint` 1.7.12 passed against all four files in `.github/workflows/`. Its Windows AMD64 release archive and the checksum file were verified against the checksum published on the official release page.
+- Gitleaks 8.30.1 reported zero findings in both the complete local Git history and current working tree, with nested archive depth 2. Its Windows x32 release archive and checksum file were verified against the official release checksum. This is local repository evidence only; it does not inspect GitHub-side secrets or other clones.
+- Re-ran the local Python regression suite using the workspace-bundled Python runtime: all 14 tests passed.
+- `git diff --check` passed. No C++ build, Lua runtime validation, CI-hosted workflow, production or staging test was available in this environment.
+
 ## Deferred changes
 
 No server protocol, gameplay, login format, database schema, production configuration, firewall, TLS, account hash, or client behavior was changed. The Lua watchdog change is diagnostic/performance code and still needs LuaJIT staging validation. Connection-cap values require traffic measurements; password hashing needs a compatibility plan; C++ task exception isolation needs semantic review. Those issues and external validation gaps are tracked in [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md).
