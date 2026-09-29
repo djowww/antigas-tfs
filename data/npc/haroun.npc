@@ -86,7 +86,7 @@ VANISH                                    -> "Farewell, human."
 "weapon"          -> "I'm afraid I do not trade with weapons or armour. Nah'bob only deals with magical equipment."
 "armor"           -> *
 "armour"          -> *
-"wares"           -> "I only deal with magical equipment. Our range of goods include amulets, rings and some special items."
+"wares"           -> "I only deal with magical equipment. Our range of goods include amulets, rings, wands and some special items."
 "offer"           -> *
 "goods"           -> *
 "equipment"       -> *
