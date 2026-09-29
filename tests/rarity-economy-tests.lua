@@ -140,6 +140,32 @@ assert(#entries == 1 and entries[1].item == plain, 'Market inventory must select
 assert(summary[SWORD .. ':-1'] == 1, 'Market sell count must exclude rare and refined copies')
 assert(not rare.removed and rare.parent == owner.bag, 'Market reads must preserve rare inventory')
 
+-- A very deep container chain must use bounded iterative traversal, not Lua recursion.
+local deepOwner = makePlayer({})
+local parent = deepOwner.bag
+local deepContainerMethods = {
+    getId = function(self) return self.id end,
+    getUniqueId = function(self) return self.uid end,
+    getSize = function(self) return #self.children end,
+    getItem = function(self, index) return self.children[index + 1] end
+}
+local deepContainerMetatable = {__index = deepContainerMethods}
+for index = 1, 9998 do
+    local child = setmetatable({id = BAG, uid = 100000 + index, children = {}}, deepContainerMetatable)
+    parent.children[#parent.children + 1] = child
+    parent = child
+end
+local deepLeaf = makeItem(SWORD)
+parent.children[#parent.children + 1] = deepLeaf
+local deepEntries, deepSummary = inventory(deepOwner)
+assert(deepEntries and #deepEntries == 1 and deepEntries[1].item == deepLeaf,
+    'Market must traverse a 10,000-item nested inventory iteratively')
+assert(deepSummary[SWORD .. ':-1'] == 1, 'deep inventory summary must include the leaf item')
+
+local extraLeaf = makeItem(SWORD)
+parent.children[#parent.children + 1] = extraLeaf
+assert(inventory(deepOwner) == nil, 'Market must reject nested inventories above its 10,000-item scan limit')
+
 dofile('data/lib/custom/economy.lua')
 dofile('data/actions/scripts/refine.lua')
 local originalRandom = math.random
@@ -189,4 +215,4 @@ assert(not Economy.run(owner, function(ctx) return ctx:take(rare, 1) and false e
 assert(#owner.bag.children == 1 and owner.bag.children[1]:getRarityInfo() == 5,
     'rollback of a removed rarity item must restore its clone with instance metadata')
 math.random = originalRandom
-print('PASS: rarity Market exclusion, repeated refinement, downgrade, partial/full rollback and metadata preservation')
+print('PASS: nested Market scan boundary, rarity exclusion, repeated refinement, downgrade, rollback and metadata preservation')
