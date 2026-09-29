@@ -691,12 +691,10 @@ int main()
 		require(nativeRing->getID() == nativeRingId && nativeRing->hasRarity(), "native unequip transformation must preserve rarity");
 		require(!player.isItemAbilityEnabled(CONST_SLOT_RING) && !player.isItemRarityEnabled(CONST_SLOT_RING), "native and rarity state must clear on unequip");
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill && player.getMagicLevel() == magicBase, "native and magic rarity bonuses must both remove exactly");
-		bag->removeThing(nativeRing, nativeRing->getItemCount());
-		delete nativeRing;
 		lootTests();
 		groundRarityTests();
 		groundRarityMovementTests();
-		g_game.cleanup();
+		g_game.cleanup(true);
 		std::cout << "PASS: " << checks << " rarity core checks (production C++, isolated from live data)." << std::endl;
 		return 0;
 	} catch (const std::exception& error) {
