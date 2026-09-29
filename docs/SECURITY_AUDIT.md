@@ -1,7 +1,7 @@
 # Antigas security audit
 
-**Snapshot:** 2026-09-29  
-**Branch:** `security-hardening`  
+**Snapshot:** 2026-09-29
+**Branch:** `security-hardening`
 **Method:** source/configuration review, repository/history secret-pattern scan, static parsing, unit tests, and local .NET builds. No production connection, deployment, destructive probe, or public attack simulation was performed.
 
 **Finding totals:** 0 confirmed P0; 0 confirmed unconditional P1; 1 conditional P1; 4 open P2; 1 open P3. Fixed items are listed separately and are not counted as open findings. These are findings from source review, not a claim that the live server has been penetration-tested.
