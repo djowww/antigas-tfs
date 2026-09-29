@@ -24,6 +24,7 @@
 #include "protocolgame.h"
 #include "loot.h"
 #include "groundrarity.h"
+#include "walkpathparser.h"
 
 #include "outputmessage.h"
 
@@ -2463,24 +2464,9 @@ void ProtocolGame::parseNewWalking(NetworkMessage& msg)
 	uint8_t flags = msg.getByte(); // 0x01 - prewalk, 0x02 - autowalk
 
 	uint16_t numdirs = msg.get<uint16_t>();
-	if (numdirs == 0 || numdirs > 4096) {
-		return;
-	}
-
 	std::list<Direction> path;
-	for (uint16_t i = 0; i < numdirs; ++i) {
-		uint8_t rawdir = msg.getByte();
-		switch (rawdir) {
-		case 1: path.push_back(DIRECTION_EAST); break;
-		case 2: path.push_back(DIRECTION_NORTHEAST); break;
-		case 3: path.push_back(DIRECTION_NORTH); break;
-		case 4: path.push_back(DIRECTION_NORTHWEST); break;
-		case 5: path.push_back(DIRECTION_WEST); break;
-		case 6: path.push_back(DIRECTION_SOUTHWEST); break;
-		case 7: path.push_back(DIRECTION_SOUTH); break;
-		case 8: path.push_back(DIRECTION_SOUTHEAST); break;
-		default: break;
-		}
+	if (!parseNewWalkingPath(msg, numdirs, path)) {
+		return;
 	}
 
 
@@ -2488,6 +2474,10 @@ void ProtocolGame::parseNewWalking(NetworkMessage& msg)
 
 	auto self(getThis());
 	g_dispatcher.addTask(createTask([self, playerWalkId, predictiveWalkId, playerId, playerPosition, flags, path] {
+		if (path.empty()) {
+			return;
+		}
+
 		bool preWalk = flags & 0x01;
 		Position destination = getNextPosition(*(path.begin()), playerPosition);
 		if (preWalk && predictiveWalkId < self->walkMatrix.get(destination)) {
