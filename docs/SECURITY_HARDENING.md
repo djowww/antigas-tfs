@@ -20,6 +20,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Hardened OTCv8 new-walking parsing against truncated and all-invalid direction lists before scheduling game work. The dispatcher callback also checks the list before reading its first direction; added a dedicated CMake regression target.
 - Added a strict `NetworkMessage::isReadPositionValid` check and routed packet-derived dispatcher tasks through guarded overloads. Truncated text, house-access and extended-opcode messages can no longer enqueue mutations before the packet-level disconnect check.
 - Fixed `Economy.inventory` traversal of sparse containers: empty slots returned by `Container:getItem` are skipped instead of dereferenced as nil, and the scan cap now rejects the first node beyond 10,000. Added `tests/economy-inventory-tests.lua` for sparse/nested containers and exact scan-limit behavior; the LuaJIT CI content job runs it.
+- Added `BoundedContentReader` to cap manifest response bytes during streaming, including when the HTTP response has no trustworthy `Content-Length`; the helper regression accepts exactly 64 KiB and rejects a 64 KiB + 1 byte response. The launcher now checks a local manifest's file size before deserializing it.
 
 Enable the isolated C++ regressions when configuring the server build, then build and run CTest:
 
@@ -53,6 +54,7 @@ The production confirmation flags only prevent accidental invocation; they are n
 - `git diff --check` passed. The full server build, Lua runtime validation, CI-hosted workflow, production or staging test remain unavailable in this environment.
 - Compiled tests/status-query-rate-limiter-tests.cpp with Visual Studio 18 MSVC using strict warnings and ran it 20 consecutive times. Timeout boundaries, the 65,536-IP cache cap, the 256-entry cleanup budget, reclamation of 10,000 expired IPs across bounded batches, nonpositive timeouts and concurrent distinct/same-IP requests all passed. This tests the isolated cache helper; it does not build/link the server.
 - The new Economy inventory regression source is wired into the CI LuaJIT job, but could not be executed locally because neither Lua nor LuaJIT is installed. The GitHub workflow has not run from this checkout; local syntax parsing does not replace the behavioral regression run.
+- The launcher Release build passed with zero warnings/errors, and the standalone bounded-read regression passed locally. Its GitHub Windows job is source-configured but has not run from this checkout.
 
 ## Deferred changes
 
