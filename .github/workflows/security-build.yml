@@ -81,7 +81,7 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
   content-tests:
-    name: Lua and Python regression checks
+    name: PHP, Lua and Python regression checks
     runs-on: ubuntu-24.04
     steps:
       - name: Check out source
@@ -90,7 +90,15 @@ jobs:
       - name: Install LuaJIT syntax checker
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y luajit
+          sudo apt-get install --no-install-recommends -y luajit php-cli
+
+      - name: Parse tracked PHP files
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            php -l "$file"
+          done < <(git ls-files -z -- '*.php')
 
       - name: Parse tracked Lua scripts and persisted data
         shell: bash
