@@ -96,12 +96,11 @@ int main(int argc, char* argv[])
 #ifdef _WIN32
 		SetConsoleCtrlHandler([](DWORD) -> BOOL {
 			g_dispatcher.addTask(createTask([]() {
-				g_dispatcher.addTask(createTask(
-					std::bind(&Game::shutdown, &g_game)
-				));
 				g_scheduler.stop();
 				g_databaseTasks.stop();
-				g_dispatcher.stop();
+				g_dispatcher.addTaskAndStop(createTask(
+					std::bind(&Game::shutdown, &g_game)
+				));
 			}));
 			ExitThread(0);
 		}, 1);

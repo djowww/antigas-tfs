@@ -72,6 +72,7 @@ inline Task* createTask(uint32_t expiration, const std::function<void (void)>& f
 class Dispatcher : public ThreadHolder<Dispatcher> {
 	public:
 		void addTask(Task* task, bool push_front = false);
+		void addTaskAndStop(Task* task);
 
 		void shutdown();
 
