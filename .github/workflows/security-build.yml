@@ -111,7 +111,7 @@ jobs:
       - name: Run safe Python regression tests
         env:
           PYTHONPATH: tests
-        run: python3 -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity -v
+        run: python3 -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime -v
 
       - name: Parse tracked Python files
         run: |
