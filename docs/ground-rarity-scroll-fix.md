@@ -13,6 +13,9 @@ O cliente v46 aplica a cor imediatamente quando recebe a descrição correta. A 
 - Descrições idênticas às do cache também são reenviadas: o objeto no cliente pode ter sido recriado.
 - Tiles que saíram da área visível são removidos do cache antes de inserir os novos. Tiles rastreados que passaram a conter somente itens comuns recebem uma descrição vazia.
 - Mudanças de andar no protocolo clássico executam reset e sincronização imediatos após os pacotes de piso. Teleportes e mapas completos continuam usando o reset já existente.
+- Se o cliente detectar que um objeto nativo do mapa foi recriado sem uma nova descrição, ele pede um snapshot autoritativo do viewport. O servidor limita esse pedido a um replay por jogador a cada cinco segundos.
+
+Os dados da raridade ficam serializados no próprio item. O salvamento das casas percorre os itens móveis dos tiles e chama `Item::serializeAttr`, que grava os atributos de raridade; a cor no mapa é reaplicada a partir desses dados quando o cliente recebe um snapshot. O replay não altera nem recria itens.
 
 A caminhada examina somente as faixas transmitidas: no máximo 400 posições em um passo diagonal com o maior viewport e oito pisos, além das até 256 entradas do cache. O replay periódico continua como recuperação; a entrada normal de tiles na tela não depende dele.
 

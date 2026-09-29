@@ -9,6 +9,7 @@ extern Game g_game;
 namespace {
 constexpr uint8_t GROUND_RARITY_OPCODE = 129;
 constexpr size_t MAX_VISIBLE_TILES = 256;
+constexpr int64_t GROUND_RARITY_REQUEST_COOLDOWN_MS = 5000;
 
 uint64_t tileKey(const Position& position)
 {
@@ -148,6 +149,7 @@ void GroundRarity::resetSession(Player& player)
 	player.groundRaritySequence = 0;
 	player.lastGroundRaritySync = 0;
 	player.lastGroundRarityReplay = 0;
+	player.lastGroundRarityRequest = 0;
 	player.groundRarityTiles.clear();
 }
 
@@ -166,7 +168,12 @@ void GroundRarity::handleRequest(Player& player, const std::string& request)
 		send(player, "\"event\":\"ready\",\"version\":1");
 		resetMap(player);
 	} else if (request == "S|1" && player.groundRarityProtocol) {
-		sync(player);
+		const int64_t now = OTSYS_TIME();
+		if (now - player.lastGroundRarityRequest < GROUND_RARITY_REQUEST_COOLDOWN_MS) return;
+		player.lastGroundRarityRequest = now;
+		// The client asks for this replay when a native map refresh replaces an
+		// Item object but preserves the same rare item on the same tile.
+		sync(player, true);
 	}
 }
 
