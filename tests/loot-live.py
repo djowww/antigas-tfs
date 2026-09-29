@@ -1,6 +1,6 @@
 """Bounded v45 smoke with two newly created ordinary characters on loopback.
 
-Run on the VPS with its existing TFS_DB_NAME environment. This checks the Loot
+Run only against an approved isolated staging database and loopback staging port. This checks the Loot
 channel, capability negotiation and rejection of client-forged notifications.
 It never moves, fights, creates corpses or edits an existing player's data.
 Only the exact generated accounts are removed, after confirmed logout/offline.
@@ -21,6 +21,7 @@ import sys
 import time
 
 from load_test_protocol import string
+from staging_safety import require_staging_target
 
 _spec = importlib.util.spec_from_file_location('rarity_live', Path(__file__).with_name('rarity-live.py'))
 rarity = importlib.util.module_from_spec(_spec)
@@ -90,7 +91,7 @@ class LootProbe(rarity.Probe):
     def reconnect(self, account, password, name):
         """Replace only this test character's socket, retaining its Player object."""
         self.key = struct.unpack('<IIII', secrets.token_bytes(16))
-        self.sock = socket.create_connection(('127.0.0.1', int(os.environ.get('ANTIGAS_RARITY_PORT', '7174'))), timeout=5)
+        self.sock = socket.create_connection(('127.0.0.1', int(os.environ['ANTIGAS_STAGING_GAME_PORT'])), timeout=5)
         key_path = Path(os.environ.get('ANTIGAS_RSA_PUBLIC', '/opt/antigas-security-v26/rsa-public.json'))
         modulus = int(json.loads(key_path.read_text())['modulus'])
         plain = b'\0' + struct.pack('<IIII', *self.key) + b'\0' + struct.pack('<I', account) + string(name) + string(password)
@@ -161,10 +162,9 @@ def cleanup(fixture):
 
 
 def main():
-    if 'ANTIGAS_LOOT_PORT' in os.environ:
-        os.environ['ANTIGAS_RARITY_PORT'] = os.environ['ANTIGAS_LOOT_PORT']
+    require_staging_target()
     report = {'test': 'loot-live', 'status': 'failed', 'checks': [], 'cleanup': False,
-              'limitations': ['No monster kill, real corpse or visual rendering in production',
+              'limitations': ['No monster kill, real corpse or visual rendering in staging',
                               'Targeted packet parsing; not a full game client decoder']}
     fixtures = [new_character(), new_character()]
     start, phase = time.monotonic(), 'setup'
