@@ -46,7 +46,6 @@ AntigasSidebarToggle < ButtonBox
   $pressed:
     image-clip: 0 46 22 23
     image-color: #b58c4b
-    icon-offset: 1 1
     border-top-color: #30271c
     border-left-color: #30271c
     border-right-color: #9a7841
@@ -108,7 +107,6 @@ AntigasSidebarAction < Button
   $pressed:
     image-clip: 0 46 22 23
     image-color: #b58c4b
-    icon-offset: 1 1
     text-offset: 1 1
     border-top-color: #30271c
     border-left-color: #30271c
@@ -241,7 +239,6 @@ SpecialMiniWindow
       anchors.top: SkillsButton.top
       icon-source: /images/game/viplist/icons
       icon-clip: 60 0 12 12
-      icon-rect: 5 5 12 12
       tooltip: Conquistas.
       @onClick: modules.game_achievements.toggle()
 
