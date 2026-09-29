@@ -111,6 +111,9 @@ jobs:
       - name: Run persisted lamp-state parser regression tests
         run: luajit tests/lamp-state-parser-tests.lua
 
+      - name: Run rarity, Market inventory and economy regression tests
+        run: luajit tests/rarity-economy-tests.lua
+
       - name: Run safe Python regression tests
         env:
           PYTHONPATH: tests
