@@ -23,11 +23,15 @@
 #include "configmanager.h"
 #include "game.h"
 #include "outputmessage.h"
+#include "statusqueryratelimiter.h"
 
 extern ConfigManager g_config;
 extern Game g_game;
 
-std::map<uint32_t, int64_t> ProtocolStatus::ipConnectMap;
+namespace {
+StatusQueryRateLimiter statusQueryRateLimiter;
+}
+
 const uint64_t ProtocolStatus::start = OTSYS_TIME();
 
 enum RequestedInfo_t : uint16_t {
@@ -43,19 +47,17 @@ enum RequestedInfo_t : uint16_t {
 
 void ProtocolStatus::onRecvFirstMessage(NetworkMessage& msg)
 {
-	uint32_t ip = getIP();
+	const uint32_t ip = getIP();
 	if (ip != 0x0100007F) {
-		std::string ipStr = convertIPToString(ip);
+		const std::string ipStr = convertIPToString(ip);
 		if (ipStr != g_config.getString(ConfigManager::IP)) {
-			std::map<uint32_t, int64_t>::const_iterator it = ipConnectMap.find(ip);
-			if (it != ipConnectMap.end() && (OTSYS_TIME() < (it->second + g_config.getNumber(ConfigManager::STATUSQUERY_TIMEOUT)))) {
+			const auto timeout = std::chrono::milliseconds(g_config.getNumber(ConfigManager::STATUSQUERY_TIMEOUT));
+			if (!statusQueryRateLimiter.allow(ip, StatusQueryRateLimiter::Clock::now(), timeout)) {
 				disconnect();
 				return;
 			}
 		}
 	}
-
-	ipConnectMap[ip] = OTSYS_TIME();
 
 	switch (msg.getByte()) {
 		//XML info protocol
