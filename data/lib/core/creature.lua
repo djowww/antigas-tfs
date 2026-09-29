@@ -191,8 +191,9 @@ local function sendColorText(message, color, pos, send, cid)
         msg:addString(message)
         if send and next(send) then
             for i = 1, #send do
-                if pos:getDistance(send[i]:getPosition()) <= 7 then
-                    msg:sendToPlayer(send[i])
+                local target = Player(send[i])
+                if target and pos:getDistance(target:getPosition()) <= 7 then
+                    msg:sendToPlayer(target)
                 end
             end
         end
@@ -210,10 +211,10 @@ function Creature:sendColorText(message, pos, color, interval, canSee)
     for i = 1, #specs do
         -- send to specific names
         if (canSee and next(canSee)) and isInArray(canSee, specs[i]:getName()) then
-            send[#send+1] = specs[i]
+            send[#send+1] = specs[i]:getId()
         else
             -- or send it to everyone
-            send[#send+1] = specs[i]
+            send[#send+1] = specs[i]:getId()
         end
     end
     send = (next(send) and send) or specs
