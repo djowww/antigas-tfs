@@ -17,6 +17,19 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Updated the Lua syntax workflow to treat data/globalevents/lib/lamp_states.lua as persisted table data: it prefixes the file with return in a temporary path and compiles the wrapper without executing its contents.
 - Replaced ProtocolStatus's never-pruned per-IP map with a mutex-protected steady-clock expiry cache. It stores at most 65,536 source addresses, rejects unseen addresses at capacity, and reclaims at most 256 expired addresses per query. This bounds memory and cleanup work while preserving the configured per-address timeout; the status protocol may refuse new monitors during a full active window. Added an isolated C++ regression target to the CMake/CI workflow.
 - Hardened NetworkMessage cursor movement: `skipBytes` now rejects negative or unavailable ranges, and `getPreviousByte` refuses to underflow or read past its logical/buffer bounds. Added a dedicated CMake regression target for valid and malformed cursor operations.
+- Hardened OTCv8 new-walking parsing against truncated and all-invalid direction lists before scheduling game work. The dispatcher callback also checks the list before reading its first direction; added a dedicated CMake regression target.
+
+Enable the isolated C++ regressions when configuring the server build, then build and run CTest:
+
+```sh
+cmake -S . -B build \
+  -DTFS_BUILD_RARITY_TESTS=ON \
+  -DTFS_BUILD_STATUS_QUERY_TESTS=ON \
+  -DTFS_BUILD_NETWORKMESSAGE_TESTS=ON
+cmake --build build --parallel 2
+ctest --test-dir build --output-on-failure
+```
+
 ## How to run safe regression tests
 
 From `tests/`:
