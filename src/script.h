@@ -75,10 +75,10 @@ public:
 	bool open(const std::string& FileName)
 	{
 		RecursionDepth++;
-		if (RecursionDepth == 3)
+		if (RecursionDepth >= 3)
 		{
-			error("ScriptReader::open: too big recursion.\n");
-			error("Recursion depth too high.\n");
+			--RecursionDepth;
+			error("ScriptReader::open: recursion depth too high.\n");
 			return false;
 		}
 
