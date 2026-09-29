@@ -21,6 +21,7 @@
 #define FS_SCRIPT_H_2905B3D5EAB34B4BA8830167262D2DC1
 
 #include "tools.h"
+#include "scriptfilename.h"
 
 enum TOKEN
 {
@@ -84,14 +85,15 @@ public:
 
 		if (RecursionDepth > -1)
 		{
-			CurrentDirectory = FileName;
-			if (FileName.find('/') != std::string::npos) {
-				int32_t end = FileName.find_last_of('/');
-				CurrentDirectory = FileName.substr(0, end);
-				strcpy(Filename[RecursionDepth], FileName.substr(end + 1, FileName.length() - end).c_str());
+			std::string displayName = FileName;
+			const std::string::size_type separator = FileName.find_last_of('/');
+			if (separator != std::string::npos) {
+				CurrentDirectory = FileName.substr(0, separator);
+				displayName = FileName.substr(separator + 1);
 			} else {
-				strcpy(Filename[RecursionDepth], FileName.c_str());
+				CurrentDirectory = FileName;
 			}
+			copyScriptFilename(Filename[RecursionDepth], displayName);
 
 			File[RecursionDepth] = fopen(FileName.c_str(), "rb");
 			if (!File[RecursionDepth])
