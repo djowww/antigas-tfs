@@ -1,6 +1,6 @@
 """Bounded production smoke with ONE disposable level-1 ordinary character.
 
-Run on the VPS with its existing TFS_DB_NAME environment. Credentials stay in
+Run only against an approved isolated staging database and loopback staging port. Credentials stay in
 memory. Only this newly created account is written/deleted; cleanup requires a
 closed game connection and a confirmed offline character. The probe moves its
 own disposable fixtures between equipment and backpack to check persistence.
@@ -23,6 +23,7 @@ import sys
 import time
 
 from load_test_protocol import Client, crypt, string
+from staging_safety import require_staging_target
 
 def pack_codes(*codes):
     return sum(code << (index * 5) for index, code in enumerate(codes))
@@ -192,7 +193,7 @@ class Probe(Client):
 
     def connect(self, account, password, name):
         self.key = struct.unpack('<IIII', secrets.token_bytes(16))
-        self.sock = socket.create_connection(('127.0.0.1', int(os.environ.get('ANTIGAS_RARITY_PORT', '7174'))), timeout=5)
+        self.sock = socket.create_connection(('127.0.0.1', int(os.environ['ANTIGAS_STAGING_GAME_PORT'])), timeout=5)
         key_path = Path(os.environ.get('ANTIGAS_RSA_PUBLIC', '/opt/antigas-security-v26/rsa-public.json'))
         modulus = int(json.loads(key_path.read_text())['modulus'])
         plain = b'\0' + struct.pack('<IIII', *self.key) + b'\0' + struct.pack('<I', account) + string(name) + string(password)
@@ -331,6 +332,7 @@ def persisted(player):
 
 
 def main():
+    require_staging_target()
     report = {'test': 'rarity-live', 'status': 'failed', 'checks': [], 'cleanup': False,
               'limitations': ['No combat/resistance probability validation', 'No visual border screenshot',
                               'Targeted protocol parsing using known fixture stats; not a full client decoder']}

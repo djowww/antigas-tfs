@@ -10,7 +10,7 @@ No movement, combat, GM privileges, existing player writes or admin hooks.
 Deletion requires confirmed offline state and recovery of all dropped fixtures.
 Reads targeted packet signatures, not a complete game protocol/map decoder.
 Use --self-test without database/network access. Existing TFS_DB_NAME is needed
-for live execution; ANTIGAS_GROUND_PORT optionally overrides loopback port7174.
+for live execution; use ANTIGAS_STAGING_GAME_PORT=7176 or 7186 with explicit mutation approval.
 """
 import importlib.util
 import json
@@ -22,6 +22,7 @@ import sys
 import time
 
 from load_test_protocol import string
+from staging_safety import require_staging_target
 
 _spec = importlib.util.spec_from_file_location('loot_live', Path(__file__).with_name('loot-live.py'))
 loot = importlib.util.module_from_spec(_spec)
@@ -159,12 +160,11 @@ def saved_fixtures(player, items):
 
 
 def main():
-    if 'ANTIGAS_GROUND_PORT' in os.environ:
-        os.environ['ANTIGAS_RARITY_PORT'] = os.environ['ANTIGAS_GROUND_PORT']
+    require_staging_target()
     report = {'test': 'ground-rarity-live', 'status': 'failed', 'checks': [], 'cleanup': False,
               'ground_lifecycle': 'not_attempted',
               'limitations': ['Targeted packet signatures; not a complete map/protocol decoder',
-                              'No visual rendering or combat in production',
+                              'No visual rendering or combat in staging',
                               'Physical fixture skipped if other players are online or tile is uncertain']}
     fixture = loot.new_character()
     fixture['marker'] = 'groundprobe_' + secrets.token_hex(8) + '@test.invalid'
