@@ -8,7 +8,7 @@
 
 ## Inventory and architecture map
 
-The current tracked repository contains 1,721 files: 84 C++ sources, 88 C++ headers, one C source, 750 Lua scripts, 246 XML files, 337 NPC files, 39 `.ndb` data files, 35 JSON files, 3 SQL files, 33 Python files, 3 Shell scripts, 6 PHP files, 9 C# sources and 3 C# projects, CMake files, and client/server data assets. No Makefile, Dockerfile, submodule, or GitHub Actions workflow existed at the start of this audit. `config.lua` is intentionally ignored.
+The current tracked repository contains 1,722 files: 84 C++ sources, 88 C++ headers, one C source, 750 Lua scripts, 246 XML files, 337 NPC files, 39 `.ndb` data files, 35 JSON files, 3 SQL files, 34 Python files, 3 Shell scripts, 6 PHP files, 9 C# sources and 3 C# projects, CMake files, and client/server data assets. No Makefile, Dockerfile, submodule, or GitHub Actions workflow existed at the start of this audit. `config.lua` is intentionally ignored.
 
 | Component | Purpose / entry points | Risk / criticality | Dependencies / evidence |
 |---|---|---|---|
@@ -67,6 +67,7 @@ The server build is documented in `README.md`: Linux, CMake and system packages,
 - Message-driven game tasks are now gated on the parser cursor remaining inside the declared packet and physical buffer; login and manual dispatcher paths use the same validity check.
 - Failed or cancelled accept callbacks now release the pre-registered connection, avoiding a retained `ConnectionManager` entry during service shutdown/retry.
 - The launcher release path uses a fixed HTTPS origin, signed ECDSA manifest, SHA-256 package comparison, archive size/count limits, path traversal/collision checks, symlink rejection, and rollback logic (`deploy` C# launcher sources). The launcher and signer compiled successfully with the available .NET SDK.
+- Authenticated coin-order pages and Pix QR responses explicitly send `private, no-store` cache directives; this protects payment payloads even though the shared PHP security middleware is outside the checkout.
 - Public account/order queries in the inspected PHP sources use PDO prepared statements; registration constrains account/name/password inputs and places account/character creation in a transaction. Private middleware remains out of scope.
 - `config.lua` is ignored and not tracked. It was inspected only for safe properties; no values were printed or copied into this report. It uses a non-root DB user and loopback host in this local checkout. This does not establish production configuration.
 - A custom limited-pattern scan of 1,675 historical/current text blobs found no matching private-key/token/credential patterns. Gitleaks 8.30.1 also scanned the Git history locally (archive depth 2) and reported zero findings. Neither local scan checks provider-side secrets or proves that secrets were never exposed outside this repository.
@@ -77,7 +78,7 @@ The server build is documented in `README.md`: Linux, CMake and system packages,
 
 ## Validation and limitations
 
-- Python regressions: all 23 passed. AST parsing passed for all 33 tracked Python files. XML and JSON parsing passed for all 246 XML and 35 JSON files.
+- Python regressions: all 24 passed. AST parsing passed for all 34 tracked Python files. XML and JSON parsing passed for all 246 XML and 35 JSON files.
 - LuaJIT 2.1 was built x64 from the official source in a temporary directory with MSVC. Its bytecode compiler parsed all 750 tracked Lua files, including a temporary return wrapper for the persisted lamp-state table. Both tests/economy-inventory-tests.lua and tests/lamp-state-parser-tests.lua passed. This does not exercise the server's C++/Lua bindings or asynchronous callbacks in a running server.
 - `tests/rarity-economy-tests.lua` now exercises the actual Market inventory function over a nested 10,000-item chain, confirms the exact scan ceiling succeeds and the next item fails closed, and continues to cover rarity exclusion and transaction rollback. It passed with local LuaJIT and is wired into the Lua/Python CI job. This mock test does not replace a running server/container-binding test.
 - All three GitHub Actions workflows passed actionlint 1.7.12 locally. The latest Gitleaks 8.30.1 scan after the code commits scanned the 102 commits available in this local clone (about 10.23 MB) and found no leaks; an earlier current-tree scan covered about 96.78 MB and also found none. Provider-side secrets and other clones remain unverified.

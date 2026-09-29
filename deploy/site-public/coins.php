@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
-$lib=getenv('ANTIGAS_WEB_LIB')?:'/opt/antigas-web/private';require $lib.'/security.php';require $lib.'/pix.php';webStart();require __DIR__.'/i18n.php';$language=siteStartI18n();
+$lib=getenv('ANTIGAS_WEB_LIB')?:'/opt/antigas-web/private';require $lib.'/security.php';require $lib.'/pix.php';webStart();
+header('Cache-Control: private, no-store, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+require __DIR__.'/i18n.php';$language=siteStartI18n();
 function e($s): string {return htmlspecialchars((string)$s,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');}
 function brl(int $n): string {return 'R$ '.number_format($n/100,2,',','.');}
 $account=null;$chars=[];$orders=[];$selected=null;$message='';$quote=null;
