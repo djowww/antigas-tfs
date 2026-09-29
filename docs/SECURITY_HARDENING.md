@@ -42,7 +42,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order test_connection_shutdown_serialization -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order test_connection_shutdown_serialization test_lamp_state_parser -v
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
@@ -98,6 +98,12 @@ The production confirmation flags only prevent accidental invocation; they are n
 - Added Python source-invariant checks for listener-before-socket ordering, per-connection locking, and avoiding global/connection lock inversion. Runtime I/O cancellation ordering and TSan still require a full server build and isolated staging.
 - All 21 local Python regression tests passed, all three workflows passed `actionlint`, and `git diff --check` passed. The test asserts source ordering only and does not substitute for a concurrent runtime test.
 - Gitleaks scanned approximately 96.77 MB of the checkout and reported no leaks; this does not inspect hosted secrets, production deployment files, or other clones.
+
+## Follow-up verification — 2026-09-29 (lamp-state parser)
+
+- Replaced executable `loadstring` parsing of persisted lamp states with a data-only parser for the existing `Position(x, y, z) = itemId` serialization. It validates map bounds and known lamp IDs, rejects duplicate/malformed entries, scans linearly without copying the remaining file for each entry, and caps parsing at 8 MiB and 100,000 entries; file reads are bounded too.
+- A local read-only check confirmed the checked-in persistence file is 3,420 bytes with 90 canonical entries, all within coordinate/floor bounds and using IDs from the lamp map. Added a LuaJIT regression that tests this real fixture, round-tripping, malformed inputs, code-execution rejection, byte and entry limits; the GitHub LuaJIT job invokes it.
+- The 22-test Python suite, `actionlint` on all three workflows, and parsing of all 32 tracked Python files passed locally. The LuaJIT regression is wired into CI but could not run locally because LuaJIT is not installed; no Lua runtime result is claimed here.
 
 ## Deferred changes
 

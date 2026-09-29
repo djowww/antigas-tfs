@@ -51,8 +51,56 @@ function serialize(s)
 end
 
 function unserialize(str)
-    local f = loadstring("return ".. str)
-    return f and f() or nil
+    local maxBytes = 8 * 1024 * 1024
+    local maxEntries = 100000
+    if type(str) ~= 'string' or #str > maxBytes then
+        return nil
+    end
+
+    local body = str:match('^%s*{([%s%S]*)}%s*$')
+    if not body then
+        return nil
+    end
+
+    local states, cursor, count = {}, 1, 0
+    while true do
+        local token = body:find('%S', cursor)
+        if not token then
+            return states
+        end
+
+        local first, last, x, y, z, value = body:find('%["Position%((%d+), (%d+), (%d+)%)"%]%s*=%s*(%d+)', token)
+        if first ~= token then
+            return nil
+        end
+
+        local xValue, yValue, zValue, itemId = tonumber(x), tonumber(y), tonumber(z), tonumber(value)
+        if tostring(xValue) ~= x or tostring(yValue) ~= y or tostring(zValue) ~= z or tostring(itemId) ~= value
+            or xValue > 65535 or yValue > 65535 or zValue > 15
+            or (not lampTransformIds[itemId] and not reverseLampTransformIds[itemId]) then
+            return nil
+        end
+
+        local position = string.format('Position(%d, %d, %d)', xValue, yValue, zValue)
+        if states[position] ~= nil then
+            return nil
+        end
+        count = count + 1
+        if count > maxEntries then
+            return nil
+        end
+        states[position] = itemId
+
+        cursor = last + 1
+        local separator = body:find('%S', cursor)
+        if not separator then
+            return states
+        end
+        if body:sub(separator, separator) ~= ',' then
+            return nil
+        end
+        cursor = separator + 1
+    end
 end
 
 function serializePos(pos)
@@ -60,7 +108,14 @@ function serializePos(pos)
 end
 
 function unserializePos(s)
-    return Position(s:match("Position%((%d+), (%d+), (%d+)%)"))
+    if type(s) ~= 'string' then
+        return nil
+    end
+    local x, y, z = s:match('^Position%((%d+), (%d+), (%d+)%)$')
+    if not x then
+        return nil
+    end
+    return Position(tonumber(x), tonumber(y), tonumber(z))
 end
 
 function dumpLampStates()
@@ -74,8 +129,12 @@ end
 function loadLampStates()
     local file = io.open('data/globalevents/lib/lamp_states.lua')
     if file then
-        local contents = file:read('*a')
+        local contents = file:read(8 * 1024 * 1024 + 1)
         file:close()
+        if not contents or #contents > 8 * 1024 * 1024 then
+            wallLamps = {}
+            return
+        end
         local ok, states = pcall(unserialize, contents)
         wallLamps = ok and states or nil
         if type(wallLamps) ~= 'table' then
@@ -86,7 +145,7 @@ function loadLampStates()
             local searchState = reverseLampTransformIds[state] or lampTransformIds[state]
             if searchState then
                 local position = unserializePos(serializedPos)
-                local tile = Tile(position)
+                local tile = position and Tile(position)
                 local lamp = tile and tile:getItemById(searchState)
                 if lamp then
                     lamp:transform(state)
