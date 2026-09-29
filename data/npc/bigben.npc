@@ -61,7 +61,7 @@ VANISH,!           -> "Hum Humm."
 "piece","of","royal", "steel"             -> "For that I need you to bring me a crown armor, do you have them?", Topic=1
 
 Topic=1,"no"                 -> "Come back when you have it."
-Topic=1,"yes"                -> "Okay, remember you can't regret it, are you sure?", Topic=2
+Topic=1,"yes"                -> "You not have stuff me want for.", Topic=2
 Topic=2,"yes" -> Type=3381, Amount=1, "Are you sure you want to switch to a piece of royal steel?", Topic=3
 Topic=2                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=2
 Topic=3,"no"                 -> "Do not waste my time!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
