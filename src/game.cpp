@@ -138,12 +138,9 @@ void Game::setGameState(GameState_t newState)
 			saveMotdNum();
 			saveGameState();
 
-			g_dispatcher.addTask(
-				createTask(std::bind(&Game::shutdown, this)));
-
 			g_scheduler.stop();
 			g_databaseTasks.stop();
-			g_dispatcher.stop();
+			g_dispatcher.addTaskAndStop(createTask(std::bind(&Game::shutdown, this)));
 			break;
 		}
 
