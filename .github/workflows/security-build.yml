@@ -87,13 +87,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y luajit
 
-      - name: Parse every tracked Lua script
+      - name: Parse tracked Lua scripts and persisted data
         shell: bash
         run: |
           set -euo pipefail
-          git ls-files -z -- '*.lua' | while IFS= read -r -d '' file; do
-            luajit -b "$file" /dev/null
-          done
+          while IFS= read -r -d '' file; do
+            if [[ "$file" == "data/globalevents/lib/lamp_states.lua" ]]; then
+              # This file stores a bare table constructor, not a Lua chunk. Wrap it as an expression without executing it.
+              wrapper="$RUNNER_TEMP/lamp-states-syntax-check.lua"
+              { printf 'return '; cat "$file"; } > "$wrapper"
+              luajit -b "$wrapper" /dev/null
+            else
+              luajit -b "$file" /dev/null
+            fi
+          done < <(git ls-files -z -- '*.lua')
 
       - name: Run safe Python regression tests
         env:
