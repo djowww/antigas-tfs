@@ -131,7 +131,11 @@ function Player:onReportBug(message, position, category)
 	end
 
 	local name = self:getName()
-	local file = io.open("data/reports/bugs/" .. name .. " report.txt", "a")
+	local reportFilename = name
+	if name:find("/", 1, true) or name:find("\\", 1, true) then
+		reportFilename = tostring(self:getGuid())
+	end
+	local file = io.open("data/reports/bugs/" .. reportFilename .. " report.txt", "a")
 
 	if not file then
 		self:sendTextMessage(MESSAGE_EVENT_DEFAULT, "There was an error when processing your report, please contact a gamemaster.")
