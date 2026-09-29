@@ -13,7 +13,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Added explicit `--confirm-production-deploy` gates to the five archived deployment scripts and `--confirm-production-change` gates to both production Nginx scripts. Importing the Python scripts no longer runs a deployment phase.
 - Added unit/regression coverage for staging target validation and recovery behavior.
 - Added `.github/workflows/security-build.yml` with release, release-hardened, ASan/UBSan, and separate TSan builds, plus Lua/Python and Windows launcher checks; added C++/C# CodeQL and full-history Gitleaks workflows and monthly Dependabot checks. Third-party Actions are pinned to full SHAs.
-- Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. All tracked Lua syntax now passes locally; a dedicated Market nested-container behavior test and staging reproduction remain pending.
+- Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. A LuaJIT regression now exercises a 10,000-item nested chain and checks exact-limit acceptance and over-limit rejection; the security workflow runs it. Mocked containers do not replace staging validation of the server bindings.
 - Updated the Lua syntax workflow to treat data/globalevents/lib/lamp_states.lua as persisted table data: it prefixes the file with return in a temporary path and compiles the wrapper without executing its contents.
 - Replaced ProtocolStatus's never-pruned per-IP map with a mutex-protected steady-clock expiry cache. It stores at most 65,536 source addresses, rejects unseen addresses at capacity, and reclaims at most 256 expired addresses per query. This bounds memory and cleanup work while preserving the configured per-address timeout; the status protocol may refuse new monitors during a full active window. Added an isolated C++ regression target to the CMake/CI workflow.
 - Hardened NetworkMessage cursor movement: `skipBytes` now rejects negative or unavailable ranges, and `getPreviousByte` refuses to underflow or read past its logical/buffer bounds. Added a dedicated CMake regression target for valid and malformed cursor operations.
@@ -51,6 +51,7 @@ From the repository root, with LuaJIT 2.1 installed:
 ```sh
 luajit tests/economy-inventory-tests.lua
 luajit tests/lamp-state-parser-tests.lua
+luajit tests/rarity-economy-tests.lua
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
