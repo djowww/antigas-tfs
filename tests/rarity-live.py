@@ -2,14 +2,17 @@
 
 Run on the VPS with its existing TFS_DB_NAME environment. Credentials stay in
 memory. Only this newly created account is written/deleted; cleanup requires a
-closed game connection and a confirmed offline character. No movement, combat,
-trade, achievements claim or rewards are triggered. --self-test needs no DB.
+closed game connection and a confirmed offline character. The probe moves its
+own disposable fixtures between equipment and backpack to check persistence.
+No combat, trade, achievements claim or rewards are triggered. --self-test
+needs no DB.
 
 The wire checks locate fixed-format stats/skills messages using this fixture's
 known low stats; this is a targeted smoke, not a full map/protocol decoder.
 """
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import secrets
@@ -21,14 +24,18 @@ import time
 
 from load_test_protocol import Client, crypt, string
 
+def pack_codes(*codes):
+    return sum(code << (index * 5) for index, code in enumerate(codes))
+
+
 FIXTURES = (
-    # slot, server/client item id, tier, bonus type, value, subtype, Look text
-    (4, 3361, 5, 1, 5, 0, '+5% maximum health'),
-    (7, 3559, 5, 2, 5, 0, '+5% maximum mana'),
-    (8, 3552, 5, 4, 10, 0, '+10% speed'),
-    (9, 3004, 5, 5, 5, 2, '+5 sword'),
-    (6, 3264, 4, 6, 4, 0, '+4 attack'),
-    (5, 3412, 3, 7, 3, 0, '+3 defense'),
+    # slot, item id, tier, type, value, subtype, packed extras, Look text
+    (4, 3361, 5, 1, 5, 0, pack_codes(2, 3, 6, 7), '+5% maximum health'),
+    (7, 3559, 5, 2, 5, 0, pack_codes(1, 3, 7, 8), '+5% maximum mana'),
+    (8, 3552, 5, 4, 10, 0, pack_codes(1, 2, 7, 9), '+10% speed'),
+    (9, 3004, 5, 5, 5, 2, pack_codes(1, 2, 6, 7), '+5 sword'),
+    (6, 3264, 4, 6, 4, 0, pack_codes(1, 2, 3), '+4 attack'),
+    (5, 3412, 3, 7, 3, 0, pack_codes(1, 6), '+3 defense'),
 )
 BACKPACK = 2854
 STATS = struct.Struct('<HHHIHBHHBBB')
@@ -49,8 +56,9 @@ def position(slot, container=False):
 
 
 def rarity_bytes(fixture):
-    _, _, tier, kind, value, subtype, _ = fixture
-    return b'\x27' + struct.pack('<I', tier | kind << 8 | value << 16 | subtype << 24)
+    _, _, tier, kind, value, subtype, extras, _ = fixture
+    primary = tier | kind << 8 | value << 16 | subtype << 24
+    return b'\x27' + struct.pack('<I', primary) + b'\x28' + struct.pack('<I', extras)
 
 
 def extended(raw):
@@ -77,8 +85,8 @@ def stats(raw):
         hp, maximum_hp, capacity, experience, level, level_percent, mana, maximum_mana, magic, magic_percent, soul = values
         if (experience == 0 and level == 1 and level_percent == 0 and magic == 0
                 and magic_percent == 0 and soul == 100 and 0 <= hp <= maximum_hp
-                and maximum_hp in (150, 158) and 0 <= mana <= maximum_mana
-                and maximum_mana in (100, 105) and capacity <= 400):
+                and 150 <= maximum_hp <= 500 and 0 <= mana <= maximum_mana
+                and 100 <= maximum_mana <= 500 and capacity <= 400):
             candidates.append({'max_health': maximum_hp, 'max_mana': maximum_mana})
     assert candidates, 'Expected fixture player-stats packet missing'
     return candidates[-1]
@@ -105,6 +113,74 @@ def creature_speed(raw, creature_id):
     return values[-1]
 
 
+def fixture_statuses(fixture):
+    slot, _, tier, kind, value, subtype, packed, _ = fixture
+    statuses = [(kind, value, subtype, True)]
+    resistance_subtypes = {6: 0, 7: 1, 8: 2, 9: 3, 10: 8}
+    for index in range(tier - 1):
+        code = (packed >> (index * 5)) & 0x1F
+        if code == 1:
+            status = (1, tier, 0, False)
+        elif code == 2:
+            status = (2, tier, 0, False)
+        elif code == 3:
+            status = (4, tier * 2, 0, False)
+        elif 6 <= code <= 10:
+            status = (3, tier, resistance_subtypes[code], False)
+        elif 11 <= code <= 18:
+            status = (5, tier, code - 11, False)
+        else:
+            raise AssertionError('Invalid packed rarity status code')
+        statuses.append(status)
+    return slot, statuses
+
+
+def primary_allowed(slot, kind):
+    if kind in (1, 2, 3):
+        return slot in (4, 7)
+    if kind == 4:
+        return slot == 8
+    if kind == 5:
+        return slot in (2, 9)
+    if kind in (6, 7):
+        return slot in (5, 6)
+    return False
+
+
+def expected_stats(fixtures):
+    maximum_health, maximum_mana = 150, 100
+    for fixture in fixtures:
+        slot, statuses = fixture_statuses(fixture)
+        for kind, value, _, primary in statuses:
+            if primary and not primary_allowed(slot, kind):
+                continue
+            if kind == 1:
+                maximum_health += math.ceil(150 * value / 100)
+            elif kind == 2:
+                maximum_mana += math.ceil(100 * value / 100)
+    return {'max_health': maximum_health, 'max_mana': maximum_mana}
+
+
+def expected_speed(fixtures):
+    speed = 220
+    for fixture in fixtures:
+        slot, statuses = fixture_statuses(fixture)
+        for kind, value, _, primary in statuses:
+            if kind == 4 and (not primary or primary_allowed(slot, kind)):
+                speed += math.floor(220 * value / 100 + 0.5)
+    return speed
+
+
+def expected_sword_skill(fixtures):
+    value = 10
+    for fixture in fixtures:
+        slot, statuses = fixture_statuses(fixture)
+        for kind, bonus, subtype, primary in statuses:
+            if kind == 5 and subtype == 2 and (not primary or primary_allowed(slot, kind)):
+                value += bonus
+    return value
+
+
 class Probe(Client):
     def __init__(self):
         self.sock = None
@@ -112,6 +188,7 @@ class Probe(Client):
         self.peer_closed = False
         self.request = 0
         self.creature_id = None
+        self.rarity_extras = {}
 
     def connect(self, account, password, name):
         self.key = struct.unpack('<IIII', secrets.token_bytes(16))
@@ -171,9 +248,14 @@ class Probe(Client):
             prefix = f'R|I|{self.request}|'
         self.send(b'\x32\x7f' + string(query))
         records = [entry[len(prefix):] for entry in extended(self.collect()) if entry.startswith(prefix)]
-        fields = fixture[2:6] if fixture else (0, 0, 0, 0)
+        fields = fixture[2:6] + (fixture[6],) if fixture else (0, 0, 0, 0, 0)
         expected = ','.join(map(str, (slot, *fields)))
         assert records == [expected], 'Rarity wire response differs from the exact owned instance'
+        if fixture:
+            tier, extras = fixture[2], fixture[6]
+            codes = [(extras >> (index * 5)) & 0x1F for index in range(tier - 1)]
+            assert all(codes) and len(set(codes)) == tier - 1, 'Extra statuses are incomplete or duplicated'
+            self.rarity_extras[slot] = extras
 
     def look(self, fixture):
         slot, item_id, *unused = fixture
@@ -184,6 +266,19 @@ class Probe(Client):
             assert b'Atk:18' in raw, 'Weapon Look does not include base attack + rarity'
         if item_id == 3412:
             assert b'Def:17' in raw, 'Shield Look does not include base defense + rarity'
+
+    def initial_inventory_pushes(self, raw):
+        messages = set(extended(raw))
+        expected = []
+        for fixture in FIXTURES:
+            slot, item_id, tier, kind, value, subtype, extras, _ = fixture
+            record = f'P|I|{slot}|{item_id},1,1,{tier},{kind},{value},{subtype},{extras}'
+            expected.append(record)
+        missing = [record for record in expected if record not in messages]
+        if missing:
+            pushes = sorted(message for message in messages if message.startswith('P|I|'))
+            raise AssertionError('Login omitted same-packet inventory rarity metadata; '
+                                 f'missing={missing}; received={pushes}')
 
     def open_backpack(self):
         self.send(b'\x82' + position(3) + struct.pack('<HBB', BACKPACK, 0, 0))
@@ -260,9 +355,11 @@ def main():
         phase = 'initial_login'
         probe = Probe()
         raw = probe.connect(account, password, name)
-        assert stats(raw) == {'max_health': 158, 'max_mana': 105}, 'Equipped rarity maxima missing on login'
-        assert sword_skill(raw) == 15, 'Equipped rarity skill missing on login'
-        report['checks'].append('login applies health/mana/skill without advancing the character')
+        probe.initial_inventory_pushes(raw)
+        assert stats(raw) == expected_stats(FIXTURES), 'Tier statuses missing from maxima on initial login'
+        assert sword_skill(raw) == expected_sword_skill(FIXTURES), 'Equipped rarity skill missing on login'
+        assert creature_speed(raw, probe.creature_id) == expected_speed(FIXTURES), 'Tier statuses missing from speed on initial login'
+        report['checks'].append('login sends same-packet item metadata and applies complete tier statuses')
         for fixture in FIXTURES:
             probe.rarity(fixture[0], fixture)
             probe.look(fixture)
@@ -272,26 +369,20 @@ def main():
         for fixture in FIXTURES:
             assert time.monotonic() - started < 100, 'Bounded probe time budget exceeded'
             raw = probe.move(fixture, False)
-            kind = fixture[3]
-            if kind == 1:
-                assert stats(raw)['max_health'] == 150, 'Health bonus remains after unequip'
-            elif kind == 2:
-                assert stats(raw)['max_mana'] == 100, 'Mana bonus remains after unequip'
-            elif kind == 4:
-                assert creature_speed(raw, probe.creature_id) == 220, 'Speed bonus remains after unequip'
-            elif kind == 5:
-                assert sword_skill(raw) == 10, 'Skill bonus remains after unequip'
+            active = tuple(entry for entry in FIXTURES if entry != fixture)
+            assert stats(raw) == expected_stats(active), 'Status remains active after unequip'
+            if expected_speed(active) != expected_speed(FIXTURES):
+                assert creature_speed(raw, probe.creature_id) == expected_speed(active), 'Speed status remains after unequip'
+            if expected_sword_skill(active) != expected_sword_skill(FIXTURES):
+                assert sword_skill(raw) == expected_sword_skill(active), 'Skill bonus remains after unequip'
             probe.rarity(fixture[0])
             probe.rarity(0, fixture, container=True)
             raw = probe.move(fixture, True)
-            if kind == 1:
-                assert stats(raw)['max_health'] == 158, 'Health bonus differs after reequip'
-            elif kind == 2:
-                assert stats(raw)['max_mana'] == 105, 'Mana bonus differs after reequip'
-            elif kind == 4:
-                assert creature_speed(raw, probe.creature_id) == 242, 'Speed bonus differs after reequip'
-            elif kind == 5:
-                assert sword_skill(raw) == 15, 'Skill bonus differs after reequip'
+            assert stats(raw) == expected_stats(FIXTURES), 'Statuses differ after reequip'
+            if expected_speed(active) != expected_speed(FIXTURES):
+                assert creature_speed(raw, probe.creature_id) == expected_speed(FIXTURES), 'Speed differs after reequip'
+            if expected_sword_skill(active) != expected_sword_skill(FIXTURES):
+                assert sword_skill(raw) == expected_sword_skill(FIXTURES), 'Skill differs after reequip'
             probe.rarity(fixture[0], fixture)
         report['checks'].append('all six items move backpack/equipment without losing metadata; health/mana/speed/skill remove and reapply exactly')
         phase = 'persistence'
@@ -302,8 +393,10 @@ def main():
         phase = 'relogin'
         probe = Probe()
         raw = probe.connect(account, password, name)
-        assert stats(raw) == {'max_health': 158, 'max_mana': 105}
-        assert sword_skill(raw) == 15
+        probe.initial_inventory_pushes(raw)
+        assert stats(raw) == expected_stats(FIXTURES)
+        assert sword_skill(raw) == expected_sword_skill(FIXTURES)
+        assert creature_speed(raw, probe.creature_id) == expected_speed(FIXTURES)
         for fixture in FIXTURES:
             probe.rarity(fixture[0], fixture)
         probe.logout(player)
@@ -339,14 +432,17 @@ def main():
 
 
 def self_test():
-    expected = {'max_health': 158, 'max_mana': 105}
-    packet = b'\xa0' + STATS.pack(150, 158, 256, 0, 1, 0, 100, 105, 0, 0, 100)
+    expected = expected_stats(FIXTURES)
+    packet = b'\xa0' + STATS.pack(150, expected['max_health'], 256, 0,
+                                  1, 0, 100, expected['max_mana'], 0, 0, 100)
     assert stats(packet) == expected
     assert sword_skill(b'\xa1' + bytes([10, 0, 10, 0, 15, 0, 10, 0, 10, 0, 10, 0, 10, 0])) == 15
-    assert creature_speed(b'\x8f' + struct.pack('<IH', 12345, 242), 12345) == 242
-    payload = 'R|I|123|4,5,1,5,0'
+    assert creature_speed(b'\x8f' + struct.pack('<IH', 12345, expected_speed(FIXTURES)),
+                          12345) == expected_speed(FIXTURES)
+    payload = f'R|I|123|4,5,1,5,0,{FIXTURES[0][6]}'
     assert extended(b'\x32\x7f' + string(payload)) == [payload]
-    assert rarity_bytes(FIXTURES[0]).hex() == '2705010500'
+    assert rarity_bytes(FIXTURES[0]) == (b'\x27' + struct.pack('<I', 5 | 1 << 8 | 5 << 16) +
+                                         b'\x28' + struct.pack('<I', FIXTURES[0][6]))
     assert position(4).hex() == 'ffff040000'
     assert position(0, True).hex() == 'ffff400000'
     print(json.dumps({'test': 'rarity-live-parser', 'status': 'passed', 'database_access': False}))

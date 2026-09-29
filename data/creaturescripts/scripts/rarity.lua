@@ -3,16 +3,16 @@ local MAX_CONTAINER_PAGE = 40
 
 local function getRarityFields(item)
 	if not item then
-		return 0, 0, 0, 0
+		return 0, 0, 0, 0, 0
 	end
 
-	local tier, bonusType, bonusValue, subtype = item:getRarityInfo()
-	return tier or 0, bonusType or 0, bonusValue or 0, subtype or 0
+	local tier, bonusType, bonusValue, subtype, extraBonuses = item:getRarityInfo()
+	return tier or 0, bonusType or 0, bonusValue or 0, subtype or 0, extraBonuses or 0
 end
 
 local function makeRecord(index, item)
-	local tier, bonusType, bonusValue, subtype = getRarityFields(item)
-	return string.format("%d,%d,%d,%d,%d", index, tier, bonusType, bonusValue, subtype)
+	local tier, bonusType, bonusValue, subtype, extraBonuses = getRarityFields(item)
+	return string.format("%d,%d,%d,%d,%d,%d", index, tier, bonusType, bonusValue, subtype, extraBonuses)
 end
 
 local function sendInventoryRarities(player, requestId, slot)

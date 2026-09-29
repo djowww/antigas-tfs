@@ -1581,7 +1581,11 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
 						return nullptr;
 					}
 					if (item->hasRarity()) {
-						newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY, item->getIntAttr(ITEM_ATTRIBUTE_RARITY));
+						newItem->setRarityData(item->getRarityTier(), item->getRarityBonusType(),
+							item->getRarityBonusValue(), item->getRarityBonusSubtype());
+						if (item->hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) {
+							newItem->setRarityExtraData(item->getRarityExtraData());
+						}
 					}
 
 					cylinder->replaceThing(itemIndex, newItem);
@@ -1630,7 +1634,11 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
 		return nullptr;
 	}
 	if (item->hasRarity()) {
-		newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY, item->getIntAttr(ITEM_ATTRIBUTE_RARITY));
+		newItem->setRarityData(item->getRarityTier(), item->getRarityBonusType(),
+			item->getRarityBonusValue(), item->getRarityBonusSubtype());
+		if (item->hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) {
+			newItem->setRarityExtraData(item->getRarityExtraData());
+		}
 	}
 
 	cylinder->replaceThing(itemIndex, newItem);

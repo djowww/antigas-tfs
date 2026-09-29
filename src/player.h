@@ -1200,7 +1200,6 @@ class Player final : public Creature, public Cylinder
 		bool addAttackSkillPoint = false;
 		bool inventoryAbilities[CONST_SLOT_LAST + 1] = {};
 		const Item* itemRarityItems[CONST_SLOT_LAST + 1] = {};
-		uint32_t itemRarityData[CONST_SLOT_LAST + 1] = {};
 		int32_t itemRarityStats[STAT_LAST + 1] = {};
 		int32_t itemRaritySkills[SKILL_LAST + 1] = {};
 		int32_t itemRaritySpeed = 0;

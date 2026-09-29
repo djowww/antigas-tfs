@@ -832,7 +832,7 @@ void WeaponWand::configureWeapon(const ItemType& it)
 
 int32_t WeaponWand::getWeaponDamage(const Player*, const Creature*, const Item* item, bool maxDamage /*= false*/) const
 {
-	const int32_t rarityAttack = item && item->hasRarity() && item->getRarityBonusType() == ITEM_RARITY_BONUS_ATTACK ? item->getRarityBonusValue() : 0;
+	const int32_t rarityAttack = item ? static_cast<int32_t>(item->getRarityBonusSum(ITEM_RARITY_BONUS_ATTACK)) : 0;
 	if (maxDamage) {
 		return -(maxChange + rarityAttack);
 	}
