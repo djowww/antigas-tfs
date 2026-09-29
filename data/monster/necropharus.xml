@@ -68,5 +68,6 @@
 		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
 		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
 		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
+		<item id="3070" countmax="1" chance="5" /> <!-- a conjure wand -->
 	</loot>
 </monster>
