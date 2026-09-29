@@ -8,7 +8,7 @@
 
 ## Inventory and architecture map
 
-The current tracked repository contains 1,720 files: 83 C++ sources, 88 C++ headers, one C source, 750 Lua scripts, 246 XML files, 337 NPC files, 39 `.ndb` data files, 35 JSON files, 3 SQL files, 33 Python files, 3 Shell scripts, 6 PHP files, 9 C# sources and 3 C# projects, CMake files, and client/server data assets. No Makefile, Dockerfile, submodule, or GitHub Actions workflow existed at the start of this audit. `config.lua` is intentionally ignored.
+The current tracked repository contains 1,721 files: 84 C++ sources, 88 C++ headers, one C source, 750 Lua scripts, 246 XML files, 337 NPC files, 39 `.ndb` data files, 35 JSON files, 3 SQL files, 33 Python files, 3 Shell scripts, 6 PHP files, 9 C# sources and 3 C# projects, CMake files, and client/server data assets. No Makefile, Dockerfile, submodule, or GitHub Actions workflow existed at the start of this audit. `config.lua` is intentionally ignored.
 
 | Component | Purpose / entry points | Risk / criticality | Dependencies / evidence |
 |---|---|---|---|
@@ -79,7 +79,7 @@ The server build is documented in `README.md`: Linux, CMake and system packages,
 - Python regressions: all 22 passed. AST parsing passed for all 33 tracked Python files. XML and JSON parsing passed for all 246 XML and 35 JSON files.
 - LuaJIT 2.1 was built x64 from the official source in a temporary directory with MSVC. Its bytecode compiler parsed all 750 tracked Lua files, including a temporary return wrapper for the persisted lamp-state table. Both tests/economy-inventory-tests.lua and tests/lamp-state-parser-tests.lua passed. This does not exercise the server's C++/Lua bindings or asynchronous callbacks in a running server.
 - `tests/rarity-economy-tests.lua` now exercises the actual Market inventory function over a nested 10,000-item chain, confirms the exact scan ceiling succeeds and the next item fails closed, and continues to cover rarity exclusion and transaction rollback. It passed with local LuaJIT and is wired into the Lua/Python CI job. This mock test does not replace a running server/container-binding test.
-- All three GitHub Actions workflows passed actionlint 1.7.12 locally. Gitleaks 8.30.1 scanned about 96.78 MB of the current checkout and found no leaks. Hosted workflow results, provider-side secrets, and other clones remain unverified.
+- All three GitHub Actions workflows passed actionlint 1.7.12 locally. After the latest commits, Gitleaks 8.30.1 scanned the 100 commits available in this local clone (about 10.22 MB) and found no leaks; an earlier current-tree scan covered about 96.78 MB and also found none. Provider-side secrets and other clones remain unverified.
 - XML/JSON/Python parsing and the focused Lua tests do not replace semantic linting: PHP, Luacheck, Cppcheck and ShellCheck were not available locally. CodeQL is configured but its hosted result is pending.
 - C# launcher and ReleaseSigner builds passed with zero warnings/errors; the bounded manifest-reader regression passed. The standalone status-IP cache test passed 20 MSVC runs. Isolated MSVC harnesses for scheduler queue and packet cursor/walking cases also passed, but none of these results builds or links the server.
 - The standalone ScriptReader include-depth regression compiled with MSVC `/W4 /WX` (suppressing pre-existing `C4996`/`C4267` warnings in `script.h`) and passed; it exercises the production header while stubbing unrelated `tools.h` dependencies. The CMake/CTest target is wired into each server build mode, but those hosted builds have not run.
