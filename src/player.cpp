@@ -489,28 +489,7 @@ void Player::equipItemRarity(slots_t slot, const Item* item)
 		return;
 	}
 
-	bool enabled = item && item->hasRarity();
-	if (enabled) {
-		switch (item->getRarityBonusType()) {
-			case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
-			case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
-			case ITEM_RARITY_BONUS_RESISTANCE:
-				enabled = slot == CONST_SLOT_ARMOR || slot == CONST_SLOT_LEGS;
-				break;
-			case ITEM_RARITY_BONUS_SPEED_PERCENT:
-				enabled = slot == CONST_SLOT_FEET;
-				break;
-			case ITEM_RARITY_BONUS_SKILL:
-				enabled = slot == CONST_SLOT_NECKLACE || slot == CONST_SLOT_RING;
-				break;
-			default:
-				enabled = slot == CONST_SLOT_LEFT || slot == CONST_SLOT_RIGHT;
-				break;
-		}
-	}
-
-	itemRarityItems[slot] = enabled ? item : nullptr;
-	itemRarityData[slot] = enabled ? static_cast<uint32_t>(item->getIntAttr(ITEM_ATTRIBUTE_RARITY)) : 0;
+	itemRarityItems[slot] = item && item->hasRarity() ? item : nullptr;
 	refreshItemRarityBonuses();
 }
 
@@ -522,8 +501,26 @@ void Player::deEquipItemRarity(slots_t slot, const Item* item)
 
 	// Transformations may notify removal of the old instance after adding its replacement.
 	itemRarityItems[slot] = nullptr;
-	itemRarityData[slot] = 0;
 	refreshItemRarityBonuses();
+}
+
+static bool canApplyPrimaryRarityBonus(slots_t slot, ItemRarityBonus_t bonusType)
+{
+	switch (bonusType) {
+		case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
+		case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
+		case ITEM_RARITY_BONUS_RESISTANCE:
+			return slot == CONST_SLOT_ARMOR || slot == CONST_SLOT_LEGS;
+		case ITEM_RARITY_BONUS_SPEED_PERCENT:
+			return slot == CONST_SLOT_FEET;
+		case ITEM_RARITY_BONUS_SKILL:
+			return slot == CONST_SLOT_NECKLACE || slot == CONST_SLOT_RING;
+		case ITEM_RARITY_BONUS_ATTACK:
+		case ITEM_RARITY_BONUS_DEFENSE:
+			return slot == CONST_SLOT_LEFT || slot == CONST_SLOT_RIGHT;
+		default:
+			return false;
+	}
 }
 
 void Player::refreshItemRarityBonuses()
@@ -532,29 +529,33 @@ void Player::refreshItemRarityBonuses()
 	int32_t skills[SKILL_LAST + 1] = {};
 	int32_t speed = 0;
 	for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
-		const uint32_t data = itemRarityData[slot];
-		const uint8_t type = (data >> 8) & 0xFF;
-		const uint8_t value = (data >> 16) & 0xFF;
-		const uint8_t subtype = (data >> 24) & 0xFF;
-		switch (type) {
-			case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
-				stats[STAT_MAXHITPOINTS] += static_cast<int32_t>(std::ceil(getDefaultStats(STAT_MAXHITPOINTS) * (value / 100.0)));
-				break;
-			case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
-				stats[STAT_MAXMANAPOINTS] += static_cast<int32_t>(std::ceil(getDefaultStats(STAT_MAXMANAPOINTS) * (value / 100.0)));
-				break;
-			case ITEM_RARITY_BONUS_SPEED_PERCENT:
-				speed += static_cast<int32_t>(std::round(getBaseSpeed() * (value / 100.0)));
-				break;
-			case ITEM_RARITY_BONUS_SKILL:
-				if (subtype <= SKILL_LAST) {
-					skills[subtype] += value;
-				} else if (subtype == SKILL_MAGLEVEL) {
-					stats[STAT_MAGICPOINTS] += value;
-				}
-				break;
-			default:
-				break;
+		const Item* item = itemRarityItems[slot];
+		if (!item) continue;
+		for (uint8_t index = 0; index < item->getRarityBonusCount(); ++index) {
+			ItemRarityBonus_t type;
+			uint8_t value, subtype;
+			if (!item->getRarityBonus(index, type, value, subtype)) continue;
+			if (index == 0 && !canApplyPrimaryRarityBonus(static_cast<slots_t>(slot), type)) continue;
+			switch (type) {
+				case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
+					stats[STAT_MAXHITPOINTS] += static_cast<int32_t>(std::ceil(getDefaultStats(STAT_MAXHITPOINTS) * (value / 100.0)));
+					break;
+				case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
+					stats[STAT_MAXMANAPOINTS] += static_cast<int32_t>(std::ceil(getDefaultStats(STAT_MAXMANAPOINTS) * (value / 100.0)));
+					break;
+				case ITEM_RARITY_BONUS_SPEED_PERCENT:
+					speed += static_cast<int32_t>(std::round(getBaseSpeed() * (value / 100.0)));
+					break;
+				case ITEM_RARITY_BONUS_SKILL:
+					if (subtype <= SKILL_LAST) {
+						skills[subtype] += value;
+					} else if (subtype == SKILL_MAGLEVEL) {
+						stats[STAT_MAGICPOINTS] += value;
+					}
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
@@ -1772,9 +1773,16 @@ BlockType_t Player::blockHit(Creature* attacker, CombatType_t combatType, int32_
 			}
 
 			const ItemType& it = Item::items[item->getID()];
-			if (isItemRarityEnabled(static_cast<slots_t>(slot)) && item->getRarityBonusType() == ITEM_RARITY_BONUS_RESISTANCE &&
-				item->getRarityBonusSubtype() == combatTypeToIndex(combatType)) {
-				rarityAbsorbPercent += item->getRarityBonusValue();
+			if (isItemRarityEnabled(static_cast<slots_t>(slot))) {
+				for (uint8_t index = 0; index < item->getRarityBonusCount(); ++index) {
+					ItemRarityBonus_t type;
+					uint8_t value, subtype;
+					if (item->getRarityBonus(index, type, value, subtype) && type == ITEM_RARITY_BONUS_RESISTANCE &&
+						subtype == combatTypeToIndex(combatType) &&
+						(index != 0 || canApplyPrimaryRarityBonus(static_cast<slots_t>(slot), type))) {
+						rarityAbsorbPercent += value;
+					}
+				}
 			}
 			if (!isItemAbilityEnabled(static_cast<slots_t>(slot))) {
 				continue;

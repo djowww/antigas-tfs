@@ -552,7 +552,17 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
 				return ATTR_READ_ERROR;
 			}
 
-			setIntAttr(ITEM_ATTRIBUTE_RARITY, static_cast<int32_t>(rarityData));
+			setRarityData(static_cast<ItemRarity_t>(rarityData & 0xFF),
+				static_cast<ItemRarityBonus_t>((rarityData >> 8) & 0xFF),
+				static_cast<uint8_t>((rarityData >> 16) & 0xFF), static_cast<uint8_t>((rarityData >> 24) & 0xFF));
+			break;
+		}
+
+		case ATTR_RARITY_EXTRAS: {
+			uint32_t extras;
+			if (!propStream.read<uint32_t>(extras) || !setRarityExtraData(extras)) {
+				return ATTR_READ_ERROR;
+			}
 			break;
 		}
 
@@ -684,10 +694,10 @@ bool Item::unserializeAttr(PropStream& propStream)
 		if (ret == ATTR_READ_ERROR) {
 			return false;
 		} else if (ret == ATTR_READ_END) {
-			return true;
+			return completeRarityExtras();
 		}
 	}
-	return true;
+	return completeRarityExtras();
 }
 
 bool Item::unserializeItemNode(FileLoader&, NODE, PropStream& propStream)
@@ -831,6 +841,11 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
 		propWriteStream.write<uint8_t>(ATTR_RARITY);
 		propWriteStream.write<uint32_t>(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)));
 	}
+
+	if (hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS) && hasRarity()) {
+		propWriteStream.write<uint8_t>(ATTR_RARITY_EXTRAS);
+		propWriteStream.write<uint32_t>(getRarityExtraData());
+	}
 }
 
 bool Item::isValidRarityData(uint32_t data)
@@ -863,6 +878,159 @@ bool Item::isValidRarityData(uint32_t data)
 	}
 }
 
+uint8_t Item::getRarityBonusCode(ItemRarityBonus_t type, uint8_t subtype)
+{
+	switch (type) {
+		case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT: return 1;
+		case ITEM_RARITY_BONUS_MAX_MANA_PERCENT: return 2;
+		case ITEM_RARITY_BONUS_SPEED_PERCENT: return 3;
+		case ITEM_RARITY_BONUS_ATTACK: return 4;
+		case ITEM_RARITY_BONUS_DEFENSE: return 5;
+		case ITEM_RARITY_BONUS_RESISTANCE:
+			switch (subtype) {
+				case 0: return 6;
+				case 1: return 7;
+				case 2: return 8;
+				case 3: return 9;
+				case 8: return 10;
+				default: return 0;
+			}
+		case ITEM_RARITY_BONUS_SKILL:
+			return subtype <= SKILL_MAGLEVEL ? static_cast<uint8_t>(11 + subtype) : 0;
+		default:
+			return 0;
+	}
+}
+
+bool Item::getRarityBonusFromCode(uint8_t code, ItemRarityBonus_t& type, uint8_t& subtype)
+{
+	subtype = 0;
+	if (code == 1) type = ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT;
+	else if (code == 2) type = ITEM_RARITY_BONUS_MAX_MANA_PERCENT;
+	else if (code == 3) type = ITEM_RARITY_BONUS_SPEED_PERCENT;
+	else if (code == 4) type = ITEM_RARITY_BONUS_ATTACK;
+	else if (code == 5) type = ITEM_RARITY_BONUS_DEFENSE;
+	else if (code >= 6 && code <= 10) {
+		type = ITEM_RARITY_BONUS_RESISTANCE;
+		static const uint8_t resistanceSubtypes[] = {0, 1, 2, 3, 8};
+		subtype = resistanceSubtypes[code - 6];
+	} else if (code >= 11 && code <= 18) {
+		type = ITEM_RARITY_BONUS_SKILL;
+		subtype = code - 11;
+	} else {
+		return false;
+	}
+	return true;
+}
+
+bool Item::isValidRarityExtras(uint32_t rarityData, uint32_t extras)
+{
+	if (!isValidRarityData(rarityData)) return false;
+	const uint8_t tier = rarityData & 0xFF;
+	const uint8_t extraCount = tier - 1;
+	if (extraCount == 0) return extras == 0;
+	if (extras >= (1u << (extraCount * 5))) return false;
+
+	const uint8_t primaryCode = getRarityBonusCode(static_cast<ItemRarityBonus_t>((rarityData >> 8) & 0xFF),
+		static_cast<uint8_t>((rarityData >> 24) & 0xFF));
+	if (primaryCode == 0) return false;
+
+	uint32_t seen = 0;
+	for (uint8_t index = 0; index < extraCount; ++index) {
+		const uint8_t code = static_cast<uint8_t>((extras >> (index * 5)) & 0x1F);
+		// Codes 4 and 5 remain the primary attack and defense stats of weapons and shields.
+		if (code == 0 || code == 4 || code == 5 || code == primaryCode || (seen & (1u << code))) return false;
+		ItemRarityBonus_t bonusType;
+		uint8_t subtype;
+		if (!getRarityBonusFromCode(code, bonusType, subtype)) return false;
+		seen |= 1u << code;
+	}
+	return true;
+}
+
+bool Item::setRarityExtraData(uint32_t data)
+{
+	const uint32_t rarityData = static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY));
+	if (!isValidRarityExtras(rarityData, data)) return false;
+	if (data == 0) {
+		removeAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS);
+	} else {
+		setIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS, static_cast<int32_t>(data));
+	}
+	return true;
+}
+
+bool Item::completeRarityExtras()
+{
+	if (!hasAttribute(ITEM_ATTRIBUTE_RARITY)) return true;
+	const uint32_t rarityData = static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY));
+	if (!isValidRarityData(rarityData)) return false;
+	if (hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) {
+		return isValidRarityExtras(rarityData, getRarityExtraData());
+	}
+
+	const uint8_t tier = rarityData & 0xFF;
+	if (tier <= 1) return true;
+	static const uint8_t extraCodes[] = {
+		1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+	};
+	const uint8_t primaryCode = getRarityBonusCode(static_cast<ItemRarityBonus_t>((rarityData >> 8) & 0xFF),
+		static_cast<uint8_t>((rarityData >> 24) & 0xFF));
+	const uint32_t seed = static_cast<uint32_t>(id) * 2654435761u ^ rarityData;
+	const uint8_t start = seed % (sizeof(extraCodes) / sizeof(extraCodes[0]));
+	uint32_t extras = 0;
+	uint8_t generated = 0;
+	for (uint8_t offset = 0; offset < sizeof(extraCodes) / sizeof(extraCodes[0]) && generated < tier - 1; ++offset) {
+		const uint8_t code = extraCodes[(start + offset * 7) % (sizeof(extraCodes) / sizeof(extraCodes[0]))];
+		if (code == primaryCode) continue;
+		extras |= static_cast<uint32_t>(code) << (generated * 5);
+		++generated;
+	}
+	return generated == tier - 1 && setRarityExtraData(extras);
+}
+
+uint8_t Item::getRarityBonusCount() const
+{
+	if (!hasRarity()) return 0;
+	return hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS) ? static_cast<uint8_t>(getRarityTier()) : 1;
+}
+
+bool Item::getRarityBonus(uint8_t index, ItemRarityBonus_t& type, uint8_t& value, uint8_t& subtype) const
+{
+	if (!hasRarity() || index >= getRarityBonusCount()) return false;
+	const uint8_t tier = static_cast<uint8_t>(getRarityTier());
+	if (index == 0) {
+		type = getRarityBonusType();
+		value = getRarityBonusValue();
+		subtype = getRarityBonusSubtype();
+		return true;
+	}
+
+	const uint8_t code = static_cast<uint8_t>((getRarityExtraData() >> ((index - 1) * 5)) & 0x1F);
+	if (!getRarityBonusFromCode(code, type, subtype)) return false;
+	value = type == ITEM_RARITY_BONUS_SPEED_PERCENT ? static_cast<uint8_t>(tier * 2) : tier;
+	return true;
+}
+
+uint32_t Item::getRarityBonusSum(ItemRarityBonus_t bonusType) const
+{
+	if (!hasRarity()) return 0;
+	const uint8_t tier = static_cast<uint8_t>(getRarityTier());
+	uint32_t total = 0;
+	if (getRarityBonusType() == bonusType) total += getRarityBonusValue();
+	if (!hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) return total;
+
+	const uint32_t extras = getRarityExtraData();
+	for (uint8_t index = 0; index < tier - 1; ++index) {
+		const uint8_t code = static_cast<uint8_t>((extras >> (index * 5)) & 0x1F);
+		ItemRarityBonus_t type;
+		uint8_t subtype;
+		if (!getRarityBonusFromCode(code, type, subtype) || type != bonusType) continue;
+		total += type == ITEM_RARITY_BONUS_SPEED_PERCENT ? tier * 2 : tier;
+	}
+	return total;
+}
+
 std::string Item::getRarityDescription() const
 {
 	if (!hasRarity()) {
@@ -876,38 +1044,39 @@ std::string Item::getRarityDescription() const
 
 	std::ostringstream description;
 	description << "Rarity: " << rarityNames[std::min<uint8_t>(tier, static_cast<uint8_t>(ITEM_RARITY_MYTHIC))];
-	description << "\nBonus: ";
-	switch (getRarityBonusType()) {
-		case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% maximum health";
-			break;
-		case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% maximum mana";
-			break;
-		case ITEM_RARITY_BONUS_RESISTANCE: {
-			const uint8_t subtype = getRarityBonusSubtype();
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% ";
-			description << (subtype < COMBAT_COUNT ? combatNames[subtype] : "unknown") << " resistance";
-			break;
+	for (uint8_t index = 0; index < getRarityBonusCount(); ++index) {
+		ItemRarityBonus_t type;
+		uint8_t value, subtype;
+		if (!getRarityBonus(index, type, value, subtype)) continue;
+		description << "\nBonus " << static_cast<uint32_t>(index + 1) << ": ";
+		switch (type) {
+			case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
+				description << '+' << static_cast<uint32_t>(value) << "% maximum health";
+				break;
+			case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
+				description << '+' << static_cast<uint32_t>(value) << "% maximum mana";
+				break;
+			case ITEM_RARITY_BONUS_RESISTANCE:
+				description << '+' << static_cast<uint32_t>(value) << "% ";
+				description << (subtype < COMBAT_COUNT ? combatNames[subtype] : "unknown") << " resistance";
+				break;
+			case ITEM_RARITY_BONUS_SPEED_PERCENT:
+				description << '+' << static_cast<uint32_t>(value) << "% speed";
+				break;
+			case ITEM_RARITY_BONUS_SKILL:
+				description << '+' << static_cast<uint32_t>(value) << ' ';
+				description << (subtype < sizeof(skillNames) / sizeof(skillNames[0]) ? skillNames[subtype] : "skill");
+				break;
+			case ITEM_RARITY_BONUS_ATTACK:
+				description << '+' << static_cast<uint32_t>(value) << " attack";
+				break;
+			case ITEM_RARITY_BONUS_DEFENSE:
+				description << '+' << static_cast<uint32_t>(value) << " defense";
+				break;
+			default:
+				description << "unknown";
+				break;
 		}
-		case ITEM_RARITY_BONUS_SPEED_PERCENT:
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << "% speed";
-			break;
-		case ITEM_RARITY_BONUS_SKILL: {
-			const uint8_t subtype = getRarityBonusSubtype();
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << ' ';
-			description << (subtype < sizeof(skillNames) / sizeof(skillNames[0]) ? skillNames[subtype] : "skill");
-			break;
-		}
-		case ITEM_RARITY_BONUS_ATTACK:
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << " attack";
-			break;
-		case ITEM_RARITY_BONUS_DEFENSE:
-			description << '+' << static_cast<uint32_t>(getRarityBonusValue()) << " defense";
-			break;
-		default:
-			description << "unknown";
-			break;
 	}
 	return description.str();
 }

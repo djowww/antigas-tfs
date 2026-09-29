@@ -104,6 +104,7 @@ enum AttrTypes_t {
 	ATTR_HITCHANCE = 37,
 	ATTR_SHOOTRANGE = 38,
 	ATTR_RARITY = 39,
+	ATTR_RARITY_EXTRAS = 40,
 };
 
 enum Attr_ReadValue {
@@ -326,7 +327,7 @@ class ItemAttributes
 
 	public:
 		inline static bool isIntAttrType(itemAttrTypes type) {
-			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY;
+			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY || type == ITEM_ATTRIBUTE_RARITY_EXTRAS;
 		}
 		inline static bool isStrAttrType(itemAttrTypes type) {
 			return (type & 0x1EC) != 0;
@@ -420,6 +421,7 @@ class Item : virtual public Thing
 		void setRarityData(ItemRarity_t rarity, ItemRarityBonus_t bonusType, uint8_t bonusValue, uint8_t subtype) {
 			if (rarity == ITEM_RARITY_NONE) {
 				removeAttribute(ITEM_ATTRIBUTE_RARITY);
+				removeAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS);
 				return;
 			}
 
@@ -427,13 +429,30 @@ class Item : virtual public Thing
 				(static_cast<uint32_t>(static_cast<uint8_t>(bonusType)) << 8) |
 				(static_cast<uint32_t>(bonusValue) << 16) |
 				(static_cast<uint32_t>(subtype) << 24);
-			if (isValidRarityData(packed)) {
-				setIntAttr(ITEM_ATTRIBUTE_RARITY, static_cast<int32_t>(packed));
+			if (!isValidRarityData(packed)) return;
+			removeAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS);
+			setIntAttr(ITEM_ATTRIBUTE_RARITY, static_cast<int32_t>(packed));
+			if (!completeRarityExtras()) {
+				removeAttribute(ITEM_ATTRIBUTE_RARITY);
+				removeAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS);
 			}
 		}
 		bool hasRarity() const {
-			return isValidRarityData(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)));
+			const uint32_t rarityData = static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY));
+			return isValidRarityData(rarityData) && (!hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS) ||
+				isValidRarityExtras(rarityData, getRarityExtraData()));
 		}
+		uint32_t getRarityExtraData() const {
+			return hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS) ? static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS)) : 0;
+		}
+		bool setRarityExtraData(uint32_t data);
+		bool completeRarityExtras();
+		uint8_t getRarityBonusCount() const;
+		bool getRarityBonus(uint8_t index, ItemRarityBonus_t& type, uint8_t& value, uint8_t& subtype) const;
+		uint32_t getRarityBonusSum(ItemRarityBonus_t type) const;
+		static uint8_t getRarityBonusCode(ItemRarityBonus_t type, uint8_t subtype);
+		static bool getRarityBonusFromCode(uint8_t code, ItemRarityBonus_t& type, uint8_t& subtype);
+		static bool isValidRarityExtras(uint32_t rarityData, uint32_t extras);
 		ItemRarity_t getRarityTier() const {
 			return static_cast<ItemRarity_t>(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)) & 0xFF);
 		}
@@ -638,7 +657,7 @@ class Item : virtual public Thing
 		}
 		int32_t getAttack() const {
 			const int32_t attack = hasAttribute(ITEM_ATTRIBUTE_ATTACK) ? getIntAttr(ITEM_ATTRIBUTE_ATTACK) : items[id].attack;
-			return attack + (hasRarity() && getRarityBonusType() == ITEM_RARITY_BONUS_ATTACK ? getRarityBonusValue() : 0);
+			return attack + getRarityBonusSum(ITEM_RARITY_BONUS_ATTACK);
 		}
 		int32_t getArmor() const {
 			if (hasAttribute(ITEM_ATTRIBUTE_ARMOR)) {
@@ -648,7 +667,7 @@ class Item : virtual public Thing
 		}
 		int32_t getDefense() const {
 			const int32_t defense = hasAttribute(ITEM_ATTRIBUTE_DEFENSE) ? getIntAttr(ITEM_ATTRIBUTE_DEFENSE) : items[id].defense;
-			return defense + (hasRarity() && getRarityBonusType() == ITEM_RARITY_BONUS_DEFENSE ? getRarityBonusValue() : 0);
+			return defense + getRarityBonusSum(ITEM_RARITY_BONUS_DEFENSE);
 		}
 		int32_t getSlotPosition() const {
 			return items[id].slotPosition;

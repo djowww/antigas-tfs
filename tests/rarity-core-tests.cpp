@@ -81,11 +81,12 @@ static uint16_t findType(const std::function<bool(const ItemType&)>& predicate)
 	throw std::runtime_error("required item category missing from items.srv");
 }
 
-static Item* equip(Player& player, uint16_t id, slots_t slot, ItemRarityBonus_t bonus, uint8_t value, uint8_t subtype = 0)
+static Item* equip(Player& player, uint16_t id, slots_t slot, ItemRarityBonus_t bonus, uint8_t value,
+	uint8_t subtype = 0, ItemRarity_t tier = ITEM_RARITY_UNCOMMON)
 {
 	Item* item = Item::CreateItem(id);
 	require(item != nullptr, "equipment must be created");
-	item->setRarityData(ITEM_RARITY_MYTHIC, bonus, value, subtype);
+	item->setRarityData(tier, bonus, value, subtype);
 	static_cast<Cylinder&>(player).internalAddThing(slot, item);
 	require(g_moveEvents->onPlayerEquip(&player, item, slot, true) == 1, "equip check must succeed");
 	require(!player.isItemRarityEnabled(slot), "equip check must not apply bonuses");
@@ -420,6 +421,13 @@ int main()
 
 		Item* weapon = Item::CreateItem(sword);
 		weapon->setRarityData(ITEM_RARITY_MYTHIC, ITEM_RARITY_BONUS_ATTACK, 5, 0);
+	const uint32_t expectedExtraBonuses = weapon->getRarityExtraData();
+	require(weapon->getRarityBonusCount() == 5, "mythic gear must carry exactly five rarity statuses");
+	require(weapon->getRarityDescription().find("Bonus 5:") != std::string::npos,
+		"rarity description must expose all statuses");
+	require(!weapon->setRarityExtraData(0), "incomplete extra statuses must be rejected");
+	require(!weapon->setRarityExtraData(1 | (1 << 5) | (2 << 10) | (3 << 15)),
+		"duplicate extra statuses must be rejected");
 		weapon->setIntAttr(ITEM_ATTRIBUTE_ATTACK, 47);
 		require(weapon->getAttack() == 52, "refine base attack and rarity must add once");
 		WeaponMelee melee(nullptr);
@@ -437,8 +445,11 @@ int main()
 		Item* restored = Item::CreateItem(sword);
 		require(restored->unserializeAttr(loaded), "serialized rarity must load");
 		require(restored->getRarityTier() == ITEM_RARITY_MYTHIC && restored->getAttack() == 52, "rarity and refine must persist together");
+	require(restored->getRarityBonusCount() == 5 && restored->getRarityExtraData() == expectedExtraBonuses,
+		"all rarity statuses must persist with the item");
 		Item* clone = restored->clone();
 		require(clone->equals(restored), "clone must preserve rarity attributes");
+	require(clone->getRarityExtraData() == expectedExtraBonuses, "clone must preserve extra rarity statuses");
 		delete clone;
 		delete restored;
 		delete weapon;
@@ -474,8 +485,9 @@ int main()
 		require(player.getMaxHealth() == player.getDefaultStats(STAT_MAXHITPOINTS), "carrying armor in hand must not grant armor bonus");
 		unequip(player, carriedArmor, CONST_SLOT_RIGHT);
 		const int32_t originalSkill = player.getSkillLevel(SKILL_SWORD);
-		Item* ringItem = equip(player, ring, CONST_SLOT_RING, ITEM_RARITY_BONUS_SKILL, 5, SKILL_SWORD);
+	Item* ringItem = equip(player, ring, CONST_SLOT_RING, ITEM_RARITY_BONUS_SKILL, 5, SKILL_SWORD, ITEM_RARITY_MYTHIC);
 		Item* necklaceItem = equip(player, necklace, CONST_SLOT_NECKLACE, ITEM_RARITY_BONUS_SKILL, 3, SKILL_SWORD);
+	const uint32_t ringExtras = ringItem->getRarityExtraData();
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + 8, "ring and necklace skill bonuses must stack");
 		unequip(player, necklaceItem, CONST_SLOT_NECKLACE);
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + 5, "removing necklace must preserve ring bonus");
@@ -486,7 +498,8 @@ int main()
 		targetType.type = ITEM_TYPE_KEY;
 		Item* transformed = g_game.transformItem(ringItem, necklace);
 		require(transformed && transformed != ringItem, "test must exercise replacement transform");
-		require(transformed->getRarityTier() == ITEM_RARITY_MYTHIC, "replacement transform must preserve rarity");
+	require(transformed->getRarityTier() == ITEM_RARITY_MYTHIC && transformed->getRarityExtraData() == ringExtras,
+		"replacement transform must preserve rarity and all extra statuses");
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + 5, "old item removal must not remove replacement bonus");
 		targetType.type = originalType;
 		unequip(player, transformed, CONST_SLOT_RING);
@@ -539,6 +552,19 @@ int main()
 			auto items = monster.createLootItem(loot);
 			require(items.size() == 1 && items.front()->hasRarity(), "100 percent rarity chance must mark eligible loot");
 			++tiers[items.front()->getRarityTier()];
+			require(items.front()->getRarityBonusCount() == items.front()->getRarityTier(),
+				"generated status count must equal rarity tier");
+			uint32_t seen = 0;
+			for (uint8_t index = 0; index < items.front()->getRarityBonusCount(); ++index) {
+				ItemRarityBonus_t type;
+				uint8_t value, subtype;
+				require(items.front()->getRarityBonus(index, type, value, subtype), "every generated status must decode");
+				const uint8_t code = Item::getRarityBonusCode(type, subtype);
+				require(code != 0 && (seen & (1u << code)) == 0, "a generated item may not repeat a status");
+				if (index > 0) require(type != ITEM_RARITY_BONUS_ATTACK && type != ITEM_RARITY_BONUS_DEFENSE,
+					"extra statuses may not duplicate gear-specific attack or defense");
+				seen |= 1u << code;
+			}
 			delete items.front();
 		}
 		for (unsigned tier = 1; tier <= 5; ++tier) {

@@ -117,6 +117,24 @@ static void applyItemRarity(Item* item)
 	}
 
 	item->setRarityData(rarity, bonusType, bonusValue, subtype);
+	const uint8_t primaryCode = Item::getRarityBonusCode(bonusType, subtype);
+	static const uint8_t extraCodes[] = {1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
+	uint8_t candidates[sizeof(extraCodes) / sizeof(extraCodes[0])];
+	uint8_t candidateCount = 0;
+	for (uint8_t index = 0; index < sizeof(extraCodes) / sizeof(extraCodes[0]); ++index) {
+		if (extraCodes[index] != primaryCode) candidates[candidateCount++] = extraCodes[index];
+	}
+
+	uint32_t extraBonuses = 0;
+	for (uint8_t index = 0; index < tier - 1; ++index) {
+		const uint8_t selected = uniform_random(index, static_cast<uint8_t>(candidateCount - 1));
+		std::swap(candidates[index], candidates[selected]);
+		extraBonuses |= static_cast<uint32_t>(candidates[index]) << (index * 5);
+	}
+	if (!item->setRarityExtraData(extraBonuses)) {
+		// Never create an item with a tier that promises more bonuses than it has.
+		item->setRarityData(ITEM_RARITY_NONE, ITEM_RARITY_BONUS_NONE, 0, 0);
+	}
 }
 
 void MonsterType::createLoot(Container* corpse)
