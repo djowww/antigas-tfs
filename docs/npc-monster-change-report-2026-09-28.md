@@ -6,9 +6,11 @@ Foram atualizados somente textos de fala em 13 NPCs, com 39 respostas alinhadas 
 
 NPCs alterados: alexander, asima, avar, bigben, fenech, frans, haroun, rachel, shiriel, sigurd, tandros, topsy e xodet.
 
+Na revisão seguinte, foram removidas 12 menções a wands/rods de falas em 11 NPCs. Na comparação atual, os únicos 12 textos de fala diferentes entre gatilhos únicos correspondentes são essas referências removidas; os demais textos comparáveis coincidem. Ainda há quatro nomes de arquivo exclusivos entre as pastas e os gatilhos e conteúdos de regra listados acima para reconciliar antes de tornar os conjuntos idênticos.
+
 A pasta de referência e TFS/data/npc contêm 337 arquivos .npc cada, com 335 nomes em comum. Os arquivos markwin.npc e orcking.npc existem apenas na referência; angel.npc e rashid.npc existem apenas no Antigas. Não foram adicionados nem removidos NPCs.
 
-A comparação encontrou 219 regras da referência sem um gatilho exatamente correspondente no Antigas e 88 casos de gatilhos repetidos/ambíguos; esses ramos foram preservados. As listas de estoque e os preços também permanecem próprios do Antigas, mesmo quando o texto de referência descreve uma oferta diferente.
+A análise comparativa encontrou 218 gatilhos únicos presentes só na referência e 1.123 só no Antigas, além de 88 casos ambíguos por gatilhos repetidos. Há 728 pares de regras com gatilho único correspondente cujo restante da linha difere além da fala, incluindo valores e formas de ação; esses pontos exigem revisão por regra. As listas de estoque e os preços também permanecem próprios do Antigas, mesmo quando o texto de referência descreve uma oferta diferente.
 
 ## Monstros alterados
 

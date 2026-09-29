@@ -24,7 +24,7 @@ VANISH,!           -> "Good bye. Come back soon."
 "job"       -> "I help my brother handling his little magic store so he can focus on studying spells."
 "time"      -> "It's %T right now."
 
-"offer"           -> "I'm selling life and mana fluids, runes, wands, rods and spellbooks."
+"offer"           -> "I'm selling life and mana fluids, runes and spellbooks."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
