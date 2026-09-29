@@ -26,7 +26,7 @@ AntigasSidebarToggle < ButtonBox
     border-bottom-color: #5b4326
 
   $checked:
-    image-clip: 0 46 22 23
+    image-clip: 0 0 22 23
     text-offset: 0 0
     icon-color: #ffe0a0
     image-color: #e0ad55
@@ -37,6 +37,7 @@ AntigasSidebarToggle < ButtonBox
     border-bottom-color: #8e622c
 
   $checked hover:
+    image-clip: 0 23 22 23
     icon-color: #fff5de
     image-color: #f2cf82
     border-top-color: #fff0b4
@@ -89,7 +90,7 @@ AntigasSidebarAction < Button
     border-bottom-color: #5b4326
 
   $on:
-    image-clip: 0 46 22 23
+    image-clip: 0 0 22 23
     image-color: #e0ad55
     icon-color: #ffe0a0
     border-top-color: #f4d27f
@@ -98,6 +99,7 @@ AntigasSidebarAction < Button
     border-bottom-color: #8e622c
 
   $on hover:
+    image-clip: 0 23 22 23
     image-color: #f2cf82
     icon-color: #fff5de
     border-top-color: #fff0b4
