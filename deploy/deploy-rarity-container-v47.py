@@ -14,6 +14,7 @@ import shutil
 import socket
 import subprocess
 import tarfile
+import tempfile
 import time
 
 def require(condition, message='Deployment precondition failed'):
@@ -165,13 +166,25 @@ def atomic_copy(source, target, uid=None, gid=None, mode=None):
     owner = previous.st_uid if previous else (uid if uid is not None else 0)
     group = previous.st_gid if previous else (gid if gid is not None else 0)
     permissions = mode if mode is not None else (previous.st_mode & 0o777 if previous else 0o644)
-    temporary = target.with_name(target.name + '.v47-new')
-    shutil.copyfile(source, temporary)
-    os.chmod(temporary, permissions)
-    os.chown(temporary, owner, group)
-    with temporary.open('rb') as stream:
-        os.fsync(stream.fileno())
-    os.replace(temporary, target)
+    fd, temporary_name = tempfile.mkstemp(
+        prefix='.' + target.name + '.', suffix='.tmp', dir=target.parent
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(fd, 'wb') as output:
+            with source.open('rb') as input_stream:
+                shutil.copyfileobj(input_stream, output)
+            output.flush()
+            os.fchown(output.fileno(), owner, group)
+            os.fchmod(output.fileno(), permissions)
+            os.fsync(output.fileno())
+        os.replace(temporary, target)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def backup():
