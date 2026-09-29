@@ -17,6 +17,21 @@ class LampStateParserSourceTests(unittest.TestCase):
         self.assertIn("lampTransformIds[itemId]", source)
         self.assertIn("reverseLampTransformIds[itemId]", source)
 
+    def test_legacy_analyzer_unserializer_is_not_reintroduced(self):
+        analyzer = (ROOT / "data" / "lib" / "core" / "analyzersLib.lua").read_text(encoding="utf-8")
+        bootstrap = (ROOT / "data" / "lib" / "lib.lua").read_text(encoding="utf-8")
+        lamp_states = (ROOT / "data" / "lib" / "lamp_states.lua").read_text(encoding="utf-8")
+
+        self.assertNotIn("function unserialize(", analyzer)
+        self.assertNotIn("function serialize(", analyzer)
+        self.assertNotIn("loadstring", analyzer)
+        self.assertLess(
+            bootstrap.index("dofile('data/lib/core/core.lua')"),
+            bootstrap.index("dofile('data/lib/lamp_states.lua')"),
+        )
+        self.assertIn("function unserialize(str)", lamp_states)
+        self.assertIn("msg:addString(serialize(res))", analyzer)
+
 
 if __name__ == "__main__":
     unittest.main()
