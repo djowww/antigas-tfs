@@ -66,6 +66,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE="$build_type" \
             -DTFS_BUILD_RARITY_TESTS=ON \
+            -DTFS_BUILD_STATUS_QUERY_TESTS=ON \
             -DCMAKE_CXX_FLAGS="$compile_flags" \
             -DCMAKE_EXE_LINKER_FLAGS="$linker_flags"
 
