@@ -7,26 +7,26 @@ Home = [32621,32739,5]
 Radius = 0
 
 Behaviour = {
-ADDRESS,"hello$",! -> "Oh, please come in, %N. What do you need?"
+ADDRESS,"hello$",! -> "Be greeted, student of the arcane."
 ADDRESS,"hi$",!    -> *
 ADDRESS,!          -> Idle
-BUSY,"hello$",!    -> "Sorry %N, I am already talking to a customer. Wait a minute, please.", Queue
+BUSY,"hello$",!    -> "Show some patience please.", Queue
 BUSY,"hi$",!       -> *
 BUSY,!             -> NOP
-VANISH,!           -> "Good bye."
+VANISH,!           -> "Farewell."
 
-"bye"      -> "Good bye and come again.", Idle
+"bye"      -> "Farewell.", Idle
 "farewell" -> *
-"name"     -> "I'm Xodet, the owner of this shop."
-"job"      -> "I'm sorcerer and trade with all kinds of magic items."
+"name"     -> "I am Tandros the magnificent."
+"job"      -> "I am selling items of magic power such as runes, wands, rods, life fluids and mana fluids."
 "sorcerer" -> "There is a sorcerer guild in Thais. Just go in the east of the town, it is easly to find."
 
-"offer"           -> "I'm selling life and mana fluids, blank runes and spellbooks."
+"offer"           -> "I'm selling life and mana fluids, runes, wands, rods and spellbooks."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
 
-"rune"         -> "I sell blank runes."
+"rune"         -> "I sell blank runes and spell runes."
 "life","fluid" -> Type=2874, Data=11, Amount=1, Price=60, "Do you want to buy life fluid for %P gold?", Topic=2
 "mana","fluid" -> Type=2874, Data=10, Amount=1, Price=100, "Do you want to buy mana fluid for %P gold?", Topic=2
 "blank","rune" -> Type=3147, Amount=1, Price=10, "Do you want to buy a blank rune for %P gold?", Topic=1
@@ -60,11 +60,11 @@ BUSY,"instant", "bp", "of", "blank", "rune" -> Amount=1, Price=200, "Do you want
 "flask"                     -> *
 
 Topic=1,"yes",CountMoney>=Price -> "Here you are.", DeleteMoney, Create(Type)
-Topic=1,"yes"                   -> "Come back, when you have enough money."
+Topic=1,"yes"                   -> "Come back when you have enough money."
 Topic=1                         -> "Hmm, but next time."
 
-Topic=2,"yes",CountMoney>=Price -> "Here you are. There is a deposit of 5 gold on the vial.", DeleteMoney, Create(Type)
-Topic=2,"yes"                   -> "Come back, when you have enough money."
+Topic=2,"yes",CountMoney>=Price -> "Here you are. There is a deposit of 5 gold on every vial.", DeleteMoney, Create(Type)
+Topic=2,"yes"                   -> "Come back when you have enough money."
 Topic=2                         -> "Hmm, but next time."
 
 Topic=3,"yes",Count(2874)>0 -> Amount=Count(2874), Price=Amount*5, "Here you are ... %P gold.", Delete(2874), CreateMoney

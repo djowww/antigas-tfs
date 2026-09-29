@@ -2,9 +2,13 @@
 
 ## NPCs
 
-Nenhum arquivo de NPC foi alterado nesta publicação.
+Foram atualizados somente textos de fala em 13 NPCs, com 39 respostas alinhadas aos arquivos correspondentes de Desktop\npc. Cada alteração exigiu um gatilho único e idêntico nos dois lados. Não foram alterados palavras-chave, preços, compras, condições de quests, ações, ramificações ou a estrutura dos scripts.
 
-Na comparação somente de leitura entre `Desktop\npc` e `TFS/data/npc`, há 374 nomes de arquivo em comum. A extração de blocos `Behaviour` encontrou diferenças em 94 NPCs; parte delas muda gatilhos, ações ou regras de quests/comércio, não apenas o texto falado. Esses scripts foram preservados nesta publicação para evitar substituir lógica de jogo sem revisão específica. Os arquivos `markwin.npc` e `orcking.npc` existem apenas na referência; `angel.npc` e `rashid.npc` existem apenas no Antigas.
+NPCs alterados: alexander, asima, avar, bigben, fenech, frans, haroun, rachel, shiriel, sigurd, tandros, topsy e xodet.
+
+A pasta de referência e TFS/data/npc contêm 337 arquivos .npc cada, com 335 nomes em comum. Os arquivos markwin.npc e orcking.npc existem apenas na referência; angel.npc e rashid.npc existem apenas no Antigas. Não foram adicionados nem removidos NPCs.
+
+A comparação encontrou 219 regras da referência sem um gatilho exatamente correspondente no Antigas e 88 casos de gatilhos repetidos/ambíguos; esses ramos foram preservados. As listas de estoque e os preços também permanecem próprios do Antigas, mesmo quando o texto de referência descreve uma oferta diferente.
 
 ## Monstros alterados
 

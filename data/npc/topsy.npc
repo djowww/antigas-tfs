@@ -13,20 +13,20 @@ ADDRESS,!          -> Idle
 BUSY,"hello$",!    -> "Sorry %N, I am already talking to a customer. Wait a minute, please.", Queue
 BUSY,"hi$",!       -> *
 BUSY,!             -> NOP
-VANISH,!           -> "Good bye."
+VANISH,!           -> "Good bye. Do come again!"
 
-"bye"      -> "Good bye and come again.", Idle
+"bye"      -> "Good bye. Do come again!", Idle
 "farewell" -> *
-"name"     -> "I'm Xodet, the owner of this shop."
-"job"      -> "I'm sorcerer and trade with all kinds of magic items."
+"name"     -> "My name is Topsy."
+"job"      -> "I sell runes, life and mana fluids - your best friends in any dungeon!"
 "sorcerer" -> "There is a sorcerer guild in Thais. Just go in the east of the town, it is easly to find."
 
-"offer"           -> "I'm selling life and mana fluids, blank runes and spellbooks."
+"offer"           -> "I'm selling life and mana fluids, runes, wands, rods and spellbooks."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
 
-"rune"         -> "I sell blank runes."
+"rune"         -> "I sell blank runes and spell runes."
 "life","fluid" -> Type=2874, Data=11, Amount=1, Price=60, "Do you want to buy life fluid for %P gold?", Topic=2
 "mana","fluid" -> Type=2874, Data=10, Amount=1, Price=100, "Do you want to buy mana fluid for %P gold?", Topic=2
 "blank","rune" -> Type=3147, Amount=1, Price=10, "Do you want to buy a blank rune for %P gold?", Topic=1

@@ -120,7 +120,9 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="news-body">
           <p class="dropcap"><?= siteT('Selected monster stats and loot chances were aligned more closely with the classic reference data.') ?></p>
           <p><?= siteT('Health, experience, speed, mana cost, melee, armor and defense values, plus matching loot counts and chances, now follow the reference where the Antigas format supports a direct mapping. Antigas-specific drops were kept for existing quests.') ?></p>
-          <p><?= siteT('No NPC scripts were changed in this update.') ?></p>
+          <p><?= siteT('Dialogue wording in 13 NPCs was aligned with the reference files.') ?></p>
+          <p class="news-note"><?= siteT('NPCs included in this update:') ?> Alexander · Asima · Avar · Big Ben · Fenech · Frans · Haroun · Rachel · Shiriel · Sigurd · Tandros · Topsy · Xodet</p>
+          <p><?= siteT('NPC triggers, quest conditions, purchase actions and prices were preserved.') ?></p>
           <p class="news-note"><?= siteT('Monsters included in this update:') ?> Badger · Bandit · Bear · Beholder · Black Knight · Cave Rat · Chicken · Crypt Shambler · Demon · Dragon · Dragon Lord · Dwarf Guard · Efreet · Elf Arcanist · Fire Devil · Ghoul · Hyaena · Marid · Minotaur Mage · Mummy · Necromancer · Necropharus · Orc Leader · Orc Shaman · Priestess · Rat · Rotworm · Scarab · Serpent Spawn · Skunk · Terror Bird · Wild Warrior · Witch · Wolf</p>
         </div>
       </article>
