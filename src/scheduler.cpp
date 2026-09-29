@@ -48,7 +48,14 @@ void Scheduler::threadMain()
 				continue;
 			}
 			eventIds.erase(it);
+			std::vector<SchedulerTask*> cancelledTasks;
+			if (eventList.needsCompaction(eventIds.size())) {
+				cancelledTasks = eventList.discardCancelled(eventIds);
+			}
 			eventLockUnique.unlock();
+			for (SchedulerTask* cancelledTask : cancelledTasks) {
+				delete cancelledTask;
+			}
 
 			task->setDontExpire();
 			g_dispatcher.addTask(task, true);
@@ -104,7 +111,7 @@ bool Scheduler::stopEvent(uint32_t eventid)
 		return false;
 	}
 
-	std::lock_guard<std::mutex> lockClass(eventLock);
+	std::unique_lock<std::mutex> lockClass(eventLock);
 
 	// search the event id..
 	auto it = eventIds.find(eventid);
@@ -113,6 +120,17 @@ bool Scheduler::stopEvent(uint32_t eventid)
 	}
 
 	eventIds.erase(it);
+	std::vector<SchedulerTask*> cancelledTasks;
+	if (eventList.needsCompaction(eventIds.size())) {
+		cancelledTasks = eventList.discardCancelled(eventIds);
+	}
+	lockClass.unlock();
+	if (!cancelledTasks.empty()) {
+		eventSignal.notify_one();
+	}
+	for (SchedulerTask* task : cancelledTasks) {
+		delete task;
+	}
 	return true;
 }
 
