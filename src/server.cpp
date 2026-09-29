@@ -125,6 +125,7 @@ void ServicePort::onAccept(Connection_ptr connection, const boost::system::error
 {
 	if (!error) {
 		if (services.empty()) {
+			connection->close(Connection::FORCE_CLOSE);
 			return;
 		}
 
@@ -141,12 +142,16 @@ void ServicePort::onAccept(Connection_ptr connection, const boost::system::error
 		}
 
 		accept();
-	} else if (error != boost::asio::error::operation_aborted) {
-		if (!pendingStart) {
+	} else {
+		// The connection was registered before async_accept; release it on every
+		// failed/cancelled accept so it cannot remain retained by ConnectionManager.
+		connection->close(Connection::FORCE_CLOSE);
+
+		if (error != boost::asio::error::operation_aborted && !pendingStart) {
 			close();
 			pendingStart = true;
 			g_scheduler.addEvent(createSchedulerTask(15000,
-			                     std::bind(&ServicePort::openAcceptor, std::weak_ptr<ServicePort>(shared_from_this()), serverPort)));
+				                     std::bind(&ServicePort::openAcceptor, std::weak_ptr<ServicePort>(shared_from_this()), serverPort)));
 		}
 	}
 }
