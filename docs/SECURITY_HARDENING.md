@@ -42,7 +42,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path -v
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
@@ -78,6 +78,13 @@ The production confirmation flags only prevent accidental invocation; they are n
 - `Scheduler::addEvent` now snapshots the ID before exposing the task to the scheduler thread. This prevents reading `task` after it may have been dispatched and destroyed; the 10 ms output-message timer demonstrates a short-delay caller in production code.
 - The new Python source-invariant test passed with the full 16-test local Python suite. It checks that the ID copy precedes queue publication and that the task pointer is not dereferenced after `eventLock` is released. This does not reproduce the scheduling race dynamically.
 - Full server compilation and TSan remain pending because CMake/Boost and the Linux server dependency chain are unavailable locally.
+
+## Follow-up verification — 2026-09-29 (bug report path)
+
+- `Player:onReportBug` preserves the existing per-character report filename for ordinary names. If a name contains `/` or `\\`, it falls back to the player's numeric GUID; the character name remains in the report contents.
+- Added a Python source-invariant regression and wired it into the Python CI job. LuaJIT is unavailable locally, so no Lua runtime execution is claimed. Existing report files continue to receive reports for names without path separators.
+- All 17 local Python regressions passed, all three GitHub workflows passed `actionlint`, and `git diff --check` passed. The validator used by the public character-registration site is private/outside this checkout, so legacy/imported name constraints remain unverified.
+- Gitleaks scanned approximately 96.75 MB of the current checkout and reported no leaks. This local scan does not inspect hosted repositories, deployment files, or other clones.
 
 ## Deferred changes
 
