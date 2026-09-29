@@ -40,16 +40,15 @@ internal static class ReleaseService
         response.EnsureSuccessStatusCode();
         if (response.Content.Headers.ContentLength is > 65536) throw new InvalidDataException("O manifesto excede o tamanho permitido.");
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        using var buffer = new MemoryStream();
-        await stream.CopyToAsync(buffer, cancellationToken);
-        if (buffer.Length > 65536) throw new InvalidDataException("O manifesto excede o tamanho permitido.");
-        return ParseAndVerify(buffer.ToArray());
+        var bytes = await BoundedContentReader.ReadAsync(stream, 65536, cancellationToken);
+        return ParseAndVerify(bytes);
     }
 
     public static ReleaseManifest ReadAndVerifyManifest(string path)
     {
+        var file = new FileInfo(path);
+        if (file.Length > 65536) throw new InvalidDataException("O manifesto local excede o tamanho permitido.");
         var bytes = File.ReadAllBytes(path);
-        if (bytes.Length > 65536) throw new InvalidDataException("O manifesto local excede o tamanho permitido.");
         return ParseAndVerify(bytes);
     }
 

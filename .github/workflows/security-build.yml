@@ -137,3 +137,6 @@ jobs:
 
       - name: Build release signer
         run: dotnet build tools/ReleaseSigner/ReleaseSigner.csproj --configuration Release
+
+      - name: Test bounded launcher manifest reads
+        run: dotnet run --project tests/LauncherSafetyTests.csproj --configuration Release
