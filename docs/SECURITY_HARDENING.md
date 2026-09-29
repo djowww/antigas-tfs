@@ -42,7 +42,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order test_connection_shutdown_serialization -v
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
@@ -92,6 +92,13 @@ The production confirmation flags only prevent accidental invocation; they are n
 - Added source-invariant regressions for the atomic queue transition and both shutdown call sites, then added them to the CI Python suite. All 19 local Python regressions passed, all three workflows passed `actionlint`, and `git diff --check` passed.
 - Full server compilation and concurrent shutdown/TSan validation remain pending because CMake/Boost are unavailable locally. The regression is a source-order check, not a runtime thread test.
 
+## Follow-up verification — 2026-09-29 (connection shutdown serialization)
+
+- `ServiceManager::stop` now posts one I/O handler that closes all listeners first, then closes all tracked connections on the same single `io_service.run()` thread. `ConnectionManager::closeAll` swaps the registry under its mutex, releases that mutex, then marks and closes each connection under `connectionLock`.
+- Added Python source-invariant checks for listener-before-socket ordering, per-connection locking, and avoiding global/connection lock inversion. Runtime I/O cancellation ordering and TSan still require a full server build and isolated staging.
+- All 21 local Python regression tests passed, all three workflows passed `actionlint`, and `git diff --check` passed. The test asserts source ordering only and does not substitute for a concurrent runtime test.
+- Gitleaks scanned approximately 96.77 MB of the checkout and reported no leaks; this does not inspect hosted secrets, production deployment files, or other clones.
+
 ## Deferred changes
 
-No wire protocol, gameplay, login format, database schema, production configuration, firewall, TLS, account hash, or client behavior was changed. The Lua watchdog change is diagnostic/performance code and still needs LuaJIT staging validation. Connection-cap values require traffic measurements; the shutdown socket race needs an I/O-lifecycle change plus TSan/staging verification; password hashing needs a compatibility plan; C++ task exception isolation needs semantic review. Status-query state has a 65,536-IP cap and incremental cleanup; a full cache may temporarily refuse unseen status clients. The separate unauthenticated game TCP accept surface still lacks measured connection admission limits. Those issues and external validation gaps are tracked in [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md).
+No wire protocol, gameplay, login format, database schema, production configuration, firewall, TLS, account hash, or client behavior was changed. The Lua watchdog change is diagnostic/performance code and still needs LuaJIT staging validation. Connection-cap values require traffic measurements; socket and dispatcher shutdown fixes still need a full build plus TSan/staging validation; password hashing needs a compatibility plan; C++ task exception isolation needs semantic review. Status-query state has a 65,536-IP cap and incremental cleanup; a full cache may temporarily refuse unseen status clients. The separate unauthenticated game TCP accept surface still lacks measured connection admission limits. Those issues and external validation gaps are tracked in [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md).
