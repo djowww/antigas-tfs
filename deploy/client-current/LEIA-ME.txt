@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v48
+ANTIGAS 7.4 — CLIENTE v49
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
