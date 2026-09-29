@@ -4,6 +4,14 @@
 #include <stdexcept>
 
 namespace {
+class ExposedNetworkMessage : public NetworkMessage
+{
+	public:
+		void setCursorPosition(MsgSize_t position) {
+			info.position = position;
+		}
+};
+
 void require(bool condition, const char* message)
 {
 	if (!condition) {
@@ -48,6 +56,23 @@ void testInvalidBacktrackingFailsClosed()
 	require(message.isOverrun(), "backtracking before the body should mark overrun");
 	require(message.getBufferPosition() == NetworkMessage::INITIAL_BUFFER_POSITION, "invalid backtracking must not underflow the cursor");
 }
+
+void testBacktrackingRejectsOutOfRangeCursors()
+{
+	ExposedNetworkMessage logicalEnd;
+	logicalEnd.setLength(0);
+	logicalEnd.setCursorPosition(NetworkMessage::INITIAL_BUFFER_POSITION + 5);
+	require(logicalEnd.getPreviousByte() == 0, "backtracking past the logical packet end should return zero");
+	require(logicalEnd.isOverrun(), "backtracking past the logical packet end should mark overrun");
+	require(logicalEnd.getBufferPosition() == NetworkMessage::INITIAL_BUFFER_POSITION + 5, "logical-end rejection must leave the cursor unchanged");
+
+	ExposedNetworkMessage bufferEnd;
+	bufferEnd.setLength(NETWORKMESSAGE_MAXSIZE);
+	bufferEnd.setCursorPosition(NETWORKMESSAGE_MAXSIZE);
+	require(bufferEnd.getPreviousByte() == 0, "backtracking at the buffer boundary should return zero");
+	require(bufferEnd.isOverrun(), "backtracking at the buffer boundary should mark overrun");
+	require(bufferEnd.getBufferPosition() == NETWORKMESSAGE_MAXSIZE, "buffer-boundary rejection must leave the cursor unchanged");
+}
 }
 
 int main()
@@ -56,6 +81,7 @@ int main()
 		testValidSkipAndBacktrack();
 		testInvalidSkipsFailClosed();
 		testInvalidBacktrackingFailsClosed();
+		testBacktrackingRejectsOutOfRangeCursors();
 		return 0;
 	} catch (const std::exception&) {
 		return 1;
