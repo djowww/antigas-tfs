@@ -60,7 +60,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order test_connection_shutdown_serialization test_lamp_state_parser -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_coin_page_cache test_dispatcher_shutdown_order test_connection_shutdown_serialization test_lamp_state_parser test_deployment_preconditions test_connection_output_queue test_sql_identifier test_script_filename -v
 ```
 
 From the repository root, with LuaJIT 2.1 installed:
