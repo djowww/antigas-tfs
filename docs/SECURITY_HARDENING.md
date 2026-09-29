@@ -22,6 +22,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Removed the unused legacy `analyzersLib.lua` serializer/deserializer pair; its deserializer called `loadstring`, and normal startup already replaced both globals with the lamp-state implementations. Added a source regression for this invariant.
 - Fixed `reserveScriptEnv` so the rejected 17th nested Lua callback does not increment the global environment index out of range. Added a shared 16-slot index helper and a native boundary/unwind test, included in the sanitizer CTest matrix.
 - Capped each TCP connection's pending output queue at 64 `OutputMessage` objects, counting the in-flight write. Each object owns a fixed 65,500-byte buffer, so this bounds queued message buffers to roughly 4 MiB per connection; excess output closes only that slow connection. Added a native boundary test and source-order regression. The cap is a conservative safeguard pending staging traffic metrics; aggregate memory exposure from unbounded accepted connections remains a separate `NET-01` concern.
+- Hardened `DatabaseManager::optimizeTables` to quote metadata-derived table identifiers by doubling embedded backticks. Normal table names keep the same SQL spelling. Added native edge-case tests and a source regression; this closes an identifier-injection surface but does not replace the wider `DB-01` audit of manual SQL construction and connection charset.
 - Made all 14 assertion-based validation utilities under `tests/` refuse Python `-O` before importing dependencies or touching staging; the regression dynamically checks every such script.
 - Added `.github/workflows/security-build.yml` with release, release-hardened, ASan/UBSan, and separate TSan builds, plus Lua/Python and Windows launcher checks; added C++/C# CodeQL and full-history Gitleaks workflows and monthly Dependabot checks. Third-party Actions are pinned to full SHAs.
 - Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. A LuaJIT regression now exercises a 10,000-item nested chain and checks exact-limit acceptance and over-limit rejection; the security workflow runs it. Mocked containers do not replace staging validation of the server bindings.
@@ -153,6 +154,11 @@ The production confirmation flags only prevent accidental invocation; they are n
 - `Connection::send` now rejects a 65th pending output message and force-closes that connection. The count includes the message currently being written; each `OutputMessage` owns a fixed 65,500-byte buffer, making the pending message-buffer ceiling roughly 4 MiB per connection.
 - The standalone native boundary test compiled with MSVC `/W4 /WX` and passed 20 consecutive runs. All 33 local Python regressions passed, including source checks that the overflow guard runs before queue append and that CMake/CI include the native test. `git diff --check` passed.
 - The full server/CMake build, hosted CI, and staging traffic measurements were unavailable. The limit is conservative pending observed output bursts; it does not cap aggregate connections or total server memory.
+
+## Follow-up verification — 2026-09-29 (SQL identifier quoting)
+
+- `DatabaseManager::optimizeTables` used table names read from `information_schema` as SQL identifiers. Embedded backticks are now doubled before enclosing the identifier in backticks; normal names are unchanged.
+- The standalone C++11-compatible regression compiled with MSVC `/W4 /WX` and passed. The Python suite includes checks that the metadata value goes through the helper and that CMake/CI run the native test. A real DB integration test was not possible locally.
 
 ## Deferred changes
 

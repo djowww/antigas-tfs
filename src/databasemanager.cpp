@@ -22,6 +22,7 @@
 #include "configmanager.h"
 #include "databasemanager.h"
 #include "luascript.h"
+#include "sqlidentifier.h"
 
 extern ConfigManager g_config;
 
@@ -41,7 +42,7 @@ bool DatabaseManager::optimizeTables()
 		std::cout << "> Optimizing table " << tableName << "..." << std::flush;
 
 		query.str(std::string());
-		query << "OPTIMIZE TABLE `" << tableName << '`';
+		query << "OPTIMIZE TABLE " << quoteSqlIdentifier(tableName);
 
 		if (db->executeQuery(query.str())) {
 			std::cout << " [success]" << std::endl;
