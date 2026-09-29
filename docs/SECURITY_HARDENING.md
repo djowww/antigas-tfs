@@ -7,6 +7,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Added `tests/staging_safety.py`: mutation probes require explicit approval, an isolated database name ending in `_test`, `_qa`, `_stage`, or `_staging` (optional `_vN`), and a dedicated staging game port (7176 or 7186). Production-like database tokens and the production game port are rejected.
 - Guarded the seven mutating achievement, bestiary, ground-rarity, loot, quest-log, and rarity probes before their DB/network work. Removed production DB defaults and an external private test-protocol dependency from the Bestiary and Quest Log probes; made those modules safe to import.
 - Release pending TCP connections from `ConnectionManager` when `async_accept` fails/is cancelled or services disappear during an accept callback.
+- Make the delayed `Creature:sendColorText` callback store player IDs instead of nested player userdata, then resolve live players when the callback runs.
 - Fix the Lua watchdog time-unit mismatch: `os.mtime()` is milliseconds, so its baseline and 1-second threshold now use milliseconds consistently.
 - Hardened `deploy/systemd/staging-maintenance-recovery.sh` so it attempts all three recovery actions even if one fails; it exits nonzero when any action fails.
 - Added explicit `--confirm-production-deploy` gates to the five archived deployment scripts and `--confirm-production-change` gates to both production Nginx scripts. Importing the Python scripts no longer runs a deployment phase.
