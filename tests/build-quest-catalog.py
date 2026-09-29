@@ -3,6 +3,10 @@
 Generated files are mechanical output. Edit this manifest, not player storages.
 Unknown map rewards retain descriptive names rather than guessed quest names.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import argparse
 from collections import defaultdict
 import json

@@ -9,6 +9,10 @@ Use --self-test for parser checks without a database or network connection.
 Real drops and corpse-open authorization belong to the isolated core/client
 fixtures. A successful live smoke must not be represented as that coverage.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import hashlib
 import importlib.util
 import json

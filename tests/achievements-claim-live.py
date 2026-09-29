@@ -2,6 +2,10 @@
 
 Requires the explicit isolated-staging guard. Never edit or test against production.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import hashlib
 import importlib.util
 from pathlib import Path

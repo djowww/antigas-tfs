@@ -4,6 +4,10 @@ The native client needs a C++ LocalPlayer for MapView. Beginning a dummy login
 creates that object; the stub sends no game data and does not authenticate.
 No real account, password, server connection, or installed settings are used.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import argparse
 import json
 import os

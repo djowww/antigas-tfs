@@ -16,6 +16,10 @@ import subprocess
 import tarfile
 import time
 
+def require(condition, message='Deployment precondition failed'):
+    if not condition:
+        raise RuntimeError(message)
+
 PREP = Path('/opt/antigas-rarity-container-v47-20260928')
 SERVER = Path('/opt/imperium772/server')
 WEB = Path('/var/www/otclient')
@@ -78,20 +82,44 @@ def wait_for_ports(timeout=90):
 
 
 def preflight_build():
-    assert digest(PREP / 'tfs') == NEW_BINARY, 'Staged server binary checksum mismatch'
-    assert '100% tests passed, 0 tests failed out of 1' in (PREP / 'core-test.log').read_text()
-    assert digest(PREP / 'incoming' / CLIENT) == CLIENT_SHA256, 'Client ZIP checksum mismatch'
+    require(
+        (digest(PREP / 'tfs') == NEW_BINARY),
+        ('Staged server binary checksum mismatch'),
+    )
+    require(
+        ('100% tests passed, 0 tests failed out of 1' in (PREP / 'core-test.log').read_text()),
+        ('Core regression test suite did not pass'),
+    )
+    require(
+        (digest(PREP / 'incoming' / CLIENT) == CLIENT_SHA256),
+        ('Client ZIP checksum mismatch'),
+    )
     release = json.loads((PREP / 'incoming' / 'client-release.json').read_text())
-    assert release.get('version') == 47 and release.get('name') == 'Antigas 7.4 v47'
-    assert str(release.get('sha256', '')).lower() == CLIENT_SHA256
+    require(
+        (release.get('version') == 47 and release.get('name') == 'Antigas 7.4 v47'),
+        ('Client release manifest version or name mismatch'),
+    )
+    require(
+        (str(release.get('sha256', '')).lower() == CLIENT_SHA256),
+        ('Client release manifest checksum mismatch'),
+    )
 
 
 def preflight_baseline():
-    assert digest(SERVER / 'tfs') == OLD_BINARY, 'Production binary changed after review'
+    require(
+        (digest(SERVER / 'tfs') == OLD_BINARY),
+        ('Production binary changed after review'),
+    )
     for name, expected in WEB_BASELINE.items():
-        assert digest(WEB / name) == expected, 'Public file changed during review: ' + name
+        require(
+            (digest(WEB / name) == expected),
+            ('Public file changed during review: ' + name),
+        )
     target = WEB / CLIENT
-    assert not target.exists(), 'The v47 download path already exists; inspect it before continuing'
+    require(
+        (not target.exists()),
+        ('The v47 download path already exists; inspect it before continuing'),
+    )
 
 
 def database_snapshot(path):
@@ -108,7 +136,10 @@ def database_snapshot(path):
                     saved_name.write_text(database + '\n', encoding='utf-8')
                     os.chmod(saved_name, 0o600)
                     break
-    assert database, 'The existing private TFS_DB_NAME service environment is required'
+    require(
+        (database),
+        ('The existing private TFS_DB_NAME service environment is required'),
+    )
     with path.open('wb') as output:
         process = subprocess.Popen([
             'mariadb-dump', '--protocol=socket', '--user=root', '--single-transaction',
@@ -117,9 +148,15 @@ def database_snapshot(path):
         with gzip.GzipFile(fileobj=output, mode='wb') as zipped:
             shutil.copyfileobj(process.stdout, zipped)
         error = process.stderr.read()
-        assert process.wait(timeout=120) == 0, 'Database backup failed; inspect private diagnostics'
+        require(
+            (process.wait(timeout=120) == 0),
+            ('Database backup failed; inspect private diagnostics'),
+        )
     os.chmod(path, 0o600)
-    assert path.stat().st_size > 1000, 'Database snapshot is unexpectedly small'
+    require(
+        (path.stat().st_size > 1000),
+        ('Database snapshot is unexpectedly small'),
+    )
     run(['gzip', '-t', str(path)])
 
 
@@ -140,7 +177,10 @@ def atomic_copy(source, target, uid=None, gid=None, mode=None):
 def backup():
     preflight_build()
     preflight_baseline()
-    assert not (PREP / 'backup-path.txt').exists(), 'A deployment backup already exists; inspect it first'
+    require(
+        (not (PREP / 'backup-path.txt').exists()),
+        ('A deployment backup already exists; inspect it first'),
+    )
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     folder = Path('/root/antigas-backups') / ('rarity-container-v47-' + stamp)
     folder.mkdir(parents=True, mode=0o700)
@@ -169,8 +209,10 @@ def clean_stop(started):
                   capture_output=True, text=True).stdout
     (PREP / 'shutdown.log').write_text(journal, encoding='utf-8')
     state = service_state()
-    assert state['Result'] == 'success' and re.search(r'Shutting down\.+\s*done!', journal), \
-        'Clean game shutdown was not confirmed'
+    require(
+        (state['Result'] == 'success' and re.search(r'Shutting down\.+\s*done!', journal)),
+        ('Clean game shutdown was not confirmed'),
+    )
 
 
 def restore_and_start(old_binary):
@@ -188,15 +230,24 @@ def install():
     preflight_build()
     preflight_baseline()
     backup_path = Path((PREP / 'backup-path.txt').read_text(encoding='utf-8').strip())
-    assert backup_path.parent == Path('/root/antigas-backups')
-    assert backup_path.name.startswith('rarity-container-v47-')
+    require(
+        (backup_path.parent == Path('/root/antigas-backups')),
+        ('Backup directory is outside the approved location'),
+    )
+    require(
+        (backup_path.name.startswith('rarity-container-v47-')),
+        ('Backup directory does not match this deployment'),
+    )
     old_binary = PREP / 'previous-tfs'
     with tarfile.open(backup_path / 'files-before.tar.gz') as archive:
         member = archive.getmember('server/tfs')
         with archive.extractfile(member) as source, old_binary.open('wb') as output:
             shutil.copyfileobj(source, output)
     os.chmod(old_binary, 0o700)
-    assert digest(old_binary) == OLD_BINARY, 'Private previous-binary backup does not match baseline'
+    require(
+        (digest(old_binary) == OLD_BINARY),
+        ('Private previous-binary backup does not match baseline'),
+    )
 
     started = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
     try:
@@ -205,11 +256,17 @@ def install():
         database_snapshot(backup_path / 'database-after-stop.sql.gz')
         stat = (SERVER / 'tfs').stat()
         atomic_copy(PREP / 'tfs', SERVER / 'tfs', stat.st_uid, stat.st_gid, stat.st_mode & 0o777)
-        assert digest(SERVER / 'tfs') == NEW_BINARY
+        require(
+            (digest(SERVER / 'tfs') == NEW_BINARY),
+            ('Installed server binary checksum mismatch'),
+        )
         note('candidate_binary_installed', sha256=NEW_BINARY)
         run(['systemctl', 'start', SERVICE], timeout=60)
         state = wait_for_ports()
-        assert state['NRestarts'] == '0', 'Service restarted unexpectedly during startup'
+        require(
+            (state['NRestarts'] == '0'),
+            ('Service restarted unexpectedly during startup'),
+        )
         note('server_healthy', main_pid=state['MainPID'], ports=[7173, 7174], sha256=NEW_BINARY)
     except Exception:
         state = service_state()
@@ -231,24 +288,42 @@ def install():
 
 def website():
     preflight_build()
-    assert digest(SERVER / 'tfs') == NEW_BINARY, 'Expected v47 server must be active before publishing its client'
+    require(
+        (digest(SERVER / 'tfs') == NEW_BINARY),
+        ('Expected v47 server must be active before publishing its client'),
+    )
     state = wait_for_ports(timeout=1)
-    assert state['NRestarts'] == '0'
+    require(
+        (state['NRestarts'] == '0'),
+        ('Service restarted before website publication'),
+    )
     for name in ('index.php', 'client-release.json'):
         current = digest(WEB / name)
         intended = digest(PREP / 'incoming' / name)
-        assert current in (WEB_BASELINE[name], intended), 'Public file changed before website publication: ' + name
-    assert digest(WEB / 'Antigas-7.4-Client-v46.zip') == WEB_BASELINE['Antigas-7.4-Client-v46.zip']
+        require(
+            (current in (WEB_BASELINE[name], intended)),
+            ('Public file changed before website publication: ' + name),
+        )
+    require(
+        (digest(WEB / 'Antigas-7.4-Client-v46.zip') == WEB_BASELINE['Antigas-7.4-Client-v46.zip']),
+        ('Existing v46 client package changed before publishing v47'),
+    )
     run(['php', '-l', str(PREP / 'incoming' / 'index.php')])
     owner = (WEB / 'client-release.json').stat()
     target = WEB / CLIENT
     if target.exists():
-        assert digest(target) == CLIENT_SHA256, 'A different v47 file already occupies the release path'
+        require(
+            (digest(target) == CLIENT_SHA256),
+            ('A different v47 file already occupies the release path'),
+        )
     else:
         atomic_copy(PREP / 'incoming' / CLIENT, target, owner.st_uid, owner.st_gid, 0o644)
     atomic_copy(PREP / 'incoming' / 'index.php', WEB / 'index.php')
     atomic_copy(PREP / 'incoming' / 'client-release.json', WEB / 'client-release.json')
-    assert digest(target) == CLIENT_SHA256
+    require(
+        (digest(target) == CLIENT_SHA256),
+        ('Published client package checksum mismatch'),
+    )
     note('client_release_published', version=47, sha256=CLIENT_SHA256)
 
 

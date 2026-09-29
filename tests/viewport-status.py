@@ -1,4 +1,8 @@
 """Read-only legacy status-protocol smoke check; no account credentials."""
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import socket
 import struct
 import sys
