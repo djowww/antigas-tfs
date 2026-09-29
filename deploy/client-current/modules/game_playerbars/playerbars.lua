@@ -78,6 +78,11 @@ function resizeButtons()
   for index, button in ipairs(buttons) do
     button:setWidth(buttonWidth)
     button:setHeight(buttonWidth)
+    -- Icon-size defines a fixed draw rectangle from the button's top-left.
+    -- Move that rectangle to the center whenever responsive sizing changes.
+    local iconOffset = math.floor((buttonWidth - 14) / 2)
+    button:setIconOffsetX(iconOffset)
+    button:setIconOffsetY(iconOffset)
     -- Sibling right anchors refer to the last pixel, not the next one.
     button:setMarginLeft(index == 1 and leftMargin or gap + 1)
   end
