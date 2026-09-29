@@ -240,9 +240,9 @@ std::string LuaScriptInterface::getErrorDesc(ErrorCode_t code)
 ScriptEnvironment LuaScriptInterface::scriptEnv[ScriptEnvironmentIndex::CAPACITY];
 ScriptEnvironmentIndex LuaScriptInterface::scriptEnvIndex;
 
-LuaScriptInterface::LuaScriptInterface(std::string interfaceName) : interfaceName(std::move(interfaceName))
+LuaScriptInterface::LuaScriptInterface(std::string interfaceName, bool initializeMainState) : interfaceName(std::move(interfaceName))
 {
-	if (!g_luaEnvironment.getLuaState()) {
+	if (initializeMainState && !g_luaEnvironment.getLuaState()) {
 		g_luaEnvironment.initState();
 	}
 }
@@ -12077,7 +12077,10 @@ int LuaScriptInterface::luaPartySetSharedExperience(lua_State* L)
 }
 
 //
-LuaEnvironment::LuaEnvironment() : LuaScriptInterface("Main Interface") {}
+LuaEnvironment::LuaEnvironment() : LuaScriptInterface("Main Interface", false)
+{
+	initState();
+}
 
 LuaEnvironment::~LuaEnvironment()
 {
@@ -12087,6 +12090,10 @@ LuaEnvironment::~LuaEnvironment()
 
 bool LuaEnvironment::initState()
 {
+	if (luaState) {
+		return true;
+	}
+
 	luaState = luaL_newstate();
 	if (!luaState) {
 		return false;

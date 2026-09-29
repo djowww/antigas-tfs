@@ -691,6 +691,8 @@ int main()
 		require(nativeRing->getID() == nativeRingId && nativeRing->hasRarity(), "native unequip transformation must preserve rarity");
 		require(!player.isItemAbilityEnabled(CONST_SLOT_RING) && !player.isItemRarityEnabled(CONST_SLOT_RING), "native and rarity state must clear on unequip");
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill && player.getMagicLevel() == magicBase, "native and magic rarity bonuses must both remove exactly");
+		bag->removeThing(nativeRing, nativeRing->getItemCount());
+		delete nativeRing;
 		lootTests();
 		groundRarityTests();
 		groundRarityMovementTests();
