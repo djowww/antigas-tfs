@@ -20,7 +20,7 @@ VANISH,!                 -> "Asha Thrazi."
 "bye"           -> "Asha Thrazi.", Idle
 "asha","thrazi" -> *
 "farewell"      -> *
-"job"           -> "I sell mystic runes, spellbooks, wands, rods and fluids of life or mana."
+"job"           -> "I sell mystic runes, spellbooks and fluids of life or mana."
 "name"          -> "I am Shiriel Sharaziel."
 "time"          -> "Time was mastered by my people long ago."
 

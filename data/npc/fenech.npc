@@ -20,7 +20,7 @@ VANISH,!           -> "May enlightenment be your path."
 
 "bye"      -> "May enlightenment be your path.", Idle
 "farewell" -> *
-"job"      -> "I sell runes, wands, rods and spellbooks."
+"job"      -> "I sell runes and spellbooks."
 "offer"    -> *
 "name"     -> "I am the mourned Fenech."
 "time"     -> "Buy a watch on the bazar."

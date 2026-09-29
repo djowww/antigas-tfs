@@ -31,7 +31,7 @@ VANISH,!           -> "See you."
 "news"      -> "Ask for news and rumors in the tavern."
 "rumors"    -> *
 
-"offer"           -> "I'm selling runes, life rings, wands, rods and crystal balls."
+"offer"           -> "I'm selling runes, life rings and crystal balls."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
