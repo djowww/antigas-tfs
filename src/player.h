@@ -1038,6 +1038,7 @@ class Player final : public Creature, public Cylinder
 		uint64_t groundRaritySequence = 0;
 		int64_t lastGroundRaritySync = 0;
 		int64_t lastGroundRarityReplay = 0;
+		int64_t lastGroundRarityRequest = 0;
 		std::map<uint64_t, std::string> groundRarityTiles;
 		bool lootProtocol = false;
 		int64_t lastLootSync = 0;

@@ -4,7 +4,7 @@ local OPCODE, MAX_TILES, CHECK_MS, PULSE_MS = 129, 256, 500, 500
 local colors = {'#42C96B', '#3E8BFF', '#A855F7', '#F5C542', '#EF4444'}
 local pulseColors = {'#4ACF72', '#4B93FF', '#AE63F9', '#F7CD4B', '#F04E4E'}
 local tiles, tileCount, sequence = {}, 0, 0
-local checkEvent, helloEvent, ready, helloAttempts
+local checkEvent, helloEvent, ready, helloAttempts, lastSnapshotRequest
 local pulseBright, lastPulse = false, 0
 
 local function colorize(mark)
@@ -57,6 +57,17 @@ local function clearTiles()
   pulseBright, lastPulse = false, 0
 end
 
+local function requestSnapshot()
+  if not ready or not g_game.isOnline() then return end
+  local now = g_clock.millis()
+  if lastSnapshotRequest and now - lastSnapshotRequest < 5000 then return end
+  local protocol = g_game.getProtocolGame()
+  if protocol and g_game.getFeature(GameExtendedOpcode) then
+    lastSnapshotRequest = now
+    protocol:sendExtendedOpcode(OPCODE, 'S|1')
+  end
+end
+
 -- The sprite keeps its rarity color independently of cursor highlight marks.
 function restoreMark(item)
   local pos = item and item:getPosition()
@@ -81,6 +92,7 @@ function updateMarks()
     lastPulse = now
     pulseBright = not pulseBright
   end
+  local missingNativeItem = false
   for key, entry in pairs(tiles) do
     local tile = g_map.getTile(entry.position)
     for index = #entry.items, 1, -1 do
@@ -88,12 +100,14 @@ function updateMarks()
       if not containsItem(tile, mark, entry.position) then
         table.remove(entry.items, index)
         clearMark(mark)
+        missingNativeItem = true
       elseif pulse then
         colorize(mark)
       end
     end
     if #entry.items == 0 then removeTile(key) end
   end
+  if missingNativeItem then requestSnapshot() end
   -- One timer for the whole viewport, regardless of the number of rare items.
   if tileCount > 0 then checkEvent = scheduleEvent(updateMarks, CHECK_MS) end
 end
@@ -176,7 +190,7 @@ end
 function reset()
   clearTiles()
   if helloEvent then removeEvent(helloEvent); helloEvent = nil end
-  ready, helloAttempts = false, 0
+  ready, helloAttempts, lastSnapshotRequest = false, 0, nil
 end
 
 function online()
