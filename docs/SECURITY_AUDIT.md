@@ -8,7 +8,7 @@
 
 ## Inventory and architecture map
 
-The current tracked repository contains 1,709 files: 80 C++ sources, 87 C++ headers, one C source, 749 Lua scripts, 246 XML files, 337 NPC files, 39 `.ndb` data files, 35 JSON files, 3 SQL files, 27 Python files, 3 Shell scripts, 6 PHP files, 9 C# sources and 3 C# projects, CMake files, and client/server data assets. No Makefile, Dockerfile, submodule, or GitHub Actions workflow existed at the start of this audit. `config.lua` is intentionally ignored.
+The current tracked repository contains 1,713 files: 81 C++ sources, 87 C++ headers, one C source, 749 Lua scripts, 246 XML files, 337 NPC files, 39 `.ndb` data files, 35 JSON files, 3 SQL files, 30 Python files, 3 Shell scripts, 6 PHP files, 9 C# sources and 3 C# projects, CMake files, and client/server data assets. No Makefile, Dockerfile, submodule, or GitHub Actions workflow existed at the start of this audit. `config.lua` is intentionally ignored.
 
 | Component | Purpose / entry points | Risk / criticality | Dependencies / evidence |
 |---|---|---|---|
