@@ -2,11 +2,12 @@ diff --git a/src/enums.h b/src/enums.h
 index 797d940..86edacb 100644
 --- a/src/enums.h
 +++ b/src/enums.h
-@@ -57,6 +57,7 @@ enum itemAttrTypes : uint32_t {
+@@ -57,6 +57,8 @@ enum itemAttrTypes : uint32_t {
  	ITEM_ATTRIBUTE_DOORQUESTVALUE = 1 << 25,
  	ITEM_ATTRIBUTE_DOORLEVEL = 1 << 26,
  	ITEM_ATTRIBUTE_CHESTQUESTNUMBER = 1 << 27,
 +	ITEM_ATTRIBUTE_RARITY = 1u << 28,
++	ITEM_ATTRIBUTE_RARITY_EXTRAS = 1u << 29,
  };
  
  enum VipStatus_t : uint8_t {
@@ -14,22 +15,27 @@ diff --git a/src/game.cpp b/src/game.cpp
 index e701872..b270682 100644
 --- a/src/game.cpp
 +++ b/src/game.cpp
-@@ -1579,6 +1579,9 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
+@@ -1579,6 +1579,12 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
  						return nullptr;
  					}
  
 +					if (item->hasAttribute(ITEM_ATTRIBUTE_RARITY)) {
 +						newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY, item->getIntAttr(ITEM_ATTRIBUTE_RARITY));
 +					}
++					if (item->hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) {
++						newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS, item->getIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS));
++					}
  					cylinder->replaceThing(itemIndex, newItem);
  					cylinder->postAddNotification(newItem, cylinder, itemIndex);
  
-@@ -1625,6 +1628,9 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
+@@ -1625,5 +1631,11 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
  		return nullptr;
  	}
- 
 +	if (item->hasAttribute(ITEM_ATTRIBUTE_RARITY)) {
 +		newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY, item->getIntAttr(ITEM_ATTRIBUTE_RARITY));
++	}
++	if (item->hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) {
++		newItem->setIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS, item->getIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS));
 +	}
  	cylinder->replaceThing(itemIndex, newItem);
  	cylinder->postAddNotification(newItem, cylinder, itemIndex);
@@ -38,7 +44,7 @@ diff --git a/src/item.cpp b/src/item.cpp
 index 1d1bf6a..575d85f 100644
 --- a/src/item.cpp
 +++ b/src/item.cpp
-@@ -542,6 +542,15 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
+@@ -542,6 +542,24 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
  			break;
  		}
  
@@ -51,10 +57,19 @@ index 1d1bf6a..575d85f 100644
 +			break;
 +		}
 +
++		case ATTR_RARITY_EXTRAS: {
++			uint32_t extras;
++			if (!propStream.read<uint32_t>(extras)) {
++				return ATTR_READ_ERROR;
++			}
++			setIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS, static_cast<int32_t>(extras));
++			break;
++		}
++
  		case ATTR_KEYNUMBER: {
  			uint16_t keyNumber;
  			if (!propStream.read<uint16_t>(keyNumber)) {
-@@ -812,6 +821,10 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
+@@ -812,5 +830,13 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
  		propWriteStream.write<uint8_t>(ATTR_CHESTQUESTNUMBER);
  		propWriteStream.write<uint16_t>(getIntAttr(ITEM_ATTRIBUTE_CHESTQUESTNUMBER));
  	}
@@ -62,27 +77,30 @@ index 1d1bf6a..575d85f 100644
 +		propWriteStream.write<uint8_t>(ATTR_RARITY);
 +		propWriteStream.write<uint32_t>(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY)));
 +	}
++	if (hasAttribute(ITEM_ATTRIBUTE_RARITY_EXTRAS)) {
++		propWriteStream.write<uint8_t>(ATTR_RARITY_EXTRAS);
++		propWriteStream.write<uint32_t>(static_cast<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_RARITY_EXTRAS)));
++	}
  }
  
- bool Item::hasProperty(ITEMPROPERTY prop) const
 diff --git a/src/item.h b/src/item.h
 index 1f48126..8fe98d0 100644
 --- a/src/item.h
 +++ b/src/item.h
-@@ -103,6 +103,7 @@ enum AttrTypes_t {
+@@ -103,6 +103,8 @@ enum AttrTypes_t {
  	ATTR_ARMOR = 36,
  	ATTR_HITCHANCE = 37,
  	ATTR_SHOOTRANGE = 38,
 +	ATTR_RARITY = 39,
++	ATTR_RARITY_EXTRAS = 40,
  };
  
  enum Attr_ReadValue {
-@@ -325,7 +326,7 @@ class ItemAttributes
- 
+@@ -325,6 +327,6 @@ class ItemAttributes
  	public:
  		inline static bool isIntAttrType(itemAttrTypes type) {
 -			return (type & 0xFFFFE13) != 0;
-+			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY;
++			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY || type == ITEM_ATTRIBUTE_RARITY_EXTRAS;
  		}
  		inline static bool isStrAttrType(itemAttrTypes type) {
  			return (type & 0x1EC) != 0;

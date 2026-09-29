@@ -1308,6 +1308,8 @@ void ProtocolGame::sendContainer(uint8_t cid, const Container* container, bool h
 				payload += std::to_string(item && item->hasRarity() ? item->getRarityBonusValue() : 0);
 				payload.push_back(',');
 				payload += std::to_string(item && item->hasRarity() ? item->getRarityBonusSubtype() : 0);
+				payload.push_back(',');
+				payload += std::to_string(item && item->hasRarity() ? item->getRarityExtraData() : 0);
 			}
 			msg.addByte(0x32);
 			msg.addByte(127);
@@ -1868,6 +1870,31 @@ void ProtocolGame::sendInventoryItem(slots_t slot, const Item* item)
 	} else {
 		msg.addByte(0x79);
 		msg.addByte(slot);
+	}
+
+	// Send rarity with the inventory update itself so login never renders a
+	// known rare item as uncolored while a separate request travels to the server.
+	if (player && (otclientV8 || player->getOperatingSystem() >= CLIENTOS_OTCLIENT_LINUX)) {
+		const bool rare = item && item->hasRarity();
+		std::string payload = "P|I|" + std::to_string(slot) + "|";
+		payload += std::to_string(item ? item->getID() : 0);
+		payload.push_back(',');
+		payload += std::to_string(item ? item->getItemCount() : 0);
+		payload.push_back(',');
+		payload += std::to_string(item ? item->getSubType() : 0);
+		payload.push_back(',');
+		payload += std::to_string(rare ? static_cast<uint8_t>(item->getRarityTier()) : 0);
+		payload.push_back(',');
+		payload += std::to_string(rare ? static_cast<uint8_t>(item->getRarityBonusType()) : 0);
+		payload.push_back(',');
+		payload += std::to_string(rare ? item->getRarityBonusValue() : 0);
+		payload.push_back(',');
+		payload += std::to_string(rare ? item->getRarityBonusSubtype() : 0);
+		payload.push_back(',');
+		payload += std::to_string(rare ? item->getRarityExtraData() : 0);
+		msg.addByte(0x32);
+		msg.addByte(127);
+		msg.addString(payload);
 	}
 	writeToOutputBuffer(msg);
 }

@@ -6330,7 +6330,7 @@ int LuaScriptInterface::luaItemGetDescription(lua_State* L)
 
 int LuaScriptInterface::luaItemGetRarityInfo(lua_State* L)
 {
-	// item:getRarityInfo() -> tier, bonusType, bonusValue, subtype
+	// item:getRarityInfo() -> tier, bonusType, bonusValue, subtype, packedExtraBonuses
 	Item* item = getUserdata<Item>(L, 1);
 	if (!item || !item->hasRarity()) {
 		lua_pushnil(L);
@@ -6341,7 +6341,8 @@ int LuaScriptInterface::luaItemGetRarityInfo(lua_State* L)
 	lua_pushnumber(L, static_cast<uint8_t>(item->getRarityBonusType()));
 	lua_pushnumber(L, item->getRarityBonusValue());
 	lua_pushnumber(L, item->getRarityBonusSubtype());
-	return 4;
+	lua_pushnumber(L, item->getRarityExtraData());
+	return 5;
 }
 
 int LuaScriptInterface::luaItemGetRarityDescription(lua_State* L)

@@ -25,10 +25,13 @@ local function getUpvalue(fn, name)
   end
   error('Missing callback ' .. name)
 end
-local function item(tier, bonusType, value, subtype)
+local function item(tier, bonusType, value, subtype, itemId)
   return {
+    getId = function() return itemId or 3004 end,
+    getCount = function() return 1 end,
+    getSubType = function() return 0 end,
     getTooltip = function() return 'Original item description' end,
-    getRarityInfo = function() return tier, bonusType, value, subtype end
+    getRarityInfo = function() return tier, bonusType, value, subtype, 0 end
   }
 end
 local function widget(heldItem)
@@ -55,15 +58,18 @@ local protocol = {sendExtendedOpcode = function(_, opcode, payload)
   requests[#requests + 1] = payload
 end}
 local online, feature = true, true
+local characterName = 'UI Test'
 local globals = {
   tr = function(s) return s end,
   GameExtendedOpcode = 1,
+  CONST_SLOT_HEAD = 1, CONST_SLOT_AMMO = 10,
   InventorySlotFirst = 1, InventorySlotLast = 10,
   PlayerStates = setmetatable({}, {__index = function(t, k) t[k] = k; return k end}),
   modules = {},
   g_game = {
     isOnline = function() return online end,
     getFeature = function() return feature end,
+    getCharacterName = function() return characterName end,
     getProtocolGame = function() return protocol end,
     getContainers = function() return openContainers end
   }
@@ -79,17 +85,17 @@ local function clientSandbox(path)
   chunk()
   return env
 end
-local inventory = clientSandbox('../../Cliente/modules/game_inventory/inventory.lua')
+local inventory = clientSandbox('deploy/client-current/modules/game_inventory/inventory.lua')
 globals.modules.game_inventory = inventory
 local rarity = inventory.AntigasItemRarity
 local callback = getUpvalue(inventory.init, 'onItemRarityOpcode')
 local invWidgets = {}
 for i = 1, 10 do invWidgets['slot' .. i] = widget() end
 inventory.inventoryPanel = panel(invWidgets)
-local containerModule = clientSandbox('../../Cliente/modules/game_containers/containers.lua')
+local containerModule = clientSandbox('deploy/client-current/modules/game_containers/containers.lua')
 globals.UIItem = {}
 globals.g_mouse = {popCursor = function() end}
-clientSandbox('../../Cliente/modules/gamelib/ui/uiitem.lua')
+clientSandbox('deploy/client-current/modules/gamelib/ui/uiitem.lua')
 local server = loadSandbox('data/creaturescripts/scripts/rarity.lua', {CONST_SLOT_HEAD = 1, CONST_SLOT_AMMO = 10})
 local player = {
   getSlotItem = function(_, slot) return equipment[slot] end,
@@ -131,7 +137,7 @@ local function setContainerItem(c, slot, heldItem)
 end
 
 check(_G.AntigasItemRarity == nil and globals.AntigasItemRarity == nil, 'Rarity API is sandboxed')
-local colors = {'#42C96B', '#3E8BFF', '#A855F7', '#F5C542', '#EF4444'}
+local colors = {'#5FAE78', '#5F8FCA', '#9270B3', '#C6A14F', '#C56B70'}
 for tier = 1, 5 do
   local heldItem = item(tier, 6, tier, 0)
   equipment[tier] = heldItem
@@ -141,8 +147,24 @@ roundtrip()
 for tier = 1, 5 do
   local w = invWidgets['slot' .. tier]
   check(w.borderColor == colors[tier] and w.borderWidth == 1, 'Inventory rarity color ' .. tier)
-  check(w.tooltip:find('+' .. tier .. ' ataque', 1, true), 'Tooltip value ' .. tier)
+  check(w.tooltip:find('+' .. tier .. ' attack', 1, true), 'Tooltip value ' .. tier)
 end
+
+local mythicExtras = 1 + 2 * 32 + 3 * 1024 + 6 * 32768
+equipment[1] = item(5, 6, 5, 0)
+inventory.onInventoryChange(nil, 1, equipment[1])
+callback(protocol, 127, 'P|I|1|3004,1,0,5,6,5,0,' .. mythicExtras)
+check(invWidgets.slot1.tooltip:find('+5% maximum health', 1, true), 'Same-packet inventory push includes extra status tooltip')
+check(invWidgets.slot1.tooltip:find('+10% speed', 1, true), 'Packed speed status scales with tier')
+online = false
+inventory.onInventoryChange(nil, 1, nil)
+online = true
+equipment[1] = item(5, 6, 5, 0)
+inventory.onInventoryChange(nil, 1, equipment[1])
+check(invWidgets.slot1.rarityTier == 5 and invWidgets.slot1.tooltip:find('+5% maximum health', 1, true),
+  'Cached rarity colors the same equipped item immediately after relog')
+roundtrip()
+
 local normal = item()
 equipment[1] = normal
 inventory.onInventoryChange(nil, 1, normal)
@@ -216,7 +238,7 @@ check(not replacement.widgets.item0.rarityTier, 'Reused container ID rejects old
 roundtrip()
 local lockedWidget = replacement.widgets.item0
 check(lockedWidget.borderColor == '#ff0000' and lockedWidget.rarityTier == 4, 'Locked container retains lock border and rarity metadata')
-check(lockedWidget.tooltip:find('+4 nível mágico', 1, true), 'Skill tooltip decoded')
+check(lockedWidget.tooltip:find('+4 magic level', 1, true), 'Skill tooltip decoded')
 globals.UIItem.onDragLeave(lockedWidget)
 check(lockedWidget.borderWidth == 1 and lockedWidget.borderColor == '#ff0000', 'Global UIItem resolves sandbox API on drag end')
 replacement.locked = false
@@ -245,14 +267,14 @@ for _, payload in ipairs({'Q|I|1|0', 'Q|I|1|11', 'Q|I|0|1', 'Q|I|2147483648|1', 
 end
 check(#responses == before, 'Malformed requests produce no response/amplification')
 check(server.onExtendedOpcode(player, 126, 'Q|I|1|1') == false, 'Other opcodes ignored')
-equipment[2] = item(3, 3, 3, 8)
+equipment[2] = item(3, 3, 3, 8, 3005)
 inventory.onInventoryChange(nil, 2, equipment[2])
 sendRequests()
 local reply = responses[1]
 callback({}, 127, reply)
 check(not invWidgets.slot2.rarityTier, 'Previous connection response ignored')
 receiveResponses()
-check(invWidgets.slot2.tooltip:find('gelo', 1, true), 'Resistance subtype preserved')
+check(invWidgets.slot2.tooltip:find('ice', 1, true), 'Resistance subtype preserved')
 feature = false
 rarity.requestInventorySlot(2)
 check(#requests == 0, 'No request without extended opcode support')

@@ -36,6 +36,8 @@ local ITEM_RARITY_OPCODE = 127
 local ITEM_RARITY_PAGE_SIZE = 40
 local rarityRequestId = 0
 local inventoryRarityRequests = {}
+local inventoryRarityCache = {}
+local pendingInventoryRarityPushes = {}
 local containerRarityRequests = {}
 local itemRarityColors = {
   [1] = '#42C96B',
@@ -44,10 +46,17 @@ local itemRarityColors = {
   [4] = '#F5C542',
   [5] = '#EF4444'
 }
-local itemRarityNames = {[1] = 'Incomum', [2] = 'Raro', [3] = 'Épico', [4] = 'Lendário', [5] = 'Mítico'}
-local itemRarityCombatNames = {[0] = 'físico', [1] = 'energia', [2] = 'terra', [3] = 'fogo', [8] = 'gelo'}
-local itemRaritySkillNames = {[0] = 'luta desarmada', [1] = 'clava', [2] = 'espada', [3] = 'machado',
-  [4] = 'distância', [5] = 'escudo', [6] = 'pesca', [7] = 'nível mágico'}
+local itemRarityBorderColors = {
+  [1] = '#5FAE78',
+  [2] = '#5F8FCA',
+  [3] = '#9270B3',
+  [4] = '#C6A14F',
+  [5] = '#C56B70'
+}
+local itemRarityNames = {[1] = 'Uncommon', [2] = 'Rare', [3] = 'Epic', [4] = 'Legendary', [5] = 'Mythic'}
+local itemRarityCombatNames = {[0] = 'physical', [1] = 'energy', [2] = 'earth', [3] = 'fire', [8] = 'ice'}
+local itemRaritySkillNames = {[0] = 'fist fighting', [1] = 'club fighting', [2] = 'sword fighting', [3] = 'axe fighting',
+  [4] = 'distance fighting', [5] = 'shielding', [6] = 'fishing', [7] = 'magic level'}
 
 local function sendItemRarityRequest(payload)
   if not g_game.isOnline() or not g_game.getFeature(GameExtendedOpcode) then return end
@@ -60,40 +69,99 @@ local function nextRarityRequestId()
   return rarityRequestId
 end
 
-local function getItemRarityTooltip(tier, bonusType, bonusValue, subtype)
+local function boundedInteger(value, minimum, maximum)
+  local number = tonumber(value)
+  if not number or number ~= number or number == math.huge or number == -math.huge
+      or number < minimum or number > maximum or number ~= math.floor(number) then
+    return nil
+  end
+  return number
+end
+
+local function getRarityBonusDescription(bonusType, bonusValue, subtype)
+  local value = tonumber(bonusValue) or 0
+  local kind = tonumber(bonusType) or 0
+  if kind == 1 then return string.format('+%d%% maximum health', value)
+  elseif kind == 2 then return string.format('+%d%% maximum mana', value)
+  elseif kind == 3 then return string.format('+%d%% %s resistance', value, itemRarityCombatNames[tonumber(subtype)] or 'elemental')
+  elseif kind == 4 then return string.format('+%d%% speed', value)
+  elseif kind == 5 then return string.format('+%d %s', value, itemRaritySkillNames[tonumber(subtype)] or 'skill')
+  elseif kind == 6 then return string.format('+%d attack', value)
+  elseif kind == 7 then return string.format('+%d defense', value)
+  end
+  return nil
+end
+
+local function getRarityBonusCode(bonusType, subtype)
+  local kind = tonumber(bonusType) or 0
+  local sub = tonumber(subtype) or 0
+  if kind == 1 then return 1
+  elseif kind == 2 then return 2
+  elseif kind == 4 then return 3
+  elseif kind == 6 then return 4
+  elseif kind == 7 then return 5
+  elseif kind == 3 then
+    local resistanceCodes = {[0] = 6, [1] = 7, [2] = 8, [3] = 9, [8] = 10}
+    return resistanceCodes[sub]
+  elseif kind == 5 and sub >= 0 and sub <= 7 then
+    return 11 + sub
+  end
+  return nil
+end
+
+local function getItemRarityTooltip(tier, bonusType, bonusValue, subtype, extraBonuses)
+  tier = tonumber(tier)
   local rarityName = itemRarityNames[tier]
   if not rarityName then return nil end
 
-  local value = tonumber(bonusValue) or 0
-  local kind = tonumber(bonusType) or 0
-  local detail
-  if kind == 1 then detail = string.format('+%d%% vida máxima', value)
-  elseif kind == 2 then detail = string.format('+%d%% mana máxima', value)
-  elseif kind == 3 then detail = string.format('+%d%% resistência a %s', value, itemRarityCombatNames[tonumber(subtype)] or 'elemento')
-  elseif kind == 4 then detail = string.format('+%d%% velocidade', value)
-  elseif kind == 5 then detail = string.format('+%d %s', value, itemRaritySkillNames[tonumber(subtype)] or 'habilidade')
-  elseif kind == 6 then detail = string.format('+%d ataque', value)
-  elseif kind == 7 then detail = string.format('+%d defesa', value)
-  else return rarityName end
-  return rarityName .. '\n' .. detail
+  local details = {getRarityBonusDescription(bonusType, bonusValue, subtype)}
+  if not details[1] then return rarityName end
+
+  local packed = tonumber(extraBonuses) or 0
+  local primaryCode = getRarityBonusCode(bonusType, subtype)
+  if packed >= 0 and packed <= 33554431 and packed == math.floor(packed) then
+    local seen = {}
+    for index = 0, tier - 2 do
+      local code = math.floor(packed / (32 ^ index)) % 32
+      if code == 0 or code == 4 or code == 5 or code == primaryCode or seen[code] then break end
+      seen[code] = true
+      local description
+      if code == 1 then description = getRarityBonusDescription(1, tier, 0)
+      elseif code == 2 then description = getRarityBonusDescription(2, tier, 0)
+      elseif code == 3 then description = getRarityBonusDescription(4, tier * 2, 0)
+      elseif code >= 6 and code <= 10 then
+        local resistanceSubtypes = {[6] = 0, [7] = 1, [8] = 2, [9] = 3, [10] = 8}
+        description = getRarityBonusDescription(3, tier, resistanceSubtypes[code])
+      elseif code >= 11 and code <= 18 then
+        description = getRarityBonusDescription(5, tier, code - 11)
+      end
+      if not description then break end
+      details[#details + 1] = description
+    end
+  end
+  return rarityName .. '\n' .. table.concat(details, '\n')
 end
 
-function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype)
+function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype, extraBonuses)
   if not widget then return end
-  tier = tonumber(tier) or 0
+  tier = boundedInteger(tier, 0, 5) or 0
+  bonusType = boundedInteger(bonusType, 0, 7) or 0
+  bonusValue = boundedInteger(bonusValue, 0, 10) or 0
+  subtype = boundedInteger(subtype, 0, 8) or 0
+  extraBonuses = boundedInteger(extraBonuses, 0, 33554431) or 0
   locked = not not locked
   local item = widget:getItem()
   local color = item and itemRarityColors[tier]
-  -- UIItem uses its own draw color; native Item:setMarked only affects the map.
-  -- Restore white on reuse so an ordinary replacement never inherits the tint.
+  local borderColor = item and itemRarityBorderColors[tier]
   widget:setColor(color or '#FFFFFF')
   widget.rarityTier = color and tier or nil
   widget.rarityLocked = locked
-  widget.rarityBonusType = tonumber(bonusType) or nil
-  widget.rarityBonusValue = tonumber(bonusValue) or nil
-  widget.raritySubtype = tonumber(subtype) or nil
+  widget.rarityBonusType = bonusType > 0 and bonusType or nil
+  widget.rarityBonusValue = bonusValue > 0 and bonusValue or nil
+  widget.raritySubtype = subtype
+  widget.rarityExtraBonuses = extraBonuses
 
-  local tooltip = color and getItemRarityTooltip(tier, bonusType, bonusValue, subtype)
+  local tooltip = color and getItemRarityTooltip(tier, bonusType, bonusValue, subtype, extraBonuses)
   if tooltip then
     local item = widget:getItem()
     local itemTooltip = item and item:getTooltip() or ''
@@ -109,9 +177,9 @@ function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, su
   if locked then
     widget:setBorderWidth(1)
     widget:setBorderColor('#ff0000')
-  elseif color then
+  elseif borderColor then
     widget:setBorderWidth(1)
-    widget:setBorderColor(color)
+    widget:setBorderColor(borderColor)
   else
     widget:setBorderWidth(0)
     widget:setBorderColor('#ffffff')
@@ -122,7 +190,7 @@ function AntigasItemRarity.restoreBorder(widget)
   if not widget then return end
   if widget.rarityTier or widget.rarityLocked then
     AntigasItemRarity.apply(widget, widget.rarityTier, widget.rarityLocked,
-      widget.rarityBonusType, widget.rarityBonusValue, widget.raritySubtype)
+      widget.rarityBonusType, widget.rarityBonusValue, widget.raritySubtype, widget.rarityExtraBonuses)
   else
     widget:setBorderWidth(0)
   end
@@ -174,8 +242,99 @@ function AntigasItemRarity.forgetContainer(container)
   if pending and pending.container == container then containerRarityRequests[container:getId()] = nil end
 end
 
+local function parseRarityValues(payload)
+  local itemId, count, itemSubtype, tier, bonusType, bonusValue, subtype, extras =
+    payload:match('^(%d+),(%d+),(%d+),(%d+),(%d+),(%d+),(%d+),(%d+)$')
+  if not itemId then return nil end
+  itemId = boundedInteger(itemId, 0, 65535)
+  count = boundedInteger(count, 0, 65535)
+  itemSubtype = boundedInteger(itemSubtype, 0, 65535)
+  tier = boundedInteger(tier, 0, 5)
+  bonusType = boundedInteger(bonusType, 0, 7)
+  bonusValue = boundedInteger(bonusValue, 0, 10)
+  subtype = boundedInteger(subtype, 0, 8)
+  extras = boundedInteger(extras, 0, 33554431)
+  if not itemId or not count or not itemSubtype or not tier or not bonusType
+      or not bonusValue or not subtype or not extras then return nil end
+  return itemId, count, itemSubtype, tier, bonusType, bonusValue, subtype, extras
+end
+
+local function parseRarityRecord(record)
+  local index, tier, bonusType, bonusValue, subtype, extras = record:match('^(%d+),(%d+),(%d+),(%d+),(%d+),?(%d*)$')
+  if not index then return nil end
+  index = boundedInteger(index, 0, 65535)
+  tier = boundedInteger(tier, 0, 5)
+  bonusType = boundedInteger(bonusType, 0, 7)
+  bonusValue = boundedInteger(bonusValue, 0, 10)
+  subtype = boundedInteger(subtype, 0, 8)
+  extras = extras == '' and 0 or boundedInteger(extras, 0, 33554431)
+  if not index or not tier or not bonusType or not bonusValue or not subtype or not extras then return nil end
+  return index, tier, bonusType, bonusValue, subtype, extras
+end
+
+local function getInventoryItemFingerprint(item)
+  if not item then return nil end
+  return item:getId(), item:getCount(), item:getSubType()
+end
+
+local function inventoryItemMatches(item, itemId, count, subtype)
+  local currentId, currentCount, currentSubtype = getInventoryItemFingerprint(item)
+  return currentId ~= nil and currentId == itemId and currentCount == count and currentSubtype == subtype
+end
+
+local function getInventoryRarityCache(slot)
+  local character = tostring(g_game.getCharacterName() or '')
+  local characterCache = inventoryRarityCache[character]
+  return characterCache and characterCache[slot] or nil
+end
+
+local function rememberInventoryRarity(slot, widget, tier, bonusType, bonusValue, subtype, extras)
+  local item = widget and widget:getItem()
+  if not item then return end
+  tier = boundedInteger(tier, 0, 5) or 0
+  bonusType = boundedInteger(bonusType, 0, 7) or 0
+  bonusValue = boundedInteger(bonusValue, 0, 10) or 0
+  subtype = boundedInteger(subtype, 0, 8) or 0
+  extras = boundedInteger(extras, 0, 33554431) or 0
+  local itemId, count, itemSubtype = getInventoryItemFingerprint(item)
+  if not itemId then return end
+
+  local character = tostring(g_game.getCharacterName() or '')
+  inventoryRarityCache[character] = inventoryRarityCache[character] or {}
+  inventoryRarityCache[character][slot] = {
+    itemId = itemId, count = count, itemSubtype = itemSubtype,
+    tier = tier, bonusType = bonusType, bonusValue = bonusValue,
+    subtype = subtype, extras = extras
+  }
+end
+
+local function applyInventoryRarity(widget, slot, tier, bonusType, bonusValue, subtype, extras)
+  AntigasItemRarity.apply(widget, tier, false, bonusType, bonusValue, subtype, extras)
+  rememberInventoryRarity(slot, widget, tier, bonusType, bonusValue, subtype, extras)
+end
+
 local function onItemRarityOpcode(protocol, opcode, buffer)
   if protocol ~= g_game.getProtocolGame() or type(buffer) ~= 'string' or #buffer > 4096 then return end
+  local pushedInventorySlot, pushedInventoryValues = buffer:match('^P|I|(%d+)|(.+)$')
+  if pushedInventorySlot then
+    pushedInventorySlot = tonumber(pushedInventorySlot)
+    local itemId, count, itemSubtype, tier, bonusType, bonusValue, subtype, extras = parseRarityValues(pushedInventoryValues)
+    if pushedInventorySlot and pushedInventorySlot >= CONST_SLOT_HEAD and pushedInventorySlot <= CONST_SLOT_AMMO and itemId then
+      inventoryRarityRequests[pushedInventorySlot] = nil
+      pendingInventoryRarityPushes[pushedInventorySlot] = {
+        itemId = itemId, count = count, itemSubtype = itemSubtype,
+        tier = tier, bonusType = bonusType, bonusValue = bonusValue,
+        subtype = subtype, extras = extras
+      }
+      local widget = inventoryPanel and inventoryPanel:getChildById('slot' .. pushedInventorySlot)
+      if widget and inventoryItemMatches(widget:getItem(), itemId, count, itemSubtype) then
+        pendingInventoryRarityPushes[pushedInventorySlot] = nil
+        applyInventoryRarity(widget, pushedInventorySlot, tier, bonusType, bonusValue, subtype, extras)
+      end
+    end
+    return
+  end
+
   local pushedContainerId, pushedFirstIndex, pushedRecords = buffer:match('^P|C|(%d+)|(%d+)|(.+)$')
   if pushedContainerId then
     pushedContainerId, pushedFirstIndex = tonumber(pushedContainerId), tonumber(pushedFirstIndex)
@@ -186,13 +345,12 @@ local function onItemRarityOpcode(protocol, opcode, buffer)
     if pushedFirstIndex < visibleFirstIndex or pushedFirstIndex >= visibleFirstIndex + container:getCapacity() then return end
     local locked = not container:isUnlocked()
     for record in pushedRecords:gmatch('[^;]+') do
-      local index, tier, bonusType, bonusValue, subtype = record:match('^(%d+),(%d+),(%d+),(%d+),(%d+)$')
-      index, tier = tonumber(index), tonumber(tier)
+      local index, tier, bonusType, bonusValue, subtype, extras = parseRarityRecord(record)
       if index and tier then
         local visibleSlot = index - visibleFirstIndex
         if visibleSlot >= 0 and visibleSlot < container:getCapacity() then
           local widget = container.itemsPanel:getChildById('item' .. visibleSlot)
-          if widget then AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype) end
+          if widget then AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype, extras) end
         end
       end
     end
@@ -205,13 +363,12 @@ local function onItemRarityOpcode(protocol, opcode, buffer)
 
   if kind == 'I' then
     for record in payload:gmatch('[^;]+') do
-      local slot, tier, bonusType, bonusValue, subtype = record:match('^(%d+),(%d+),(%d+),(%d+),(%d+)$')
-      slot = tonumber(slot)
+      local slot, tier, bonusType, bonusValue, subtype, extras = parseRarityRecord(record)
       local pending = slot and inventoryRarityRequests[slot]
       local widget = slot and inventoryPanel and inventoryPanel:getChildById('slot' .. slot)
       if pending and pending.id == requestId and widget == pending.widget and widget:getItem() == pending.item then
         inventoryRarityRequests[slot] = nil
-        AntigasItemRarity.apply(widget, tier, false, bonusType, bonusValue, subtype)
+        applyInventoryRarity(widget, slot, tier, bonusType, bonusValue, subtype, extras)
       end
     end
     return
@@ -229,8 +386,7 @@ local function onItemRarityOpcode(protocol, opcode, buffer)
   local locked = not container:isUnlocked()
 
   for record in records:gmatch('[^;]+') do
-    local index, tier, bonusType, bonusValue, subtype = record:match('^(%d+),(%d+),(%d+),(%d+),(%d+)$')
-    index, tier = tonumber(index), tonumber(tier)
+    local index, tier, bonusType, bonusValue, subtype, extras = parseRarityRecord(record)
     if index and tier then
       local visibleSlot = index - container:getFirstIndex()
       if visibleSlot >= 0 and visibleSlot < container:getCapacity() then
@@ -238,7 +394,7 @@ local function onItemRarityOpcode(protocol, opcode, buffer)
         local expected = pending.slots[index]
         if expected and expected.id == requestId and widget == expected.widget and widget:getItem() == expected.item then
           pending.slots[index] = nil
-          AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype)
+          AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, subtype, extras)
         end
       end
     end
@@ -562,6 +718,30 @@ function onInventoryChange(player, slot, item, oldItem)
     itemWidget:setStyle(InventorySlotStyles[slot])
     itemWidget:setItem(nil)
   end
+
+  if item then
+    local pushed = pendingInventoryRarityPushes[slot]
+    if pushed and inventoryItemMatches(item, pushed.itemId, pushed.count, pushed.itemSubtype) then
+      pendingInventoryRarityPushes[slot] = nil
+      applyInventoryRarity(itemWidget, slot, pushed.tier, pushed.bonusType, pushed.bonusValue, pushed.subtype, pushed.extras)
+    else
+      local cached = getInventoryRarityCache(slot)
+      if cached and inventoryItemMatches(item, cached.itemId, cached.count, cached.itemSubtype) then
+        applyInventoryRarity(itemWidget, slot, cached.tier, cached.bonusType, cached.bonusValue, cached.subtype, cached.extras)
+      else
+        if cached then
+          local character = tostring(g_game.getCharacterName() or '')
+          inventoryRarityCache[character][slot] = nil
+        end
+        if pushed then pendingInventoryRarityPushes[slot] = nil end
+      end
+    end
+  elseif g_game.isOnline() then
+    local character = tostring(g_game.getCharacterName() or '')
+    if inventoryRarityCache[character] then inventoryRarityCache[character][slot] = nil end
+    pendingInventoryRarityPushes[slot] = nil
+  end
+
   AntigasItemRarity.requestInventorySlot(slot)
 end
 
