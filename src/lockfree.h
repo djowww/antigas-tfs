@@ -30,6 +30,7 @@ template <typename T, size_t CAPACITY>
 class LockfreePoolingAllocator : public std::allocator<T>
 {
 	public:
+		LockfreePoolingAllocator() = default;
 		template <typename U>
 		explicit constexpr LockfreePoolingAllocator(const U&) {}
 		typedef T value_type;
