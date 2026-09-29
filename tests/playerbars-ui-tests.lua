@@ -44,6 +44,19 @@ for _, relative in ipairs({'data/styles/30-special_miniwindow.otui', 'modules/ga
 end
 assert(windowNode and windowNode.name == 'SpecialMiniWindow')
 
+local function hasState(styleName, prefix)
+  for _, child in ipairs(styles[styleName].children) do
+    if child.state and child.name:sub(1, #prefix) == prefix then return true end
+  end
+  return false
+end
+for _, state in ipairs({'$hover', '$checked', '$pressed', '$disabled'}) do
+  assert(hasState('AntigasSidebarToggle', state), 'toggle style must define ' .. state)
+end
+for _, state in ipairs({'$hover', '$on', '$pressed', '$disabled'}) do
+  assert(hasState('AntigasSidebarAction', state), 'action style must define ' .. state)
+end
+
 UIWindow = {}
 function extends() return {} end
 function signalcall(callback, ...) if callback then callback(...) end end
@@ -59,7 +72,8 @@ end}
 dofile(clientFile('modules/corelib/ui/uiminiwindow.lua'))
 dofile(clientFile('modules/game_playerbars/playerbars.lua'))
 modules = {game_playerbars={toggleMenu=toggleMenu, resizeButtons=resizeButtons,
-  updateMenuToggle=updateMenuToggle, onMiniWindowClose=onMiniWindowClose},
+  updateMenuToggle=updateMenuToggle, onMiniWindowClose=onMiniWindowClose,
+  setActionSelected=setActionSelected},
   game_interface={getRightPanel=function() return nil end}}
 
 local methods = {}
@@ -78,6 +92,7 @@ function methods:setText(value) self.text=value end
 function methods:setTooltip(value) self.tooltip=value end
 function methods:setColor(value) self.color=value end
 function methods:setWidth(value) self.width=value end
+function methods:setHeight(value) self.height=value end
 function methods:getWidth()
   if self.props['anchors.left']=='parent.left' and self.props['anchors.right']=='parent.right' then
     return self.parent:getWidth() - self:getMarginLeft() - self:getMarginRight()
@@ -85,6 +100,7 @@ function methods:getWidth()
   return self.width
 end
 function methods:setMarginLeft(value) self.marginLeft=value end
+function methods:setMarginRight(value) self.marginRight=value end
 function methods:setMarginTop(value) self.marginTop=value end
 function methods:getMarginLeft() return self.marginLeft or 0 end
 function methods:getMarginRight() return self.marginRight or 0 end
@@ -146,8 +162,8 @@ local window=instantiate(windowNode)
 local contents=assert(window:getChildById('contentsPanel'))
 local toggle=assert(window:getChildById('menuToggle'))
 local inheritedMinimize=assert(window:getChildById('minimizeButton'))
-assert(toggle:getHeight()==24 and toggle:getWidth()==180 and type(toggle.onClick)=='function',
-  'the visible header must get its callback from the real @onClick property')
+assert(toggle:getHeight()==14 and toggle:getWidth()==14 and type(toggle.onClick)=='function',
+  'the compact minimize control must get its callback from the real @onClick property')
 assert(inheritedMinimize.width==0 and inheritedMinimize.height==0,
   'the original invisible minimize button is preserved without a duplicate')
 local buttons={}
@@ -160,30 +176,60 @@ g_ui={loadUI=function() return window end}
 function connect() end
 REGISTRATION_KEY='AbcDeFgH'
 init()
-assert(window.height==108 and skillsButton.width==43 and skillsButton.marginLeft==7)
-assert(toggle.text=='Menu [-]' and toggle.tooltip=='Minimize menu')
+assert(window.height==30 and skillsButton.width==22 and skillsButton.height==22 and skillsButton.marginLeft==2)
+assert(not toggle:isOn() and toggle.tooltip=='Recolher barra')
+for _, button in ipairs(buttons) do
+  assert(button.width==22 and button.height==22, 'all seven icons share a 22 px click area at native width')
+end
+assert(buttons[2].tooltip=='Lista de batalha (Ctrl+B)' and buttons[3].tooltip=='Lista VIP (Ctrl+P)'
+  and questButton.tooltip=='Diário de missões (Ctrl+J)', 'only verified shortcuts appear in Portuguese tooltips')
+assert(marketButton.tooltip=='Mercado' and huntButton.tooltip=='Estatísticas de caça e loot'
+  and achievementsButton.tooltip=='Conquistas')
 assert(type(inheritedMinimize.onClick)=='function', 'UIMiniWindow setup still binds the inherited control')
 toggle:onClick()
-assert(window:isOn() and window.height==28 and settings.playerBarsWindow.minimized==true)
+assert(window:isOn() and window.height==18 and settings.playerBarsWindow.minimized==true)
 for _, button in ipairs(buttons) do assert(not button:isVisible(), 'all menu buttons must disappear when minimized') end
-assert(toggle:isVisible() and toggle.text=='Menu [+]' and toggle.tooltip=='Expand menu')
+assert(toggle:isVisible() and toggle:isOn() and toggle.tooltip=='Expandir barra')
 setAchievementsUnread(3)
-assert(toggle:isVisible() and toggle.text=='Menu [3] [+]' and toggle.color=='#ffd36a',
+assert(toggle:isVisible() and toggle:getChildById('menuUnreadIndicator'):isVisible()
+  and toggle.tooltip=='Expandir barra (3 novas)',
   'unread achievements remain noticeable while the menu is collapsed')
-assert(achievementsButton.text=='Achievements  [3]' and not achievementsButton:isVisible())
-window.width=193
+assert(achievementsButton.tooltip=='Conquistas: 3 novas'
+  and not achievementsButton:isVisible())
+window.width=178
 resizeButtons()
-assert(window.height==28 and toggle:getWidth()==181, 'sidebar resizing cannot expand the minimized menu')
+assert(window.height==18 and toggle:getWidth()==14, 'sidebar resizing cannot expand the minimized menu')
+assert(skillsButton.width==20 and skillsButton.height==20,
+  'buttons shrink uniformly when the toolbar has less width')
+settings.playerBarsWindow.height=90 -- A saved height from the previous three-row menu.
 toggle:onClick()
-assert(not window:isOn() and window.height==110 and settings.playerBarsWindow.minimized==false)
+assert(not window:isOn() and window.height==28 and settings.playerBarsWindow.minimized==false)
 for _, button in ipairs(buttons) do assert(button:isVisible(), 'expanding restores every button') end
-assert(toggle.text=='Menu [3] [-]' and toggle.color=='#ffd36a')
-assert(skillsButton.width==43 and skillsButton.marginLeft==6 and battleButton.marginLeft==4)
+assert(not toggle:isOn() and toggle:getChildById('menuUnreadIndicator'):isVisible())
+assert(skillsButton.width==20 and skillsButton.marginLeft==2 and battleButton.marginLeft==2)
+window.width=160
+resizeButtons()
+assert(skillsButton.width==18 and skillsButton.height==18 and window.height==26,
+  'all controls remain inside a narrower 160 px toolbar')
+window.width=192
+resizeButtons()
+assert(skillsButton.width==22 and skillsButton.height==22 and window.height==30,
+  'the toolbar returns to native 22 px buttons when space is available')
+setActionSelected('market', true)
+setActionSelected('quest', true)
+setActionSelected('achievements', true)
+assert(marketButton:isOn() and questButton:isOn() and achievementsButton:isOn(),
+  'the amber action-button state follows the visibility reported by its owning module')
+setActionSelected('market', false)
+setActionSelected('quest', false)
+setActionSelected('achievements', false)
 setAchievementsUnread(0)
-assert(toggle.text=='Menu [-]' and toggle.color=='#e2d4b2' and achievementsButton.text=='Achievements')
+assert(not toggle:isOn() and not toggle:getChildById('menuUnreadIndicator'):isVisible()
+  and not achievementsButton:getChildById('achievementsUnreadIndicator'):isVisible()
+  and achievementsButton.tooltip=='Conquistas')
 toggle:onClick()
 window:setup()
-assert(window.height==28 and not contents:isVisible() and toggle.text=='Menu [+]', 'saved minimized state survives setup')
+assert(window.height==18 and not contents:isVisible() and toggle:isOn(), 'saved minimized state survives setup')
 toggle:onClick()
-assert(window.height==110 and contents:isVisible() and toggle.text=='Menu [-]', 'saved minimization still permits expansion')
-print('PASS: real OTUI inheritance has unique ids; visible header callback collapses/restores all buttons; resize, saved state and collapsed achievement badge work')
+assert(window.height==30 and contents:isVisible() and not toggle:isOn(), 'saved minimization still permits expansion')
+print('PASS: unique OTUI ids, icon states, Portuguese tooltips, responsive spacing, minimize behavior and real selected states')

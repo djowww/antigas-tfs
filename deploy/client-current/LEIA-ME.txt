@@ -1,4 +1,4 @@
-ANTIGAS 7.4 — CLIENTE v47
+ANTIGAS 7.4 — CLIENTE v48
 
 INSTALAÇÃO
 1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
@@ -23,8 +23,9 @@ GAME VIEW
 - Widescreen se adapta ao espaço entre os painéis. Em servidores sem suporte, usa Classic.
 - Sprites, equipamentos, minimap e chat mantêm o estilo clássico.
 
-Menu lateral: clique no cabecalho Menu [-] para recolher e Menu [+] para
-expandir. Novas conquistas continuam destacadas no cabecalho recolhido.
+Barra de ícones: passe o mouse para ver o nome da ação e seu atalho, quando
+existir. O destaque âmbar indica os painéis abertos. Use o controle separado
+no fim da barra para recolher ou expandir os ícones.
 
 Achievements: Next objectives mostra a proxima meta de cada categoria.
 Claim rewards recebe premios pendentes apos liberar espaco/capacidade.
