@@ -38,7 +38,7 @@
 		<immunity invisible="1" />
 	</immunities>
 	<voices interval="5000" chance="10">
-		<voice sentence="Learrn tha secrret uf deathhh!" yell="1" />
+		<voice sentence="Learrn tha secrret uf deathhh!" yell="0" />
 		<voice sentence="Kaplar!" />
 	</voices>
 	<loot>
@@ -53,5 +53,6 @@
 		<item id="3559" countmax="1" chance="150" /> <!-- leather legs -->
 		<item id="2920" countmax="2" chance="300" /> <!-- a torch -->
 		<item id="5172" countmax="1" chance="20" /> <!-- a minotaur leather -->
+		<item id="3073" countmax="1" chance="5" /> <!-- a yellow spellwand -->
 	</loot>
 </monster>

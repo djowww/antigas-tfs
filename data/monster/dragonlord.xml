@@ -60,7 +60,7 @@
 		<item id="2903" countmax="1" chance="30" /> <!-- a golden mug -->
 		<item id="3732" countmax="1" chance="120" /> <!-- a green mushroom -->
 		<item id="3061" countmax="1" chance="6" /> <!-- a life crystal -->
-		<item id="3450" countmax="5" chance="70" /> <!-- a power bolt -->
+		<item id="3450" countmax="1" chance="60" /> <!-- a power bolt -->
 		<item id="3392" countmax="1" chance="2" /> <!-- a royal helmet -->
 		<item id="3029" countmax="1" chance="50" /> <!-- a small sapphire -->
 		<item id="3373" countmax="1" chance="4" /> <!-- a strange helmet -->

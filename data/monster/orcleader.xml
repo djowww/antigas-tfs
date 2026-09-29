@@ -23,7 +23,7 @@
 			<attribute key="shootEffect" value="throwingknife" />
 		</attack>
 	</attacks>
-	<defenses armor="27" defense="45">
+	<defenses armor="20" defense="45">
 	</defenses>
 	<immunities>
 		<immunity fire="1" />

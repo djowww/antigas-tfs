@@ -66,5 +66,6 @@
 		<item id="3409" countmax="1" chance="40" /> <!-- a steel shield -->
 		<item id="3265" countmax="1" chance="40" /> <!-- a two handed sword -->
 		<item id="3412" countmax="1" chance="30" /> <!-- a wooden shield -->
+		<item id="3065" countmax="1" chance="5" /> <!-- a wooden wand -->
 	</loot>
 </monster>

@@ -59,5 +59,6 @@
 		<item id="3727" countmax="1" chance="35" /> <!-- a wood mushroom -->
 		<item id="2948" countmax="1" chance="14" /> <!-- a wooden flute -->
 		<item id="2995" countmax="1" chance="10" /> <!-- a piggy bank -->
+		<item id="3067" countmax="1" chance="10" /> <!-- a magic wand -->
 	</loot>
 </monster>

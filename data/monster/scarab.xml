@@ -18,7 +18,7 @@
 		<flag runonhealth="80" />
 	</flags>
 	<attacks>
-		<attack name="melee" interval="2000" chance="0" skill="43" attack="27" />
+		<attack name="melee" interval="2000" chance="0" skill="42" attack="25" />
 		<attack name="poisonfield" radius="1" target="0" chance="5">
 			<attribute key="areaEffect" value="poff" />
 		</attack>

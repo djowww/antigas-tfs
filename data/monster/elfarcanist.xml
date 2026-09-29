@@ -68,5 +68,6 @@
 		<item id="3738" countmax="1" chance="50" /> <!-- a sling herb -->
 		<item id="3289" countmax="1" chance="110" /> <!-- a staff -->
 		<item id="3037" countmax="1" chance="2" /> <!-- a yellow gem -->
+		<item id="3073" countmax="1" chance="10" /> <!-- a yellow spellwand -->
 	</loot>
 </monster>

@@ -77,5 +77,6 @@
 		<item id="2933" countmax="1" chance="200" /> <!-- a small oil lamp -->
 		<item id="3029" countmax="2" chance="70" /> <!-- a small sapphire -->
 		<item id="2948" countmax="1" chance="3" /> <!-- a wooden flute -->
+		<item id="3067" countmax="1" chance="5" /> <!-- a magic wand -->
 	</loot>
 </monster>

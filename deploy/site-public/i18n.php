@@ -3,6 +3,12 @@ declare(strict_types=1);
 
 const ANTIGAS_TRANSLATIONS = [
     'pt' => [
+        'Selected monster stats and loot chances were aligned more closely with the classic reference data.' => 'Atributos e chances de loot de alguns monstros foram aproximados dos dados clássicos de referência.',
+        'Creature data aligned with the classic reference' => 'Dados de criaturas alinhados à referência clássica',
+        'No NPC scripts were changed in this update.' => 'Nenhum script ou diálogo de NPC foi alterado nesta atualização.',
+        '28 Sep 2026 · World data' => '28 set. 2026 · Dados do mundo',
+        'Health, experience, speed, mana cost, melee, armor and defense values, plus matching loot counts and chances, now follow the reference where the Antigas format supports a direct mapping. Antigas-specific drops were kept for existing quests.' => 'Vida, experiência, velocidade, custo de mana, ataque corpo a corpo, armadura e defesa, além das quantidades e chances dos itens em comum, seguem a referência quando há correspondência direta no formato do Antigas. Os drops próprios do Antigas foram mantidos para preservar as quests existentes.',
+        'Monsters included in this update:' => 'Monstros incluídos nesta atualização:',
         'Choose language' => 'Escolha o idioma',
         'Language' => 'Idioma',
         'English' => 'English',
@@ -199,6 +205,12 @@ const ANTIGAS_TRANSLATIONS = [
         'The pricing service is temporarily unavailable. Please try again later.' => 'A cotação está temporariamente indisponível. Tente novamente mais tarde.',
     ],
     'es' => [
+        'Selected monster stats and loot chances were aligned more closely with the classic reference data.' => 'Los atributos y las probabilidades de loot de algunos monstruos se acercaron a los datos clásicos de referencia.',
+        'Creature data aligned with the classic reference' => 'Datos de criaturas ajustados a la referencia clásica',
+        'No NPC scripts were changed in this update.' => 'En esta actualización no se modificó ningún script ni diálogo de NPC.',
+        '28 Sep 2026 · World data' => '28 sep. 2026 · Datos del mundo',
+        'Health, experience, speed, mana cost, melee, armor and defense values, plus matching loot counts and chances, now follow the reference where the Antigas format supports a direct mapping. Antigas-specific drops were kept for existing quests.' => 'La vida, experiencia, velocidad, coste de maná, ataque cuerpo a cuerpo, armadura y defensa, además de las cantidades y probabilidades de los objetos coincidentes, siguen la referencia cuando el formato de Antigas permite una correspondencia directa. Se conservaron los drops propios de Antigas para las quests existentes.',
+        'Monsters included in this update:' => 'Monstruos incluidos en esta actualización:',
         'Choose language' => 'Elegir idioma', 'Language' => 'Idioma',
         'Português' => 'Português', 'Polski' => 'Polski',
         'Skip to content' => 'Saltar al contenido', 'Main navigation' => 'Navegación principal',
@@ -307,6 +319,12 @@ const ANTIGAS_TRANSLATIONS = [
         'The coin service is temporarily unavailable.' => 'El servicio de coins no está disponible temporalmente.', 'The pricing service is temporarily unavailable. Please try again later.' => 'El servicio de cotización no está disponible temporalmente. Inténtalo de nuevo más tarde.',
     ],
     'pl' => [
+        'Selected monster stats and loot chances were aligned more closely with the classic reference data.' => 'Statystyki i szanse na łupy wybranych potworów bardziej zbliżono do klasycznych danych referencyjnych.',
+        'Creature data aligned with the classic reference' => 'Dane o stworzeniach dostosowane do klasycznego wzorca',
+        'No NPC scripts were changed in this update.' => 'W tej aktualizacji nie zmieniono skryptów ani dialogów NPC.',
+        '28 Sep 2026 · World data' => '28 wrz 2026 · Dane świata',
+        'Health, experience, speed, mana cost, melee, armor and defense values, plus matching loot counts and chances, now follow the reference where the Antigas format supports a direct mapping. Antigas-specific drops were kept for existing quests.' => 'Zdrowie, doświadczenie, szybkość, koszt many, atak wręcz, pancerz i obrona, a także liczby i szanse na wspólne łupy odpowiadają wzorcowi tam, gdzie format Antigas pozwala na bezpośrednie mapowanie. Zachowano dodatkowe łupy Antigas potrzebne do istniejących zadań.',
+        'Monsters included in this update:' => 'Potwory objęte aktualizacją:',
         'Choose language' => 'Wybierz język', 'Language' => 'Język',
         'English' => 'English', 'Português' => 'Português', 'Español' => 'Español',
         'Skip to content' => 'Przejdź do treści', 'Main navigation' => 'Nawigacja główna',

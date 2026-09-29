@@ -31,5 +31,6 @@
 		<item id="3577" countmax="4" chance="700" /> <!-- meat -->
 		<item id="5178" countmax="1" chance="20" /> <!-- bear paw -->
 		<item id="5185" countmax="1" chance="15" /> <!-- honeycomb -->
+		<item id="3492" countmax="1" chance="50" /> <!-- a worm -->
 	</loot>
 </monster>

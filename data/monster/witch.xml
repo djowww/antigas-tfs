@@ -51,5 +51,6 @@
 		<item id="3290" countmax="1" chance="5" /> <!-- a silver dagger -->
 		<item id="3736" countmax="1" chance="90" /> <!-- a star herb -->
 		<item id="3012" countmax="1" chance="100" /> <!-- a wolf tooth chain -->
+		<item id="3069" countmax="1" chance="10" /> <!-- a wand of might -->
 	</loot>
 </monster>
