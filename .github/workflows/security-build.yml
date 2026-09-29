@@ -1,0 +1,127 @@
+name: Security and regression builds
+
+on:
+  push:
+    branches: [main, security-hardening]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  cpp-build:
+    name: C++ build and core tests (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [release, release-hardened, asan-ubsan, tsan]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install server build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential cmake pkg-config \
+            libboost-system-dev libboost-filesystem-dev \
+            libluajit-5.1-dev luajit libpugixml-dev \
+            libmariadb-dev libmariadb-dev-compat libgmp-dev
+
+      - name: Configure
+        shell: bash
+        run: |
+          set -euo pipefail
+          case '${{ matrix.mode }}' in
+            release)
+              build_type=Release
+              sanitizer_flags=''
+              compile_flags=''
+              linker_flags=''
+              ;;
+            release-hardened)
+              build_type=Release
+              sanitizer_flags=''
+              compile_flags='-fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE'
+              linker_flags='-pie -Wl,-z,relro,-z,now'
+              ;;
+            asan-ubsan)
+              build_type=Debug
+              sanitizer_flags='-fsanitize=address,undefined -fno-omit-frame-pointer -g'
+              compile_flags="$sanitizer_flags"
+              linker_flags="$sanitizer_flags"
+              ;;
+            tsan)
+              build_type=Debug
+              sanitizer_flags='-fsanitize=thread -fno-omit-frame-pointer -g'
+              compile_flags="$sanitizer_flags"
+              linker_flags="$sanitizer_flags"
+              ;;
+          esac
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE="$build_type" \
+            -DTFS_BUILD_RARITY_TESTS=ON \
+            -DCMAKE_CXX_FLAGS="$compile_flags" \
+            -DCMAKE_EXE_LINKER_FLAGS="$linker_flags"
+
+      - name: Build server and core regression tests
+        run: cmake --build build --parallel 2
+
+      - name: Run native core tests
+        run: ctest --test-dir build --output-on-failure
+
+  content-tests:
+    name: Lua and Python regression checks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install LuaJIT syntax checker
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y luajit
+
+      - name: Parse every tracked Lua script
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-files -z -- '*.lua' | while IFS= read -r -d '' file; do
+            luajit -b "$file" /dev/null
+          done
+
+      - name: Run safe Python regression tests
+        env:
+          PYTHONPATH: tests
+        run: python3 -m unittest test_load_test test_staging_safety test_recovery_script -v
+
+      - name: Parse tracked Python files
+        run: |
+          python3 - <<'PY'
+          import ast
+          import subprocess
+
+          paths = subprocess.check_output(['git', 'ls-files', '-z', '--', '*.py']).decode().split('\0')
+          for path in filter(None, paths):
+              with open(path, encoding='utf-8-sig') as source:
+                  ast.parse(source.read(), filename=path)
+          print(f'Parsed {sum(bool(path) for path in paths)} Python files')
+          PY
+
+  launcher-build:
+    name: Windows launcher and release signer
+    runs-on: windows-2025
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Build launcher
+        run: dotnet build deploy/launcher/AntigasLauncher/AntigasLauncher.csproj --configuration Release
+
+      - name: Build release signer
+        run: dotnet build tools/ReleaseSigner/ReleaseSigner.csproj --configuration Release

@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+  - package-ecosystem: nuget
+    directory: /deploy/launcher/AntigasLauncher
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+  - package-ecosystem: nuget
+    directory: /tools/ReleaseSigner
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
