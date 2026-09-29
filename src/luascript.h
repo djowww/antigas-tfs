@@ -35,6 +35,7 @@
 #include "database.h"
 #include "enums.h"
 #include "position.h"
+#include "scriptenvironmentindex.h"
 
 class Thing;
 class Creature;
@@ -212,17 +213,27 @@ class LuaScriptInterface
 		int32_t getMetaEvent(const std::string& globalName, const std::string& eventName);
 
 		static ScriptEnvironment* getScriptEnv() {
-			assert(scriptEnvIndex >= 0 && scriptEnvIndex < 16);
-			return scriptEnv + scriptEnvIndex;
+			const int32_t index = scriptEnvIndex.current();
+			assert(index >= 0 && index < ScriptEnvironmentIndex::CAPACITY);
+			return scriptEnv + index;
 		}
 
 		static bool reserveScriptEnv() {
-			return ++scriptEnvIndex < 16;
+			return scriptEnvIndex.reserve();
 		}
 
 		static void resetScriptEnv() {
-			assert(scriptEnvIndex >= 0);
-			scriptEnv[scriptEnvIndex--].resetEnv();
+			const int32_t index = scriptEnvIndex.current();
+			assert(index >= 0 && index < ScriptEnvironmentIndex::CAPACITY);
+			if (index < 0 || index >= ScriptEnvironmentIndex::CAPACITY) {
+				return;
+			}
+
+			if (!scriptEnvIndex.release()) {
+				assert(false);
+				return;
+			}
+			scriptEnv[index].resetEnv();
 		}
 
 		static void reportError(const char* function, const std::string& error_desc, bool stack_trace = false);
@@ -1249,8 +1260,8 @@ class LuaScriptInterface
 		std::string interfaceName;
 		int32_t eventTableRef = -1;
 
-		static ScriptEnvironment scriptEnv[16];
-		static int32_t scriptEnvIndex;
+		static ScriptEnvironment scriptEnv[ScriptEnvironmentIndex::CAPACITY];
+		static ScriptEnvironmentIndex scriptEnvIndex;
 
 		int32_t runningEventId = EVENT_ID_USER;
 		std::string loadingFile;

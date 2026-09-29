@@ -237,8 +237,8 @@ std::string LuaScriptInterface::getErrorDesc(ErrorCode_t code)
 	}
 }
 
-ScriptEnvironment LuaScriptInterface::scriptEnv[16];
-int32_t LuaScriptInterface::scriptEnvIndex = -1;
+ScriptEnvironment LuaScriptInterface::scriptEnv[ScriptEnvironmentIndex::CAPACITY];
+ScriptEnvironmentIndex LuaScriptInterface::scriptEnvIndex;
 
 LuaScriptInterface::LuaScriptInterface(std::string interfaceName) : interfaceName(std::move(interfaceName))
 {

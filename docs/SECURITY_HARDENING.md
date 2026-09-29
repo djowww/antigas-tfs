@@ -20,6 +20,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Replaced 81 `assert` checks in five production deployment scripts with explicit runtime preconditions, so Python optimization cannot remove build, hash, backup, service-state or smoke-test gates. Added an optimized-interpreter regression to the Python CI suite.
 - Replaced fixed `.v44-new` through `.v47-new` deployment temp names with exclusive randomized files; data is flushed and metadata/fsync operate through the open descriptor so a pre-planted symlink is not followed. Added regressions for safe replacement and the symlink case, with a hardlink fallback on Windows when symlink creation is denied.
 - Removed the unused legacy `analyzersLib.lua` serializer/deserializer pair; its deserializer called `loadstring`, and normal startup already replaced both globals with the lamp-state implementations. Added a source regression for this invariant.
+- Fixed `reserveScriptEnv` so the rejected 17th nested Lua callback does not increment the global environment index out of range. Added a shared 16-slot index helper and a native boundary/unwind test, included in the sanitizer CTest matrix.
 - Made all 14 assertion-based validation utilities under `tests/` refuse Python `-O` before importing dependencies or touching staging; the regression dynamically checks every such script.
 - Added `.github/workflows/security-build.yml` with release, release-hardened, ASan/UBSan, and separate TSan builds, plus Lua/Python and Windows launcher checks; added C++/C# CodeQL and full-history Gitleaks workflows and monthly Dependabot checks. Third-party Actions are pinned to full SHAs.
 - Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. A LuaJIT regression now exercises a 10,000-item nested chain and checks exact-limit acceptance and over-limit rejection; the security workflow runs it. Mocked containers do not replace staging validation of the server bindings.
@@ -44,6 +45,7 @@ cmake -S . -B build \
   -DTFS_BUILD_RARITY_TESTS=ON \
   -DTFS_BUILD_STATUS_QUERY_TESTS=ON \
   -DTFS_BUILD_SCHEDULER_TESTS=ON \
+  -DTFS_BUILD_SCRIPT_ENVIRONMENT_INDEX_TESTS=ON \
   -DTFS_BUILD_NETWORKMESSAGE_TESTS=ON
 cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
@@ -138,6 +140,11 @@ The production confirmation flags only prevent accidental invocation; they are n
 
 - Removed the unused analyzer serializer/deserializer pair from `analyzersLib.lua`; it generated function source expressions and evaluated arbitrary strings with `loadstring`. The in-repository caller search was empty, and `data/lib/lib.lua` loads the `lamp_states.lua` implementations after `core.lua`; `Player.sendOpcode` still resolves the same active global serializer at runtime.
 - The source regression verifies the legacy pair is absent and checks the bootstrap order. All 31 Python regressions, LuaJIT syntax/loadfile, the lamp-state parser regression, and a standalone bootstrap smoke passed. A fresh Lua `loadstring(...)` scan found no calls, and Gitleaks reported no findings in a ~96.86 MB working-tree scan. No Lua protocol or gameplay data changed; live server initialization has not been tested in staging.
+
+## Follow-up verification — 2026-09-29 (Lua callback stack bound)
+
+- A failed 17th reservation previously left the global index at 16, so a later callback unwind could index beyond the 16-entry array. The shared index helper now refuses overflow without changing state, and reset guards the array access while keeping the prior unwind order.
+- The native capacity regression compiled with MSVC `/W4 /WX` and passed. It fills 16 entries, verifies the 17th fails in place, releases every active entry, and checks underflow rejection. CMake/CTest and the sanitizer workflow include the target; a full TFS build and hosted CI are still pending.
 
 ## Deferred changes
 
