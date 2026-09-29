@@ -42,7 +42,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order -v
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
@@ -85,6 +85,12 @@ The production confirmation flags only prevent accidental invocation; they are n
 - Added a Python source-invariant regression and wired it into the Python CI job. LuaJIT is unavailable locally, so no Lua runtime execution is claimed. Existing report files continue to receive reports for names without path separators.
 - All 17 local Python regressions passed, all three GitHub workflows passed `actionlint`, and `git diff --check` passed. The validator used by the public character-registration site is private/outside this checkout, so legacy/imported name constraints remain unverified.
 - Gitleaks scanned approximately 96.75 MB of the current checkout and reported no leaks. This local scan does not inspect hosted repositories, deployment files, or other clones.
+
+## Follow-up verification — 2026-09-29 (dispatcher shutdown barrier)
+
+- Normal and Windows console shutdown now append the final cleanup task and change dispatcher admission to `CLOSING` while holding the same queue mutex. Work accepted before this barrier remains ahead of cleanup; later scheduler/database callbacks are rejected and their tasks are deleted by the existing admission path.
+- Added source-invariant regressions for the atomic queue transition and both shutdown call sites, then added them to the CI Python suite. All 19 local Python regressions passed, all three workflows passed `actionlint`, and `git diff --check` passed.
+- Full server compilation and concurrent shutdown/TSan validation remain pending because CMake/Boost are unavailable locally. The regression is a source-order check, not a runtime thread test.
 
 ## Deferred changes
 

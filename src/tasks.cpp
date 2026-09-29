@@ -84,6 +84,25 @@ void Dispatcher::addTask(Task* task, bool push_front /*= false*/)
 	}
 }
 
+void Dispatcher::addTaskAndStop(Task* task)
+{
+	bool do_signal = false;
+	{
+		std::lock_guard<std::mutex> lockClass(taskLock);
+		if (getState() == THREAD_STATE_RUNNING) {
+			do_signal = taskList.empty();
+			taskList.push_back(task);
+			setState(THREAD_STATE_CLOSING);
+		} else {
+			delete task;
+		}
+	}
+
+	if (do_signal) {
+		taskSignal.notify_one();
+	}
+}
+
 void Dispatcher::shutdown()
 {
 	Task* task = createTask([this]() {
