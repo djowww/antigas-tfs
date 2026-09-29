@@ -5,6 +5,10 @@ Run only on the staging VPS. It refuses to run unless the staging unit, loopback
 listener, staging environment file, and dedicated test schema are all present.
 All generated accounts use a reserved ID range and .test.invalid email addresses.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import argparse
 import hashlib
 import json

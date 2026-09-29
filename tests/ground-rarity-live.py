@@ -12,6 +12,10 @@ Reads targeted packet signatures, not a complete game protocol/map decoder.
 Use --self-test without database/network access. Existing TFS_DB_NAME is needed
 for live execution; use ANTIGAS_STAGING_GAME_PORT=7176 or 7186 with explicit mutation approval.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import importlib.util
 import json
 import os

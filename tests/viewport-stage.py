@@ -2,6 +2,10 @@
 
 Run once in /opt/antigas-viewport-v38; never changes/stops the official service.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import hashlib
 import json
 import math

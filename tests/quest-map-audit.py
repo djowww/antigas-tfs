@@ -1,4 +1,8 @@
 """Read-only OTBM/NPC audit. Never modifies the map or player data."""
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import argparse
 from collections import defaultdict
 import hashlib

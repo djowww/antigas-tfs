@@ -3,6 +3,10 @@
 Run only against an approved isolated staging database and loopback staging port.
 Set ANTIGAS_ALLOW_STAGING_MUTATIONS=1, TFS_DB_NAME to a *_test/*_qa/*_staging database, and ANTIGAS_STAGING_GAME_PORT to 7176 or 7186.
 """
+
+if not __debug__:
+    raise SystemExit('Python optimization (-O) disables validation assertions; refusing to run this tool.')
+
 import hashlib
 import json
 import os
