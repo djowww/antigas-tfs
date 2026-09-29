@@ -8,6 +8,7 @@ namespace AntigasLauncher;
 internal static class ClientPackage
 {
     private const long MaxExpandedBytes = 500L * 1024 * 1024;
+    private const long MaxEntryExpandedBytes = 150L * 1024 * 1024;
     private const int MaxArchiveEntries = 20000;
     private static readonly string LocalRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AntigasLauncher");
     private static readonly Regex VersionPattern = new(@"^\s*APP_VERSION\s*=\s*(\d+)\b", RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
@@ -43,14 +44,14 @@ internal static class ClientPackage
                 }
                 if (IsUnixSymlink(entry)) throw new InvalidDataException("O pacote contém um tipo de arquivo não permitido.");
                 if (!seen.Add(relative)) throw new InvalidDataException("O pacote contém caminhos duplicados.");
-                if (entry.Length < 0 || entry.Length > 150L * 1024 * 1024) throw new InvalidDataException("Um arquivo do pacote excede o tamanho permitido.");
-                total += entry.Length;
-                if (total > MaxExpandedBytes) throw new InvalidDataException("O conteúdo expandido excede o tamanho permitido.");
+                if (entry.Length < 0 || entry.Length > MaxEntryExpandedBytes) throw new InvalidDataException("Um arquivo do pacote excede o tamanho permitido.");
+                if (entry.Length > MaxExpandedBytes - total) throw new InvalidDataException("O conteúdo expandido excede o tamanho permitido.");
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                 using var input = entry.Open();
                 using var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-                input.CopyTo(output);
-                if (output.Length != entry.Length) throw new InvalidDataException("Um arquivo do pacote foi expandido incompletamente.");
+                var copied = BoundedStreamCopy.Copy(input, output, Math.Min(MaxEntryExpandedBytes, MaxExpandedBytes - total));
+                if (copied != entry.Length) throw new InvalidDataException("Um arquivo do pacote foi expandido com tamanho inesperado.");
+                total += copied;
             }
             ValidateClientRoot(stage, requireLauncher: false);
             return stage;
