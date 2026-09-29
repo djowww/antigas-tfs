@@ -57,6 +57,31 @@ void testInvalidBacktrackingFailsClosed()
 	require(message.getBufferPosition() == NetworkMessage::INITIAL_BUFFER_POSITION, "invalid backtracking must not underflow the cursor");
 }
 
+void testReadPositionMustStayInsideDeclaredPacket()
+{
+	ExposedNetworkMessage valid;
+	valid.setLength(1);
+	valid.getBuffer()[NetworkMessage::INITIAL_BUFFER_POSITION] = 0;
+	require(valid.isReadPositionValid(), "initial cursor should be valid for a nonempty packet");
+	valid.getByte();
+	require(valid.isReadPositionValid(), "cursor at the declared packet end should remain valid");
+
+	ExposedNetworkMessage outside;
+	outside.setLength(1);
+	outside.setCursorPosition(NetworkMessage::INITIAL_BUFFER_POSITION + 2);
+	require(!outside.isReadPositionValid(), "cursor beyond the declared packet should be rejected");
+
+	ExposedNetworkMessage physicalEnd;
+	physicalEnd.setLength(NETWORKMESSAGE_MAXSIZE);
+	physicalEnd.setCursorPosition(NETWORKMESSAGE_MAXSIZE);
+	require(!physicalEnd.isReadPositionValid(), "cursor at the physical buffer end should be rejected");
+
+	ExposedNetworkMessage overrun;
+	overrun.setLength(1);
+	overrun.skipBytes(-1);
+	require(!overrun.isReadPositionValid(), "overrun state should be rejected even before the logical end");
+}
+
 void testBacktrackingRejectsOutOfRangeCursors()
 {
 	ExposedNetworkMessage logicalEnd;
@@ -81,6 +106,7 @@ int main()
 		testValidSkipAndBacktrack();
 		testInvalidSkipsFailClosed();
 		testInvalidBacktrackingFailsClosed();
+		testReadPositionMustStayInsideDeclaredPacket();
 		testBacktrackingRejectsOutOfRangeCursors();
 		return 0;
 	} catch (const std::exception&) {
