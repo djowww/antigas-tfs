@@ -13,7 +13,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Added explicit `--confirm-production-deploy` gates to the five archived deployment scripts and `--confirm-production-change` gates to both production Nginx scripts. Importing the Python scripts no longer runs a deployment phase.
 - Added unit/regression coverage for staging target validation and recovery behavior.
 - Added `.github/workflows/security-build.yml` with release, release-hardened, ASan/UBSan, and separate TSan builds, plus Lua/Python and Windows launcher checks; added C++/C# CodeQL and full-history Gitleaks workflows and monthly Dependabot checks. Third-party Actions are pinned to full SHAs.
-- Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. LuaJIT is unavailable locally; the existing CI syntax step remains unrun on GitHub.
+- Replaced the Market's recursive backpack inventory walk with iterative depth-first traversal and a 10,000-node limit. Reads reject an over-limit scan, and trade operations fail before asset transfer. `Container::queryAdd` prevents cycles but has no depth cap, so this bounds Market's work for nested player-controlled inventory. All tracked Lua syntax now passes locally; a dedicated Market nested-container behavior test and staging reproduction remain pending.
 - Updated the Lua syntax workflow to treat data/globalevents/lib/lamp_states.lua as persisted table data: it prefixes the file with return in a temporary path and compiles the wrapper without executing its contents.
 - Replaced ProtocolStatus's never-pruned per-IP map with a mutex-protected steady-clock expiry cache. It stores at most 65,536 source addresses, rejects unseen addresses at capacity, and reclaims at most 256 expired addresses per query. This bounds memory and cleanup work while preserving the configured per-address timeout; the status protocol may refuse new monitors during a full active window. Added an isolated C++ regression target to the CMake/CI workflow.
 - Hardened NetworkMessage cursor movement: `skipBytes` now rejects negative or unavailable ranges, and `getPreviousByte` refuses to underflow or read past its logical/buffer bounds. Added a dedicated CMake regression target for valid and malformed cursor operations.
@@ -45,6 +45,13 @@ From `tests/`:
 python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_dispatcher_shutdown_order test_connection_shutdown_serialization test_lamp_state_parser -v
 ```
 
+From the repository root, with LuaJIT 2.1 installed:
+
+```sh
+luajit tests/economy-inventory-tests.lua
+luajit tests/lamp-state-parser-tests.lua
+```
+
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
 
 The production confirmation flags only prevent accidental invocation; they are not authorization, do not validate backups, and do not make an old release safe to deploy. No flag was supplied during this audit. New GitHub workflows are source-reviewed only; they need a GitHub run, and CodeQL availability depends on repository visibility/plan and settings.
@@ -54,10 +61,10 @@ The production confirmation flags only prevent accidental invocation; they are n
 - `actionlint` 1.7.12 passed against all three workflow files in `.github/workflows/`. Its Windows AMD64 release archive and the checksum file were verified against the checksum published on the official release page.
 - Gitleaks 8.30.1 reported zero findings in both the complete local Git history and current working tree, with nested archive depth 2. Its Windows x32 release archive and checksum file were verified against the official release checksum. This is local repository evidence only; it does not inspect GitHub-side secrets or other clones.
 - Re-ran the local Python regression suite using the workspace-bundled Python runtime: all 14 tests passed.
-- After the Market inventory change, the same 14 Python tests passed again, all three workflows passed `actionlint`, the current-tree Gitleaks scan reported zero findings, and a focused source-invariant check confirmed iterative traversal, the cap, and fail-closed callers. These checks do not parse or execute Lua; LuaJIT validation remains pending.
+- At that checkpoint, after the Market inventory change, the same 14 Python tests passed again, all three workflows passed `actionlint`, the current-tree Gitleaks scan reported zero findings, and a focused source-invariant check confirmed iterative traversal, the cap, and fail-closed callers. LuaJIT validation was pending at the time; a later follow-up below records native parsing and tests.
 - `git diff --check` passed. The full server build, Lua runtime validation, CI-hosted workflow, production or staging test remain unavailable in this environment.
 - Compiled tests/status-query-rate-limiter-tests.cpp with Visual Studio 18 MSVC using strict warnings and ran it 20 consecutive times. Timeout boundaries, the 65,536-IP cache cap, the 256-entry cleanup budget, reclamation of 10,000 expired IPs across bounded batches, nonpositive timeouts and concurrent distinct/same-IP requests all passed. This tests the isolated cache helper; it does not build/link the server.
-- The new Economy inventory regression source is wired into the CI LuaJIT job, but could not be executed locally because neither Lua nor LuaJIT is installed. The GitHub workflow has not run from this checkout; local syntax parsing does not replace the behavioral regression run.
+- At that checkpoint, the new Economy inventory regression source was wired into CI but could not yet be executed locally. A later follow-up below records its successful run in a locally built LuaJIT; the hosted workflow remains unrun.
 - The launcher Release build passed with zero warnings/errors, and the standalone bounded-read regression passed locally. Its GitHub Windows job is source-configured but has not run from this checkout.
 
 ## Follow-up verification — 2026-09-29 (database thread initialization)
@@ -82,7 +89,7 @@ The production confirmation flags only prevent accidental invocation; they are n
 ## Follow-up verification — 2026-09-29 (bug report path)
 
 - `Player:onReportBug` preserves the existing per-character report filename for ordinary names. If a name contains `/` or `\\`, it falls back to the player's numeric GUID; the character name remains in the report contents.
-- Added a Python source-invariant regression and wired it into the Python CI job. LuaJIT is unavailable locally, so no Lua runtime execution is claimed. Existing report files continue to receive reports for names without path separators.
+- Added a Python source-invariant regression and wired it into the Python CI job. It checks source behavior rather than invoking the Lua handler; all tracked Lua files have since passed LuaJIT syntax compilation, but this callback still has no dedicated runtime test. Existing report files continue to receive reports for names without path separators.
 - All 17 local Python regressions passed, all three GitHub workflows passed `actionlint`, and `git diff --check` passed. The validator used by the public character-registration site is private/outside this checkout, so legacy/imported name constraints remain unverified.
 - Gitleaks scanned approximately 96.75 MB of the current checkout and reported no leaks. This local scan does not inspect hosted repositories, deployment files, or other clones.
 
@@ -103,7 +110,7 @@ The production confirmation flags only prevent accidental invocation; they are n
 
 - Replaced executable `loadstring` parsing of persisted lamp states with a data-only parser for the existing `Position(x, y, z) = itemId` serialization. It validates map bounds and known lamp IDs, rejects duplicate/malformed entries, scans linearly without copying the remaining file for each entry, and caps parsing at 8 MiB and 100,000 entries; file reads are bounded too.
 - A local read-only check confirmed the checked-in persistence file is 3,420 bytes with 90 canonical entries, all within coordinate/floor bounds and using IDs from the lamp map. Added a LuaJIT regression that tests this real fixture, round-tripping, malformed inputs, code-execution rejection, byte and entry limits; the GitHub LuaJIT job invokes it.
-- The 22-test Python suite, `actionlint` on all three workflows, and parsing of all 32 tracked Python files passed locally. The LuaJIT regression is wired into CI but could not run locally because LuaJIT is not installed; no Lua runtime result is claimed here.
+- The 22-test Python suite, `actionlint` on all three workflows, and parsing of all 33 tracked Python files passed locally. Built upstream LuaJIT 2.1.1788856981 for x64 from the [official source repository](https://luajit.org/download.html) using the [official MSVC build instructions](https://luajit.org/install.html) in a temporary directory; the lamp-state and economy inventory regressions passed, and all 750 tracked Lua files passed LuaJIT bytecode compilation. This does not substitute for the hosted workflow or an in-server Lua test.
 
 ## Deferred changes
 
