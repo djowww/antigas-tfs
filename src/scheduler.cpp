@@ -68,6 +68,7 @@ void Scheduler::threadMain()
 uint32_t Scheduler::addEvent(SchedulerTask* task)
 {
 	bool do_signal = false;
+	uint32_t eventId = 0;
 	eventLock.lock();
 
 	if (getState() == THREAD_STATE_RUNNING) {
@@ -81,8 +82,10 @@ uint32_t Scheduler::addEvent(SchedulerTask* task)
 			task->setEventId(lastEventId);
 		}
 
+		eventId = task->getEventId();
+
 		// insert the event id in the list of active events
-		eventIds.insert(task->getEventId());
+		eventIds.insert(eventId);
 
 		// add the event to the queue
 		eventList.push(task);
@@ -102,7 +105,7 @@ uint32_t Scheduler::addEvent(SchedulerTask* task)
 		eventSignal.notify_one();
 	}
 
-	return task->getEventId();
+	return eventId;
 }
 
 bool Scheduler::stopEvent(uint32_t eventid)

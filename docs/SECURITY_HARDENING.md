@@ -23,6 +23,7 @@ This document records safe repository changes made during the 2026-09-29 audit. 
 - Added `BoundedContentReader` to cap manifest response bytes during streaming, including when the HTTP response has no trustworthy `Content-Length`; the helper regression accepts exactly 64 KiB and rejects a 64 KiB + 1 byte response. The launcher now checks a local manifest's file size before deserializing it.
 - Initialize and release MySQL client thread-specific state in `DatabaseTasks::threadMain`; async queries use a database handle created on the dispatcher, so the worker must initialize its own client TLS. Initialization failure now stops that worker instead of calling MySQL APIs without the required thread state. Added a static source-invariant regression to the CI Python suite.
 - Bound scheduler tombstone retention by compacting the priority queue when cancelled tasks reach the active queued-task count, and after active tasks expire if the threshold is crossed. Preserve the original heap and active event IDs; wake the scheduler when a compaction removes entries, and destroy removed task closures outside the queue mutex. Compaction allocation failure falls back to the existing lazy expiry. Added a native 10,000-task queue regression and enabled it in the sanitizer/test workflow.
+- Avoid a scheduler task lifetime race in `Scheduler::addEvent`: copy the event ID before publishing the raw task pointer to the worker, then return only the copied value after unlocking. Added a source-invariant regression for the publish/unlock/return order.
 
 Enable the isolated C++ regressions when configuring the server build, then build and run CTest:
 
@@ -41,7 +42,7 @@ ctest --test-dir build --output-on-failure
 From `tests/`:
 
 ```sh
-python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity -v
+python -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime -v
 ```
 
 The mutating probes additionally support local self-tests where available. Never set `ANTIGAS_ALLOW_STAGING_MUTATIONS=1` outside a reviewed isolated staging window. These guards reduce accidental targeting; they do not replace OS/database isolation, credentials scoped to staging, firewall restrictions, or operator review.
@@ -71,6 +72,12 @@ The production confirmation flags only prevent accidental invocation; they are n
 - The test target is enabled in all server CI build variants, including separate ASan/UBSan and TSan jobs. CMake and the project's Linux/PkgConfig dependency chain are unavailable locally; compiling `src/scheduler.cpp` directly with MSVC stops at missing `boost/asio.hpp`. Therefore integration with the full server and race behavior still require GitHub Linux CI or isolated staging.
 - The Python suite (15 tests), `actionlint` (all three workflows), `git diff --check`, and a full current-tree Gitleaks scan passed. The scan covered about 97 MB and found no leaks.
 - A local MSVC AddressSanitizer build of the isolated queue test could not link because this Visual Studio installation lacks `clang_rt.asan_static_runtime_thunk-x86_64.lib`. The sanitizer workflow remains configured, but no sanitizer result is claimed for this change. No before/after load benchmark or live staging test was available.
+
+## Follow-up verification — 2026-09-29 (scheduler task lifetime)
+
+- `Scheduler::addEvent` now snapshots the ID before exposing the task to the scheduler thread. This prevents reading `task` after it may have been dispatched and destroyed; the 10 ms output-message timer demonstrates a short-delay caller in production code.
+- The new Python source-invariant test passed with the full 16-test local Python suite. It checks that the ID copy precedes queue publication and that the task pointer is not dereferenced after `eventLock` is released. This does not reproduce the scheduling race dynamically.
+- Full server compilation and TSan remain pending because CMake/Boost and the Linux server dependency chain are unavailable locally.
 
 ## Deferred changes
 
