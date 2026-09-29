@@ -21,8 +21,13 @@
 #define FS_SCHEDULER_H_2905B3D5EAB34B4BA8830167262D2DC1
 
 #include "tasks.h"
+#include <algorithm>
+#include <cstddef>
+#include <new>
+#include <stdexcept>
 #include <unordered_set>
 #include <queue>
+#include <vector>
 
 #include "thread_holder_base.h"
 
@@ -61,6 +66,40 @@ struct TaskComparator {
 	}
 };
 
+class SchedulerTaskQueue : public std::priority_queue<SchedulerTask*, std::deque<SchedulerTask*>, TaskComparator>
+{
+	public:
+		// Limit retained cancelled nodes to roughly the number of live queued tasks.
+		bool needsCompaction(std::size_t activeTaskCount) const {
+			return this->size() > activeTaskCount && this->size() - activeTaskCount >= activeTaskCount;
+		}
+
+		// Return removed tasks so callers can run their destructors after unlocking.
+		std::vector<SchedulerTask*> discardCancelled(const std::unordered_set<uint32_t>& activeEventIds) {
+			std::vector<SchedulerTask*> cancelledTasks;
+			if (this->size() > activeEventIds.size()) {
+				try {
+					cancelledTasks.reserve(this->size() - activeEventIds.size());
+				} catch (const std::bad_alloc&) {
+					return cancelledTasks;
+				} catch (const std::length_error&) {
+					return cancelledTasks;
+				}
+			}
+			auto newEnd = std::remove_if(this->c.begin(), this->c.end(), [&activeEventIds, &cancelledTasks](SchedulerTask* task) {
+				if (activeEventIds.find(task->getEventId()) != activeEventIds.end()) {
+					return false;
+				}
+
+				cancelledTasks.push_back(task);
+				return true;
+			});
+			this->c.erase(newEnd, this->c.end());
+			std::make_heap(this->c.begin(), this->c.end(), this->comp);
+			return cancelledTasks;
+		}
+};
+
 class Scheduler : public ThreadHolder<Scheduler>
 {
 	public:
@@ -76,7 +115,7 @@ class Scheduler : public ThreadHolder<Scheduler>
 		std::condition_variable eventSignal;
 
 		uint32_t lastEventId {0};
-		std::priority_queue<SchedulerTask*, std::deque<SchedulerTask*>, TaskComparator> eventList;
+		SchedulerTaskQueue eventList;
 		std::unordered_set<uint32_t> eventIds;
 };
 
