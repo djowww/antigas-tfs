@@ -21,6 +21,7 @@
 
 #include "configmanager.h"
 #include "connection.h"
+#include "connectionqueue.h"
 #include "outputmessage.h"
 #include "protocol.h"
 #include "scheduler.h"
@@ -225,6 +226,10 @@ void Connection::send(const OutputMessage_ptr& msg)
 {
 	std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
 	if (connectionState != CONNECTION_STATE_OPEN) {
+		return;
+	}
+	if (!ConnectionOutputQueue::canQueue(messageQueue.size())) {
+		close(FORCE_CLOSE);
 		return;
 	}
 
