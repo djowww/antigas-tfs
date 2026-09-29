@@ -488,7 +488,14 @@ function siteT(string $source, array $variables = []): string
 
 function siteTHtml(string $source): string
 {
-    return strip_tags(siteTranslation($source), '<strong><em><br><code>');
+    $text = strip_tags(siteTranslation($source), '<strong><em><br><code>');
+    return preg_replace_callback('/<(\/?)((?:strong|em|br|code))\b[^>]*>/i', static function (array $matches): string {
+        $tag = strtolower($matches[2]);
+        if ($tag === 'br') {
+            return $matches[1] === '/' ? '' : '<br>';
+        }
+        return $matches[1] === '/' ? '</' . $tag . '>' : '<' . $tag . '>';
+    }, $text) ?? '';
 }
 
 function siteLanguageUrl(string $language): string
