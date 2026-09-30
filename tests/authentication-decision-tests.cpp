@@ -80,6 +80,34 @@ static void testAccountQueryOutcomes()
 	require(data.accountCalls == 1 && data.charactersCalls == 0, "unknown account must stop before character query");
 }
 
+static void testInvalidPersistedAccountTypesFailClosed()
+{
+	for (int32_t accountType : {0, 6, 258, 259, 261, -1}) {
+		require(!isValidAccountTypeValue(accountType), "out-of-range persisted account type must be rejected before enum conversion");
+
+		FakeAuthenticationData loginData;
+		loginData.account.type = accountType;
+		auto login = authenticateLoginServer(loginData, 42, "synthetic-password");
+		require(login.status == AuthenticationStatus::DatabaseError, "invalid loginserver account type must fail closed as a data error");
+		require(loginData.charactersCalls == 0, "invalid account type must stop before querying characters");
+
+		FakeAuthenticationData gameData;
+		gameData.account.type = accountType;
+		auto game = authenticateGameWorld(gameData, 42, "synthetic-password", "Synthetic Character");
+		require(game.status == AuthenticationStatus::DatabaseError, "invalid gameworld account type must fail closed as a data error");
+		require(gameData.characterCalls == 0, "invalid account type must stop before querying character");
+	}
+
+	for (int32_t accountType = ACCOUNT_TYPE_NORMAL; accountType <= ACCOUNT_TYPE_GOD; ++accountType) {
+		require(isValidAccountTypeValue(accountType), "all defined account types must remain valid");
+		FakeAuthenticationData data;
+		data.account.type = accountType;
+		auto login = authenticateLoginServer(data, 42, "synthetic-password");
+		require(login.status == AuthenticationStatus::Success, "defined account types must continue to authenticate");
+		require(login.account.accountType == static_cast<AccountType_t>(accountType), "defined account types must be preserved");
+	}
+}
+
 static void testLoginserverDecisions()
 {
 	FakeAuthenticationData wrongPasswordData;
@@ -234,6 +262,7 @@ int main()
 {
 	try {
 		testAccountQueryOutcomes();
+		testInvalidPersistedAccountTypesFailClosed();
 		testLoginserverDecisions();
 		testGameworldDecisions();
 		testPublicErrorMapping();

@@ -14,6 +14,31 @@ class AccountTypePersistenceTests(unittest.TestCase):
         self.assertIn("accountType < ACCOUNT_TYPE_NORMAL || accountType > ACCOUNT_TYPE_GOD", setter)
         self.assertIn("return Database::getInstance()->executeQuery(query.str());", setter)
 
+    def test_database_account_type_loaders_validate_before_enum_cast(self):
+        authentication_header = (ROOT / "src" / "authentication.h").read_text(encoding="utf-8-sig")
+        authentication = (ROOT / "src" / "authentication.cpp").read_text(encoding="utf-8-sig")
+        source = (ROOT / "src" / "iologindata.cpp").read_text(encoding="utf-8-sig")
+        self.assertIn("value >= ACCOUNT_TYPE_NORMAL && value <= ACCOUNT_TYPE_GOD", authentication_header)
+        self.assertIn("if (!isValidAccountTypeValue(row.type))", authentication)
+
+        load_account = source.split("Account IOLoginData::loadAccount(", 1)[1].split("\nbool IOLoginData::saveAccount", 1)[0]
+        get_account_type = source.split("AccountType_t IOLoginData::getAccountType(", 1)[1].split("\nbool IOLoginData::setAccountType", 1)[0]
+        preload = source.split("bool IOLoginData::preloadPlayer(", 1)[1].split("\nbool IOLoginData::loadPlayerById", 1)[0]
+        load_player = source.split("bool IOLoginData::loadPlayer(Player*", 1)[1].split("\nvoid IOLoginData::loadItems", 1)[0]
+
+        for body, value_field in (
+            (load_account, 'getNumber<int64_t>("type")'),
+            (get_account_type, 'getNumber<int64_t>("type")'),
+            (preload, 'getNumber<int64_t>("account_type")'),
+        ):
+            self.assertIn(value_field, body)
+            validation = body.index("if (!isValidAccountTypeValue(rawAccountType))")
+            cast = body.index("static_cast<AccountType_t>(rawAccountType)")
+            self.assertLess(validation, cast)
+
+        self.assertIn("if (acc.id != accno)", load_player)
+        self.assertLess(load_player.index("if (acc.id != accno)"), load_player.index("player->accountType = acc.accountType"))
+
     def test_lua_binding_changes_live_sessions_only_after_successful_write(self):
         source = (ROOT / "src" / "luascript.cpp").read_text(encoding="utf-8-sig")
         body = source.split("int LuaScriptInterface::luaPlayerSetAccountType(", 1)[1]

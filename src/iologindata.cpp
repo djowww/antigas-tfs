@@ -92,8 +92,14 @@ Account IOLoginData::loadAccount(uint32_t accno)
 		return account;
 	}
 
+	const int64_t rawAccountType = result->getNumber<int64_t>("type");
+	if (!isValidAccountTypeValue(rawAccountType)) {
+		std::cout << "[Error - IOLoginData::loadAccount] Invalid account type for account " << accno << std::endl;
+		return account;
+	}
+
 	account.id = result->getNumber<uint32_t>("id");
-	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
+	account.accountType = static_cast<AccountType_t>(rawAccountType);
 	account.premiumDays = result->getNumber<uint16_t>("premdays");
 	account.lastDay = result->getNumber<time_t>("lastday");
 	return account;
@@ -126,7 +132,13 @@ AccountType_t IOLoginData::getAccountType(uint32_t accountId)
 	if (!result) {
 		return ACCOUNT_TYPE_NORMAL;
 	}
-	return static_cast<AccountType_t>(result->getNumber<uint16_t>("type"));
+
+	const int64_t rawAccountType = result->getNumber<int64_t>("type");
+	if (!isValidAccountTypeValue(rawAccountType)) {
+		std::cout << "[Error - IOLoginData::getAccountType] Invalid account type for account " << accountId << std::endl;
+		return ACCOUNT_TYPE_NORMAL;
+	}
+	return static_cast<AccountType_t>(rawAccountType);
 }
 
 bool IOLoginData::setAccountType(uint32_t accountId, AccountType_t accountType)
@@ -174,6 +186,12 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 		return false;
 	}
 
+	const int64_t rawAccountType = result->getNumber<int64_t>("account_type");
+	if (!isValidAccountTypeValue(rawAccountType)) {
+		std::cout << "[Error - IOLoginData::preloadPlayer] Invalid persisted account type." << std::endl;
+		return false;
+	}
+
 	player->setGUID(result->getNumber<uint32_t>("id"));
 	Group* group = g_game.groups.getGroup(result->getNumber<uint16_t>("group_id"));
 	if (!group) {
@@ -182,7 +200,7 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 	}
 	player->setGroup(group);
 	player->accountNumber = result->getNumber<uint32_t>("account_id");
-	player->accountType = static_cast<AccountType_t>(result->getNumber<uint16_t>("account_type"));
+	player->accountType = static_cast<AccountType_t>(rawAccountType);
 	if (!g_config.getBoolean(ConfigManager::FREE_PREMIUM)) {
 		player->premiumDays = result->getNumber<uint16_t>("premium_days");
 	} else {
@@ -223,6 +241,9 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 
 	uint32_t accno = result->getNumber<uint32_t>("account_id");
 	Account acc = loadAccount(accno);
+	if (acc.id != accno) {
+		return false;
+	}
 
 	player->setGUID(result->getNumber<uint32_t>("id"));
 	player->name = result->getString("name");

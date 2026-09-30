@@ -14,10 +14,16 @@
 #include "account.h"
 
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <map>
 #include <mutex>
+
+inline bool isValidAccountTypeValue(int64_t value)
+{
+	return value >= ACCOUNT_TYPE_NORMAL && value <= ACCOUNT_TYPE_GOD;
+}
 
 enum class AuthenticationStatus {
 	Success,
