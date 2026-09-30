@@ -59,12 +59,42 @@ falta de memória; capturar `bad_alloc` apenas no dispatcher não elimina isso.
 
 ## Persistência e autenticação que exigem trabalho separado
 
-- O SHA-1 de `AUTH-01` continua inadequado para proteção após vazamento do banco.
-  A revisão atual esclareceu que o protocolo já entrega a senha após RSA e o
-  SHA-1 é aplicado pelo servidor. Portanto a migração não exige necessariamente
-  novo formato de cliente; exige hash versionado, schema compatível, site e sua
-  biblioteca de autenticação, rehash/reset e rollback testados. A descrição da
-  auditoria histórica sobre compatibilidade deve ser lida com essa precisão.
+- O SHA-1 de `AUTH-01` continua inadequado após vazamento do banco. A revisão
+  estática de `src/protocol.cpp:137-144`, `src/protocollogin.cpp:168-174`,
+  `src/protocolgame.cpp:302-304` e `src/networkmessage.cpp:27-38` confirma que,
+  após RSA, o servidor lê a senha como string prefixada por comprimento e recebe
+  seus bytes antes de aplicar hash. Não confirma a codificação/bytes produzidos
+  pela implementação do cliente: o código-fonte dessa implementação não está
+  versionado neste checkout. Portanto, não há evidência para afirmar que o
+  cliente envia SHA-1 nem que seus bytes foram inspecionados.
+- `src/iologindata.cpp:54-65` confere `transformToSHA1(password)` no loginserver;
+  `:88-99` faz o mesmo no gameworld. Nesse segundo caminho a autenticação de
+  conta também chama `loginserverAuthentication`, repetindo a conferência. A
+  transformação em `src/tools.cpp:123-187` produz 40 caracteres hexadecimais
+  minúsculos, sem salt ou marcador de versão. O site repete o formato ao criar
+  conta (`deploy/site-public/index.php:29-30`), autenticar e alterar senha
+  (`deploy/site-public/account.php:27-40`).
+- O checkout não contém o DDL/schema versionado da tabela `accounts`; `data/sql`
+  contém apenas migrações do Market. Também não estão disponíveis o código do
+  cliente nem a biblioteca privada `security.php` usada pelo site. Assim, tipo,
+  largura, collation, constraints e demais leitores/escritores do campo não
+  foram confirmados. Não foram lidos dados, configurações ou credenciais.
+- Migração proposta, ainda sem implementação: (1) obter/revisar schema e todos
+  os leitores, escritores e procedimento de restore; (2) escolher um hash
+  resistente a tentativa offline e um formato explicitamente versionado, com
+  capacidade suficiente no campo; (3) atualizar servidor e site para ler o
+  legado e o novo formato, autenticar contra os bytes recebidos e rehashar após
+  autenticação válida ou troca de senha; (4) habilitar gravação do novo formato
+  somente quando todos os nós que autenticam/escrevem suportarem ambos, pois
+  binários antigos só aceitam SHA-1; (5) documentar backup e rollback antes de
+  substituir hashes legados.
+- Antes de aprovar a migração, adicionar testes focados para loginserver,
+  gameworld, registro, login e alteração de senha; hashes legados/novos;
+  rehash concorrente e troca de senha; senha ASCII e não ASCII com a mesma
+  codificação no cliente e no site; limites/rejeições e falha de banco; e
+  compatibilidade durante implantação/rollback. Esses testes não foram
+  executados nesta revisão documental. Nenhuma alteração de autenticação ou
+  schema foi feita.
 - O charset do cliente MySQL ainda não é explicitamente configurado no core.
   Strings SQL manuais e permissões/schema precisam de revisão antes de mudar
   encoding ou migrar as chamadas para parâmetros. Nenhuma injeção explorável
@@ -86,6 +116,25 @@ falta de memória; capturar `bad_alloc` apenas no dispatcher não elimina isso.
   rate limiter e validação de preço/proprietário/idempotência de Pix dependem de
   `security.php` / `pix.php`, externos ao checkout; não foram inspecionados nesta
   rodada. A fonte visível não prova a configuração desses componentes privados.
+
+## Retomada — lint de scripts e AUTH-01 (30/09/2026)
+
+- A PR3 de ShellCheck/actionlint foi incorporada à `main` no merge
+  [`47bdb553`](https://github.com/djowww/antigas-tfs/commit/47bdb553ee61f193d1c48ddb6ea62e06626234c7).
+  A validação focada registrada para essa mudança usou ShellCheck 0.11.0 e
+  actionlint 1.7.12, com arquivos oficiais fixados por SHA-256: ShellCheck
+  passou sem diagnósticos nos três scripts `.sh`; actionlint passou nos cinco
+  workflows. Não havia baseline de avisos. Este registro é evidência da
+  validação da PR3, não uma execução dos checks hospedados neste commit.
+- CodeQL permanece falho externamente: o
+  [run da entrega v54](https://github.com/djowww/antigas-tfs/actions/runs/36672814245) não publicou
+  resultados porque code scanning estava indisponível/desativado para o
+  repositório privado. Isso não é aprovação de CodeQL nem foi contornado por
+  mudanças locais de permissões/configuração. Cppcheck continua sendo análise
+  complementar, não equivalente.
+- A revisão AUTH-01 acima é somente de fonte/schema versionados. Nenhum teste
+  geral ou de autenticação foi reexecutado nesta retomada; não houve acesso a
+  produção, VPS, banco, configurações ou segredos, nem alteração de auth/schema.
 
 ## Cobertura do pedido original
 
