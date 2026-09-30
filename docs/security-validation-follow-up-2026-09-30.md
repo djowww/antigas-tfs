@@ -73,21 +73,60 @@ o que foi revalidado agora, sem ampliar os resultados além das evidências.
   v53 em HTTPS, passou os sete controles: assinatura/hash, manifesto adulterado,
   path traversal, adulteração após extração, instalação limpa, preservação de
   userdata e rollback. Todos os arquivos temporários foram limpos.
-- Isso não é um resultado CodeQL. O workflow existe no repositório, mas o GitHub
-  não executou a análise porque code scanning está desabilitado para este
-  repositório privado. A documentação do GitHub limita o uso do CodeQL CLI em
-  repositórios privados a organizações com GitHub Code Security compatível; os
-  termos da CLI também reservam análise automatizada de bases fechadas a uma
-  licença comercial GHAS. Não alteramos a visibilidade do projeto nem tentamos
-  contornar a restrição. O item só fecha com uma licença compatível habilitada;
-  build e analisadores .NET são checagens locais adicionais, não um resultado
-  equivalente ao CodeQL.
+- O run 36665435428 executou as queries CodeQL para C# e C++, mas o passo de
+  envio falhou com “Code scanning is not enabled for this repository”. Portanto,
+  não há resultado publicado/visível no GitHub; o run falho não é aprovação de
+  CodeQL. O workflow já concede security-events: write. Para usar CodeQL em
+  um repositório privado, o GitHub exige GitHub Team ou Enterprise com GitHub
+  Code Security habilitado. Não alteramos a visibilidade do repositório. Veja a
+  [disponibilidade do CodeQL CLI](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-cli)
+  e [como habilitar CodeQL em repositórios privados](https://docs.github.com/en/code-security/reference/code-scanning/troubleshoot-analysis-errors/private-repository-enablement).
 
 Referências oficiais: [disponibilidade do CodeQL em repositórios privados](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-cli)
 e [termos da CLI](https://github.com/github/codeql-cli-binaries/blob/main/LICENSE.md).
 
 ## Resultado desta entrega
 
-Os testes de staging, hardening, restart e verificações externas passaram. A
-análise CodeQL segue pendente pela licença/configuração do repositório privado;
-esta pendência está explicitamente separada dos controles que passaram.
+Staging, hardening, restart e verificações externas passaram. A análise CodeQL
+foi executada, mas o upload permanece bloqueado até habilitarem GitHub Code
+Security para o repositório privado.
+
+## Limites de conexão — commit f4fa832
+
+- O antigo mapa de tentativas por IP sem expiração foi substituído por uma
+  tabela de até 65.536 endereços, com reaproveitamento incremental de até 256
+  entradas expiradas por nova tentativa quando a tabela está cheia.
+- A admissão de sockets agora limita o total e cada endereço antes de criar o
+  protocolo. No maxPlayers=2000 do servidor, o padrão permite 2.256 conexões
+  totais e 128 por IP, com margem de login; ambos podem ser ajustados na
+  configuração. A tabela de IPs também é limitada.
+- As filas mantêm o teto anterior de 64 mensagens por conexão e agora têm teto
+  agregado de 8.192 mensagens, cerca de 512 MiB de buffers fixos. Fechamento
+  forçado preserva o buffer que ainda está sendo escrito até a conclusão do
+  callback do socket.
+- Passaram 49 regressões Python locais e os testes nativos C++ de admissão,
+  expiração, limites concorrentes e reserva/liberação das filas compilados no
+  MSVC 2026 com /W4 /WX. No GitHub, passaram Release, Release hardened,
+  ASan/UBSan, TSan, CTest, fuzzer de protocolo, launcher, PHP/Lua/Python,
+  Cppcheck e secret scan no commit f4fa832. [Build e testes](https://github.com/djowww/antigas-tfs/actions/runs/36665435500),
+  [Cppcheck](https://github.com/djowww/antigas-tfs/actions/runs/36665435433),
+  [secret scan](https://github.com/djowww/antigas-tfs/actions/runs/36665435458).
+- O binário Linux Ubuntu 22.04 com SHA-256
+  fdec99926b45a3e8f1d3866c59c92654de3197c251b2debd612a35c83330eb27 passou
+  em staging isolado. Raridade passou em 34,47 s; item no chão/persistência em
+  17,67 s; carga em 94,33 s. A carga abriu 50/50 sessões, manteve todas
+  conectadas por 30 s, completou 20 ofertas e 20 preenchimentos de Market, criou
+  40 históricos, encontrou 10/10 alvos, terminou sem claims pendentes e limpou
+  os dados sintéticos. O pico RSS medido foi 1.725,59 MiB. A recuperação
+  independente retornou [0, 0, 0], produção ativa e staging parado.
+- Esse mesmo hash foi instalado em produção com backup do binário anterior e o
+  serviço foi reiniciado em 30/09/2026 às 03:52:51 UTC. O processo ficou ativo
+  (PID 3560, NRestarts=0), as portas 7173/7174 ficaram em escuta e o nível de
+  systemd-analyze security permaneceu 3.8 OK. O site respondeu HTTP 200 e os
+  testes externos de TCP passaram. O log do novo início contém
+  “Antigas 7.4 Server Online!” e não contém o falso aviso de loop em
+  ruleviolations.lua; esse arquivo continua sendo apenas o predicado canJoin.
+- O teste do launcher ponta a ponta com manifesto v53 e pacote assinado já está
+  registrado acima; este commit não mudou o launcher. O CodeQL para ambos os
+  idiomas ainda não publica resultados até ativarem GitHub Code Security no
+  repositório privado.

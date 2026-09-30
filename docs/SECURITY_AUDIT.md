@@ -28,6 +28,10 @@ At the start of this audit, the tracked repository contained 1,725 files: 84 C++
 
 The server build is documented in `README.md`: Linux, CMake and system packages, then `cmake -S . -B build` and `cmake --build build`. The repository does not contain the production systemd unit or an authoritative startup script, so actual service user, restart policy, limits, ports and shutdown ordering cannot be confirmed from this checkout.
 
+## Current status — 2026-09-30
+
+The conditional `NET-01` finding below describes the 2026-09-29 source-review snapshot. It was addressed in commit `f4fa832` with bounded global/per-IP admission and an aggregate output-queue budget, then exercised in isolated staging and deployed with a production restart. See the [2026-09-30 validation addendum](security-validation-follow-up-2026-09-30.md) for test evidence, measurements, binary hash and remaining CodeQL limitation. The historical finding text below is retained to preserve the original review evidence.
+
 ## Findings
 
 | ID / severity / file / function | Finding, condition and impact | Safe reproduction, correction, test and residual risk |
