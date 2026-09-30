@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "baseVersion": 53,
+  "candidateVersion": 54,
+  "files": 686,
+  "changed": [
+    "AntigasLauncher.exe",
+    "client.version",
+    "init.lua",
+    "LEIA-ME.txt"
+  ],
+  "unchangedFiles": 682,
+  "gameExecutables": {
+    "Antigas_dx.exe": "7ea0120316e91b510b57d0b523c38aef4461b48ace85a769d0ffceb05a2d6047",
+    "Antigas_gl.exe": "99e642b464727e5fabeba2ba7e57b5d78242e7ca9619c6eea822888dd6c61d6f"
+  },
+  "launcherSha256": "3304d1460ce99f05983c3ac4bbaec1b48b3cf269dfb88cec22366c5b3a3333e0",
+  "limits": "Update ZIP omits the new launcher; existing users need the complete v54 bundle for UPD-02. Forced termination and power loss remain outside the closing guard."
+}

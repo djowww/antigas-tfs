@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "version": 54,
+  "signature": "verified by pinned production ReleaseService",
+  "manifestSha256": "548b2a7633a20e46996f95e802e280a95e07655518ca47cae93d83fe720b84eb",
+  "updateSha256": "f45500bd2734ae9ad03b0033c978e4b0494929727abea9daae49589ed4ed6bd1",
+  "updateBytes": 26575995,
+  "bundleSha256": "0710bcae0ac83b0a08d3bfe042541a7b0a11760bae4a9fbd6be968e65e383d2d",
+  "bundleBytes": 72784396,
+  "legacySha256": "0710bcae0ac83b0a08d3bfe042541a7b0a11760bae4a9fbd6be968e65e383d2d",
+  "launcherSha256": "3304d1460ce99f05983c3ac4bbaec1b48b3cf269dfb88cec22366c5b3a3333e0",
+  "updateIncludesLauncher": false,
+  "clientFiles": 686,
+  "scope": "offline local files; no network or publication"
+}

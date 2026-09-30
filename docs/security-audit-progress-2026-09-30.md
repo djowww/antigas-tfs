@@ -14,11 +14,11 @@ Este documento registra progresso e lacunas. Não declara a auditoria encerrada.
 
 | ID / severidade | Local / condição | Evidência e impacto | Correção / validação | Risco residual |
 |---|---|---|---|---|
-| LOGIN-01 / P2 | `src/protocolgame.cpp`, `ProtocolGame::onRecvFirstMessage`, `login`, `connect`; `src/protocollogin.cpp`, `getCharacterList` | `blockLogin` era consultado somente na entrada da lista de personagens. Um cliente com credenciais válidas podia conectar diretamente à porta de jogo. Uma mudança da configuração enquanto uma tarefa de login/reconexão aguardava também não era reavaliada. | Aplicado o bloqueio na entrada de jogo, no login no dispatcher, na lista de personagens já enfileirada e no callback atrasado de reconexão. A mensagem configurada é preservada. Teste nativo integrado implementado, aguardando CI. | O bloqueio controla novas entradas e reconexões; não é um mecanismo para expulsar sessões já autenticadas. Configuração administrativa continua precisando de proteção. |
-| BANLOOKUP-01 / P2 condicional | `src/ban.cpp`, consultas de conta/IP/namelock; callers em ambos os protocolos | `Database::storeQuery` retorna `nullptr` tanto para zero linhas quanto para falha. Os helpers anteriores tratavam ambos como ausência de banimento. Uma falha da tabela de banimentos com contas/personagens legíveis podia liberar uma entrada proibida. | Resultado explícito `Clear`, `Banned`, `Error`, usando o indicador de sucesso da consulta. Em `Error`, o login recebe indisponibilidade temporária. Teste do código verdadeiro de consulta com uma interface de banco simulada implementado, aguardando CI. | Corrigir erros do banco continua necessário. A indisponibilidade de uma consulta de autorização agora recusa acesso; não passa a representar usuário liberado nem banimento permanente. |
-| LOGINPARSE-01 / P3 | `src/protocollogin.cpp`, `onRecvFirstMessage` | O parser da lista de personagens não verificava o cursor final antes de enfileirar autenticação. O buffer admite folga para outros formatos, mas o primeiro pacote já possui comprimento absoluto, exigindo validação estrita desse limite. Não foi demonstrado bypass de credenciais ou crash por este caminho. | Checagem de overrun e cursor antes do dispatch, correspondente ao primeiro pacote do jogo. Regressão deve incluir consumo de bytes além do comprimento declarado, inclusive trailer OTCv8. | A correção não substitui a auditoria individual de todos os campos/opcodes. O formato e o padding legítimos são preservados. |
+| LOGIN-01 / P2 | `src/protocolgame.cpp`, `ProtocolGame::onRecvFirstMessage`, `login`, `connect`; `src/protocollogin.cpp`, `getCharacterList` | `blockLogin` era consultado somente na entrada da lista de personagens. Um cliente com credenciais válidas podia conectar diretamente à porta de jogo. Uma mudança da configuração enquanto uma tarefa de login/reconexão aguardava também não era reavaliada. | Aplicado o bloqueio na entrada de jogo, no login no dispatcher, na lista de personagens já enfileirada e no callback atrasado de reconexão. A mensagem configurada é preservada. Teste nativo integrado passou nas quatro variantes C++ do CI, inclusive sanitizadores. | O bloqueio controla novas entradas e reconexões; não é um mecanismo para expulsar sessões já autenticadas. Configuração administrativa continua precisando de proteção. |
+| BANLOOKUP-01 / P2 condicional | `src/ban.cpp`, consultas de conta/IP/namelock; callers em ambos os protocolos | `Database::storeQuery` retorna `nullptr` tanto para zero linhas quanto para falha. Os helpers anteriores tratavam ambos como ausência de banimento. Uma falha da tabela de banimentos com contas/personagens legíveis podia liberar uma entrada proibida. | Resultado explícito `Clear`, `Banned`, `Error`, usando o indicador de sucesso da consulta. Em `Error`, o login recebe indisponibilidade temporária. Teste do código verdadeiro de consulta com uma interface de banco simulada passou no CI; não simula falha real de MariaDB. | Corrigir erros do banco continua necessário. A indisponibilidade de uma consulta de autorização agora recusa acesso; não passa a representar usuário liberado nem banimento permanente. |
+| LOGINPARSE-01 / P3 | `src/protocollogin.cpp`, `onRecvFirstMessage` | O parser da lista de personagens não verificava o cursor final antes de enfileirar autenticação. O buffer admite folga para outros formatos, mas o primeiro pacote já possui comprimento absoluto, exigindo validação estrita desse limite. Não foi demonstrado bypass de credenciais ou crash por este caminho. | Checagem de overrun e cursor antes do dispatch, correspondente ao primeiro pacote do jogo. Regressão nativa passou, incluindo consumo além do comprimento declarado e trailer OTCv8. | A correção não substitui a auditoria individual de todos os campos/opcodes. O formato e o padding legítimos são preservados. |
 | UPD-02 / P2 | `deploy/launcher/AntigasLauncher/UpdateApplyForm.cs`, `ApplyAsync` / fechamento da janela | Fechar a janela enquanto `Task.Run` troca arquivos encerra o message loop e pode terminar o processo antes do catch que faria rollback. A lista de alterações existe somente em memória. | `OnFormClosing` cancela o fechamento enquanto validação/aplicação/rollback está pendente e o libera quando termina. O harness `LauncherFormLifecycle` invoca métodos reais sem mostrar janela nem iniciar cliente; passou. O mesmo harness falha com a fonte anterior. Build Release normal passou sem avisos/erros. | Encerramento forçado e perda de energia ainda exigem journal persistente/recuperação após reinício. O harness não simula perda de energia nem certifica todos os caminhos de interface. |
-| LUALIFE-01 / P2 | `src/luascript.cpp`, construtor/init/close; `src/raids.cpp`, construção global | Ao tornar UBSan bloqueante, cinco testes de core acusaram chamada de membro com vptr inválido: `Game` constrói `Raids` antes do `LuaEnvironment` de outro translation unit. O teardown também podia ler um ambiente global já destruído. | Guarda de lifetime com inicialização constante; Raids inicializa a interface no carregamento, após os globais. Regressão real de load/clear/reload/Lua e teardown implementada, aguardando CI. | Não foi demonstrado gatilho remoto. A guarda protege a existência do ambiente; não modifica regras de raids nem resolve todos os riscos de reload/Lua. |
+| LUALIFE-01 / P2 | `src/luascript.cpp`, construtor/init/close; `src/raids.cpp`, construção global | Ao tornar UBSan bloqueante, cinco testes de core acusaram chamada de membro com vptr inválido: `Game` constrói `Raids` antes do `LuaEnvironment` de outro translation unit. O teardown também podia ler um ambiente global já destruído. | Guarda de lifetime com inicialização constante; Raids inicializa a interface no carregamento, após os globais. Regressão real de load/clear/reload/Lua e teardown passou no CI, inclusive UBSan bloqueante. | Não foi demonstrado gatilho remoto. A guarda protege a existência do ambiente; não modifica regras de raids nem resolve todos os riscos de reload/Lua. |
 
 Esta rodada encontrou quatro problemas P2 e um P3 acima. Não confirmou problema
 novo P0/P1. Esse recorte não é uma contagem final de todo o projeto. As mudanças
@@ -44,7 +44,7 @@ transação parcialmente alterados; não foi adicionado catch que esconda essa
 condição. Uma regressão integrada de encerramento por exceção foi implementada:
 o driver exige o término do processo de teste pela exceção exata da fixture,
 com status 86, dois marcadores e nenhuma execução da tarefa já enfileirada
-depois dela. A execução nativa aguarda CI; o terminate handler existe somente
+depois dela. A execução nativa passou no CI; o terminate handler existe somente
 no teste, não modifica o comportamento do servidor.
 
 As filas de entrada do dispatcher e de tarefas SQL ainda não têm teto de
@@ -91,8 +91,8 @@ falta de memória; capturar `bad_alloc` apenas no dispatcher não elimina isso.
 
 Os estados abaixo distinguem evidência já registrada de requisito ainda sem
 prova suficiente. Os documentos de validação são históricos: uma mudança no
-caminho testado exige nova execução. Os testes desta branch serão acrescentados
-ao registro depois de sua execução; não se presume aprovação antecipada.
+caminho testado exige nova execução. Os testes executados desta branch estão registrados na
+[entrega v54](security-auth-v54-delivery-2026-09-30.md), com seus limites.
 
 | Fase | Evidência disponível | Trabalho ainda necessário |
 |---|---|---|
@@ -102,7 +102,7 @@ ao registro depois de sua execução; não se presume aprovação antecipada.
 | 4 Análise C++ | Cppcheck com 73 unidades, baseline revisada, gate de análise completa | Diagnósticos `NEEDS_INVESTIGATION` restantes; dependências não têm cobertura semântica completa. |
 | 5 Lua | Syntax de todos os scripts, parser de lamp, inventário/economia e regressões de lifecycle | Lint semântico compatível, mapa de storage/eventos e fechamento da revisão individual de todos os scripts. |
 | 6 Banco / queries | Revisão, timeout/recuperação, transações/recibos de Market e quoting de identificador | Charset, parametrização incremental, permissões/schema atuais e durabilidade de sistemas legados. |
-| 7 Cada opcode | Guard de cursor antes de tarefas, walking, limites NetworkMessage | Matriz por opcode/campo/estado e casos fora de ordem ainda incompletos. |
+| 7 Cada opcode | Guard de cursor, walking, limites e inventário de 69 casos em `protocol-opcode-audit-2026-09-30.md` | Fechar validação individual dos campos e testes de comportamento fora de ordem; inventário não é cobertura dinâmica integral. |
 | 8 Fuzzing | libFuzzer ASan+UBSan de NetworkMessage/walking, corpus preservado em falha | Login, deserializadores, XML/config e bindings Lua ainda sem targets equivalentes. |
 | 9 DoS / limites | Adm. global/IP, tentativas/status com expiração e orçamento de saída | Backpressure de entrada e medição de ações caras; não rejeitar saves/cleanup por um teto indiscriminado. |
 | 10 Stress / soak | Carga atual de 50 sessões/30 s; teste histórico de Market com 100 sessões | Soak prolongado, centenas de sessões de gameplay e comparação de RAM após desconexão. |
@@ -111,16 +111,16 @@ ao registro depois de sua execução; não se presume aprovação antecipada.
 | 13 Secrets | Gitleaks no checkout/histórico e CI, configurações privadas ignoradas | Revalidar custódia externa de credenciais/chaves; scan do repo não cobre outros clones/host. |
 | 14 Dependências / CVEs | Dependabot Actions/NuGet; alerts e security updates ativados e verificados por API; dependências CMake identificadas | Inventário de versões reais de sistema/vendorizadas, scan de advisories e SBOM ainda faltam. |
 | 15 CodeQL / alternativa | Queries C#/C++ executadas; upload recusado pelo plano/settings; Cppcheck e Gitleaks ativos | Ativação externa de Code Security para publicar CodeQL; continuar a análise alternativa. |
-| 16 Actions | Permissões mínimas, SHA de Actions, matriz de build/testes | Nova branch precisa passar os checks; não usar apenas status vazio da API como prova de aprovação. |
+| 16 Actions | Permissões mínimas, SHA de Actions, matriz de build/testes | Builds, análise C++ e secrets passaram nesta branch; CodeQL externo falhou. Registrar os checks do merge sem presumir aprovação. |
 | 17 Proteção da main | APIs de protection/rulesets recusaram o recurso para o plano do repositório privado (HTTP 403) | Quando disponível, exigir PR, builds/checks aprovados e impedir force push/delete. O processo de PR pode ser seguido agora, mas a API confirmou que o enforcement nativo exige mudança externa de plano. |
 | 18 Pipeline | Build, testes, fuzz smoke, secret scan, Cppcheck, parsing PHP/Lua/Python | Lint Lua/ShellCheck e dependency scan ainda não equivalem a simples parsing. |
-| 19 Hardening binário | Release hardened Ubuntu 22.04 testada/deployada, flags compatíveis | Revalidar o artefato das novas alterações antes de deploy; não instrumentar produção com sanitizers. |
+| 19 Hardening binário | Release hardened Ubuntu 22.04 testada/deployada, flags compatíveis | Artefato novo validado no CI, staging e produção por hash, conforme entrega v54; produção usa Release hardened sem sanitizadores. |
 | 20 Warnings | Builds e baseline Cppcheck; launcher TreatWarningsAsErrors | Baseline de warnings C++ ampliados e revisão dos diagnósticos .NET exploratórios. |
-| 21 Sistema operacional | Serviço dedicado e hardening validado; capabilities zeradas | Revisão completa de SSH/permissões/core dumps/atualizações e dados externos permanece parcial. |
-| 22 Firewall / exposição | Portas 7173/7174 e site verificadas; isolamento do staging | Inventário atual integral e regra de banco/admin devem ter evidência de host, com rollback para mudanças. |
+| 21 Sistema operacional | Serviço dedicado e hardening validado; capabilities zeradas | Observação atual em `host-security-observation-2026-09-30.md`; login root por senha ainda habilitado, revisão integral e mudanças seguras pendentes. |
+| 22 Firewall / exposição | Portas 7173/7174 e site verificadas; isolamento do staging | Host atual confirma MariaDB loopback e UFW; revisar ranges Cloudflare e permissões globais SQL, com rollback antes de mudar. |
 | 23 Logs | Startup/shutdown/banco/Lua/rede documentados sem conteúdo de credenciais | Diagnóstico de exceção C++ e rate limiting de logs acionáveis remotamente. |
 | 24 Observabilidade | Coleta leve CPU/RSS e serviço ativo em testes | Tick, percentis, latência SQL, backlog, conexões e contador de erros Lua ainda não têm cobertura completa. |
-| 25 Shutdown / recovery | Ordem de scheduler/DB/dispatcher/sockets corrigida; recuperação independente staging | Exercício atual de shutdown com sessões/carga ainda ativas e checagem de todos os dados salvos. |
+| 25 Shutdown / recovery | Ordem de scheduler/DB/dispatcher/sockets corrigida; recuperação independente staging | Shutdown com 50 sessões ainda conectadas passou na entrega v54; isso não comprova todos os sistemas nem falhas de save. |
 | 26 Falha do banco | Testes históricos isolados de Market e recuperação documentados | Repetir contra código atual e expandir falhas para gameplay/saves e autorização; fixtures de lookup não substituem MariaDB real. |
 | 27 Startup automático | Runner de staging confirma serviço/listeners e operação mínima, depois recuperação | Smoke completo com DB de teste e runtime ASan/UBSan/shutdown/exit verificados automaticamente. |
 | 28 Regressões | Bugs corrigidos possuem alvos nativos/Lua/Python no CI | Registrar limites dos testes de fonte antigos; novos testes devem executar comportamento real. |
@@ -141,11 +141,13 @@ o resultado não é contado como aprovação. Os runs relevantes são
 [secret scan](https://github.com/djowww/antigas-tfs/actions/runs/36666883715) e
 [CodeQL](https://github.com/djowww/antigas-tfs/actions/runs/36666883716).
 
-Os resultados da branch desta rodada ainda precisam ser acrescentados após
-builds/testes. O ambiente Windows tem .NET disponível; não tem CMake e o
-conjunto de dependências Linux do servidor no PATH. Os testes integrados de
-core serão executados pelo CI Linux. Nenhum probe destrutivo, fuzzing ou falha
-de banco desta rodada foi executado contra produção.
+Os resultados atuais estão na [entrega v54](security-auth-v54-delivery-2026-09-30.md):
+19/19 testes nativos nas quatro variantes, sete jobs aprovados, Cppcheck e
+secret scan aprovados em `217e85b`; CodeQL falhou por disponibilidade externa.
+O binário aprovado passou em staging com 50 sessões antes da publicação e
+reinício de produção. Windows executou os harnesses .NET; core/Linux rodou no
+CI. Nenhum probe destrutivo, fuzzing ou falha de banco desta rodada foi
+executado contra produção.
 
 ## Configurações de segurança do GitHub verificadas nesta rodada
 

@@ -7,6 +7,8 @@
 - [Auditoria de segurança e riscos residuais](SECURITY_AUDIT.md)
 - [Manutenção das proteções de segurança](SECURITY_HARDENING.md)
 - [Continuação da auditoria e cobertura das 34 fases](security-audit-progress-2026-09-30.md)
+- [Entrega das correções de login/Lua e launcher v54](security-auth-v54-delivery-2026-09-30.md)
+- [Observação de host, exposição e dependências](host-security-observation-2026-09-30.md)
 - [Validação em staging e publicação de segurança](security-validation-2026-09-30.md)
 - [Acompanhamento dos testes e limites de conexão](security-validation-follow-up-2026-09-30.md)
 - [Inventário de opcodes e cobertura de validação](protocol-opcode-audit-2026-09-30.md)

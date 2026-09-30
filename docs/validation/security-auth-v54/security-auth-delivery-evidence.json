@@ -1,0 +1,525 @@
+{
+  "security-validation-result": {
+    "started": 1790745861.9016805,
+    "binary_sha256": "d74d3f2a4988940d149b1031f40c3052f018e96aa53ca974e965db079d394e13",
+    "target_sessions": 50,
+    "status": "passed",
+    "phases": [
+      {
+        "name": "rarity-live.py",
+        "exit_code": 0,
+        "seconds": 34.48
+      },
+      {
+        "name": "ground-rarity-live.py",
+        "exit_code": 0,
+        "seconds": 17.67
+      },
+      {
+        "name": "load-test-50.py",
+        "exit_code": 0,
+        "seconds": 94.71
+      }
+    ],
+    "samples": [
+      {
+        "time": 1790745868.5282125,
+        "rss_mib": 815.2734375,
+        "cpu_seconds": 1.93
+      },
+      {
+        "time": 1790745870.5382338,
+        "rss_mib": 1559.3203125,
+        "cpu_seconds": 3.92
+      },
+      {
+        "time": 1790745872.5455332,
+        "rss_mib": 1723.640625,
+        "cpu_seconds": 5.01
+      },
+      {
+        "time": 1790745874.5533442,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.06
+      },
+      {
+        "time": 1790745876.5618172,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.1
+      },
+      {
+        "time": 1790745878.5688612,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.14
+      },
+      {
+        "time": 1790745880.5764906,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.19
+      },
+      {
+        "time": 1790745882.5840108,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.24
+      },
+      {
+        "time": 1790745884.5912807,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.28
+      },
+      {
+        "time": 1790745886.5986295,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.33
+      },
+      {
+        "time": 1790745888.6058495,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.37
+      },
+      {
+        "time": 1790745890.6136189,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.42
+      },
+      {
+        "time": 1790745892.6217794,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.46
+      },
+      {
+        "time": 1790745894.6299555,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.5
+      },
+      {
+        "time": 1790745896.6378858,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.55
+      },
+      {
+        "time": 1790745898.6455224,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.59
+      },
+      {
+        "time": 1790745900.6548812,
+        "rss_mib": 1723.9921875,
+        "cpu_seconds": 5.63
+      },
+      {
+        "time": 1790745902.6630077,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.68
+      },
+      {
+        "time": 1790745904.6708248,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.73
+      },
+      {
+        "time": 1790745906.6826499,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.78
+      },
+      {
+        "time": 1790745908.6921277,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.82
+      },
+      {
+        "time": 1790745910.7000196,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.86
+      },
+      {
+        "time": 1790745912.7077472,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.91
+      },
+      {
+        "time": 1790745914.7152197,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 5.95
+      },
+      {
+        "time": 1790745916.7234845,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.0
+      },
+      {
+        "time": 1790745918.7317235,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.04
+      },
+      {
+        "time": 1790745920.7389877,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.09
+      },
+      {
+        "time": 1790745922.7460718,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.13
+      },
+      {
+        "time": 1790745924.7545116,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.17
+      },
+      {
+        "time": 1790745926.7681656,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.2
+      },
+      {
+        "time": 1790745928.7758148,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.25
+      },
+      {
+        "time": 1790745930.7852077,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.3
+      },
+      {
+        "time": 1790745932.7925737,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.36
+      },
+      {
+        "time": 1790745934.7998772,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.43
+      },
+      {
+        "time": 1790745936.8069828,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.5
+      },
+      {
+        "time": 1790745938.8144855,
+        "rss_mib": 1724.3671875,
+        "cpu_seconds": 6.56
+      },
+      {
+        "time": 1790745940.824343,
+        "rss_mib": 1724.625,
+        "cpu_seconds": 6.62
+      },
+      {
+        "time": 1790745942.8377035,
+        "rss_mib": 1724.625,
+        "cpu_seconds": 6.68
+      },
+      {
+        "time": 1790745944.8453612,
+        "rss_mib": 1724.625,
+        "cpu_seconds": 6.74
+      },
+      {
+        "time": 1790745946.8537784,
+        "rss_mib": 1724.625,
+        "cpu_seconds": 6.8
+      },
+      {
+        "time": 1790745948.8612542,
+        "rss_mib": 1724.8828125,
+        "cpu_seconds": 6.86
+      },
+      {
+        "time": 1790745950.869383,
+        "rss_mib": 1724.8828125,
+        "cpu_seconds": 6.93
+      },
+      {
+        "time": 1790745952.877053,
+        "rss_mib": 1724.8828125,
+        "cpu_seconds": 7.0
+      },
+      {
+        "time": 1790745954.8844826,
+        "rss_mib": 1724.8828125,
+        "cpu_seconds": 7.06
+      },
+      {
+        "time": 1790745956.8912182,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.12
+      },
+      {
+        "time": 1790745958.8983014,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.18
+      },
+      {
+        "time": 1790745960.906927,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.24
+      },
+      {
+        "time": 1790745962.9139514,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.31
+      },
+      {
+        "time": 1790745964.922317,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.39
+      },
+      {
+        "time": 1790745966.9296117,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.46
+      },
+      {
+        "time": 1790745968.937758,
+        "rss_mib": 1725.140625,
+        "cpu_seconds": 7.51
+      },
+      {
+        "time": 1790745970.9449308,
+        "rss_mib": 1725.3984375,
+        "cpu_seconds": 7.58
+      },
+      {
+        "time": 1790745972.9522934,
+        "rss_mib": 1725.3984375,
+        "cpu_seconds": 7.65
+      },
+      {
+        "time": 1790745974.9605303,
+        "rss_mib": 1725.3984375,
+        "cpu_seconds": 7.72
+      },
+      {
+        "time": 1790745976.96862,
+        "rss_mib": 1725.3984375,
+        "cpu_seconds": 7.8
+      },
+      {
+        "time": 1790745978.9758341,
+        "rss_mib": 1725.3984375,
+        "cpu_seconds": 7.86
+      },
+      {
+        "time": 1790745980.9826705,
+        "rss_mib": 1725.5234375,
+        "cpu_seconds": 7.95
+      },
+      {
+        "time": 1790745982.9903898,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.11
+      },
+      {
+        "time": 1790745984.9980218,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.2
+      },
+      {
+        "time": 1790745987.005587,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.26
+      },
+      {
+        "time": 1790745989.0133958,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.32
+      },
+      {
+        "time": 1790745991.0235765,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.4
+      },
+      {
+        "time": 1790745993.0308928,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.49
+      },
+      {
+        "time": 1790745995.038111,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.55
+      },
+      {
+        "time": 1790745997.0449843,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.6
+      },
+      {
+        "time": 1790745999.0545497,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.71
+      },
+      {
+        "time": 1790746001.0616055,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.77
+      },
+      {
+        "time": 1790746003.0692842,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.82
+      },
+      {
+        "time": 1790746005.0785816,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.89
+      },
+      {
+        "time": 1790746007.0858576,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 8.99
+      },
+      {
+        "time": 1790746009.0959737,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 9.05
+      },
+      {
+        "time": 1790746011.104498,
+        "rss_mib": 1725.546875,
+        "cpu_seconds": 9.12
+      },
+      {
+        "time": 1790746013.1122594,
+        "rss_mib": 1725.45703125,
+        "cpu_seconds": 9.32
+      },
+      {
+        "time": 1790746015.120837,
+        "rss_mib": 1725.45703125,
+        "cpu_seconds": 9.32
+      },
+      {
+        "time": 1790746017.1323292,
+        "rss_mib": 1714.15625,
+        "cpu_seconds": 10.41
+      }
+    ],
+    "ended": 1790746019.5149803,
+    "recovery": [
+      0,
+      0,
+      0
+    ],
+    "production": "active",
+    "staging": "inactive",
+    "peak_rss_mib": 1725.546875
+  },
+  "publication-result": {
+    "status": "published",
+    "backup": "/opt/imperium772/backups/security-auth-v54-20260930T052743Z",
+    "binary_sha256": "d74d3f2a4988940d149b1031f40c3052f018e96aa53ca974e965db079d394e13",
+    "client_version": 54,
+    "source_head": "a13c3b42b6eeede82cc003f6b20f1c53eeefa64e",
+    "pid": 4818,
+    "time_utc": "2026-09-30T05:27:53Z",
+    "restarts": "0"
+  },
+  "ci-receipt": {
+    "source_head": "a13c3b42b6eeede82cc003f6b20f1c53eeefa64e",
+    "reviewed_head": "217e85b81773412b6509a4f5fc61aa318d6bcc95",
+    "ci_merge_sha": "dd30e71a5795a984ec57d48a3a3a4e0542afe70d",
+    "build_run": 36671968916,
+    "cppcheck_run": 36672814169,
+    "secret_run": 36672814154,
+    "artifact_id": 11078757189,
+    "artifact_digest": "sha256:aa4110a975aebc359b4c7bd6d243459aaa2c0250bf6eb64676641e7dfecefc95",
+    "binary_sha256": "d74d3f2a4988940d149b1031f40c3052f018e96aa53ca974e965db079d394e13",
+    "checks": {
+      "builds": "success",
+      "cppcheck": "success",
+      "secrets": "success"
+    },
+    "codeql": "feature unavailable in private repository; not an approval"
+  },
+  "host-package-inventory": {
+    "time_utc": "2026-09-30T04:52:07Z",
+    "binary_sha256": "fdec99926b45a3e8f1d3866c59c92654de3197c251b2debd612a35c83330eb27",
+    "packages": [
+      {
+        "name": "libluajit-5.1-2",
+        "version": "2.1.0~beta3+dfsg-6ubuntu0.1",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libpugixml1v5",
+        "version": "1.12.1-1",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libmariadb3",
+        "version": "1:10.6.23-0ubuntu0.22.04.1",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libgmp10",
+        "version": "2:6.2.1+dfsg-3ubuntu1",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libboost-filesystem1.74.0",
+        "version": "1.74.0-14ubuntu3",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libstdc++6",
+        "version": "12.3.0-1ubuntu1~22.04.3",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libgcc-s1",
+        "version": "12.3.0-1ubuntu1~22.04.3",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libc6",
+        "version": "2.35-0ubuntu3.15",
+        "architecture": "amd64"
+      },
+      {
+        "name": "zlib1g",
+        "version": "1:1.2.11.dfsg-2ubuntu9.2",
+        "architecture": "amd64"
+      },
+      {
+        "name": "libssl3",
+        "version": "3.0.2-0ubuntu1.30",
+        "architecture": "amd64"
+      },
+      {
+        "name": "mariadb-server",
+        "version": "1:10.6.23-0ubuntu0.22.04.1",
+        "architecture": "all"
+      },
+      {
+        "name": "nginx",
+        "version": "1.18.0-6ubuntu14.21",
+        "architecture": "amd64"
+      },
+      {
+        "name": "openssh-server",
+        "version": "1:8.9p1-3ubuntu0.17",
+        "architecture": "amd64"
+      },
+      {
+        "name": "systemd",
+        "version": "249.11-0ubuntu3.22",
+        "architecture": "amd64"
+      }
+    ],
+    "scope": "Observed system packages for linked libraries and host services; not a complete SBOM or CVE scan."
+  },
+  "load_summary": [
+    "holding_all_50_seconds=30; hunt_targets=10/10; market_fills=20; market_currencies=gold+antigas",
+    "online_monitor=pass expected=50 seconds=30",
+    "logout_mode=graceful_staging_stop_with_connected_clients",
+    "RESULT sessions=50/50 market_create=20 market_fill=20 market_history=40 market_pending_claims=0 hunt_targets=10/10 hunters_with_recorded_rat_kill=3/10 duration_seconds=92.6 cleanup=complete"
+  ],
+  "staging_database_counts": [
+    "0",
+    "0"
+  ]
+}
