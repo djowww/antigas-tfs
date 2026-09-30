@@ -1,6 +1,13 @@
 # Security hardening work log
 
-This document records safe repository changes made during the 2026-09-29 audit. All changes are on the local `security-hardening` branch. Nothing was pushed to GitHub or applied to the online server.
+This document records safe repository changes made during the 2026-09-29 audit. The `security-hardening` branch is pushed to GitHub and its tested server and site changes were deployed to production.
+
+## Production publication — 2026-09-30
+
+- Pushed commit `c02463aac01c0e6b1e33637f590b08dcc90d8c97` to `security-hardening`. GitHub workflow [36646830195](https://github.com/djowww/antigas-tfs/actions/runs/36646830195) passed the release, hardened Ubuntu 22.04, ASan/UBSan, TSan, fuzzer, and content test jobs; secret scan run `36646830190` also passed. The separate CodeQL C# job could not scan because code scanning is disabled for this repository.
+- Deployed the Ubuntu 22.04 CI binary (SHA-256 `198549b41ada8568f5ad0bc91d6b42c519c0eef37b01f73fb80bc1eedb3ae310`), seven changed Lua files, and `coins.php`/`i18n.php`. Staged bundle hashes and PHP syntax checks passed before atomic replacement. The previous versions are preserved at `/opt/imperium772/backups/security-hardening-c02463a-20260929`.
+- Restarted `imperium772.service`; it is active with the deployed executable hash. Startup loaded the map and reported the server online. External TCP checks to ports 7173 and 7174 succeeded. The public home page and `/coins.php` returned HTTP 200.
+- Startup also emitted `possible infinite loop in file @data/chatchannels/scripts/ruleviolations.lua near line 3`; that file was not part of this deployment and was not changed here.
 
 ## Changes made
 
