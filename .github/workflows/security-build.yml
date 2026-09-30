@@ -94,6 +94,8 @@ jobs:
         run: cmake --build build --parallel 2
 
       - name: Run native core tests
+        env:
+          UBSAN_OPTIONS: halt_on_error=1
         run: ctest --test-dir build --output-on-failure
 
       - name: Upload tested Ubuntu 22.04 production binary
