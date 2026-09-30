@@ -23,6 +23,7 @@
 #include "account.h"
 #include "player.h"
 #include "database.h"
+#include "authentication.h"
 
 typedef std::list<std::pair<int32_t, Item*>> ItemBlockList;
 
@@ -32,8 +33,8 @@ class IOLoginData
 		static Account loadAccount(uint32_t accno);
 		static bool saveAccount(const Account& acc);
 
-		static bool loginserverAuthentication(uint32_t accountNumber, const std::string& password, Account& account);
-		static uint32_t gameworldAuthentication(uint32_t accountNumber, const std::string& password, std::string& characterName);
+		static AuthenticationResult loginserverAuthentication(uint32_t accountNumber, const std::string& password);
+		static AuthenticationResult gameworldAuthentication(uint32_t accountNumber, const std::string& password, const std::string& characterName);
 
 		static AccountType_t getAccountType(uint32_t accountId);
 		static void setAccountType(uint32_t accountId, AccountType_t accountType);
