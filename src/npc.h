@@ -138,21 +138,22 @@ class Npc final : public Creature
 
 		Position masterPos;
 
-		uint32_t lastTalkCreature;
+		uint32_t lastTalkCreature = 0;
 		uint32_t focusCreature;
 		uint32_t masterRadius;
 
-		int64_t conversationStartTime;
+		int64_t conversationStartTime = 0;
 		int64_t conversationEndTime;
 		int64_t staticMovementTime;
 
 		bool loaded;
-		bool isIdle;
+		bool isIdle = true;
 
 		BehaviourDatabase* behaviourDatabase;
 
 		friend class Npcs;
 		friend class BehaviourDatabase;
+		friend struct NpcInitializationTestAccess;
 };
 
 #endif
