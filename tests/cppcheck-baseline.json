@@ -2,7 +2,7 @@
   "schema": 1,
   "cppcheck_version": "2.13.0",
   "source_run": "https://github.com/djowww/antigas-tfs/actions/runs/36655268858",
-  "scope": "Linux compilation database; unresolved legacy diagnostics remain visible, not declared safe. Four Events initialization diagnostics excluded because corrected. Three NPC constructor warnings removed after verified initialization fix in 8030fd1.",
+  "scope": "Linux compilation database; unresolved legacy diagnostics remain visible, not declared safe. Four Events initialization diagnostics excluded because corrected. Three NPC constructor warnings removed after verified initialization fix in 8030fd1. Lua closeState destructor diagnostic relocated from line 253 to 259 after LUALIFE-01; retained as NEEDS_INVESTIGATION, with reviewed source hashes.",
   "findings": [
     {
       "id": "uninitMemberVar",
@@ -720,7 +720,7 @@
     {
       "id": "virtualCallInConstructor",
       "severity": "style",
-      "message": "Virtual function 'closeState' is called from destructor '~LuaScriptInterface()' at line 253. Dynamic binding is not used.",
+      "message": "Virtual function 'closeState' is called from destructor '~LuaScriptInterface()' at line 259. Dynamic binding is not used.",
       "locations": [
         {
           "file": "src/luascript.h",
@@ -731,12 +731,12 @@
           "code": "closeState();"
         }
       ],
-      "fingerprint": "919044b1009e805713e2da0b9962055784a7a373efb49309afb2100d274c50e7",
+      "fingerprint": "95399cbb9e6bd71947701ae4852aa3ac2c582712ff40ec330e12fcf2698ea0d7",
       "disposition": "NEEDS_INVESTIGATION",
-      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "reason": "Same existing base-destructor virtual call, moved from line 253 to 259 by the reviewed Lua lifetime fix. C++ destructor dispatch uses the base closeState intentionally; the diagnostic remains visible for review, while ASan/UBSan lifecycle tests now verify initialization and teardown. No analyzer finding was suppressed.",
       "source_checksums": {
         "src/luascript.h": "8bcc00a2a8af51a521c1ca900de91c69391c74d3629a9e81276589b5aa42cd20",
-        "src/luascript.cpp": "6cd167e7a92b42c451e06fd9e492e76d4512008294d519f078a9da3598753c2e"
+        "src/luascript.cpp": "ab69d2762177b283299b38c9712737fefe426f3c1392e68c0506b8e688be6fe4"
       }
     },
     {
