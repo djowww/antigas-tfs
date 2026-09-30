@@ -380,3 +380,18 @@ bytes em execução, expiração, cancelamento e destruição, além de preserva
 reserva para trabalho interno. O teste sintético não calibrará limites para
 produção. Não havia ambiente ou credenciais de staging disponíveis neste
 checkpoint; nenhum limite foi ativado e nenhum servidor foi alterado.
+
+## Implementação — autorização central das talkactions `/` (30/09/2026)
+
+A fragilidade de manutenção descrita na retomada foi fechada nesta branch por uma política obrigatória no carregamento de cada talkaction ativa iniciada por `/`. O loader agora rejeita a ação e registra erro se a política estiver ausente, inválida ou incompleta; o despacho verifica a autorização antes de chamar Lua e recusa a ação por padrão se não houver política configurada.
+
+O inventário cobre 36 comandos. A matriz preserva os controles que já existiam nos scripts: acesso de grupo, tipo mínimo de conta, `PlayerFlag_CanBroadcast`, ou acesso público. Comandos que exigiam tanto acesso de grupo quanto God/GM mantêm as duas condições. `/pos` continua público para consultar posição; a guarda Lua existente ainda limita o teleporte a personagens com acesso. As guardas originais dos scripts continuam ativas como defesa adicional.
+
+Limitação revisada pelo agente Luna: a política central é por comando e não
+representa condições dependentes do argumento. `/pos` mantém a guarda
+condicional no Lua; o teste Python atual verifica estaticamente que ela
+continua presente, mas não executa parser XML, despacho C++ ou Lua real.
+
+Validação local: os 50 testes Python do conjunto de regressão do workflow `security-build` passaram, incluindo o teste que compara todas as 36 políticas XML com a matriz revisada e verifica scripts/guardas. `git diff --check` passou. Foi adicionado também um teste C++ isolado para a função de decisão da política e sua execução ao workflow; não foi possível compilá-lo localmente porque este ambiente Windows não tem CMake nem compilador C++ disponíveis. Essa compilação e os jobs de CI ainda precisam concluir antes de tratar a correção como validada integralmente.
+
+Esta alteração está em revisão na branch `security-central-talkaction-auth-20260930`; ainda não foi publicada ou implantada. Não havia staging isolado configurado/disponível neste checkpoint, portanto o servidor local e o online não foram tocados. Após CI, permanece necessário um ensaio de negação/uso autorizado contra uma instância de staging para cobrir o caminho real de carregamento XML, dispatcher e Lua.
