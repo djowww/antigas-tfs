@@ -75,12 +75,15 @@ jobs:
             -DCMAKE_BUILD_TYPE="$build_type" \
             -DTFS_BUILD_RARITY_TESTS=ON \
             -DTFS_BUILD_LUA_WATCHDOG_TESTS=ON \
+            -DTFS_BUILD_LUA_ENVIRONMENT_LIFECYCLE_TESTS=ON \
             -DTFS_BUILD_STATUS_QUERY_TESTS=ON \
             -DTFS_BUILD_SCHEDULER_TESTS=ON \
             -DTFS_BUILD_SCRIPT_READER_TESTS=ON \
             -DTFS_BUILD_SCRIPT_ENVIRONMENT_INDEX_TESTS=ON \
             -DTFS_BUILD_CONNECTION_OUTPUT_QUEUE_TESTS=ON \
             -DTFS_BUILD_CONNECTION_ADMISSION_TESTS=ON \
+            -DTFS_BUILD_LOGIN_GATE_TESTS=ON \
+            -DTFS_BUILD_DISPATCHER_FAILFAST_TESTS=ON \
             -DTFS_BUILD_SQL_IDENTIFIER_TESTS=ON \
             -DTFS_BUILD_SCRIPT_FILENAME_TESTS=ON \
             -DTFS_BUILD_LOCALTIME_TESTS=ON \
@@ -92,6 +95,8 @@ jobs:
         run: cmake --build build --parallel 2
 
       - name: Run native core tests
+        env:
+          UBSAN_OPTIONS: halt_on_error=1
         run: ctest --test-dir build --output-on-failure
 
       - name: Upload tested Ubuntu 22.04 production binary
@@ -229,6 +234,9 @@ jobs:
 
       - name: Test bounded launcher manifest reads
         run: dotnet run --project tests/LauncherSafetyTests.csproj --configuration Release
+
+      - name: Test updater window lifecycle
+        run: dotnet run --project tests/LauncherFormLifecycle/LauncherFormLifecycle.csproj --configuration Release
 
       - name: Build opt-in signed launcher integration harness
         run: dotnet build tests/LauncherIntegration/LauncherIntegration.csproj --configuration Release

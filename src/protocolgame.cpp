@@ -60,6 +60,11 @@ void ProtocolGame::release()
 
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
+	if (g_config.getBoolean(ConfigManager::BLOCK_LOGIN)) {
+		disconnectClient(g_config.getString(ConfigManager::BLOCK_LOGIN_TEXT));
+		return;
+	}
+
 	// OTCv8 features and extended opcodes
 	if (otclientV8 || operatingSystem >= CLIENTOS_OTCLIENT_LINUX) {
 		if(otclientV8)
@@ -85,7 +90,12 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 			return;
 		}
 
-		if (IOBan::isPlayerNamelocked(player->getGUID())) {
+		const auto namelock = IOBan::lookupPlayerNamelock(player->getGUID());
+		if (namelock == BanLookupResult::Error) {
+			disconnectClient("Login temporarily unavailable. Please try again later.");
+			return;
+		}
+		if (namelock == BanLookupResult::Banned) {
 			disconnectClient("Your character has been namelocked.");
 			return;
 		}
@@ -107,7 +117,12 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 
 		if (!player->hasFlag(PlayerFlag_CannotBeBanned)) {
 			BanInfo banInfo;
-			if (IOBan::isAccountBanned(accountId, banInfo)) {
+			const auto accountBan = IOBan::lookupAccountBan(accountId, banInfo);
+			if (accountBan == BanLookupResult::Error) {
+				disconnectClient("Login temporarily unavailable. Please try again later.");
+				return;
+			}
+			if (accountBan == BanLookupResult::Banned) {
 				if (banInfo.reason.empty()) {
 					banInfo.reason = "(none)";
 				}
@@ -187,6 +202,11 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 	Player* foundPlayer = g_game.getPlayerByID(playerId);
 	if (!foundPlayer || foundPlayer->client) {
 		disconnectClient("You are already logged in.");
+		return;
+	}
+	if (g_config.getBoolean(ConfigManager::BLOCK_LOGIN)) {
+		foundPlayer->isConnecting = false;
+		disconnectClient(g_config.getString(ConfigManager::BLOCK_LOGIN_TEXT));
 		return;
 	}
 
@@ -309,9 +329,18 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		disconnectClient("Gameworld is under maintenance. Please re-connect in a while.");
 		return;
 	}
+	if (g_config.getBoolean(ConfigManager::BLOCK_LOGIN)) {
+		disconnectClient(g_config.getString(ConfigManager::BLOCK_LOGIN_TEXT));
+		return;
+	}
 
 	BanInfo banInfo;
-	if (IOBan::isIpBanned(getIP(), banInfo)) {
+	const auto ipBan = IOBan::lookupIpBan(getIP(), banInfo);
+	if (ipBan == BanLookupResult::Error) {
+		disconnectClient("Login temporarily unavailable. Please try again later.");
+		return;
+	}
+	if (ipBan == BanLookupResult::Banned) {
 		if (banInfo.reason.empty()) {
 			banInfo.reason = "(none)";
 		}
