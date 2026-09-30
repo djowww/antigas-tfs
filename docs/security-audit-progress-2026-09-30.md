@@ -411,3 +411,5 @@ A salvaguarda mínima para o personagem nomeado seria verificar seu grupo antes 
 ## CI — commit `b7be0df`
 
 O commit posterior ao registro anterior também teve os cinco workflows do PR marcados como falha sem passos ou logs; a API de logs retornou `404 BlobNotFound`. A causa continua indeterminada, então não há build nativo pós-correção verificável e o PR não foi integrado à `main`.
+
+Na cabeça atual `e24a848`, a nova execução repetiu o mesmo padrão: 12 checks do PR foram concluídos como falha em 3–4 segundos, cada um com uma anotação e sem passos; a saída do check e os logs não trazem mensagem. Isso confirma a repetição do estado sem diagnóstico, mas não identifica sua causa. PR #9 continua aberto; não fiz merge nem deploy.
