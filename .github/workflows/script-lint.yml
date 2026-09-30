@@ -1,0 +1,37 @@
+name: Shell and workflow static analysis
+
+on:
+  push:
+    branches: [main, security-hardening]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '31 5 * * 2'
+
+permissions:
+  contents: read
+
+jobs:
+  script-lint:
+    name: ShellCheck and actionlint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install linters from verified official archives
+        run: python3 tools/script_lint_tools.py --directory "$RUNNER_TEMP/script-lint-tools"
+
+      - name: Analyze shell scripts and all workflows
+        run: python3 tools/check_script_lint.py --tool-directory "$RUNNER_TEMP/script-lint-tools" --output build/script-lint-results
+
+      - name: Preserve analysis scope and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: script-lint-${{ github.sha }}
+          path: build/script-lint-results/
+          if-no-files-found: warn
+          retention-days: 14
