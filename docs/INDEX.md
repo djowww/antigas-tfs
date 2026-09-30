@@ -9,6 +9,7 @@
 - [Continuação da auditoria e cobertura das 34 fases](security-audit-progress-2026-09-30.md)
 - [Validação em staging e publicação de segurança](security-validation-2026-09-30.md)
 - [Acompanhamento dos testes e limites de conexão](security-validation-follow-up-2026-09-30.md)
+- [Inventário de opcodes e cobertura de validação](protocol-opcode-audit-2026-09-30.md)
 - [Revisão Cppcheck e baseline do legado](cppcheck-audit-2026-09-30.md)
 - [Auditoria de estabilidade e preparação da carga de 50 jogadores](stability-audit-20260927.md)
 - [Recuperação do banco e concorrência do Market](database-recovery.md)
