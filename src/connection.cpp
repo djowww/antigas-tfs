@@ -27,6 +27,8 @@
 #include "scheduler.h"
 #include "server.h"
 
+#include <iterator>
+
 extern ConfigManager g_config;
 
 Connection_ptr ConnectionManager::createConnection(boost::asio::io_service& io_service, ConstServicePort_ptr servicePort)
@@ -38,9 +40,31 @@ Connection_ptr ConnectionManager::createConnection(boost::asio::io_service& io_s
 	return connection;
 }
 
+bool ConnectionManager::tryAdmitConnection(const Connection_ptr& connection, uint32_t remoteIP)
+{
+	std::lock_guard<std::mutex> lockClass(connectionManagerLock);
+	if (connections.find(connection) == connections.end() || connection->admitted || !connectionAdmission.tryAcquire(remoteIP)) {
+		return false;
+	}
+
+	connection->remoteIP = remoteIP;
+	connection->admitted = true;
+	return true;
+}
+
+void ConnectionManager::configureAdmission(std::size_t maxConnections, std::size_t maxConnectionsPerIP)
+{
+	connectionAdmission.setLimits(maxConnections, maxConnectionsPerIP);
+}
+
 void ConnectionManager::releaseConnection(const Connection_ptr& connection)
 {
 	std::lock_guard<std::mutex> lockClass(connectionManagerLock);
+	if (connection->admitted) {
+		connectionAdmission.release(connection->remoteIP);
+		connection->remoteIP = 0;
+		connection->admitted = false;
+	}
 
 	connections.erase(connection);
 }
@@ -50,11 +74,17 @@ void ConnectionManager::closeAll()
 	std::unordered_set<Connection_ptr> connectionsToClose;
 	{
 		std::lock_guard<std::mutex> lockClass(connectionManagerLock);
+		for (const auto& connection : connections) {
+			connection->remoteIP = 0;
+			connection->admitted = false;
+		}
+		connectionAdmission.clear();
 		connectionsToClose.swap(connections);
 	}
 
 	for (const auto& connection : connectionsToClose) {
 		std::lock_guard<std::recursive_mutex> lockClass(connection->connectionLock);
+		connection->clearPendingOutputMessages();
 		connection->connectionState = Connection::CONNECTION_STATE_CLOSED;
 		connection->closeSocket();
 	}
@@ -64,24 +94,38 @@ void ConnectionManager::closeAll()
 
 void Connection::close(bool force)
 {
-	//any thread
-	ConnectionManager::getInstance().releaseConnection(shared_from_this());
+	bool releaseFromManager = false;
+	{
+		std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
+		if (connectionState != CONNECTION_STATE_OPEN) {
+			if (!force) {
+				return;
+			}
+			clearPendingOutputMessages();
+			closeSocket();
+			releaseFromManager = true;
+		} else {
+			connectionState = CONNECTION_STATE_CLOSED;
 
-	std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
-	if (connectionState != CONNECTION_STATE_OPEN) {
-		return;
+			if (protocol) {
+				g_dispatcher.addTask(
+					createTask(std::bind(&Protocol::release, protocol)));
+			}
+
+			if (messageQueue.empty() || force) {
+				if (force) {
+					clearPendingOutputMessages();
+				}
+				closeSocket();
+				releaseFromManager = true;
+			} else {
+				//Keep the admission slot until the queued response is written or times out.
+			}
+		}
 	}
-	connectionState = CONNECTION_STATE_CLOSED;
 
-	if (protocol) {
-		g_dispatcher.addTask(
-			createTask(std::bind(&Protocol::release, protocol)));
-	}
-
-	if (messageQueue.empty() || force) {
-		closeSocket();
-	} else {
-		//will be closed by the destructor or onWriteOperation
+	if (releaseFromManager) {
+		ConnectionManager::getInstance().releaseConnection(shared_from_this());
 	}
 }
 
@@ -100,8 +144,26 @@ void Connection::closeSocket()
 	}
 }
 
+void Connection::clearPendingOutputMessages()
+{
+	const std::size_t keepInFlight = writeInProgress && !messageQueue.empty() ? 1 : 0;
+	const std::size_t discarded = messageQueue.size() - keepInFlight;
+	if (discarded == 0) {
+		return;
+	}
+
+	if (keepInFlight != 0) {
+		messageQueue.erase(std::next(messageQueue.begin()), messageQueue.end());
+	} else {
+		messageQueue.clear();
+	}
+	ConnectionOutputQueue::release(discarded);
+}
+
 Connection::~Connection()
 {
+	ConnectionOutputQueue::release(messageQueue.size());
+	messageQueue.clear();
 	closeSocket();
 }
 
@@ -228,13 +290,19 @@ void Connection::send(const OutputMessage_ptr& msg)
 	if (connectionState != CONNECTION_STATE_OPEN) {
 		return;
 	}
-	if (!ConnectionOutputQueue::canQueue(messageQueue.size())) {
+	if (!ConnectionOutputQueue::tryReserve(messageQueue.size())) {
 		close(FORCE_CLOSE);
 		return;
 	}
 
 	bool noPendingWrite = messageQueue.empty();
-	messageQueue.emplace_back(msg);
+	try {
+		messageQueue.emplace_back(msg);
+	} catch (...) {
+		ConnectionOutputQueue::release();
+		close(FORCE_CLOSE);
+		return;
+	}
 	if (noPendingWrite) {
 		internalSend(msg);
 	}
@@ -251,7 +319,9 @@ void Connection::internalSend(const OutputMessage_ptr& msg)
 		boost::asio::async_write(socket,
 		                         boost::asio::buffer(msg->getOutputBuffer(), msg->getLength()),
 		                         std::bind(&Connection::onWriteOperation, shared_from_this(), std::placeholders::_1));
+		writeInProgress = true;
 	} catch (boost::system::system_error& e) {
+		writeInProgress = false;
 		std::cout << "[Network error - Connection::internalSend] " << e.what() << std::endl;
 		close(FORCE_CLOSE);
 	}
@@ -275,10 +345,14 @@ void Connection::onWriteOperation(const boost::system::error_code& error)
 {
 	std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
 	writeTimer.cancel();
-	messageQueue.pop_front();
+	writeInProgress = false;
+	if (!messageQueue.empty()) {
+		messageQueue.pop_front();
+		ConnectionOutputQueue::release();
+	}
 
 	if (error) {
-		messageQueue.clear();
+		clearPendingOutputMessages();
 		close(FORCE_CLOSE);
 		return;
 	}
@@ -287,6 +361,7 @@ void Connection::onWriteOperation(const boost::system::error_code& error)
 		internalSend(messageQueue.front());
 	} else if (connectionState == CONNECTION_STATE_CLOSED) {
 		closeSocket();
+		ConnectionManager::getInstance().releaseConnection(shared_from_this());
 	}
 }
 

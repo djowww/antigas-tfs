@@ -26,6 +26,9 @@ loginProtocolPort = 7173
 gameProtocolPort = 7174
 statusProtocolPort = 7173
 maxPlayers = 2000
+-- 0 selects maxPlayers + 256 (or 4096 when maxPlayers is unlimited).
+maxConnections = 0
+maxConnectionsPerIP = 128
 motd = "Bem-vindo ao Antigas 7.4! Crie sua conta em tibia74.tech"
 onePlayerOnlinePerAccount = true
 allowClones = false
