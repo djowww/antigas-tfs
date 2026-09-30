@@ -2,7 +2,7 @@
   "schema": 1,
   "cppcheck_version": "2.13.0",
   "source_run": "https://github.com/djowww/antigas-tfs/actions/runs/36655268858",
-  "scope": "Linux compilation database; unresolved legacy diagnostics remain visible, not declared safe. Four Events initialization diagnostics excluded because corrected.",
+  "scope": "Linux compilation database; unresolved legacy diagnostics remain visible, not declared safe. Four Events initialization diagnostics excluded because corrected. Three NPC constructor warnings removed after verified initialization fix in 8030fd1.",
   "findings": [
     {
       "id": "uninitMemberVar",
@@ -758,57 +758,6 @@
       "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
       "source_checksums": {
         "src/luascript.cpp": "6cd167e7a92b42c451e06fd9e492e76d4512008294d519f078a9da3598753c2e"
-      }
-    },
-    {
-      "id": "uninitMemberVar",
-      "severity": "warning",
-      "message": "Member variable 'Npc::lastTalkCreature' is not initialized in the constructor.",
-      "locations": [
-        {
-          "file": "src/npc.cpp",
-          "code": "Npc::Npc(const std::string& name) :"
-        }
-      ],
-      "fingerprint": "b82b23f596a07cdcdc9bc307d659c702108b28039efd626f556394d269b79392",
-      "disposition": "NEEDS_INVESTIGATION",
-      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
-      "source_checksums": {
-        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
-      }
-    },
-    {
-      "id": "uninitMemberVar",
-      "severity": "warning",
-      "message": "Member variable 'Npc::conversationStartTime' is not initialized in the constructor.",
-      "locations": [
-        {
-          "file": "src/npc.cpp",
-          "code": "Npc::Npc(const std::string& name) :"
-        }
-      ],
-      "fingerprint": "ca4dbf8f8d18b787e293a43313b3e992bbcb363f2a042d86a3705abe96aaad06",
-      "disposition": "NEEDS_INVESTIGATION",
-      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
-      "source_checksums": {
-        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
-      }
-    },
-    {
-      "id": "uninitMemberVar",
-      "severity": "warning",
-      "message": "Member variable 'Npc::isIdle' is not initialized in the constructor.",
-      "locations": [
-        {
-          "file": "src/npc.cpp",
-          "code": "Npc::Npc(const std::string& name) :"
-        }
-      ],
-      "fingerprint": "7ccf3695678c5378f544a6719b999e133295642265e754576bec7dc11d792019",
-      "disposition": "NEEDS_INVESTIGATION",
-      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
-      "source_checksums": {
-        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
       }
     },
     {

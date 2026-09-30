@@ -1,5 +1,12 @@
 # Security hardening work log
 
+## NPC initialization follow-up — 2026-09-30
+
+Initialized NPC idle/conversation fields before the first callbacks, preserving
+existing reset behavior. The real-core regression constructs NPCs over four
+different memory patterns; release, hardened, ASan/UBSan and TSan runs passed.
+See [evidence and compatibility scope](npc-initialization-audit-2026-09-30.md).
+
 ## C++ static analysis follow-up — 2026-09-30
 
 The Cppcheck workflow now provides a license-independent C++ analyzer alongside
