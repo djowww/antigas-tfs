@@ -138,9 +138,13 @@ Os JSON sanitizados estão em [validation/security-auth-v54/](validation/securit
 Incluem execução/recuperação de staging, recibo de CI/artefato, publicação,
 download público e comparação/verificação do pacote. São registros históricos,
 não execuções automáticas dos testes atuais, e não contêm senhas ou chaves.
-Os resultados individuais do harness HTTPS, log de startup e leitura de
-05:39:23 foram observados na saída dos comandos pelo operador e registrados
-na narrativa; esses quatro JSON não contêm cópia de todos esses outputs.
+As observações narrativas de startup/05:39:23 foram complementadas por nova
+leitura às 05:49:17 UTC em `postpublication-snapshot.json`, confirmando serviço,
+hash, marcador online, zero linhas de erro/warning no intervalo e staging
+inativo/1 GiB. `launcher-v54-public-integration.json` preserva a repetição dos
+sete controles contra o manifesto oficial; a descrição do primeiro controle
+usa o rótulo fixo "staging" do harness, mas a URL desta execução foi
+`https://tibia74.tech/client-release.json`.
 A [observação de host](host-security-observation-2026-09-30.md) registra
 inventário parcial de dependências e pendências de SSH; não equivale a SBOM ou
 scan de CVEs. CodeQL e proteção nativa da main continuam limitados pelo GitHub.

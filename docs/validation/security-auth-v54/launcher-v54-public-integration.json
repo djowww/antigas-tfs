@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "version": 54,
+  "checks": [
+    "HTTPS staging manifest and pinned ECDSA signature",
+    "Production HTTPS download path and signed SHA-256 verification",
+    "Altered manifest signature rejected",
+    "ZIP path traversal rejected",
+    "Post-extraction tampering rejected",
+    "Clean installation, version, installed hashes and user-data preservation",
+    "Injected installation failure rolls back all applied files"
+  ]
+}
