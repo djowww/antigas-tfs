@@ -124,6 +124,17 @@ if(TFS_BUILD_LOGIN_GATE_TESTS)
 	set_tests_properties(login-gate-core PROPERTIES TIMEOUT 15)
 endif()
 
+option(TFS_BUILD_DISPATCHER_FAILFAST_TESTS "Build isolated dispatcher exception behavior regression" OFF)
+if(TFS_BUILD_DISPATCHER_FAILFAST_TESTS)
+	enable_testing()
+	find_package(Python3 REQUIRED COMPONENTS Interpreter)
+	add_executable(dispatcher-failfast-tests tests/dispatcher-failfast-tests.cpp)
+	target_link_libraries(dispatcher-failfast-tests PRIVATE tfs_core)
+	add_test(NAME dispatcher-failfast COMMAND ${Python3_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/check_dispatcher_failfast.py $<TARGET_FILE:dispatcher-failfast-tests>)
+	set_tests_properties(dispatcher-failfast PROPERTIES TIMEOUT 10)
+endif()
+
 option(TFS_BUILD_SQL_IDENTIFIER_TESTS "Build isolated SQL identifier quoting tests" OFF)
 if(TFS_BUILD_SQL_IDENTIFIER_TESTS)
 	enable_testing()
