@@ -1,5 +1,10 @@
 # Antigas security audit
 
+> Historical source-review snapshot. For subsequent CI, isolated staging,
+> updater validation and deployment evidence, read
+> [the 2026-09-30 validation addendum](security-validation-2026-09-30.md).
+> Statements below about tests not yet run describe the original review date.
+
 **Snapshot:** 2026-09-29
 **Branch:** `security-hardening`
 **Method:** source/configuration review, repository/history secret-pattern scan, static parsing, unit tests, and local .NET builds. No production connection, deployment, destructive probe, or public attack simulation was performed.
