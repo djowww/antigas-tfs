@@ -339,3 +339,44 @@ falhou porque a mensagem do diagnóstico legado `virtualCallInConstructor` de
 é a mesma; a baseline foi revisada para a nova linha e hash da fonte, mantendo
 `NEEDS_INVESTIGATION` e a saída visível. Não foi adicionado suppress nem
 retirado um diagnóstico. O teste de lifetime passou com UBSan bloqueante.
+
+## Atualização — backlog de tarefas e falta de backpressure (30/09/2026)
+
+Esta aferição adicional parte do `main` em `9b0d1364c5499e769b1d7d5111a2a53be975f836`;
+as seções anteriores preservam snapshots e resultados de commits anteriores.
+O risco permanece condicional: a revisão confirma filas sem limite e produtores
+remotos, mas não reproduziu saturação, travamento infinito ou um limiar seguro
+de rejeição.
+
+`config.lua` define `maxPlayers=2000` e `maxPacketsPerSecond=50`, sem definir
+`maxConnections`. Nesse caso, `ConfigManager` usa o padrão `maxPlayers + 256`
+(`src/connectionadmission.h`), ou 2.256 conexões; o limite padrão por IP é 128.
+O produto de 2.256 conexões por 50 pacotes/s dá um envelope teórico de 112.800
+quadros/s. Esse cálculo não é uma medição de capacidade nem uma previsão de
+tráfego sustentável: o volume de tarefas por pacote varia conforme o opcode e
+o trabalho adicional agendado pelos callbacks, e CPU, rede, banco e distribuição
+de IP alteram o resultado.
+
+`Connection::parsePacket` entrega o quadro ao protocolo e agenda a leitura do
+próximo cabeçalho sem aguardar o Dispatcher (`src/connection.cpp`). O limite
+de pacotes é por conexão, não uma cota agregada de trabalho. O opcode `0x32`
+retém a string do cliente em uma tarefa (`src/protocolgame.cpp`); a lista do
+Dispatcher não tem teto de tarefas ou bytes (`src/tasks.h`). A fila de eventos
+do Scheduler também não tem capacidade máxima (`src/scheduler.h`), e a fila
+SQL é uma lista sem teto atendida por um worker (`src/databasetasks.h`). O
+Scheduler transfere eventos vencidos ao Dispatcher, e callbacks SQL também
+podem enfileirar trabalho nele.
+
+Um teto indiscriminado pode perder gravações SQL aceitas ou impedir limpeza,
+como `Protocol::release`. Um limite apenas por número também não cobre o total
+de bytes retidos por strings grandes. Não há métricas de contagem/bytes por
+fila, idade do item mais antigo, taxa de entrada/saída ou latência suficiente
+para escolher limites numéricos sem risco de rejeitar picos legítimos.
+
+Próximo passo seguro: obter essas métricas em staging ou telemetria equivalente
+sob carga representativa; em paralelo, uma implementação de contabilidade pode
+ser validada sinteticamente no CI para garantir soma/subtração de tarefas e
+bytes em execução, expiração, cancelamento e destruição, além de preservar uma
+reserva para trabalho interno. O teste sintético não calibrará limites para
+produção. Não havia ambiente ou credenciais de staging disponíveis neste
+checkpoint; nenhum limite foi ativado e nenhum servidor foi alterado.
