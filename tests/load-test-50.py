@@ -25,6 +25,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from load_test_protocol import Client, string
+from staging_safety import require_staging_target
 
 DB = "antigas_load_v37"
 PORT = 7176
@@ -533,14 +534,14 @@ def run_load():
     stop.set()
     for thread in keepalive_threads:
         thread.join(timeout=1)
+    if MAINTENANCE_WINDOW:
+        assert run(["systemctl", "show", "imperium772", "-p", "ActiveState", "--value"]) == "inactive"
+        subprocess.run(["systemctl", "stop", "imperium772-staging"], check=True, timeout=50)
+        print("logout_mode=graceful_staging_stop_with_connected_clients", flush=True)
     for client in clients:
         client.close()
     clients.clear()
     time.sleep(2)
-    if MAINTENANCE_WINDOW:
-        assert run(["systemctl", "show", "imperium772", "-p", "ActiveState", "--value"]) == "inactive"
-        run(["systemctl", "stop", "imperium772-staging"])
-        print("logout_mode=graceful_staging_stop", flush=True)
     wait_for_logout([record["player"] for record in records])
     remaining_online = int(sql(f"SELECT COUNT(*) FROM players_online WHERE player_id IN ({online_ids})"))
     if remaining_online:
@@ -577,7 +578,9 @@ def main():
     parser.add_argument("--maintenance-window", action="store_true",
                         help="require production to be stopped for the isolated staging load")
     args = parser.parse_args()
-    global PLAYER_COUNT, NETWORK_ONLY, MAINTENANCE_WINDOW
+    global PLAYER_COUNT, NETWORK_ONLY, MAINTENANCE_WINDOW, DB, PORT, RSA_PUBLIC
+    DB, PORT = require_staging_target()
+    RSA_PUBLIC = Path(os.environ.get('ANTIGAS_RSA_PUBLIC', str(RSA_PUBLIC)))
     PLAYER_COUNT = args.players
     NETWORK_ONLY = args.network_only
     MAINTENANCE_WINDOW = args.maintenance_window
