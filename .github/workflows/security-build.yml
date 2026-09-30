@@ -230,5 +230,8 @@ jobs:
       - name: Test bounded launcher manifest reads
         run: dotnet run --project tests/LauncherSafetyTests.csproj --configuration Release
 
+      - name: Test updater window lifecycle
+        run: dotnet run --project tests/LauncherFormLifecycle/LauncherFormLifecycle.csproj --configuration Release
+
       - name: Build opt-in signed launcher integration harness
         run: dotnet build tests/LauncherIntegration/LauncherIntegration.csproj --configuration Release
