@@ -1,5 +1,15 @@
 # Security hardening work log
 
+## C++ static analysis follow-up — 2026-09-30
+
+The Cppcheck workflow now provides a license-independent C++ analyzer alongside
+the existing builds/sanitizers. See [diagnostic classifications and the event
+reset fix](cppcheck-audit-2026-09-30.md). The legacy inventory remains visible;
+it is not a declaration that unresolved findings are safe.
+
+For the corrected Lua diagnostic and the published v53 launcher, see the
+[validation and deployment addendum](security-validation-2026-09-30.md).
+
 This document records safe repository changes made during the 2026-09-29 audit. The `security-hardening` branch is pushed to GitHub and its tested server and site changes were deployed to production.
 
 ## Production publication — 2026-09-30
