@@ -350,23 +350,48 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		disconnectClient(ss.str());
 		return;
 	}
+	auto sendAuthenticationFailure = [this](AuthenticationStatus status, AccountAuthenticationFailureLimiter::Delay delay) {
+		const std::string message = authenticationFailureMessage(status);
+		if (delay.count() > 0) {
+			SchedulerTask* task = nullptr;
+			try {
+				const ProtocolGame_ptr self = getThis();
+				task = createSchedulerTask(static_cast<uint32_t>(delay.count()), [self, message]() {
+					if (!self->isConnectionExpired()) {
+						self->disconnectClient(message);
+					}
+				});
+				if (g_scheduler.addEvent(task) != 0) {
+					return;
+				}
+				task = nullptr; // addEvent consumes the task when it returns zero
+			} catch (...) {
+				delete task;
+			}
+		}
+		disconnectClient(message);
+	};
 
-	uint32_t accountId = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
-	if (accountId == 0) {
-		disconnectClient("Account number or password is not correct.");
-		return;
-	}	
-
-	Account account;
-	if (!IOLoginData::loginserverAuthentication(accountNumber, password, account)) {
-		disconnectClient("Account number or password is not correct.");
+	AuthenticationResult gameAuthentication = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
+	const auto gameFailureDelay = getAccountAuthenticationFailureLimiter().processResult(accountNumber, gameAuthentication.status);
+	if (gameAuthentication.status != AuthenticationStatus::Success) {
+		sendAuthenticationFailure(gameAuthentication.status, gameFailureDelay);
 		return;
 	}
+	characterName = gameAuthentication.characterName;
+
+	AuthenticationResult loginAuthentication = IOLoginData::loginserverAuthentication(accountNumber, password);
+	const auto loginFailureDelay = getAccountAuthenticationFailureLimiter().processResult(accountNumber, loginAuthentication.status);
+	if (loginAuthentication.status != AuthenticationStatus::Success) {
+		sendAuthenticationFailure(loginAuthentication.status, loginFailureDelay);
+		return;
+	}
+	Account& account = loginAuthentication.account;
 	
 	//Update premium days
 	Game::updatePremium(account);
 
-	g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::login, getThis(), characterName, accountId, operatingSystem)));
+	g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::login, getThis(), characterName, gameAuthentication.accountId, operatingSystem)));
 }
 
 void ProtocolGame::sendUpdateRequest()
