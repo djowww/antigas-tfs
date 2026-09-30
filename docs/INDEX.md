@@ -4,6 +4,12 @@
 
 ## Operação e segurança
 
+- [Auditoria de segurança e riscos residuais](SECURITY_AUDIT.md)
+- [Manutenção das proteções de segurança](SECURITY_HARDENING.md)
+- [Continuação da auditoria e cobertura das 34 fases](security-audit-progress-2026-09-30.md)
+- [Validação em staging e publicação de segurança](security-validation-2026-09-30.md)
+- [Acompanhamento dos testes e limites de conexão](security-validation-follow-up-2026-09-30.md)
+- [Revisão Cppcheck e baseline do legado](cppcheck-audit-2026-09-30.md)
 - [Auditoria de estabilidade e preparação da carga de 50 jogadores](stability-audit-20260927.md)
 - [Recuperação do banco e concorrência do Market](database-recovery.md)
 - [Configuração da chave RSA de login v26](security-v26.md)
