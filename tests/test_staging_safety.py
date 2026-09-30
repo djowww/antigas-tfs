@@ -1,6 +1,9 @@
+import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from staging_safety import require_staging_target
+from staging_safety import pin_staging_rsa_public, require_staging_target, rsa_public_modulus
 
 
 class StagingSafetyTests(unittest.TestCase):
@@ -44,6 +47,22 @@ class StagingSafetyTests(unittest.TestCase):
         env = self.valid_env(TFS_DB_NAME="antigas;drop_test")
         with self.assertRaises(SystemExit):
             require_staging_target(env)
+
+    def test_staging_runner_pins_and_uses_staging_rsa_key(self):
+        modulus = (1 << 1023) + 12345
+        with TemporaryDirectory(prefix="antigas-stage-rsa-") as directory:
+            path = Path(directory) / "staging-rsa-public.json"
+            path.write_text(json.dumps({"modulus": str(modulus)}), encoding="utf-8")
+            env = {}
+            self.assertEqual(pin_staging_rsa_public(env, path), path)
+            self.assertEqual(env["ANTIGAS_RSA_PUBLIC"], str(path))
+            self.assertEqual(rsa_public_modulus(env), modulus)
+
+    def test_staging_runner_rejects_a_missing_rsa_public_key(self):
+        with TemporaryDirectory(prefix="antigas-stage-rsa-") as directory:
+            missing = Path(directory) / "missing.json"
+            with self.assertRaises(SystemExit):
+                pin_staging_rsa_public({}, missing)
 
 
 if __name__ == "__main__":
