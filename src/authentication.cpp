@@ -126,9 +126,6 @@ AccountAuthenticationFailureLimiter::Delay AccountAuthenticationFailureLimiter::
 					lru.pop_front();
 					continue;
 				}
-				if (oldest->second.expiresAt > currentTime) {
-					return Delay::zero();
-				}
 				eraseEntry(oldest);
 				break;
 			}

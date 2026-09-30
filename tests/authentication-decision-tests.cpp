@@ -193,7 +193,7 @@ static void testFailureLimiterStatusesAndZeroAccount()
 	require(fail(AuthenticationStatus::InvalidCredentials) == 0 && fail(AuthenticationStatus::InvalidCredentials) == 0, "failures after success must start over");
 }
 
-static void testFailureLimiterCapacityAndExpiredLru()
+static void testFailureLimiterCapacityEvictsActiveLruAndReinserts()
 {
 	AccountAuthenticationFailureLimiter::Clock::time_point now;
 	AccountAuthenticationFailureLimiter limiter(2, std::chrono::minutes(10), [&now]() { return now; });
@@ -201,13 +201,13 @@ static void testFailureLimiterCapacityAndExpiredLru()
 		return limiter.processResult(account, AuthenticationStatus::InvalidCredentials).count();
 	};
 	require(fail(1) == 0, "first account must be admitted");
-	now += std::chrono::minutes(5);
-	require(fail(2) == 0 && fail(2) == 0, "second account must be admitted and updated");
-	now += std::chrono::minutes(5) + std::chrono::seconds(1);
-	require(fail(3) == 0 && limiter.size() == 2, "expired least-recent entry must be recycled at capacity");
-	require(fail(2) == 250, "non-expired LRU peer must retain its existing failure count");
-	require(fail(3) == 0 && fail(3) == 250, "newly admitted account must retain its own state");
-	require(fail(4) == 0 && limiter.size() == 2, "full non-expired LRU must fail open without growing state");
+	require(fail(2) == 0 && fail(2) == 0 && fail(2) == 250, "second account must accumulate failures and become recently used");
+	require(fail(3) == 0 && limiter.size() == 2, "new account must evict the active least-recent account at capacity");
+	require(fail(2) == 500, "account promoted by access must retain its failure count after eviction");
+	require(fail(4) == 0 && limiter.size() == 2, "another new account must evict the current least-recent entry");
+	require(fail(2) == 750, "recently accessed account must remain while older state is evicted");
+	require(fail(3) == 0 && fail(3) == 0 && fail(3) == 250, "evicted account reinsertion must start a fresh failure sequence");
+	require(limiter.size() == 2, "active LRU replacement must preserve the fixed capacity");
 }
 
 static void testFailureLimiterConcurrency()
@@ -239,7 +239,7 @@ int main()
 		testPublicErrorMapping();
 		testFailureLimiterProgressionAndExpiry();
 		testFailureLimiterStatusesAndZeroAccount();
-		testFailureLimiterCapacityAndExpiredLru();
+		testFailureLimiterCapacityEvictsActiveLruAndReinserts();
 		testFailureLimiterConcurrency();
 		std::cout << "PASS: synthetic auth outcomes, error mapping and bounded account failure limiter." << std::endl;
 		return 0;
