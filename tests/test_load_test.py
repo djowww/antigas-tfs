@@ -5,7 +5,7 @@ from pathlib import Path
 import socket
 import struct
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from load_test_protocol import Client, crypt, string
 
@@ -52,6 +52,19 @@ class MarketStub:
 
 
 class LoadTestRegression(unittest.TestCase):
+    def test_keepalive_drains_world_roles_without_stealing_market_receipts(self):
+        for role in ('hunter', 'chat', 'walker', 'seller', 'buyer'):
+            with self.subTest(role=role):
+                client = Mock(record={'role': role})
+                stop = Mock()
+                stop.is_set.side_effect = [False, True]
+                harness.StageClient.keepalive(client, stop)
+                client.send.assert_called_once_with(b'\x1e')
+                if role in ('hunter', 'chat', 'walker'):
+                    client.collect.assert_called_once_with(0.05)
+                else:
+                    client.collect.assert_not_called()
+
     def test_xtea_roundtrip(self):
         plain = bytes(range(32))
         key = (1, 2, 3, 4)
@@ -85,6 +98,16 @@ class LoadTestRegression(unittest.TestCase):
             harness.seed_player(10, "seller")
         self.assertTrue(any("501,3,101,2854,1" in query for query in queries))
         self.assertTrue(any("501,101,102,3578,2" in query for query in queries))
+
+    def test_hunter_fixture_survives_capacity_run_without_changing_permissions(self):
+        queries = []
+        def sql(query):
+            queries.append(query)
+            return '501' if query.startswith('SELECT id') else ''
+        with patch.object(harness, 'sql', sql), patch.object(harness, 'created', []):
+            harness.seed_player(9, 'hunter')
+        player_insert = next(query for query in queries if query.startswith('INSERT INTO players('))
+        self.assertIn("'LoadV37-010',980010,1,8,4200,60000,60000", player_insert)
 
     def test_market_receipt_fragmentation_and_rejection(self):
         self.assertTrue(harness.market_request(MarketStub(True), "create", {})["data"]["ok"])
