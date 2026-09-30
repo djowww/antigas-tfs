@@ -27,6 +27,7 @@ internal static class ReleaseService
     private static readonly HttpClient Http = new(new HttpClientHandler
     {
         AllowAutoRedirect = false,
+        CheckCertificateRevocationList = true,
         AutomaticDecompression = DecompressionMethods.None
     }) { Timeout = TimeSpan.FromMinutes(5) };
 

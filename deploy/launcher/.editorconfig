@@ -1,0 +1,3 @@
+[*.cs]
+# Run the SDK security analyzers even where a rule is disabled by default.
+dotnet_analyzer_diagnostic.category-Security.severity = error
