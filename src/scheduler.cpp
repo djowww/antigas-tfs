@@ -81,37 +81,42 @@ uint32_t Scheduler::addEvent(SchedulerTask* task)
 {
 	bool do_signal = false;
 	uint32_t eventId = 0;
-	eventLock.lock();
+	{
+		std::unique_lock<std::mutex> lock(eventLock);
+		if (getState() != THREAD_STATE_RUNNING) {
+			lock.unlock();
+			delete task;
+			return 0;
+		}
 
-	if (getState() == THREAD_STATE_RUNNING) {
-		// check if the event has a valid id
 		if (task->getEventId() == 0) {
-			// if not generate one
 			if (++lastEventId == 0) {
 				lastEventId = 1;
 			}
-
 			task->setEventId(lastEventId);
 		}
 
 		eventId = task->getEventId();
+		bool insertedEventId = false;
+		try {
+			insertedEventId = eventIds.insert(eventId).second;
+			if (!insertedEventId) {
+				lock.unlock();
+				delete task;
+				return 0;
+			}
+			eventList.push(task);
+		} catch (...) {
+			if (insertedEventId) {
+				eventIds.erase(eventId);
+			}
+			lock.unlock();
+			delete task;
+			return 0;
+		}
 
-		// insert the event id in the list of active events
-		eventIds.insert(eventId);
-
-		// add the event to the queue
-		eventList.push(task);
-
-		// if the list was empty or this event is the top in the list
-		// we have to signal it
 		do_signal = (task == eventList.top());
-	} else {
-		eventLock.unlock();
-		delete task;
-		return 0;
 	}
-
-	eventLock.unlock();
 
 	if (do_signal) {
 		eventSignal.notify_one();

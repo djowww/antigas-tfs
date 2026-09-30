@@ -177,6 +177,42 @@ void shutdownWhileDeadlineExpires()
 	require(observation.result == ETIMEDOUT, "the real scheduler wait must return timeout after relock");
 	require(unexpectedExecutions == 0, "shutdown deadline task must never execute");
 }
+
+void addEventAfterShutdownReleasesTask()
+{
+	FixtureScheduler scheduler;
+	scheduler.shutdown();
+	std::shared_ptr<int> retained(new int(1));
+	std::weak_ptr<int> closure = retained;
+	SchedulerTask* task = createSchedulerTask(1000, [retained]() {});
+	retained.reset();
+	require(scheduler.addEvent(task) == 0, "stopped scheduler must reject a new event");
+	require(closure.expired(), "rejected event must release its callback closure");
+}
+
+void duplicateEventIdPreservesExistingId()
+{
+	FixtureScheduler scheduler;
+	scheduler.start();
+	std::shared_ptr<int> retained(new int(2));
+	std::weak_ptr<int> existingClosure = retained;
+	SchedulerTask* existing = createSchedulerTask(30000, [retained]() {});
+	existing->setEventId(77);
+	retained.reset();
+	require(scheduler.addEvent(existing) == 77, "scheduler must accept the original event id");
+
+	std::shared_ptr<int> duplicateRetained(new int(3));
+	std::weak_ptr<int> duplicateClosure = duplicateRetained;
+	SchedulerTask* duplicate = createSchedulerTask(30000, [duplicateRetained]() {});
+	duplicate->setEventId(77);
+	duplicateRetained.reset();
+	require(scheduler.addEvent(duplicate) == 0, "scheduler must reject a duplicate event id");
+	require(duplicateClosure.expired(), "rejected duplicate task must release its closure");
+	require(scheduler.stopEvent(77), "rejecting a duplicate must preserve the original active event id");
+	scheduler.shutdown();
+	scheduler.join();
+	require(existingClosure.expired(), "cancelling the original event must release its closure");
+}
 }
 
 extern "C" int pthread_mutex_lock(pthread_mutex_t* mutex) noexcept
@@ -205,8 +241,8 @@ int main(int argc, char** argv)
 {
 	try {
 		const std::string scenario = argc == 1 ? "all" : argc == 2 ? argv[1] : "invalid";
-		require(scenario == "all" || scenario == "normal" || scenario == "before-lock" || scenario == "after-relock",
-		        "fixture scenario must be all, normal, before-lock or after-relock");
+		require(scenario == "all" || scenario == "normal" || scenario == "before-lock" || scenario == "after-relock" || scenario == "rejected-after-shutdown" || scenario == "duplicate-event-id",
+		        "fixture scenario must be all, normal, before-lock, after-relock, rejected-after-shutdown or duplicate-event-id");
 		// Resolve before worker threads start; unrelated pthread calls never
 		// arm the fixture observations or change the native call semantics.
 		(void)realMutexLock();
@@ -215,6 +251,8 @@ int main(int argc, char** argv)
 		if (scenario == "all" || scenario == "normal") normalExecutionAndCancellation();
 		if (scenario == "all" || scenario == "before-lock") shutdownBeforeWorkerLock();
 		if (scenario == "all" || scenario == "after-relock") shutdownWhileDeadlineExpires();
+		if (scenario == "all" || scenario == "rejected-after-shutdown") addEventAfterShutdownReleasesTask();
+		if (scenario == "all" || scenario == "duplicate-event-id") duplicateEventIdPreservesExistingId();
 		g_dispatcher.shutdown();
 		g_dispatcher.join();
 		std::cout << "PASS: isolated real scheduler scenario " << scenario << "." << std::endl;
