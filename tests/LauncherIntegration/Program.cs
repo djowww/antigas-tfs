@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 
 // Explicit opt-in: reads a signed release over HTTPS, installs only in a new
 // disposable directory, and never starts the game or edits a real installation.
-if (args.Length != 3 || args[0] != "--signed-manifest")
+if ((args.Length != 3 && args.Length != 4) || args[0] != "--signed-manifest" || (args.Length == 4 && args[3] != "--candidate"))
     throw new ArgumentException("Usage: --signed-manifest <https://tibia74.tech/staging-path/manifest.json> <built-launcher.exe>");
 var uri = new Uri(args[1]);
 if (uri.Scheme != "https" || uri.Host != "tibia74.tech") throw new ArgumentException("Official HTTPS host required");
@@ -29,7 +29,8 @@ try
     var manifest = ReleaseService.ReadAndVerifyManifest(manifestPath);
     checks.Add("HTTPS staging manifest and pinned ECDSA signature");
     var live = await ReleaseService.GetManifestAsync(CancellationToken.None);
-    Require(live.Version == manifest.Version && live.Sha256 == manifest.Sha256, "Staging fixture must be the current signed release");
+    Require((live.Version == manifest.Version && live.Sha256 == manifest.Sha256) ||
+        (args.Length == 4 && manifest.Version == live.Version + 1), "Fixture must be the current release or the explicitly selected next signed candidate");
     var package = await ReleaseService.DownloadPackageAsync(manifest, new InlineProgress<double>(_ => { }), CancellationToken.None, Path.Combine(root, "download"));
     checks.Add("Production HTTPS download path and signed SHA-256 verification");
 
