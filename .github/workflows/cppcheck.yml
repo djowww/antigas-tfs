@@ -36,6 +36,7 @@ jobs:
       - name: Analyze all server translation units
         run: |
           mkdir -p build/cppcheck-cache build/cppcheck-results
+          cp build/compile_commands.json build/cppcheck-results/compile_commands.json
           cppcheck --version > build/cppcheck-results/version.txt
           cppcheck --project=build/compile_commands.json --platform=unix64 \
             --enable=warning,performance,portability,information \
@@ -43,6 +44,14 @@ jobs:
             --xml --xml-version=2 -j2 \
             2> build/cppcheck-results/results.xml \
             > build/cppcheck-results/progress.txt
+
+      - name: Reject new diagnostics and incomplete analysis
+        run: |
+          python3 tests/cppcheck_gate.py \
+            --report build/cppcheck-results/results.xml \
+            --baseline tests/cppcheck-baseline.json \
+            --commands build/compile_commands.json \
+            --progress build/cppcheck-results/progress.txt
 
       - name: Preserve diagnostics for review
         if: always()
