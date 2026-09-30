@@ -50,6 +50,12 @@ uint32_t ScriptEnvironment::lastResultId = 0;
 
 std::multimap<ScriptEnvironment*, Item*> ScriptEnvironment::tempItems;
 
+namespace {
+// Constant initialization makes this safe to inspect from constructors in other
+// translation units, before the main environment's vptr and members exist.
+bool mainLuaEnvironmentAlive = false;
+}
+
 LuaEnvironment g_luaEnvironment;
 
 ScriptEnvironment::ScriptEnvironment()
@@ -243,7 +249,7 @@ ScriptEnvironmentIndex LuaScriptInterface::scriptEnvIndex;
 
 LuaScriptInterface::LuaScriptInterface(std::string interfaceName, bool initializeMainState) : interfaceName(std::move(interfaceName))
 {
-	if (initializeMainState && !g_luaEnvironment.getLuaState()) {
+	if (initializeMainState && mainLuaEnvironmentAlive && !g_luaEnvironment.getLuaState()) {
 		g_luaEnvironment.initState();
 	}
 }
@@ -255,6 +261,10 @@ LuaScriptInterface::~LuaScriptInterface()
 
 bool LuaScriptInterface::reInitState()
 {
+	if (!mainLuaEnvironmentAlive) {
+		closeState();
+		return false;
+	}
 	g_luaEnvironment.clearCombatObjects(this);
 	g_luaEnvironment.clearAreaObjects(this);
 
@@ -454,6 +464,9 @@ bool LuaScriptInterface::pushFunction(int32_t functionId)
 
 bool LuaScriptInterface::initState()
 {
+	if (!mainLuaEnvironmentAlive) {
+		return false;
+	}
 	luaState = g_luaEnvironment.getLuaState();
 	if (!luaState) {
 		return false;
@@ -467,11 +480,18 @@ bool LuaScriptInterface::initState()
 
 bool LuaScriptInterface::closeState()
 {
-	if (!g_luaEnvironment.getLuaState() || !luaState) {
+	if (!luaState) {
 		return false;
 	}
 
 	cacheFiles.clear();
+	// An interface may outlive the global environment because globals in other
+	// translation units have no fixed construction/destruction order.
+	if (!mainLuaEnvironmentAlive || !g_luaEnvironment.getLuaState()) {
+		luaState = nullptr;
+		eventTableRef = -1;
+		return false;
+	}
 	if (eventTableRef != -1) {
 		luaL_unref(luaState, LUA_REGISTRYINDEX, eventTableRef);
 		eventTableRef = -1;
@@ -12082,12 +12102,14 @@ int LuaScriptInterface::luaPartySetSharedExperience(lua_State* L)
 LuaEnvironment::LuaEnvironment() : LuaScriptInterface("Main Interface", false)
 {
 	initState();
+	mainLuaEnvironmentAlive = true;
 }
 
 LuaEnvironment::~LuaEnvironment()
 {
 	delete testInterface;
 	closeState();
+	mainLuaEnvironmentAlive = false;
 }
 
 bool LuaEnvironment::initState()
