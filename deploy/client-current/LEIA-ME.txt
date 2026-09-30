@@ -1,47 +1,21 @@
-ANTIGAS 7.4 — CLIENTE v49
+ANTIGAS 7.4 — CLIENTE v54 COM LAUNCHER
 
 INSTALAÇÃO
-1. Extraia todo o conteúdo deste ZIP para uma pasta própria, sem misturá-lo com outra instalação do cliente.
-2. Mantenha data, modules, init.lua, os executáveis e as DLLs juntos na mesma pasta.
-3. Inicie Antigas_gl.exe. Se houver incompatibilidade com o driver gráfico, tente Antigas_dx.exe.
-4. O site oficial é https://tibia74.tech.
+1. Para uma instalação nova, baixe o pacote Antigas-7.4-Launcher-v54.zip no site oficial, extraia todos os arquivos para uma pasta própria (por exemplo C:\Games\Antigas) e abra AntigasLauncher.exe.
+2. O pacote Antigas-7.4-Update-v54.zip é usado pelo launcher para atualizar o cliente e não contém o executável do launcher.
+3. O link de atualização do cliente antigo baixa Antigas-7.4-Client-v54.zip, o pacote completo com launcher. O site também oferece Antigas-7.4-Launcher-v54.zip para novas instalações.
+4. Evite Program Files para que as atualizações não precisem de permissões de administrador.
+5. Se preferir, Antigas_gl.exe e Antigas_dx.exe continuam disponíveis para abrir o cliente diretamente.
+6. Site oficial: https://tibia74.tech.
 
-IMPORTANTE
-- Não renomeie nem mova data, modules ou as DLLs: o cliente depende desses caminhos relativos.
-- Não remova arquivos para “limpar” a instalação. Este pacote já contém apenas os componentes de execução e este guia.
-- Feche o cliente antes de substituir arquivos durante uma atualização.
-- Não compartilhe logs que possam conter dados técnicos da sua sessão; envie-os apenas ao suporte oficial quando solicitado.
+SEGURANÇA E DADOS
+- O launcher aceita atualizações do site oficial após verificar a assinatura do publicador e o hash SHA-256.
+- Antes de substituir arquivos, cria backup local. Se a troca falhar, tenta restaurar a versão anterior.
+- Preferências, capturas, logs e dados pessoais são preservados durante as atualizações.
+- Não interrompa a instalação depois que a tela de atualização começar.
+- O launcher não pede senha, não executa comandos baixados e não requer administrador.
+- Não compartilhe logs que possam conter dados técnicos da sessão; envie-os ao suporte oficial quando solicitado.
 
-CONQUISTAS
-- Abra Achievements no painel lateral para consultar os 60 objetivos, progresso e recompensas do personagem.
-- Use All objectives, In progress e Completed; o segundo filtro permite escolher a categoria.
-- O botão fica destacado quando uma nova conquista é concluída. Clique no cabeçalho do painel lateral para recolher ou expandir os botões.
-
-GAME VIEW
-- Options > Interface: Classic (15 x 11) ou Widescreen (mapa adicional, sem deformar tiles).
-- Options > Graphics: Left panels e Right panels continuam disponíveis.
-- Widescreen se adapta ao espaço entre os painéis. Em servidores sem suporte, usa Classic.
-- Sprites, equipamentos, minimap e chat mantêm o estilo clássico.
-
-Barra de ícones: passe o mouse para ver o nome da ação e seu atalho, quando
-existir. O destaque âmbar indica os painéis abertos. Use o controle separado
-no fim da barra para recolher ou expandir os ícones.
-
-Achievements: Next objectives mostra a proxima meta de cada categoria.
-Claim rewards recebe premios pendentes apos liberar espaco/capacidade.
-Recompensas pendentes ficam salvas e nao sao deixadas no chao.
-
-RARIDADES DOS ITENS
-- Itens incomuns, raros, épicos, lendários e míticos aparecem com bordas verdes, azuis, roxas, amarelas e vermelhas.
-- Itens raros no chão recebem uma pulsação de cor lenta e discreta; o sprite original continua visível.
-- Ao abrir um corpo, o container já mostra as cores de raridade junto com os itens.
-- Passe o mouse sobre equipamentos no inventário ou em containers para consultar a raridade e seu bônus. Os atributos são definidos pelo servidor.
-
-CANAL LOOT
-- O canal Loot mostra os drops com os nomes coloridos pela raridade.
-- Um aviso visual destaca o melhor item raro de cada drop.
-- Corpos com loot ainda fechado recebem um brilho discreto ate serem abertos.
-
-RARIDADE DOS ITENS NO CHAO
-- Equipamentos com raridade recebem uma camada colorida no proprio sprite.
-- O destaque acompanha o item ao soltar, mover e recolher; itens comuns mantem sua aparencia.
+CLIENTE
+- Se houver incompatibilidade com o driver gráfico, feche o launcher e abra Antigas_dx.exe ou Antigas_gl.exe.
+- Raridades, conquistas, interface e os demais recursos do cliente permanecem disponíveis.
