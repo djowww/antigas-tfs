@@ -149,7 +149,9 @@ def seed_player(index, role):
     level, experience, sword_skill = (8, 4200, 70) if role == "hunter" else (8, 4200, 20)
     # Durable synthetic hunters must survive the paced login ramp before
     # combat begins. This is a capacity fixture, not a combat-balance test.
-    health = 5000 if role == "hunter" else 150
+    # The swamp fixture includes Slimes, whose summons can exhaust 5,000 HP
+    # during the ramp/hold. Stay below the classic 16-bit health field limit.
+    health = 60000 if role == "hunter" else 150
 
     sql(
         "INSERT INTO accounts(id,password,type,email) VALUES "
@@ -248,7 +250,11 @@ class StageClient(Client):
         while not stop.is_set():
             try:
                 self.send(bytes([0x1E]))
-                # Only request handlers read: background reads stole receipts.
+                # Real clients also consume world updates during the login ramp.
+                # These roles have no request receipts; Market clients retain a
+                # single reader in market_request so receipts cannot be stolen.
+                if self.record['role'] in ('hunter', 'chat', 'walker'):
+                    self.collect(0.05)
             except (OSError, socket.timeout) as error:
                 self.keepalive_error = str(error)
                 return
@@ -335,7 +341,13 @@ def monitor_online(online_ids, seconds):
         if any(client.keepalive_error for client in clients):
             raise RuntimeError("a synthetic session lost its keepalive connection")
         if online != PLAYER_COUNT:
-            raise RuntimeError(f"sessions dropped during load: {online}/{PLAYER_COUNT}")
+            missing = sql(f"SELECT p.id,p.name,p.health,p.healthmax,p.lastlogout "
+                          f"FROM players p LEFT JOIN players_online o ON o.player_id=p.id "
+                          f"WHERE p.id IN ({online_ids}) AND o.player_id IS NULL")
+            deaths = sql(f"SELECT player_id,time,level,killed_by FROM player_deaths "
+                         f"WHERE player_id IN ({online_ids}) ORDER BY time DESC LIMIT 10")
+            raise RuntimeError(f"sessions dropped during load: {online}/{PLAYER_COUNT}; "
+                               f"missing={missing!r}; deaths={deaths!r}")
         for client in clients:
             if client.record["role"] == "chat":
                 client.send(b"\x96\x01" + string("load test heartbeat"))

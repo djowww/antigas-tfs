@@ -34,15 +34,17 @@ _spec.loader.exec_module(loot)
 rarity = loot.rarity
 OPCODE = 129
 START = (32097, 32219, 7)
-SWORD = (6, 3264, 4, 6, 4, 0, '+4 attack')
-ARMOR = (0, 3361, 5, 1, 5, 0, '+5% maximum health')
+SWORD = (6, 3264, 4, 6, 4, 0, rarity.pack_codes(1, 2, 3), '+4 attack')
+ARMOR = (0, 3361, 5, 1, 5, 0, rarity.pack_codes(2, 3, 6, 7), '+5% maximum health')
 BACKPACK = 2854
 PLAIN_GROUND = {
     'You see stone floor.', 'You see a stone floor.',
     'You see tiled floor.', 'You see a tiled floor.',
     'You see marble floor.', 'You see a marble floor.',
+    'You see white marble floor.', 'You see black marble floor.',
     'You see wooden floor.', 'You see a wooden floor.',
     'You see dirt floor.', 'You see grass.',
+    'You see cobbled pavement.',
 }
 
 
@@ -126,13 +128,15 @@ def choose_empty_tile(probe, player, login):
         return None, 'Another player is online; ground drop/pickup skipped'
     if b'\x64' + position(START) not in login:
         return None, 'Expected starting map position was not confirmed; ground drop/pickup skipped'
-    for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+    observed = []
+    for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)):
         candidate = (START[0] + dx, START[1] + dy, START[2])
         lines = probe.look(position(candidate))
+        observed.append({'position': candidate, 'look': lines})
         if len(lines) == 1 and lines[0] in PLAIN_GROUND:
             if alone(player) and probe.look(position(candidate)) == lines:
                 return candidate, None
-    return None, 'No adjacent tile was confidently empty plain ground; ground drop/pickup skipped'
+    return None, 'No confirmed empty plain ground; observations: ' + json.dumps(observed)
 
 
 def retrieve(probe, item, target):
@@ -277,6 +281,8 @@ def main():
         fixture['probe'] = None
         saved_fixtures(player, items)
         report['checks'].append('Logout saves exactly sword, backpack and nested armor with original rarity and unique markers; no progress/rewards')
+        if os.environ.get('ANTIGAS_REQUIRE_GROUND_LIFECYCLE') == '1':
+            assert report['ground_lifecycle'] == 'passed', 'Required physical ground lifecycle was not exercised'
         report['status'] = 'passed'
     except Exception as exc:
         report['failure_phase'] = phase
@@ -315,6 +321,9 @@ def main():
 
 
 def self_test():
+    # Fixture serialization must track the complete status payload before live setup.
+    assert len(rarity.rarity_bytes(SWORD)) == 10
+    assert len(rarity.rarity_bytes(ARMOR)) == 10
     data = {'event': 'tile', 'seq': 2, 'position': {'x': 100, 'y': 101, 'z': 7},
             'items': [{'itemId': 3264, 'stackpos': 1, 'tier': 4}]}
     encoded = b'\x32\x81' + string(json.dumps(data))

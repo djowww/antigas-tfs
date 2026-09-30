@@ -27,6 +27,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--confirm-maintenance', action='store_true', required=True)
     parser.add_argument('--binary-sha256', required=True)
+    parser.add_argument('--phase', choices=('full', 'ground'), default='full')
     args = parser.parse_args()
     require_staging_target()
     if not os.environ.get('INVOCATION_ID') or value('imperium772', 'ActiveState') != 'active':
@@ -35,7 +36,9 @@ def main():
         raise SystemExit('Staging must be stopped and use its isolated OS account')
     if hashlib.sha256((STAGE / 'tfs').read_bytes()).hexdigest() != args.binary_sha256:
         raise SystemExit('Staging binary does not match tested CI artifact')
-    report = {'started': time.time(), 'binary_sha256': args.binary_sha256, 'target_sessions': 50, 'status': 'failed', 'phases': [], 'samples': []}
+    for probe in ('rarity-live.py', 'ground-rarity-live.py'):
+        command('python3', str(ROOT/'tests'/probe), '--self-test', timeout=20)
+    report = {'started': time.time(), 'binary_sha256': args.binary_sha256, 'target_sessions': 50 if args.phase == 'full' else 1, 'status': 'failed', 'phases': [], 'samples': []}
     stop = threading.Event()
     def sample():
         while not stop.wait(2):
@@ -74,11 +77,14 @@ def main():
             raise TimeoutError('Staging startup timeout')
         phases = [('rarity-live.py', [], 120), ('ground-rarity-live.py', [], 120),
                   ('load-test-50.py', ['--maintenance-window', '--players', '50'], 240)]
+        if args.phase == 'ground':
+            phases = [phases[1]]
         for name, extra, limit in phases:
             started = time.monotonic()
             log = ROOT / (name.removesuffix('.py') + '-validation.log')
             with log.open('w') as stream:
-                result = subprocess.run(['python3', str(ROOT/'tests'/name), *extra], stdout=stream, stderr=subprocess.STDOUT, timeout=limit)
+                env = dict(os.environ, ANTIGAS_REQUIRE_GROUND_LIFECYCLE='1')
+                result = subprocess.run(['python3', str(ROOT/'tests'/name), *extra], env=env, stdout=stream, stderr=subprocess.STDOUT, timeout=limit)
             phase = {'name': name, 'exit_code': result.returncode, 'seconds': round(time.monotonic()-started, 2)}
             report['phases'].append(phase)
             print(json.dumps(phase), flush=True)
@@ -98,7 +104,8 @@ def main():
         report.update(ended=time.time(), recovery=recovery, production=value('imperium772','ActiveState'), staging=value('imperium772-staging','ActiveState'))
         if report['samples']:
             report['peak_rss_mib'] = max(s['rss_mib'] for s in report['samples'])
-        (ROOT/'security-validation-result.json').write_text(json.dumps(report, indent=2))
+        report_name = 'security-validation-result.json' if args.phase == 'full' else 'security-validation-ground-result.json'
+        (ROOT/report_name).write_text(json.dumps(report, indent=2))
         print(json.dumps({k:v for k,v in report.items() if k!='samples'}), flush=True)
 
 
