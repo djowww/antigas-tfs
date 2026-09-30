@@ -194,6 +194,46 @@ falta de memória; capturar `bad_alloc` apenas no dispatcher não elimina isso.
   campo central reconhecido ou uma guarda script-side auditada. Nenhum código
   foi alterado.
 
+## Retomada — autenticação e tentativas distribuídas (30/09/2026)
+
+- `ServicePort::onAccept` aplica o limitador de tentativas por IP antes de
+  aceitar a conexão (`src/server.cpp:142-158`, `src/ban.cpp:26-29`). A janela
+  mantém estado limitado a 65.536 IPs e penaliza conexões rápidas. Há também
+  limites de conexões simultâneas globais e por IP (`src/connectionadmission.h:42-88`;
+  padrão por IP 128). Esses controles não contam senha incorreta e podem ser
+  distribuídos por várias origens.
+- No loginserver, `ProtocolLogin::getCharacterList` chama
+  `IOLoginData::loginserverAuthentication` (`src/protocollogin.cpp:56-66`). O
+  login direto ao gameworld chama `gameworldAuthentication` e depois repete
+  `loginserverAuthentication` (`src/protocolgame.cpp:354-363`). As funções em
+  `src/iologindata.cpp:54-105` usam `storeQuery` sem o parâmetro `success`;
+  consulta de conta indisponível e credenciais inválidas acabam na mesma
+  resposta. A autenticação do gameworld também agrupa erro de consulta e
+  personagem inválido. Após senha válida, falha na consulta de personagens do
+  loginserver pode aparecer como lista vazia, porque o retorno nulo não é
+  distinguido de uma lista sem linhas.
+- Classificação atual: ausência de contabilização por conta confirmada por
+  revisão de fonte; não há evidência de bypass de senha. A limitação por IP
+  aumenta o custo de tentativas de uma única origem, mas uma origem distribuída
+  pode repartir a carga. O risco de indisponibilidade por credenciais continua
+  fail-closed; a lista vazia em caso de erro SQL é um problema de disponibilidade
+  e diagnóstico, não acesso indevido.
+- Não há teste de resultado de autenticação no harness atual
+  `tests/login-gate-core-tests.cpp`; ele intercepta a conexão antes de SQL. O
+  padrão de banco falso em `tests/ban-lookup-tests.cpp` distingue erro de
+  consulta de resultado vazio e pode orientar um harness focado, sem dados ou
+  conexão reais.
+- Recomendação para uma correção futura: primeiro retornar estados separados
+  para sucesso, credenciais inválidas, personagem inválido e erro do banco.
+  Só credenciais inválidas devem alimentar um limitador por conta; erros SQL e
+  nomes de personagem não devem penalizar a conta. Evitar bloqueio permanente
+  ou lockout, manter capacidade/expiração estritamente limitadas e penalizar
+  apenas a resposta inválida com atraso curto e progressivo, sem atrasar logins
+  válidos nem bloquear o dispatcher. Testar loginserver e gameworld, sucesso,
+  senha errada, conta ausente, personagem incorreto, erro SQL, expiração,
+  saturação do estado e concorrência usando dados sintéticos. Esta revisão foi
+  somente estática; nenhum código ou dado de autenticação foi alterado.
+
 ## Cobertura do pedido original
 
 Os estados abaixo distinguem evidência já registrada de requisito ainda sem
