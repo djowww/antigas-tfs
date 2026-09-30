@@ -19,6 +19,7 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+STAGE = Path('/opt/imperium772-staging/server')
 SAMPLES = []
 STOP = threading.Event()
 
@@ -52,6 +53,8 @@ def main():
     assert value('imperium772', 'ActiveState') == 'active'
     assert value('imperium772-staging', 'ActiveState') == 'inactive'
     assert os.environ.get('INVOCATION_ID'), 'Run under the documented systemd watchdog'
+    from staging_safety import pin_staging_rsa_public
+    pin_staging_rsa_public(os.environ, STAGE / 'staging-rsa-public.json')
     signal.signal(signal.SIGTERM, interrupt)
     signal.signal(signal.SIGINT, interrupt)
     monitor = threading.Thread(target=sample, daemon=True)

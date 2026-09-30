@@ -6,20 +6,42 @@ o que foi revalidado agora, sem ampliar os resultados além das evidências.
 
 ## Staging e carga
 
-- O staging isolado já está provisionado com banco, usuário SQL e usuário Linux
-  próprios, sem cópia de dados de produção e com as portas do jogo restritas a
-  loopback. No momento da inspeção, o serviço estava parado, o limite era 1 GiB
-  e produção estava ativa.
-- A meta documentada é **50 sessões sintéticas simultâneas**, com **30 segundos
-  de permanência conjunta** após a rampa e as operações. A rodada anterior
-  concluiu 50/50 sessões em 92,3 segundos, observou pico RSS de 1.723,57 MiB e
-  encerrou o staging com recuperação da produção.
-- Essa rodada usou o executável `5c78fec1…`, anterior ao executável atual de
-  produção (`3335b197…`). Ela estabelece um alvo reproduzível, não um limite
-  comercial de jogadores nem um resultado medido no binário NPC atual. O staging
-  ainda continha o executável anterior e havia uma conexão TCP estabelecida em
-  produção durante esta verificação; por isso não foi aberta outra janela longa
-  de manutenção para repetir a carga.
+- O staging isolado usa banco, usuário SQL e usuário Linux próprios, sem cópia
+  dos dados de produção. Suas portas de jogo ficam em loopback. A rodada foi
+  executada sob `systemd-run` com limite de 570 segundos e recuperação
+  independente por `ExecStopPost`.
+- A validação completa passou no mesmo binário que estava em produção, SHA-256
+  `3335b197c091211979b4d41109e984a4a6db44f86b4918b481724383c06a9792`:
+  `rarity-live.py` em 34,53 s, `ground-rarity-live.py` em 17,69 s e
+  `load-test-50.py` em 95,38 s. A carga abriu 50 sessões sintéticas, com a meta
+  de 30 segundos de permanência conjunta; o relatório do teste registrou 50/50
+  logins, 30 s de monitoração simultânea, 10/10 alvos de caça, 20 anúncios de
+  mercado criados e concluídos, 40 entradas de histórico e zero resgates
+  pendentes. O teste de carga levou 92,8 s e terminou com limpeza completa. O
+  pico RSS observado foi 1.722,89 MiB.
+- A recuperação independente retornou `[0, 0, 0]`: staging parado, `MemoryMax`
+  restaurado a 1 GiB e produção reiniciada e ativa. O banco descartável terminou
+  sem contas ou personagens de teste persistidos. A rodada é uma medição desse
+  ambiente e desse binário; não define capacidade comercial nem garantia de
+  simultaneidade para a infraestrutura em geral.
+
+## Hardening do serviço em produção
+
+- Depois da aprovação em staging, foi instalado o drop-in
+  `/etc/systemd/system/imperium772.service.d/security-hardening.conf` e o
+  serviço foi reiniciado em 30/09/2026 às 02:46:53 UTC.
+- `systemd-analyze security` caiu de `8.4 EXPOSED` para `3.8 OK`. O serviço
+  agora usa `ProtectSystem=strict`, grava apenas em
+  `/opt/imperium772/server`, não recebe capacidades Linux, mantém
+  `NoNewPrivileges=1` e seccomp ativo. O processo iniciou com `CapEff=0`,
+  `CapBnd=0` e `NRestarts=0`.
+- O processo manteve o mesmo SHA-256 testado em staging, abriu as portas 7173 e
+  7174 e registrou “Antigas 7.4 Server Online!”. A checagem externa confirmou
+  ambas as portas acessíveis e `https://tibia74.tech/` respondeu HTTP 200.
+- O trecho de inicialização após o restart não contém o aviso anterior de loop
+  Lua em `ruleviolations.lua`. A saída de `systemd-analyze verify` mostrou apenas
+  um aviso preexistente e alheio ao serviço: a diretiva `RestartMode` de
+  `snapd.service` não é reconhecida por esta versão do systemd.
 
 ## Verificação do atualizador
 
@@ -51,21 +73,21 @@ o que foi revalidado agora, sem ampliar os resultados além das evidências.
   v53 em HTTPS, passou os sete controles: assinatura/hash, manifesto adulterado,
   path traversal, adulteração após extração, instalação limpa, preservação de
   userdata e rollback. Todos os arquivos temporários foram limpos.
-- Isso não é um resultado CodeQL. O workflow CodeQL permanece habilitado, mas o
-  GitHub informa que CodeQL para repositórios privados exige GitHub Code Security
-  compatível. Os termos oficiais da CLI também vedam seu uso ligado a uma base
-  privada sem a licença correspondente. Não alteramos a visibilidade do projeto
-  nem tentamos contornar a restrição. Para fechar esse item é necessário habilitar
-  uma licença compatível; até lá, o build/analisadores .NET são uma verificação
-  local adicional, não um substituto equivalente.
+- Isso não é um resultado CodeQL. O workflow existe no repositório, mas o GitHub
+  não executou a análise porque code scanning está desabilitado para este
+  repositório privado. A documentação do GitHub limita o uso do CodeQL CLI em
+  repositórios privados a organizações com GitHub Code Security compatível; os
+  termos da CLI também reservam análise automatizada de bases fechadas a uma
+  licença comercial GHAS. Não alteramos a visibilidade do projeto nem tentamos
+  contornar a restrição. O item só fecha com uma licença compatível habilitada;
+  build e analisadores .NET são checagens locais adicionais, não um resultado
+  equivalente ao CodeQL.
 
 Referências oficiais: [disponibilidade do CodeQL em repositórios privados](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-cli)
 e [termos da CLI](https://github.com/github/codeql-cli-binaries/blob/main/LICENSE.md).
 
-## Resultado de publicação desta entrega
+## Resultado desta entrega
 
-O serviço foi reiniciado em 30/09/2026 às 02:08 UTC. Ficou ativo com PID 150734,
-zero reinícios automáticos e o mesmo SHA-256 (`3335b197c091211979b4d41109e984a4a6db44f86b4918b481724383c06a9792`) do binário implantado. As portas públicas 7173 e 7174
-responderam após a subida. O log registrou “Antigas 7.4 Server Online!” e não
-mostrou erro Lua nem o aviso antigo de loop na janela observada. O restart não
-substitui a rodada de carga nem fecha a restrição de licença descritas acima.
+Os testes de staging, hardening, restart e verificações externas passaram. A
+análise CodeQL segue pendente pela licença/configuração do repositório privado;
+esta pendência está explicitamente separada dos controles que passaram.

@@ -18,7 +18,7 @@ import subprocess
 import time
 
 from load_test_protocol import Client, string
-from staging_safety import require_staging_target
+from staging_safety import require_staging_target, rsa_public_modulus
 
 
 def sql(query):
@@ -31,7 +31,7 @@ class Probe(Client):
     def __init__(self, account, password, name):
         self.key = struct.unpack('<IIII', secrets.token_bytes(16))
         self.sock = socket.create_connection(('127.0.0.1', int(os.environ['ANTIGAS_STAGING_GAME_PORT'])), timeout=5)
-        modulus = int(json.loads(Path('/opt/antigas-security-v26/rsa-public.json').read_text())['modulus'])
+        modulus = rsa_public_modulus()
         plain = b'\0' + struct.pack('<IIII', *self.key) + b'\0' + struct.pack('<I', account) + string(name) + string(password)
         encrypted = pow(int.from_bytes(plain.ljust(128, b'\0'), 'big'), 65537, modulus).to_bytes(128, 'big')
         packet = b'\x0a' + struct.pack('<HH', 11, 772) + encrypted
