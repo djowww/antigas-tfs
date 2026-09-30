@@ -33,7 +33,8 @@ extern ConfigManager g_config;
 
 Raids::Raids()
 {
-	scriptInterface.initState();
+	// Game owns Raids as a global member; the Lua environment in another
+	// translation unit may not exist yet. Initialize when raids are loaded.
 }
 
 Raids::~Raids()
@@ -47,6 +48,9 @@ bool Raids::loadFromXml()
 {
 	if (isLoaded()) {
 		return true;
+	}
+	if (!scriptInterface.getLuaState() && !scriptInterface.initState()) {
+		return false;
 	}
 
 	pugi::xml_document doc;

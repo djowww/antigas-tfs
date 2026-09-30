@@ -55,6 +55,11 @@ void ProtocolLogin::disconnectClient(const std::string& message)
 
 void ProtocolLogin::getCharacterList(uint32_t accountNumber, const std::string& password)
 {
+	if (g_config.getBoolean(ConfigManager::BLOCK_LOGIN)) {
+		disconnectClient(g_config.getString(ConfigManager::BLOCK_LOGIN_TEXT));
+		return;
+	}
+
 	Account account;
 	if (!IOLoginData::loginserverAuthentication(accountNumber, password, account)) {
 		disconnectClient("Account number or password is not correct.");
@@ -160,23 +165,6 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
-	BanInfo banInfo;
-	auto connection = getConnection();
-	if (!connection) {
-		return;
-	}
-
-	if (IOBan::isIpBanned(connection->getIP(), banInfo)) {
-		if (banInfo.reason.empty()) {
-			banInfo.reason = "(none)";
-		}
-
-		std::ostringstream ss;
-		ss << "Your IP has been banned until " << formatDateShort(banInfo.expiresAt) << " by " << banInfo.bannedBy << ".\n\nReason specified:\n" << banInfo.reason;
-		disconnectClient(ss.str());
-		return;
-	}
-
     uint32_t accountNumber = msg.get<uint32_t>();
 	if (!accountNumber) {
 		disconnectClient("Invalid account number.");
@@ -193,6 +181,32 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 	uint16_t otcV8StringLength = msg.get<uint16_t>();
 	if(otcV8StringLength == 5 && msg.getString(5) == "OTCv8") {
 		otclientV8 = msg.get<uint16_t>(); // 253, 260, 261, ...
+	}
+	// First packets retain their absolute end; the XTEA cursor helper uses a
+	// different length convention and would allow four undeclared bytes here.
+	if (msg.isOverrun() || msg.getBufferPosition() > msg.getLength()) {
+		disconnect();
+		return;
+	}
+
+	BanInfo banInfo;
+	auto connection = getConnection();
+	if (!connection) {
+		return;
+	}
+	const auto ipBan = IOBan::lookupIpBan(connection->getIP(), banInfo);
+	if (ipBan == BanLookupResult::Error) {
+		disconnectClient("Login temporarily unavailable. Please try again later.");
+		return;
+	}
+	if (ipBan == BanLookupResult::Banned) {
+		if (banInfo.reason.empty()) {
+			banInfo.reason = "(none)";
+		}
+		std::ostringstream ss;
+		ss << "Your IP has been banned until " << formatDateShort(banInfo.expiresAt) << " by " << banInfo.bannedBy << ".\n\nReason specified:\n" << banInfo.reason;
+		disconnectClient(ss.str());
+		return;
 	}
 
 	auto thisPtr = std::static_pointer_cast<ProtocolLogin>(shared_from_this());

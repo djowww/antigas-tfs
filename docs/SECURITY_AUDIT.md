@@ -32,6 +32,8 @@ The server build is documented in `README.md`: Linux, CMake and system packages,
 
 The conditional `NET-01` finding below describes the 2026-09-29 source-review snapshot. It was addressed in commit `f4fa832` with bounded global/per-IP admission and an aggregate output-queue budget, then exercised in isolated staging and deployed with a production restart. See the [2026-09-30 validation addendum](security-validation-follow-up-2026-09-30.md) for test evidence, measurements, binary hash and remaining CodeQL limitation. The historical finding text below is retained to preserve the original review evidence.
 
+The [continuing audit and coverage matrix](security-audit-progress-2026-09-30.md) records subsequent login/updater findings, current GitHub settings and requirements that still lack sufficient evidence. In particular, the legacy protocol already supplies the password after RSA; versioned password hashing needs database/site migration, not necessarily a different client protocol.
+
 ## Findings
 
 | ID / severity / file / function | Finding, condition and impact | Safe reproduction, correction, test and residual risk |
