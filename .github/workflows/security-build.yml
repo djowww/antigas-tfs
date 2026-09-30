@@ -74,6 +74,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE="$build_type" \
             -DTFS_BUILD_RARITY_TESTS=ON \
+            -DTFS_BUILD_LUA_WATCHDOG_TESTS=ON \
             -DTFS_BUILD_STATUS_QUERY_TESTS=ON \
             -DTFS_BUILD_SCHEDULER_TESTS=ON \
             -DTFS_BUILD_SCRIPT_READER_TESTS=ON \
