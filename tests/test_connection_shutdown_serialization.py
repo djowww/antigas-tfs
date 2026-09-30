@@ -14,9 +14,11 @@ class ConnectionShutdownSerializationTests(unittest.TestCase):
         self.assertRegex(method, re.compile(
             r"std::unordered_set<Connection_ptr> connectionsToClose;\s*"
             r"\{\s*std::lock_guard<std::mutex> lockClass\(connectionManagerLock\);\s*"
-            r"connectionsToClose\.swap\(connections\);\s*\}\s*"
+            r"[\s\S]*?connectionsToClose\.swap\(connections\);\s*\}\s*"
             r"for \(const auto& connection : connectionsToClose\)"
         ))
+        self.assertLess(method.index("connectionAdmission.clear()"), method.index("connectionsToClose.swap(connections)"))
+        self.assertLess(method.index("connectionsToClose.swap(connections)"), method.index("for (const auto& connection : connectionsToClose)"))
         self.assertIn("std::lock_guard<std::recursive_mutex> lockClass(connection->connectionLock);", method)
         self.assertIn("connection->connectionState = Connection::CONNECTION_STATE_CLOSED;", method)
         self.assertIn("connection->closeSocket();", method)

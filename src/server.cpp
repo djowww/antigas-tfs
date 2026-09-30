@@ -61,6 +61,9 @@ void ServiceManager::run()
 {
 	assert(!running);
 	running = true;
+	ConnectionManager::getInstance().configureAdmission(
+	        static_cast<std::size_t>(g_config.getNumber(ConfigManager::MAX_CONNECTIONS)),
+	        static_cast<std::size_t>(g_config.getNumber(ConfigManager::MAX_CONNECTIONS_PER_IP)));
 	io_service.run();
 }
 
@@ -140,7 +143,8 @@ void ServicePort::onAccept(Connection_ptr connection, const boost::system::error
 		}
 
 		auto remote_ip = connection->getIP();
-		if (remote_ip != 0 && g_bans.acceptConnection(remote_ip)) {
+		if (remote_ip != 0 && g_bans.acceptConnection(remote_ip) &&
+		        ConnectionManager::getInstance().tryAdmitConnection(connection, remote_ip)) {
 			Service_ptr service = services.front();
 			if (service->is_single_socket()) {
 				connection->accept(service->make_protocol(connection));

@@ -77,6 +77,8 @@ class ConfigManager
 		enum integer_config_t {
 			SQL_PORT,
 			MAX_PLAYERS,
+			MAX_CONNECTIONS,
+			MAX_CONNECTIONS_PER_IP,
 			PZ_LOCKED,
 			DEFAULT_DESPAWNRANGE,
 			DEFAULT_DESPAWNRADIUS,
