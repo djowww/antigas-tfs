@@ -24,7 +24,13 @@
 struct BanInfo {
 	std::string bannedBy;
 	std::string reason;
-	time_t expiresAt;
+	time_t expiresAt = 0;
+};
+
+enum class BanLookupResult {
+	Clear,
+	Banned,
+	Error,
 };
 
 class Ban
@@ -39,9 +45,9 @@ class Ban
 class IOBan
 {
 	public:
-		static bool isAccountBanned(uint32_t accountId, BanInfo& banInfo);
-		static bool isIpBanned(uint32_t ip, BanInfo& banInfo);
-		static bool isPlayerNamelocked(uint32_t playerId);
+		static BanLookupResult lookupAccountBan(uint32_t accountId, BanInfo& banInfo);
+		static BanLookupResult lookupIpBan(uint32_t ip, BanInfo& banInfo);
+		static BanLookupResult lookupPlayerNamelock(uint32_t playerId);
 };
 
 #endif
