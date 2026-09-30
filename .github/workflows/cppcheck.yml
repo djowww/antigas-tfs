@@ -1,0 +1,54 @@
+name: C++ static analysis
+
+on:
+  push:
+    branches: [main, security-hardening]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '13 4 * * 2'
+
+permissions:
+  contents: read
+
+jobs:
+  cppcheck:
+    name: Cppcheck Linux compilation database
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install analyzer and production headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            cppcheck cmake pkg-config g++ \
+            libboost-system-dev libboost-filesystem-dev \
+            libluajit-5.1-dev libpugixml-dev \
+            libmariadb-dev libmariadb-dev-compat libgmp-dev
+
+      - name: Export actual server compilation commands
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Analyze all server translation units
+        run: |
+          mkdir -p build/cppcheck-cache build/cppcheck-results
+          cppcheck --version > build/cppcheck-results/version.txt
+          cppcheck --project=build/compile_commands.json --platform=unix64 \
+            --enable=warning,performance,portability,information \
+            --library=posix --cppcheck-build-dir=build/cppcheck-cache \
+            --xml --xml-version=2 -j2 \
+            2> build/cppcheck-results/results.xml \
+            > build/cppcheck-results/progress.txt
+
+      - name: Preserve diagnostics for review
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: cppcheck-${{ github.sha }}
+          path: build/cppcheck-results/
+          if-no-files-found: error
+          retention-days: 14
