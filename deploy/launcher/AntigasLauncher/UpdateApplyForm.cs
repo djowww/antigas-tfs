@@ -11,6 +11,7 @@ internal sealed class UpdateApplyForm : Form
     private readonly Label _status = new(), _detail = new();
     private readonly ProgressBar _progress = new();
     private readonly Button _playOld = new(), _close = new();
+    private bool _updateInProgress = true;
 
     public UpdateApplyForm(string package, string manifestPath, string stage, string root, int version, int parentPid)
     {
@@ -28,8 +29,15 @@ internal sealed class UpdateApplyForm : Form
         Shown += async (_, _) => await ApplyAsync();
     }
 
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        base.OnFormClosing(e);
+        if (_updateInProgress) e.Cancel = true;
+    }
+
     private async Task ApplyAsync()
     {
+        _updateInProgress = true;
         try
         {
             var manifest = ReleaseService.ReadAndVerifyManifest(_manifestPath);
@@ -50,6 +58,7 @@ internal sealed class UpdateApplyForm : Form
             var start = new ProcessStartInfo(Path.Combine(Path.GetFullPath(_root), "AntigasLauncher.exe")) { UseShellExecute = true, WorkingDirectory = Path.GetFullPath(_root) };
             start.ArgumentList.Add("--updated"); start.ArgumentList.Add(_version.ToString());
             Process.Start(start);
+            _updateInProgress = false;
             Close();
         }
         catch (Exception ex)
@@ -60,6 +69,7 @@ internal sealed class UpdateApplyForm : Form
             _detail.Text = rollbackFailed ? "A recuperação automática precisa de atenção. Consulte launcher.log." : "Os arquivos anteriores foram restaurados. Você pode abrir a versão instalada.";
             _playOld.Visible = !rollbackFailed && ClientPackage.HasRunnableClient(_root); _close.Visible = true;
         }
+        finally { _updateInProgress = false; }
     }
 
     private static async Task WaitForParentAsync(int pid)
