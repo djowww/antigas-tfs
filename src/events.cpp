@@ -44,6 +44,7 @@ void Events::clear()
 	partyOnJoin = -1;
 	partyOnLeave = -1;
 	partyOnDisband = -1;
+	partyOnShareExperience = -1;
 
 	// Player
 	playerOnLook = -1;
@@ -59,6 +60,9 @@ void Events::clear()
 	playerOnLoseExperience = -1;
 	playerOnGainSkillTries = -1;
 	playerOnReportBug = -1;
+	playerOnReportRuleViolation = -1;
+	playerOnRemoveCount = -1;
+	playerOnUseItem = -1;
 
 }
 
