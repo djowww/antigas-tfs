@@ -23,6 +23,7 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 #include "luascript.h"
+#include "luacallwatchdog.h"
 #include "chat.h"
 #include "player.h"
 #include "game.h"
@@ -268,6 +269,7 @@ int LuaScriptInterface::protectedCall(lua_State* L, int nargs, int nresults)
 	lua_pushcfunction(L, luaErrorHandler);
 	lua_insert(L, error_index);
 
+	LuaCallWatchdog watchdog(L, nargs);
 	int ret = lua_pcall(L, nargs, nresults, error_index);
 	lua_remove(L, error_index);
 	return ret;

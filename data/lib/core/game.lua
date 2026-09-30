@@ -126,16 +126,4 @@ function Game.setStorageValue(key, value)
 	globalStorageTable[key] = value
 end
 
-local start = os.mtime()
-local linecount = 0
-debug.sethook(function(event, line)
-    linecount = linecount + 1
-    if os.mtime() - start >= 1000 then
-        if linecount >= 30000 then
-            print(string.format("possible infinite loop in file %s near line %s", debug.getinfo(2).source, line))
-            debug.sethook()
-        end
-        linecount = 0
-        start = os.mtime()
-    end
-end, "l")
+-- Slow-script diagnostics are scoped to protected invocations in the C++ core.
