@@ -77,13 +77,16 @@ internal static class ReleaseService
         return manifest;
     }
 
-    public static async Task<string> DownloadPackageAsync(ReleaseManifest manifest, IProgress<double> progress, CancellationToken cancellationToken)
+    public static Task<string> DownloadPackageAsync(ReleaseManifest manifest, IProgress<double> progress, CancellationToken cancellationToken) =>
+        DownloadPackageAsync(manifest, progress, cancellationToken,
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AntigasLauncher", "downloads"));
+
+    internal static async Task<string> DownloadPackageAsync(ReleaseManifest manifest, IProgress<double> progress, CancellationToken cancellationToken, string downloadDirectory)
     {
         var packageUri = new Uri(SiteUri, manifest.Package);
         if (packageUri.Scheme != Uri.UriSchemeHttps || !string.Equals(packageUri.Host, SiteUri.Host, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("O endereço do pacote não pertence ao site oficial.");
 
-        var downloadDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AntigasLauncher", "downloads");
         Directory.CreateDirectory(downloadDirectory);
         var target = Path.Combine(downloadDirectory, manifest.Package);
         var temporary = target + ".partial";

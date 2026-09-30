@@ -20,9 +20,10 @@ internal static class ClientPackage
         return root;
     }
 
-    public static string ExtractToStaging(string packagePath)
+    public static string ExtractToStaging(string packagePath) => ExtractToStaging(packagePath, GetStagingRoot());
+
+    internal static string ExtractToStaging(string packagePath, string stageRoot)
     {
-        var stageRoot = GetStagingRoot();
         var stage = Path.Combine(stageRoot, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(stage);
         try
@@ -73,7 +74,8 @@ internal static class ClientPackage
         {
             var relative = NormalizeEntryPath(entry.FullName);
             if (relative.Length == 0 || entry.FullName.EndsWith('/') || entry.FullName.EndsWith('\\')) continue;
-            if (!expected.Add(relative)) throw new InvalidDataException("O pacote contém caminhos duplicados.");
+            // Compare archive and directory paths using the same separator on Windows.
+            if (!expected.Add(relative.Replace(Path.DirectorySeparatorChar, '/'))) throw new InvalidDataException("O pacote contém caminhos duplicados.");
             var stagedFile = ResolveChildPath(stage, relative);
             if (!File.Exists(stagedFile) || new FileInfo(stagedFile).Length != entry.Length)
                 throw new InvalidDataException("Os arquivos extraídos não correspondem ao pacote.");
@@ -131,7 +133,10 @@ internal static class ClientPackage
         return false;
     }
 
-    public static string ApplyStagedUpdate(string stage, string installRoot, int expectedVersion, IProgress<int> progress)
+    public static string ApplyStagedUpdate(string stage, string installRoot, int expectedVersion, IProgress<int> progress) =>
+        ApplyStagedUpdate(stage, installRoot, expectedVersion, progress, Path.Combine(LocalRoot, "backups"));
+
+    internal static string ApplyStagedUpdate(string stage, string installRoot, int expectedVersion, IProgress<int> progress, string backupsRoot)
     {
         stage = Path.GetFullPath(stage);
         installRoot = Path.GetFullPath(installRoot).TrimEnd(Path.DirectorySeparatorChar);
@@ -140,7 +145,7 @@ internal static class ClientPackage
         if (ReadInstalledVersion(stage) != expectedVersion) throw new InvalidDataException("A versão preparada não corresponde à atualização.");
         if (IsGameRunningFrom(installRoot)) throw new InvalidOperationException("Feche o cliente do jogo antes de substituir os arquivos.");
 
-        var backupRoot = Path.Combine(LocalRoot, "backups", DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-v" + expectedVersion);
+        var backupRoot = Path.Combine(backupsRoot, DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-v" + expectedVersion + "-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(backupRoot);
         var files = Directory.EnumerateFiles(stage, "*", SearchOption.AllDirectories).ToArray();
         var changes = new List<FileChange>();

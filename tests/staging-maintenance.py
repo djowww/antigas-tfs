@@ -18,7 +18,7 @@ import subprocess
 import threading
 import time
 
-ROOT = Path('/opt/antigas-stability-20260927')
+ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = []
 STOP = threading.Event()
 
