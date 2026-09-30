@@ -28,6 +28,7 @@
 #include "iologindata.h"
 #include "ban.h"
 #include "game.h"
+#include "scheduler.h"
 
 extern ConfigManager g_config;
 extern Game g_game;
@@ -61,8 +62,27 @@ void ProtocolLogin::getCharacterList(uint32_t accountNumber, const std::string& 
 	}
 
 	AuthenticationResult authentication = IOLoginData::loginserverAuthentication(accountNumber, password);
+	const auto failureDelay = getAccountAuthenticationFailureLimiter().processResult(accountNumber, authentication.status);
 	if (authentication.status != AuthenticationStatus::Success) {
-		disconnectClient(authenticationFailureMessage(authentication.status));
+		const std::string message = authenticationFailureMessage(authentication.status);
+		if (failureDelay.count() > 0) {
+			SchedulerTask* task = nullptr;
+			try {
+				const std::shared_ptr<ProtocolLogin> self = std::static_pointer_cast<ProtocolLogin>(shared_from_this());
+				task = createSchedulerTask(static_cast<uint32_t>(failureDelay.count()), [self, message]() {
+					if (!self->isConnectionExpired()) {
+						self->disconnectClient(message);
+					}
+				});
+				if (g_scheduler.addEvent(task) != 0) {
+					return;
+				}
+				task = nullptr; // addEvent consumes the task when it returns zero
+			} catch (...) {
+				delete task;
+			}
+		}
+		disconnectClient(message);
 		return;
 	}
 	Account& account = authentication.account;

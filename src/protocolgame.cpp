@@ -350,17 +350,40 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		disconnectClient(ss.str());
 		return;
 	}
+	auto sendAuthenticationFailure = [this](AuthenticationStatus status, AccountAuthenticationFailureLimiter::Delay delay) {
+		const std::string message = authenticationFailureMessage(status);
+		if (delay.count() > 0) {
+			SchedulerTask* task = nullptr;
+			try {
+				const ProtocolGame_ptr self = getThis();
+				task = createSchedulerTask(static_cast<uint32_t>(delay.count()), [self, message]() {
+					if (!self->isConnectionExpired()) {
+						self->disconnectClient(message);
+					}
+				});
+				if (g_scheduler.addEvent(task) != 0) {
+					return;
+				}
+				task = nullptr; // addEvent consumes the task when it returns zero
+			} catch (...) {
+				delete task;
+			}
+		}
+		disconnectClient(message);
+	};
 
 	AuthenticationResult gameAuthentication = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
+	const auto gameFailureDelay = getAccountAuthenticationFailureLimiter().processResult(accountNumber, gameAuthentication.status);
 	if (gameAuthentication.status != AuthenticationStatus::Success) {
-		disconnectClient(authenticationFailureMessage(gameAuthentication.status));
+		sendAuthenticationFailure(gameAuthentication.status, gameFailureDelay);
 		return;
 	}
 	characterName = gameAuthentication.characterName;
 
 	AuthenticationResult loginAuthentication = IOLoginData::loginserverAuthentication(accountNumber, password);
+	const auto loginFailureDelay = getAccountAuthenticationFailureLimiter().processResult(accountNumber, loginAuthentication.status);
 	if (loginAuthentication.status != AuthenticationStatus::Success) {
-		disconnectClient(authenticationFailureMessage(loginAuthentication.status));
+		sendAuthenticationFailure(loginAuthentication.status, loginFailureDelay);
 		return;
 	}
 	Account& account = loginAuthentication.account;

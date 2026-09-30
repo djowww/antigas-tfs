@@ -74,3 +74,107 @@ AuthenticationResult authenticateGameWorld(AuthenticationDataSource& data, uint3
 	result.characterName = characterRow.name;
 	return result;
 }
+
+AccountAuthenticationFailureLimiter::AccountAuthenticationFailureLimiter(std::size_t capacity,
+	                                                                        Clock::duration expiration,
+	                                                                        NowFunction now) :
+	capacity(capacity), expiration(expiration), now(std::move(now))
+{}
+
+void AccountAuthenticationFailureLimiter::eraseEntry(std::map<uint32_t, Entry>::iterator entry)
+{
+	lru.erase(entry->second.lruPosition);
+	entries.erase(entry);
+}
+
+AccountAuthenticationFailureLimiter::Delay AccountAuthenticationFailureLimiter::processResult(uint32_t accountNumber, AuthenticationStatus status)
+{
+	if (accountNumber == 0) {
+		return Delay::zero();
+	}
+
+	std::lock_guard<std::mutex> lock(mutex);
+	if (status == AuthenticationStatus::Success) {
+		std::map<uint32_t, Entry>::iterator existing = entries.find(accountNumber);
+		if (existing != entries.end()) {
+			eraseEntry(existing);
+		}
+		return Delay::zero();
+	}
+	if (status != AuthenticationStatus::InvalidCredentials || capacity == 0) {
+		return Delay::zero();
+	}
+
+	Clock::time_point currentTime;
+	try {
+		currentTime = now ? now() : Clock::now();
+	} catch (...) {
+		return Delay::zero();
+	}
+
+	std::map<uint32_t, Entry>::iterator entry = entries.find(accountNumber);
+	if (entry != entries.end() && entry->second.expiresAt <= currentTime) {
+		eraseEntry(entry);
+		entry = entries.end();
+	}
+
+	if (entry == entries.end()) {
+		if (entries.size() >= capacity) {
+			while (!lru.empty()) {
+				std::map<uint32_t, Entry>::iterator oldest = entries.find(lru.front());
+				if (oldest == entries.end()) {
+					lru.pop_front();
+					continue;
+				}
+				if (oldest->second.expiresAt > currentTime) {
+					return Delay::zero();
+				}
+				eraseEntry(oldest);
+				break;
+			}
+			if (entries.size() >= capacity) {
+				return Delay::zero();
+			}
+		}
+
+		try {
+			lru.push_back(accountNumber);
+			Entry value;
+			value.failures = 1;
+			value.expiresAt = currentTime + expiration;
+			value.lruPosition = --lru.end();
+			try {
+				entries.insert(std::make_pair(accountNumber, value));
+			} catch (...) {
+				lru.pop_back();
+				return Delay::zero();
+			}
+		} catch (...) {
+			return Delay::zero();
+		}
+		return Delay::zero();
+	}
+
+	if (entry->second.failures < 10) {
+		++entry->second.failures;
+	}
+	entry->second.expiresAt = currentTime + expiration;
+	lru.splice(lru.end(), lru, entry->second.lruPosition);
+	if (entry->second.failures <= 2) {
+		return Delay::zero();
+	}
+	const uint8_t delayedFailures = static_cast<uint8_t>(entry->second.failures - 2);
+	return Delay(std::min<uint32_t>(2000, static_cast<uint32_t>(delayedFailures) * 250));
+}
+
+std::size_t AccountAuthenticationFailureLimiter::size() const
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	return entries.size();
+}
+
+AccountAuthenticationFailureLimiter& getAccountAuthenticationFailureLimiter()
+{
+	static AccountAuthenticationFailureLimiter limiter;
+	return limiter;
+}

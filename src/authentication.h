@@ -13,6 +13,12 @@
 
 #include "account.h"
 
+#include <chrono>
+#include <functional>
+#include <list>
+#include <map>
+#include <mutex>
+
 enum class AuthenticationStatus {
 	Success,
 	InvalidCredentials,
@@ -65,5 +71,37 @@ class AuthenticationDataSource
 
 AuthenticationResult authenticateLoginServer(AuthenticationDataSource& data, uint32_t accountNumber, const std::string& password);
 AuthenticationResult authenticateGameWorld(AuthenticationDataSource& data, uint32_t accountNumber, const std::string& password, const std::string& characterName);
+
+class AccountAuthenticationFailureLimiter
+{
+	public:
+		typedef std::chrono::steady_clock Clock;
+		typedef std::chrono::milliseconds Delay;
+		typedef std::function<Clock::time_point()> NowFunction;
+
+		explicit AccountAuthenticationFailureLimiter(std::size_t capacity = 65536,
+		                                             Clock::duration expiration = std::chrono::minutes(10),
+		                                             NowFunction now = NowFunction());
+		Delay processResult(uint32_t accountNumber, AuthenticationStatus status);
+		std::size_t size() const;
+
+	private:
+		struct Entry {
+			uint8_t failures;
+			Clock::time_point expiresAt;
+			std::list<uint32_t>::iterator lruPosition;
+		};
+
+		void eraseEntry(std::map<uint32_t, Entry>::iterator entry);
+
+		const std::size_t capacity;
+		const Clock::duration expiration;
+		NowFunction now;
+		mutable std::mutex mutex;
+		std::list<uint32_t> lru;
+		std::map<uint32_t, Entry> entries;
+};
+
+AccountAuthenticationFailureLimiter& getAccountAuthenticationFailureLimiter();
 
 #endif

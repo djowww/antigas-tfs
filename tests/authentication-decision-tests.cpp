@@ -3,6 +3,8 @@
 #include "tools.h"
 
 #include <stdexcept>
+#include <atomic>
+#include <thread>
 
 static void require(bool condition, const char* message)
 {
@@ -160,6 +162,74 @@ static void testPublicErrorMapping()
 	require(std::string(authenticationFailureMessage(AuthenticationStatus::DatabaseError)) == "Login temporarily unavailable. Please try again later.", "database error must report temporary unavailability");
 }
 
+static void testFailureLimiterProgressionAndExpiry()
+{
+	AccountAuthenticationFailureLimiter::Clock::time_point now;
+	AccountAuthenticationFailureLimiter limiter(8, std::chrono::minutes(10), [&now]() { return now; });
+	auto fail = [&limiter](uint32_t account) {
+		return limiter.processResult(account, AuthenticationStatus::InvalidCredentials).count();
+	};
+	require(fail(42) == 0 && fail(42) == 0, "first two credential failures must be immediate");
+	for (int failure = 3; failure <= 10; ++failure) {
+		require(fail(42) == std::min(2000, (failure - 2) * 250), "progressive credential delay must increase to its cap");
+	}
+	require(fail(42) == 2000, "credential delay must stay capped at two seconds");
+	now += std::chrono::minutes(10);
+	require(fail(42) == 0 && limiter.size() == 1, "expired account state must restart at first failure");
+}
+
+static void testFailureLimiterStatusesAndZeroAccount()
+{
+	AccountAuthenticationFailureLimiter::Clock::time_point now;
+	AccountAuthenticationFailureLimiter limiter(8, std::chrono::minutes(10), [&now]() { return now; });
+	auto fail = [&limiter](AuthenticationStatus status) {
+		return limiter.processResult(42, status).count();
+	};
+	require(limiter.processResult(0, AuthenticationStatus::InvalidCredentials).count() == 0 && limiter.size() == 0, "account zero must not allocate shared throttle state");
+	require(fail(AuthenticationStatus::InvalidCredentials) == 0 && fail(AuthenticationStatus::InvalidCredentials) == 0, "initial invalid credentials must be tracked");
+	require(fail(AuthenticationStatus::InvalidCharacter) == 0 && fail(AuthenticationStatus::DatabaseError) == 0, "invalid character and database error must not be penalized");
+	require(fail(AuthenticationStatus::InvalidCredentials) == 250, "non-credential failures must not advance the counter");
+	require(fail(AuthenticationStatus::Success) == 0 && limiter.size() == 0, "success must clear the account failure state");
+	require(fail(AuthenticationStatus::InvalidCredentials) == 0 && fail(AuthenticationStatus::InvalidCredentials) == 0, "failures after success must start over");
+}
+
+static void testFailureLimiterCapacityAndExpiredLru()
+{
+	AccountAuthenticationFailureLimiter::Clock::time_point now;
+	AccountAuthenticationFailureLimiter limiter(2, std::chrono::minutes(10), [&now]() { return now; });
+	auto fail = [&limiter](uint32_t account) {
+		return limiter.processResult(account, AuthenticationStatus::InvalidCredentials).count();
+	};
+	require(fail(1) == 0, "first account must be admitted");
+	now += std::chrono::minutes(5);
+	require(fail(2) == 0 && fail(2) == 0, "second account must be admitted and updated");
+	now += std::chrono::minutes(5) + std::chrono::seconds(1);
+	require(fail(3) == 0 && limiter.size() == 2, "expired least-recent entry must be recycled at capacity");
+	require(fail(2) == 250, "non-expired LRU peer must retain its existing failure count");
+	require(fail(3) == 0 && fail(3) == 250, "newly admitted account must retain its own state");
+	require(fail(4) == 0 && limiter.size() == 2, "full non-expired LRU must fail open without growing state");
+}
+
+static void testFailureLimiterConcurrency()
+{
+	AccountAuthenticationFailureLimiter::Clock::time_point now;
+	AccountAuthenticationFailureLimiter limiter(4, std::chrono::minutes(10), [&now]() { return now; });
+	std::vector<std::thread> workers;
+	std::atomic<int64_t> largestDelay(0);
+	for (unsigned worker = 0; worker < 8; ++worker) {
+		workers.push_back(std::thread([&limiter, &largestDelay]() {
+			for (unsigned attempt = 0; attempt < 100; ++attempt) {
+				const int64_t delay = limiter.processResult(42, AuthenticationStatus::InvalidCredentials).count();
+				int64_t previous = largestDelay.load();
+				while (previous < delay && !largestDelay.compare_exchange_weak(previous, delay)) {}
+			}
+		}));
+	}
+	for (std::thread& worker : workers) worker.join();
+	require(largestDelay.load() == 2000 && limiter.size() == 1, "concurrent failures must remain bounded and serialized for one account");
+	require(limiter.processResult(42, AuthenticationStatus::InvalidCredentials).count() == 2000, "concurrent failure count must remain capped after worker completion");
+}
+
 int main()
 {
 	try {
@@ -167,7 +237,11 @@ int main()
 		testLoginserverDecisions();
 		testGameworldDecisions();
 		testPublicErrorMapping();
-		std::cout << "PASS: synthetic loginserver/gameworld auth outcomes and public error mapping." << std::endl;
+		testFailureLimiterProgressionAndExpiry();
+		testFailureLimiterStatusesAndZeroAccount();
+		testFailureLimiterCapacityAndExpiredLru();
+		testFailureLimiterConcurrency();
+		std::cout << "PASS: synthetic auth outcomes, error mapping and bounded account failure limiter." << std::endl;
 		return 0;
 	} catch (const std::exception& error) {
 		std::cerr << "FAIL: " << error.what() << std::endl;
