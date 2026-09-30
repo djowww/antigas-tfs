@@ -7639,8 +7639,19 @@ int LuaScriptInterface::luaPlayerSetAccountType(lua_State* L)
 	// player:setAccountType(accountType)
 	Player* player = getUserdata<Player>(L, 1);
 	if (player) {
-		player->accountType = getNumber<AccountType_t>(L, 2);
-		IOLoginData::setAccountType(player->getAccount(), player->accountType);
+		const AccountType_t accountType = getNumber<AccountType_t>(L, 2);
+		const uint32_t accountId = player->getAccount();
+		if (!IOLoginData::setAccountType(accountId, accountType)) {
+			pushBoolean(L, false);
+			return 1;
+		}
+
+		for (const auto& playerEntry : g_game.getPlayers()) {
+			Player* onlinePlayer = playerEntry.second;
+			if (onlinePlayer->getAccount() == accountId) {
+				onlinePlayer->accountType = accountType;
+			}
+		}
 		pushBoolean(L, true);
 	} else {
 		lua_pushnil(L);

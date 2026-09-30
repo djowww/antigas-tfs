@@ -413,3 +413,19 @@ A salvaguarda mínima para o personagem nomeado seria verificar seu grupo antes 
 O commit posterior ao registro anterior também teve os cinco workflows do PR marcados como falha sem passos ou logs; a API de logs retornou `404 BlobNotFound`. A causa continua indeterminada, então não há build nativo pós-correção verificável e o PR não foi integrado à `main`.
 
 Na cabeça atual `e24a848`, a nova execução repetiu o mesmo padrão: 12 checks do PR foram concluídos como falha em 3–4 segundos, cada um com uma anotação e sem passos; a saída do check e os logs não trazem mensagem. Isso confirma a repetição do estado sem diagnóstico, mas não identifica sua causa. PR #9 continua aberto; não fiz merge nem deploy.
+
+## Atualização — causa do CI do commit `29c4fc7` (30/09/2026)
+
+A inspeção da interface de Actions do GitHub para o run `36751933127` mostrou a anotação de que os jobs não foram iniciados porque pagamentos recentes da conta falharam ou o limite de gastos precisa ser aumentado. Os cinco workflows associados a `29c4fc7` encerraram em 3–4 segundos; nenhum executou build nem teste. Portanto, essa falha não é evidência contra o código. Não alterei plano, cobrança ou limite de gastos.
+
+Na cópia local, o conjunto Python do workflow foi executado no commit atual e passou nos 50 testes. O ambiente não tem CMake, compilador C++ ou LuaJIT; a meta de compilação e CTest C++ pós-correção continua sem evidência. Para retomá-la é necessário que o proprietário da conta resolva a restrição de cobrança/limite e então reexecute Actions, ou disponibilize um ambiente de build local equivalente. PR #9 segue aberto e não mesclado; nenhum servidor foi alterado ou reiniciado.
+
+## Correções adicionais — comandos de jogador e persistência de tutor (30/09/2026)
+
+A revisão com Luna confirmou que o gate existente em `playerSaySpell` negava os 12 comandos `!` a jogadores comuns, embora só `!online`, `!z` e `!x` sejam administrativos e os três já tenham guarda Lua de acesso. A configuração agora declara política nos 12 comandos; as nove ações de jogador são `public`, as três administrativas exigem `access`, e o dispatcher aplica a autorização central para `/` e `!`. O teste de inventário compara o conjunto exato de políticas e preserva as guardas dos scripts.
+
+A revisão também confirmou que falhas SQL em promoção/demissão de tutor eram ignoradas. `IOLoginData::setAccountType` agora rejeita tipos fora do intervalo e retorna o resultado da gravação. O binding Lua só altera as sessões ativas daquela conta depois que o banco confirma a atualização. Os comandos de promoção e rebaixamento só confirmam sucesso quando a operação correspondente retorna sucesso; o caminho offline de rebaixamento também trata falha e libera o resultado da consulta em seus caminhos de erro.
+
+Validação local após essas alterações: 54 testes Python do workflow passaram, incluindo regressões de policy de talkaction e verificações de falha de persistência. Esses novos testes são verificações de fonte/configuração, não exercitam o dispatcher real nem uma falha SQL em servidor ativo. `git diff --check` passou. Não há CMake, compilador C++ nem LuaJIT neste Windows, e os workflows hospedados estão bloqueados pela restrição de cobrança/limite descrita acima; portanto ainda não há build C++, CTest ou parsing Lua da revisão atual. Nenhuma produção/staging foi alterada.
+
+Riscos ainda sem correção: a política hierárquica de `/ban` e `/ipban`, inclusive IP compartilhado, exige decisão explícita sobre staff e collateral; SHA-1 sem salt para senhas precisa de plano de migração compatível e rollback. Alterar tutor agora propaga o novo tipo a todas as sessões online da mesma conta; a persistência continua sem teste dinâmico de falha de banco até haver MariaDB de teste e build executável.

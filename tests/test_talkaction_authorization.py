@@ -23,16 +23,22 @@ EXPECTED_POLICIES = {
     "/mccheck": ("access", "god"), "/ghost": ("access", "gamemaster"),
     "/clean": ("access", "god"), "/storagevalue": ("access", None),
     "/globalboost": ("access", "god"), "/mute": ("account", "tutor"),
+    "!buyhouse": ("public", None), "!leavehouse": ("public", None),
+    "!frags": ("public", None), "!share": ("public", None),
+    "!uptime": ("public", None), "!serverinfo": ("public", None),
+    "!online": ("access", None), "!spells": ("public", None),
+    "!deathlist": ("public", None), "!pz": ("public", None),
+    "!z": ("access", None), "!x": ("access", None),
 }
 
 
 class TalkActionAuthorizationTests(unittest.TestCase):
-    def test_all_active_slash_commands_have_the_reviewed_policy(self):
+    def test_all_active_commands_have_the_reviewed_policy(self):
         root = ET.parse(XML_PATH).getroot()
         actual = {}
         for action in root.findall("talkaction"):
             command = action.get("words", "")
-            if not command.startswith("/"):
+            if not command.startswith(("/", "!")):
                 continue
             self.assertNotIn(command, actual, f"duplicate active command: {command}")
             policy = action.get("permission")
@@ -54,6 +60,12 @@ class TalkActionAuthorizationTests(unittest.TestCase):
                               "only staff may use /pos to teleport; public position lookup remains available")
 
         self.assertEqual(actual, EXPECTED_POLICIES)
+
+    def test_dispatcher_applies_explicit_policies_to_both_command_prefixes(self):
+        source = (ROOT / "src" / "talkaction.cpp").read_text(encoding="utf-8-sig")
+        self.assertIn("talkactionWords.front() == '/' || talkactionWords.front() == '!'", source)
+        self.assertIn("words.front() == '/' || words.front() == '!'", source)
+        self.assertNotIn("Player-facing bang commands are reserved for staff", source)
 
 
 if __name__ == "__main__":

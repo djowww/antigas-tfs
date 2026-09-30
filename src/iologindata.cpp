@@ -129,11 +129,15 @@ AccountType_t IOLoginData::getAccountType(uint32_t accountId)
 	return static_cast<AccountType_t>(result->getNumber<uint16_t>("type"));
 }
 
-void IOLoginData::setAccountType(uint32_t accountId, AccountType_t accountType)
+bool IOLoginData::setAccountType(uint32_t accountId, AccountType_t accountType)
 {
+	if (accountType < ACCOUNT_TYPE_NORMAL || accountType > ACCOUNT_TYPE_GOD) {
+		return false;
+	}
+
 	std::ostringstream query;
 	query << "UPDATE `accounts` SET `type` = " << static_cast<uint16_t>(accountType) << " WHERE `id` = " << accountId;
-	Database::getInstance()->executeQuery(query.str());
+	return Database::getInstance()->executeQuery(query.str());
 }
 
 void IOLoginData::updateOnlineStatus(uint32_t guid, bool login)

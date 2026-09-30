@@ -120,15 +120,10 @@ TalkActionResult_t TalkActions::playerSaySpell(Player* player, SpeakClasses type
 			}
 		}
 
-		if (!talkactionWords.empty() && talkactionWords.front() == '/' && !talkAction->isAuthorized(player)) {
+		const bool requiresAuthorization = !talkactionWords.empty() &&
+			(talkactionWords.front() == '/' || talkactionWords.front() == '!');
+		if (requiresAuthorization && !talkAction->isAuthorized(player)) {
 			player->sendCancelMessage("You are not authorized to use this command.");
-			return TALKACTION_BREAK;
-		}
-
-		// Player-facing bang commands are reserved for staff. Party shared
-		// experience remains available through the client's native party UI.
-		if (!talkactionWords.empty() && talkactionWords.front() == '!' && !player->getGroup()->access) {
-			player->sendCancelMessage("This command is reserved for Gamemasters.");
 			return TALKACTION_BREAK;
 		}
 
@@ -155,10 +150,10 @@ bool TalkAction::configureEvent(const pugi::xml_node& node)
 	}
 
 	words = wordsAttribute.as_string();
-	if (!words.empty() && words.front() == '/') {
+	if (!words.empty() && (words.front() == '/' || words.front() == '!')) {
 		pugi::xml_attribute permissionAttribute = node.attribute("permission");
 		if (!permissionAttribute) {
-			std::cout << "[Error - TalkAction::configureEvent] Missing permission policy for " << words << std::endl;
+			std::cout << "[Error - TalkAction::configureEvent] Missing permission policy for command " << words << std::endl;
 			return false;
 		}
 

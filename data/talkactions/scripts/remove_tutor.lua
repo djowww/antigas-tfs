@@ -10,18 +10,29 @@ function onSay(player, words, param)
 	end
 
 	if result.getDataInt(resultId, "account_type") ~= ACCOUNT_TYPE_TUTOR then
+		result.free(resultId)
 		player:sendCancelMessage("You can only demote a tutor to a normal player.")
 		return false
 	end
 
+	local targetName = result.getDataString(resultId, "name")
+	local accountId = result.getDataInt(resultId, "account_id")
 	local target = Player(param)
 	if target ~= nil then
-		target:setAccountType(ACCOUNT_TYPE_NORMAL)
+		if not target:setAccountType(ACCOUNT_TYPE_NORMAL) then
+			result.free(resultId)
+			player:sendCancelMessage("Could not update the player's account type. Please try again later.")
+			return false
+		end
 	else
-		db.query("UPDATE `accounts` SET `type` = " .. ACCOUNT_TYPE_NORMAL .. " WHERE `id` = " .. result.getDataInt(resultId, "account_id"))
+		if not db.query("UPDATE `accounts` SET `type` = " .. ACCOUNT_TYPE_NORMAL .. " WHERE `id` = " .. accountId) then
+			result.free(resultId)
+			player:sendCancelMessage("Could not update the player's account type. Please try again later.")
+			return false
+		end
 	end
 
-	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have demoted " .. result.getDataString(resultId, "name") .. " to a normal player.")
+	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have demoted " .. targetName .. " to a normal player.")
 	result.free(resultId)
 	return false
 end

@@ -42,23 +42,23 @@
 
 
 	<!-- player talkactions -->
-	<talkaction words="!buyhouse" script="buyhouse.lua"/>
-	<talkaction words="!leavehouse" script="leavehouse.lua"/>
-	<talkaction words="!frags" script="kills.lua"/>
-	<talkaction words="!share" script="experienceshare.lua"/>
-	<talkaction words="!uptime" script="uptime.lua"/>
-	<talkaction words="!serverinfo" script="serverinfo.lua"/>
-	<talkaction words="!online" script="online.lua"/>
-	<talkaction words="!spells" separator=" " script="emote.lua"/>
-	<talkaction words="!deathlist" script="deathlist.lua"/> 
+	<talkaction words="!buyhouse" script="buyhouse.lua" permission="public" />
+	<talkaction words="!leavehouse" script="leavehouse.lua" permission="public" />
+	<talkaction words="!frags" script="kills.lua" permission="public" />
+	<talkaction words="!share" script="experienceshare.lua" permission="public" />
+	<talkaction words="!uptime" script="uptime.lua" permission="public" />
+	<talkaction words="!serverinfo" script="serverinfo.lua" permission="public" />
+	<talkaction words="!online" script="online.lua" permission="access" />
+	<talkaction words="!spells" separator=" " script="emote.lua" permission="public" />
+	<talkaction words="!deathlist" script="deathlist.lua" permission="public" />
 	
-	<talkaction words="!pz" script="pz.lua" />
+	<talkaction words="!pz" script="pz.lua" permission="public" />
 	
 	<!-- <talkaction words="!cast" separator=" " script="cast.lua"/> -->
 
 	<!-- test talkactions -->
-	<talkaction words="!z" separator=" " script="magiceffect.lua"/>
-	<talkaction words="!x" separator=" " script="animationeffect.lua"/>
+	<talkaction words="!z" separator=" " script="magiceffect.lua" permission="access" />
+	<talkaction words="!x" separator=" " script="animationeffect.lua" permission="access" />
 	<!-- Legacy auction has no database schema and unsafe withdrawals. Keep offline. -->
 	<!-- <talkaction words="!offer" separator=" " script="auctionsystem.lua"/> -->
 	<!-- Legacy war command requires absent guild balance/payment columns. -->
