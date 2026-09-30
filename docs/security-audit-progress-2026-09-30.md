@@ -168,6 +168,32 @@ falta de memória; capturar `bad_alloc` apenas no dispatcher não elimina isso.
   recuperação de inventário não estão suficientemente verificados para uma
   mudança segura.
 
+## Retomada — autorização de comandos administrativos (30/09/2026)
+
+- Revisão somente de fonte das talkactions ativas em
+  `data/talkactions/talkactions.xml`: não há bypass concreto confirmado neste
+  escopo. O despacho central em `src/talkaction.cpp:103` restringe comandos
+  `!` a grupos com acesso; as ações `/` dependem das guardas em seus scripts
+  Lua. As entradas administrativas examinadas usam acesso de grupo, flag de
+  broadcast ou tipo de conta conforme a ação.
+- O XML não declara flags `access`/`group`, e
+  `TalkAction::configureEvent` (`src/talkaction.cpp:117-131`) só interpreta
+  `words` e `separator`. Portanto, flags de autorização adicionadas ao XML
+  seriam ignoradas: uma futura ação `/` sem guarda Lua poderia ficar exposta.
+  Isso é uma fragilidade de manutenção, não uma falha explorável demonstrada
+  na configuração versionada atual.
+- Os comandos nativos `/reload` e `/raid` exigem grupo e tipo de conta em
+  `src/commands.cpp:143-171`; seus níveis estão definidos em
+  `data/XML/commands.xml:3-4`. Os nomes aceitos por `/reload` são uma lista
+  fixa (`commands.cpp:203-265`), sem caminho de arquivo controlado pelo jogador.
+  Não foi encontrado harness de negação equivalente nem foram executados
+  testes nesta revisão.
+- Regressão recomendada: executar o despacho real com jogador comum e provar
+  que `/ban`, `/reload talk` e `/raid` não produzem efeitos; confirmar que os
+  níveis autorizados funcionam; e validar em CI que cada ação `/` tenha um
+  campo central reconhecido ou uma guarda script-side auditada. Nenhum código
+  foi alterado.
+
 ## Cobertura do pedido original
 
 Os estados abaixo distinguem evidência já registrada de requisito ainda sem
