@@ -8,6 +8,8 @@ produção estava ativa com PID 4818, NRestarts=0 e binário
 `d74d3f2a4988940d149b1031f40c3052f018e96aa53ca974e965db079d394e13`.
 Os detalhes do ensaio e da publicação estão na
 [entrega v54](security-auth-v54-delivery-2026-09-30.md).
+Durante o ensaio, após parar produção, o runner elevou temporariamente o limite
+de memória do staging para 3 GiB; na recuperação restaurou o limite de 1 GiB.
 
 - Produção observada às 04:47 UTC: ativa, PID 3560, NRestarts=0, binário `fdec99926b45a3e8f1d3866c59c92654de3197c251b2debd612a35c83330eb27`.
 - Staging: inativo, usuário `tfs74-stage`, MemoryMax=1 GiB. Drop-in bloqueia o acesso do serviço aos arquivos de produção, ambiente de produção, chave/public assets externos e site.

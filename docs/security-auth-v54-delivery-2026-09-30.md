@@ -51,6 +51,8 @@ O systemd bloqueia o acesso do serviço aos arquivos e ambiente de produção.
 A VPS de 4 GiB não comporta os dois mapas completos simultaneamente com margem
 suficiente. A produção ficou em manutenção durante o ensaio, sob runner com
 prazo de 570 s e recuperação independente em `ExecStopPost`.
+O runner eleva temporariamente `MemoryMax` do staging de 1 GiB para 3 GiB
+depois de parar produção, e o restaura para 1 GiB na recuperação.
 
 | Ensaio | Resultado observado |
 |---|---|
@@ -84,8 +86,10 @@ candidata assinada em HTTPS de staging e depois contra o manifesto oficial v54:
 7. Rollback integral após falha de instalação injetada.
 
 O harness de lifecycle usa os métodos reais de WinForms sem mostrar janela ou
-iniciar o jogo. Passou com o fechamento bloqueado durante aplicação/rollback e
-falhou com a fonte anterior. Não houve verificação visual da interface. Kill
+iniciar o jogo. Comprovou fechamento pendente bloqueado e liberação após falha
+real de validação por arquivos inexistentes; falhou com a fonte anterior. A
+revisão do guard cobre aplicação/rollback, e a integração acima testa rollback
+separadamente. Não houve verificação visual da interface. Kill
 forçado/perda de energia ainda exigem journal persistente e recuperação ao iniciar.
 
 A comparação v53/v54 confirmou 682 arquivos idênticos. Mudaram somente
@@ -134,6 +138,9 @@ Os JSON sanitizados estão em [validation/security-auth-v54/](validation/securit
 Incluem execução/recuperação de staging, recibo de CI/artefato, publicação,
 download público e comparação/verificação do pacote. São registros históricos,
 não execuções automáticas dos testes atuais, e não contêm senhas ou chaves.
+Os resultados individuais do harness HTTPS, log de startup e leitura de
+05:39:23 foram observados na saída dos comandos pelo operador e registrados
+na narrativa; esses quatro JSON não contêm cópia de todos esses outputs.
 A [observação de host](host-security-observation-2026-09-30.md) registra
 inventário parcial de dependências e pendências de SSH; não equivale a SBOM ou
 scan de CVEs. CodeQL e proteção nativa da main continuam limitados pelo GitHub.
