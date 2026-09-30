@@ -136,6 +136,38 @@ falta de memória; capturar `bad_alloc` apenas no dispatcher não elimina isso.
   geral ou de autenticação foi reexecutado nesta retomada; não houve acesso a
   produção, VPS, banco, configurações ou segredos, nem alteração de auth/schema.
 
+## Retomada — checks hospedados e persistência de trade (30/09/2026)
+
+- A PR4 foi incorporada à `main` em `8c7df0a3777a11ca3f912bbf74897c1d35784597`.
+  Seus checks de [ShellCheck/actionlint](https://github.com/djowww/antigas-tfs/actions/runs/36726026488),
+  [Cppcheck](https://github.com/djowww/antigas-tfs/actions/runs/36726026257),
+  [secrets](https://github.com/djowww/antigas-tfs/actions/runs/36726026620) e
+  [builds/regressões](https://github.com/djowww/antigas-tfs/actions/runs/36726026402)
+  concluíram com sucesso. O [CodeQL](https://github.com/djowww/antigas-tfs/actions/runs/36726026619)
+  terminou com falha nos jobs C++ e C#; o log informa que code scanning não está
+  habilitado para este repositório. Isso continua sendo uma indisponibilidade
+  externa, não um resultado limpo do CodeQL.
+- A revisão de fonte de `Game::playerAcceptTrade` (`src/game.cpp:2533-2633`)
+  confirmou que os dois movimentos terminam em memória e não são gravados ali.
+  Logout remove o personagem em `src/protocolgame.cpp:239-274`; cada remoção
+  chama `Player::onRemoveCreature` (`src/player.cpp:1150-1195`), que tenta salvar
+  aquele personagem até três vezes. `IOLoginData::savePlayer`
+  (`src/iologindata.cpp:641-907`) abre uma transação por personagem. Portanto,
+  uma queda entre os dois saves, ou a falha persistente de um deles, pode deixar
+  apenas um lado do trade no banco: item perdido ou duplicado após recuperação.
+- Classificação atual: lacuna condicional de integridade confirmada por revisão
+  estática; não há reprodução operacional nem evidência de gatilho remoto. O
+  teste de carga de shutdown cobre logout gracioso, não trade combinado com
+  falha de banco. Nenhum código foi alterado nesta revisão.
+- Direção de correção para avaliação: salvar os dois snapshots dentro de uma
+  transação estrita compartilhada no momento do trade e isolar ambos os
+  personagens se qualquer save ou o resultado do commit for incerto. Antes de
+  alterar gameplay, criar teste isolado de dois personagens que valide a troca
+  após restart, falha no segundo save com rollback e commit de resultado
+  ambíguo. Sem esse teste de falha de banco, o custo de I/O adicional e a
+  recuperação de inventário não estão suficientemente verificados para uma
+  mudança segura.
+
 ## Cobertura do pedido original
 
 Os estados abaixo distinguem evidência já registrada de requisito ainda sem
