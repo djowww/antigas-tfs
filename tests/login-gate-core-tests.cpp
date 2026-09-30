@@ -49,7 +49,8 @@ static void onDispatcher(const std::function<void()>& action)
 		try { action(); completion->set_value(); }
 		catch (...) { completion->set_exception(std::current_exception()); }
 	}));
-	require(ready.wait_for(std::chrono::seconds(3)) == std::future_status::ready, "isolated dispatcher must finish the test action");
+	// The process-level CTest timeout handles a hung dispatcher. Do not unwind
+	// while a queued action can still reference local fixture state.
 	ready.get();
 }
 
@@ -167,11 +168,14 @@ struct LoginFixture : ProtocolLogin {
 	using ProtocolLogin::getCharacterList;
 };
 
-struct PlayerFixture : Player {
-	PlayerFixture() : Player(nullptr) {}
-	void setClient(ProtocolGame_ptr protocol) { client = std::move(protocol); }
-	bool connecting() const { return isConnecting; }
-	bool hasClient() const { return client != nullptr; }
+struct LoginGateCoreTestAccess {
+	static void attachProtocol(const Connection_ptr& connection, const Protocol_ptr& protocol) {
+		std::lock_guard<std::recursive_mutex> lock(connection->connectionLock);
+		connection->protocol = protocol;
+	}
+	static void setClient(Player& player, ProtocolGame_ptr protocol) { player.client = std::move(protocol); }
+	static bool connecting(const Player& player) { return player.isConnecting; }
+	static bool hasClient(const Player& player) { return player.client != nullptr; }
 };
 
 int main()
@@ -179,7 +183,7 @@ int main()
 	const auto original = boost::filesystem::current_path();
 	const auto scratch = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("antigas-login-gate-%%%%-%%%%");
 	bool dispatcherStarted = false, schedulerStarted = false;
-	std::shared_ptr<PlayerFixture> reconnectPlayer;
+	std::shared_ptr<Player> reconnectPlayer;
 	ProtocolGame_ptr replacement;
 	bool playerRegistered = false;
 	int result = 0;
@@ -208,46 +212,48 @@ int main()
 		for (unsigned variant : {1u, 2u}) {
 			auto malformedConnection = std::make_shared<Connection>(io, nullptr);
 			auto malformedLogin = std::make_shared<ProtocolLogin>(malformedConnection);
+			LoginGateCoreTestAccess::attachProtocol(malformedConnection, malformedLogin);
 			NetworkMessage malformed = packet(rsa, false, variant);
-			const auto beforeMalformed = dispatcherCycle();
 			malformedLogin->onRecvFirstMessage(malformed);
 			require(malformed.getBufferPosition() == malformed.getLength() + 4 && !malformed.isOverrun(), "malformed credential/trailer fixture must finish in the four-byte undeclared slack");
 			require(malformed.isReadPositionValid(), "fixture must expose the different XTEA length convention");
-			require(dispatcherCycle() == beforeMalformed + 1 && databaseConnections == 0, "raw login slack must not enqueue authentication");
+			onDispatcher([]() {}); // drain any authentication and legitimate release task
+			require(databaseConnections == 0, "raw login slack must not authenticate");
 		}
 
 		auto legacyConnection = std::make_shared<Connection>(io, nullptr);
 		auto legacyLogin = std::make_shared<ProtocolLogin>(legacyConnection);
+		LoginGateCoreTestAccess::attachProtocol(legacyConnection, legacyLogin);
 		NetworkMessage legacy = packet(rsa, false);
-		const auto beforeLegacy = dispatcherCycle();
 		legacyLogin->onRecvFirstMessage(legacy);
 		require(legacy.isReadPositionValid(), "complete legacy credentials must retain a valid cursor");
-		require(dispatcherCycle() == beforeLegacy + 2 && databaseConnections == 1, "complete legacy login must still dispatch authentication against the fake connection seam");
+		onDispatcher([]() {});
+		require(databaseConnections == 1, "complete legacy login must still authenticate against the fake connection seam");
 		io.poll(); // drain writes against unopened sockets; there is no peer
 
 		g_scheduler.start();
 		schedulerStarted = true;
-		reconnectPlayer = std::make_shared<PlayerFixture>();
+		reconnectPlayer = std::make_shared<Player>(nullptr);
 		replacement = std::make_shared<ProtocolGame>(nullptr);
 		onDispatcher([&]() {
 			reconnectPlayer->setName("Synthetic Reconnect");
 			reconnectPlayer->setID();
-			reconnectPlayer->setClient(std::make_shared<ProtocolGame>(nullptr));
+			LoginGateCoreTestAccess::setClient(*reconnectPlayer, std::make_shared<ProtocolGame>(nullptr));
 			g_game.addPlayer(reconnectPlayer.get());
 			playerRegistered = true;
 			replacement->login(reconnectPlayer->getName(), 42, CLIENTOS_OTCLIENT_WINDOWS);
-			require(reconnectPlayer->connecting(), "open login must schedule the normal delayed reconnect");
-			reconnectPlayer->setClient(nullptr);
+			require(LoginGateCoreTestAccess::connecting(*reconnectPlayer), "open login must schedule the normal delayed reconnect");
+			LoginGateCoreTestAccess::setClient(*reconnectPlayer, nullptr);
 			config(true); // maintenance begins after login dispatch, before connect
 		});
 		const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
 		bool connecting = true;
 		while (connecting && std::chrono::steady_clock::now() < deadline) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(25));
-			onDispatcher([&]() { connecting = reconnectPlayer->connecting(); });
+			onDispatcher([&]() { connecting = LoginGateCoreTestAccess::connecting(*reconnectPlayer); });
 		}
 		onDispatcher([&]() {
-			const bool refused = !reconnectPlayer->connecting() && !reconnectPlayer->hasClient();
+			const bool refused = !LoginGateCoreTestAccess::connecting(*reconnectPlayer) && !LoginGateCoreTestAccess::hasClient(*reconnectPlayer);
 			require(refused, "delayed reconnect must recheck maintenance and release its connecting flag");
 		});
 		std::cout << "PASS: core login gates, delayed reconnect and malformed/legacy RSA credentials, with no external connection." << std::endl;

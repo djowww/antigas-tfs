@@ -1255,6 +1255,7 @@ class Player final : public Creature, public Cylinder
 		friend class ProtocolGame;
 		friend class BehaviourDatabase;
 		friend class ConjureSpell;
+		friend struct LoginGateCoreTestAccess;
 };
 
 #endif
