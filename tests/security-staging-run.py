@@ -9,7 +9,7 @@ import signal
 import subprocess
 import threading
 import time
-from staging_safety import require_staging_target
+from staging_safety import pin_staging_rsa_public, require_staging_target
 
 ROOT = Path(__file__).resolve().parents[1]
 STAGE = Path('/opt/imperium772-staging/server')
@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--phase', choices=('full', 'ground'), default='full')
     args = parser.parse_args()
     require_staging_target()
+    pin_staging_rsa_public(os.environ, STAGE / 'staging-rsa-public.json')
     if not os.environ.get('INVOCATION_ID') or value('imperium772', 'ActiveState') != 'active':
         raise SystemExit('Requires systemd watchdog and active production before maintenance')
     if value('imperium772-staging', 'ActiveState') != 'inactive' or value('imperium772-staging', 'User') != 'tfs74-stage':

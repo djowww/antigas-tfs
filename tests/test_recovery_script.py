@@ -22,6 +22,11 @@ def shell_executable():
 
 
 class RecoveryScriptTests(unittest.TestCase):
+    def test_deployed_recovery_script_has_unix_line_endings(self):
+        contents = SCRIPT.read_bytes()
+        self.assertTrue(contents.startswith(b"#!/bin/sh\n"))
+        self.assertNotIn(b"\r", contents)
+
     def run_with_fake_systemctl(self, fail_first=False):
         shell = shell_executable()
         if not shell:
