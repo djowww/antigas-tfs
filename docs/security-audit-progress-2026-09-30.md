@@ -399,3 +399,15 @@ Esta alteração está em revisão na branch `security-central-talkaction-auth-2
 ## Estado do CI — commit `35c3fc8` (30/09/2026)
 
 Após corrigir o include do teste C++, os cinco workflows de PR foram repetidos uma vez. O GitHub reportou falha para todos os jobs em aproximadamente três segundos, sem passos registrados; a consulta dos logs retornou `404 BlobNotFound`. Esses checks não validam nem reprovam a correção C++: a causa de inicialização não ficou disponível. O server core já havia compilado `src/talkaction.cpp` no intento anterior, mas o alvo de teste falhou por falta do include de `otpch.h`; após a correção, ainda falta uma compilação observável do alvo e a execução do CTest. O PR permanece aberto e não foi integrado na `main`.
+
+## Revisão adicional — alvo staff em `/ban` e `/ipban` (30/09/2026)
+
+Classificação: risco interno condicional, não exploração por jogador comum. Os dois comandos exigem `group.access` do emissor. `groups.xml` dá esse acesso a `gamemaster` e `god`. `/kick` também exige acesso, mas recusa explicitamente alvos com acesso; `/ban` e `/ipban` não repetem essa salvaguarda.
+
+`/ban` resolve só `account_id` pelo nome, grava o ban da conta e remove o alvo online sem validar o grupo. O código do protocolo ignora ban de conta para personagem com `CannotBeBanned`; assim, contra esse personagem o efeito pode ser a expulsão, e personagens não imunes da mesma conta ainda podem ser afetados. `/ipban` resolve `lastip`, substitui pelo IP atual se online e remove o alvo antes de verificar IP zero ou ban existente; o IP ban é aplicado no login sem a mesma exceção, podendo bloquear outros usuários que compartilhem o endereço. Evidências: `data/talkactions/scripts/ban.lua`, `ipban.lua`, `kick.lua`; `data/XML/groups.xml`; `src/const.h`; `src/protocolgame.cpp`; `src/protocollogin.cpp`.
+
+A salvaguarda mínima para o personagem nomeado seria verificar seu grupo antes de qualquer gravação/remoção e obter `group_id` também no caminho offline, recusando erro de consulta. Isso não resolve com segurança a abrangência de `/ipban` em endereços compartilhados: a política precisa dizer se staff e terceiros no mesmo IP tornam a operação proibida. Não alterei esses scripts nem consultei banco/produção; a mudança depende de fixtures de offline/online e de IP compartilhado em um ambiente de teste.
+
+## CI — commit `b7be0df`
+
+O commit posterior ao registro anterior também teve os cinco workflows do PR marcados como falha sem passos ou logs; a API de logs retornou `404 BlobNotFound`. A causa continua indeterminada, então não há build nativo pós-correção verificável e o PR não foi integrado à `main`.
