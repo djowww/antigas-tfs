@@ -60,11 +60,12 @@ void ProtocolLogin::getCharacterList(uint32_t accountNumber, const std::string& 
 		return;
 	}
 
-	Account account;
-	if (!IOLoginData::loginserverAuthentication(accountNumber, password, account)) {
-		disconnectClient("Account number or password is not correct.");
+	AuthenticationResult authentication = IOLoginData::loginserverAuthentication(accountNumber, password);
+	if (authentication.status != AuthenticationStatus::Success) {
+		disconnectClient(authenticationFailureMessage(authentication.status));
 		return;
 	}
+	Account& account = authentication.account;
 
 	auto output = OutputMessagePool::getOutputMessage();
 

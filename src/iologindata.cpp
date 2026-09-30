@@ -23,6 +23,61 @@
 #include "configmanager.h"
 #include "game.h"
 
+namespace {
+class DatabaseAuthenticationDataSource : public AuthenticationDataSource
+{
+	public:
+		AuthQueryStatus getAccount(uint32_t accountNumber, AuthAccountRow& row) override
+		{
+			std::ostringstream query;
+			query << "SELECT `id`, `password`, `type`, `premdays`, `lastday` FROM `accounts` WHERE `id` = " << accountNumber;
+			bool success = false;
+			DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success);
+			if (!success) return AuthQueryStatus::Error;
+			if (!result) return AuthQueryStatus::Empty;
+			row.id = result->getNumber<uint32_t>("id");
+			row.password = result->getString("password");
+			row.type = result->getNumber<int32_t>("type");
+			row.premiumDays = result->getNumber<uint16_t>("premdays");
+			row.lastDay = result->getNumber<time_t>("lastday");
+			return AuthQueryStatus::Found;
+		}
+
+		AuthQueryStatus getCharacters(uint32_t accountId, std::vector<AuthCharacterRow>& rows) override
+		{
+			std::ostringstream query;
+			query << "SELECT `name`, `deletion` FROM `players` WHERE `account_id` = " << accountId;
+			bool success = false;
+			DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success);
+			if (!success) return AuthQueryStatus::Error;
+			if (!result) return AuthQueryStatus::Empty;
+			do {
+				AuthCharacterRow row;
+				row.accountId = accountId;
+				row.name = result->getString("name");
+				row.deletion = result->getNumber<uint64_t>("deletion");
+				rows.push_back(row);
+			} while (result->next());
+			return AuthQueryStatus::Found;
+		}
+
+		AuthQueryStatus getCharacter(const std::string& name, AuthCharacterRow& row) override
+		{
+			Database* db = Database::getInstance();
+			std::ostringstream query;
+			query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << db->escapeString(name);
+			bool success = false;
+			DBResult_ptr result = db->storeQuery(query.str(), &success);
+			if (!success) return AuthQueryStatus::Error;
+			if (!result) return AuthQueryStatus::Empty;
+			row.accountId = result->getNumber<uint32_t>("account_id");
+			row.name = result->getString("name");
+			row.deletion = result->getNumber<uint64_t>("deletion");
+			return AuthQueryStatus::Found;
+		}
+};
+}
+
 extern ConfigManager g_config;
 extern Game g_game;
 
@@ -51,69 +106,16 @@ bool IOLoginData::saveAccount(const Account& acc)
 	return Database::getInstance()->executeQuery(query.str());
 }
 
-bool IOLoginData::loginserverAuthentication(uint32_t accountNumber, const std::string& password, Account& account)
+AuthenticationResult IOLoginData::loginserverAuthentication(uint32_t accountNumber, const std::string& password)
 {
-	Database* db = Database::getInstance();
-
-	std::ostringstream query;
-	query << "SELECT `id`, `password`, `type`, `premdays`, `lastday` FROM `accounts` WHERE `id` = " << accountNumber;
-	DBResult_ptr result = db->storeQuery(query.str());
-	if (!result) {
-		return false;
-	}
-
-	if (transformToSHA1(password) != result->getString("password")) {
-		return false;
-	}
-
-	account.id = result->getNumber<uint32_t>("id");
-	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
-	account.premiumDays = result->getNumber<uint16_t>("premdays");
-	account.lastDay = result->getNumber<time_t>("lastday");
-
-	query.str(std::string());
-	query << "SELECT `name`, `deletion` FROM `players` WHERE `account_id` = " << account.id;
-	result = db->storeQuery(query.str());
-	if (result) {
-		do {
-			if (result->getNumber<uint64_t>("deletion") == 0) {
-				account.characters.push_back(result->getString("name"));
-			}
-		} while (result->next());
-		std::sort(account.characters.begin(), account.characters.end());
-	}
-	return true;
+	DatabaseAuthenticationDataSource data;
+	return authenticateLoginServer(data, accountNumber, password);
 }
 
-uint32_t IOLoginData::gameworldAuthentication(uint32_t accountNumber, const std::string& password, std::string& characterName)
+AuthenticationResult IOLoginData::gameworldAuthentication(uint32_t accountNumber, const std::string& password, const std::string& characterName)
 {
-	Database* db = Database::getInstance();
-
-	std::ostringstream query;
-	query << "SELECT `id`, `password` FROM `accounts` WHERE `id` = " << accountNumber;
-	DBResult_ptr result = db->storeQuery(query.str());
-	if (!result) {
-		return 0;
-	}
-
-	if (transformToSHA1(password) != result->getString("password")) {
-		return 0;
-	}
-
-	uint32_t accountId = result->getNumber<uint32_t>("id");
-
-	query.str(std::string());
-	query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << db->escapeString(characterName);
-	result = db->storeQuery(query.str());
-	if (!result) {
-		return 0;
-	}
-
-	if (result->getNumber<uint32_t>("account_id") != accountId || result->getNumber<uint64_t>("deletion") != 0) {
-		return 0;
-	}
-	characterName = result->getString("name");
-	return accountId;
+	DatabaseAuthenticationDataSource data;
+	return authenticateGameWorld(data, accountNumber, password, characterName);
 }
 
 AccountType_t IOLoginData::getAccountType(uint32_t accountId)

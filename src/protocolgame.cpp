@@ -351,22 +351,24 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
-	uint32_t accountId = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
-	if (accountId == 0) {
-		disconnectClient("Account number or password is not correct.");
-		return;
-	}	
-
-	Account account;
-	if (!IOLoginData::loginserverAuthentication(accountNumber, password, account)) {
-		disconnectClient("Account number or password is not correct.");
+	AuthenticationResult gameAuthentication = IOLoginData::gameworldAuthentication(accountNumber, password, characterName);
+	if (gameAuthentication.status != AuthenticationStatus::Success) {
+		disconnectClient(authenticationFailureMessage(gameAuthentication.status));
 		return;
 	}
+	characterName = gameAuthentication.characterName;
+
+	AuthenticationResult loginAuthentication = IOLoginData::loginserverAuthentication(accountNumber, password);
+	if (loginAuthentication.status != AuthenticationStatus::Success) {
+		disconnectClient(authenticationFailureMessage(loginAuthentication.status));
+		return;
+	}
+	Account& account = loginAuthentication.account;
 	
 	//Update premium days
 	Game::updatePremium(account);
 
-	g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::login, getThis(), characterName, accountId, operatingSystem)));
+	g_dispatcher.addTask(createTask(std::bind(&ProtocolGame::login, getThis(), characterName, gameAuthentication.accountId, operatingSystem)));
 }
 
 void ProtocolGame::sendUpdateRequest()
