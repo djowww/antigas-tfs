@@ -54,15 +54,27 @@ function onSay(player, words, param)
         return false
     end
 
-    -- Account bans affect every character on the account, so inspect every
-    -- character's group instead of trusting only the name supplied by staff.
-    local accountResultId, accountQuerySucceeded = db.storeQueryChecked("SELECT `group_id` FROM `players` WHERE `account_id` = " .. accountId)
+    -- Account bans affect every character on the account, so inspect the
+    -- persisted account type and every character group before writing the ban.
+    local accountResultId, accountQuerySucceeded = db.storeQueryChecked("SELECT `players`.`group_id`, `accounts`.`type` AS `account_type` FROM `players` INNER JOIN `accounts` ON `accounts`.`id` = `players`.`account_id` WHERE `players`.`account_id` = " .. accountId)
     if not accountQuerySucceeded then
         player:sendCancelMessage("Could not verify all characters on the target account.")
         return false
     end
     if accountResultId == false then
         player:sendCancelMessage("Could not verify all characters on the target account.")
+        return false
+    end
+
+    local accountType = result.getDataInt(accountResultId, "account_type")
+    if accountType < ACCOUNT_TYPE_NORMAL or accountType > ACCOUNT_TYPE_GOD then
+        result.free(accountResultId)
+        player:sendCancelMessage("Could not verify the target account type.")
+        return false
+    end
+    if accountType >= ACCOUNT_TYPE_TUTOR then
+        result.free(accountResultId)
+        player:sendCancelMessage("You cannot ban a staff account.")
         return false
     end
 

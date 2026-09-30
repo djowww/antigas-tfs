@@ -5,7 +5,7 @@ function onSay(player, words, param)
 		return true
 	end
 
-	local resultId, querySucceeded = db.storeQueryChecked("SELECT `lastip`, `group_id` FROM `players` WHERE `name` = " .. db.escapeString(param))
+	local resultId, querySucceeded = db.storeQueryChecked("SELECT `players`.`lastip`, `players`.`group_id`, `accounts`.`type` AS `account_type` FROM `players` INNER JOIN `accounts` ON `accounts`.`id` = `players`.`account_id` WHERE `players`.`name` = " .. db.escapeString(param))
 	if not querySucceeded then
 		player:sendCancelMessage("Could not query the player database. Please try again later.")
 		return false
@@ -17,6 +17,7 @@ function onSay(player, words, param)
 
 	local targetIp = result.getDataLong(resultId, "lastip")
 	local targetGroupId = result.getDataInt(resultId, "group_id")
+	local targetAccountType = result.getDataInt(resultId, "account_type")
 	result.free(resultId)
 
 	local targetPlayer = Player(param)
@@ -35,6 +36,16 @@ function onSay(player, words, param)
 
 	if targetGroup:getAccess() then
 		player:sendCancelMessage("You cannot ban a player with staff access.")
+		return false
+	end
+
+	if targetAccountType < ACCOUNT_TYPE_NORMAL or targetAccountType > ACCOUNT_TYPE_GOD then
+		player:sendCancelMessage("Could not verify the target account type.")
+		return false
+	end
+
+	if targetAccountType >= ACCOUNT_TYPE_TUTOR then
+		player:sendCancelMessage("You cannot IP ban a staff account.")
 		return false
 	end
 
