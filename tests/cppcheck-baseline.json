@@ -1,0 +1,912 @@
+{
+  "schema": 1,
+  "cppcheck_version": "2.13.0",
+  "source_run": "https://github.com/djowww/antigas-tfs/actions/runs/36655268858",
+  "scope": "Linux compilation database; unresolved legacy diagnostics remain visible, not declared safe. Four Events initialization diagnostics excluded because corrected.",
+  "findings": [
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Condition::endTime' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/condition.h",
+          "code": "Condition() = default;"
+        }
+      ],
+      "fingerprint": "a993b0357c436169478f1f9a933bc185e126624a1a0de8020b682521e9863946",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/condition.h": "f2ac6e7397275270418fa60586ffeb3f8f2b3ff05393af5a3bfa766ff143ea56"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Condition::subId' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/condition.h",
+          "code": "Condition() = default;"
+        }
+      ],
+      "fingerprint": "6bd4e6775616b213406d633284fe122636e2916a5f8eec6b3e01eda6a413e3fc",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/condition.h": "f2ac6e7397275270418fa60586ffeb3f8f2b3ff05393af5a3bfa766ff143ea56"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Condition::ticks' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/condition.h",
+          "code": "Condition() = default;"
+        }
+      ],
+      "fingerprint": "dbaa98d2561696f6fbc03a472c089fa45a635dd8e80752fc02b6663c74b6431b",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/condition.h": "f2ac6e7397275270418fa60586ffeb3f8f2b3ff05393af5a3bfa766ff143ea56"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Condition::conditionType' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/condition.h",
+          "code": "Condition() = default;"
+        }
+      ],
+      "fingerprint": "fcba73754f1c5f15b8602a9f1d76a67c848caedb3c98283411293d057f79e74e",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/condition.h": "f2ac6e7397275270418fa60586ffeb3f8f2b3ff05393af5a3bfa766ff143ea56"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Condition::id' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/condition.h",
+          "code": "Condition() = default;"
+        }
+      ],
+      "fingerprint": "d87f172fa60b2f585390f4668aae538ace43123a8bebe0e95d2373fd31edc996",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/condition.h": "f2ac6e7397275270418fa60586ffeb3f8f2b3ff05393af5a3bfa766ff143ea56"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Outfit::enabled' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/outfit.h",
+          "code": "Outfit(std::string name, uint16_t lookType, bool premium, bool unlocked) :"
+        }
+      ],
+      "fingerprint": "3e1293ab6108ca1b63c485cf34b26ce0182329651906138968152e40d81a87f2",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/outfit.h": "91ed1d84021eefef9f62b5c33893f908283713ab5e29162b2d4cb1e5d73c472f"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'NetworkMessage::buffer' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/networkmessage.h",
+          "code": "NetworkMessage() = default;"
+        }
+      ],
+      "fingerprint": "20aca0e4c6e3c6aff9cfc475460c78ac6c94bdcbc33ba9315a82d2226a2eab7d",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/networkmessage.h": "b90fe20f780dd9e7c87f420e8f1fae9a3b8333a21bcce1fd5b4f1ba306ccc875"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ChatChannel::id' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/chat.h",
+          "code": "ChatChannel() = default;"
+        }
+      ],
+      "fingerprint": "1a08a4efad00dc221235e3587628a0d4ead5fb9144c583540d25804f5c6477a3",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/chat.h": "fdaf49728208ce911894dfb032d6c8e642e59b463d551a664f4cf29e289ac3dc"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'TextMessage::type' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/protocolgame.h",
+          "code": "TextMessage() = default;"
+        }
+      ],
+      "fingerprint": "0dbfe46bc4c0a62e6b3b08aa07651315ab81c45ddc5aca33054626881b6f1810",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/protocolgame.h": "3fe528231e20d11cdfad02907afcd07b100afd4189a87faa8b00247d52f46e96"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'MonsterType::info' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/monsters.h",
+          "code": "MonsterType() = default;"
+        }
+      ],
+      "fingerprint": "123322070a5e452d7bf4e2dc4386d8fff29d65788dd20c2a9a808ca6ee815c11",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/monsters.h": "81311283bcc5b4f2a4472f95dbfa6935dd40f441c2e8a3dfa57cf68baf34f962"
+      }
+    },
+    {
+      "id": "uninitDerivedMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'RaidEvent::delay' is not initialized in the constructor. Maybe it should be initialized directly in the class RaidEvent?",
+      "locations": [
+        {
+          "file": "src/raids.h",
+          "code": "AnnounceEvent() = default;"
+        }
+      ],
+      "fingerprint": "028a569bdb7787b63bdd52ef3c3dade1ff8bfbd86d962ede3508435af8f74c1d",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/raids.h": "5b587a3d672145d9721d2fb4d7c954ef36d472a010d0af9885cda2374245a3bc"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'RuleViolation::reporterId' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/game.h",
+          "code": "RuleViolation() = default;"
+        }
+      ],
+      "fingerprint": "59b68e83ff7ac74aaf3c112635232f069b1a041f8985b6639a3f43693d34d22f",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/game.h": "1ad625f7ba93d30813d9837e6e32bb98f22771186e314c1c2bc712ea178bfd71"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'RuleViolation::gamemasterId' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/game.h",
+          "code": "RuleViolation() = default;"
+        }
+      ],
+      "fingerprint": "fbd96ae02da92273aab61a2ac3580eb01c9f1f2f54b686ba899f93399b42e8aa",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/game.h": "1ad625f7ba93d30813d9837e6e32bb98f22771186e314c1c2bc712ea178bfd71"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'RuleViolation::pending' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/game.h",
+          "code": "RuleViolation() = default;"
+        }
+      ],
+      "fingerprint": "fb34cbb4aa19654976f33a1661bfe3becbdb584b0d1e400973b8742e0b94d21f",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/game.h": "1ad625f7ba93d30813d9837e6e32bb98f22771186e314c1c2bc712ea178bfd71"
+      }
+    },
+    {
+      "id": "useInitializationList",
+      "severity": "performance",
+      "message": "Variable 'timeConnected' is assigned in constructor body. Consider performing initialization in initialization list.",
+      "locations": [
+        {
+          "file": "src/connection.h",
+          "code": "timeConnected = time(nullptr);"
+        }
+      ],
+      "fingerprint": "5c264f0bba16385567ba6b1d3b5edc0c21ef566d2997ef4efcab9124ac173970",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/connection.h": "dd87c1e5d7ed373897bb15b844749ccb58fa1336b7d94ba9dd8555ad56b2c716"
+      }
+    },
+    {
+      "id": "duplInheritedMember",
+      "severity": "warning",
+      "message": "The class 'MagicField' defines member function with name 'getCombatType' also defined in its parent class 'Item'.",
+      "locations": [
+        {
+          "file": "src/combat.h",
+          "code": "CombatType_t getCombatType() const {"
+        },
+        {
+          "file": "src/item.h",
+          "code": "CombatType_t getCombatType() const {"
+        }
+      ],
+      "fingerprint": "806bf4cfe97b2c569c075a77417ae06c88eca70d4c9d1515c2b7d6c177e58c07",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/combat.h": "065cd1014f7132c658a10cda834b6279a38e84f7ab25cc1ff5601a4fa2870321",
+        "src/item.h": "806887360f07230aced9de7b5ea547406c90cdc79dead38dab81232e0fa47f47"
+      }
+    },
+    {
+      "id": "duplInheritedMember",
+      "severity": "warning",
+      "message": "The class 'DepotLocker' defines member function with name 'canRemove' also defined in its parent class 'Item'.",
+      "locations": [
+        {
+          "file": "src/depotlocker.h",
+          "code": "bool canRemove() const final {"
+        },
+        {
+          "file": "src/item.h",
+          "code": "virtual bool canRemove() const {"
+        }
+      ],
+      "fingerprint": "ffcbbdb8f73234dda53667e6a4a5440908dad530b3b42aa30fd35a717bd005e1",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/depotlocker.h": "78999f45043a4c4c1627dceca894612949af17ba186f46656b62f82d127d1680",
+        "src/item.h": "806887360f07230aced9de7b5ea547406c90cdc79dead38dab81232e0fa47f47"
+      }
+    },
+    {
+      "id": "duplInheritedMember",
+      "severity": "warning",
+      "message": "The class 'LuaEnvironment' defines member function with name 'reInitState' also defined in its parent class 'LuaScriptInterface'.",
+      "locations": [
+        {
+          "file": "src/luascript.h",
+          "code": "bool reInitState();"
+        },
+        {
+          "file": "src/luascript.h",
+          "code": "bool reInitState();"
+        }
+      ],
+      "fingerprint": "df23aeb4137dbb78cedaa1023d7278b149e93acd33c92a8bd69af6e2fec63ed3",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/luascript.h": "8bcc00a2a8af51a521c1ca900de91c69391c74d3629a9e81276589b5aa42cd20"
+      }
+    },
+    {
+      "id": "passedByValue",
+      "severity": "performance",
+      "message": "Function parameter 'houseName' should be passed by const reference.",
+      "locations": [
+        {
+          "file": "src/house.h",
+          "code": "void setName(std::string houseName) {"
+        }
+      ],
+      "fingerprint": "b10003367200e6b23f1c7eafee37b035132e9cce3519e8ce9e1fa26a0c922939",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/house.h": "86062aae9d5d275c5992b7b2ee867bc4c0fb4102250464d84b979079f41fd114"
+      }
+    },
+    {
+      "id": "passedByValue",
+      "severity": "performance",
+      "message": "Function parameter 'channelName' should be passed by const reference.",
+      "locations": [
+        {
+          "file": "src/chat.h",
+          "code": "PrivateChatChannel(uint16_t channelId, std::string channelName) : ChatChannel(channelId, channelName) {}"
+        }
+      ],
+      "fingerprint": "469daa0820f26eb5b74f5d631bbe8d049e39da2fb7a1f58c2e6248ed862437ec",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/chat.h": "fdaf49728208ce911894dfb032d6c8e642e59b463d551a664f4cf29e289ac3dc"
+      }
+    },
+    {
+      "id": "passedByValue",
+      "severity": "performance",
+      "message": "Function parameter 'nick' should be passed by const reference.",
+      "locations": [
+        {
+          "file": "src/player.h",
+          "code": "void setGuildNick(std::string nick) {"
+        }
+      ],
+      "fingerprint": "779bc7ec7db94644f7fc72b246292ab5f9e52daeab2c8b31cfd412833b749915",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/player.h": "bd010969867ff92ccd2193e75e01d81c6b292f49d8c8d0324f14928ee3b82ecd"
+      }
+    },
+    {
+      "id": "duplInheritedMember",
+      "severity": "warning",
+      "message": "The class 'DatabaseTasks' defines member function with name 'start' also defined in its parent class 'ThreadHolder < DatabaseTasks >'.",
+      "locations": [
+        {
+          "file": "src/databasetasks.h",
+          "code": "void start();"
+        },
+        {
+          "file": "src/thread_holder_base.h",
+          "code": "void start() {"
+        }
+      ],
+      "fingerprint": "c2d94435d3d10cc47f714f18d34fe160f0dca6a24705b32fc94b03246b79ad9b",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/databasetasks.h": "c794067202b40ba9f31f8ed7627ad8c09efba17f915e386a937b26c5ce8128bd",
+        "src/thread_holder_base.h": "4830cb4660afc729c3b6f2bc0fe16a260183fcb2e576f1c0c5dbfb2e171b4ab1"
+      }
+    },
+    {
+      "id": "stlcstrParam",
+      "severity": "performance",
+      "message": "Passing the result of c_str() to a function that takes std::string as argument no. 1 is slow and redundant.",
+      "locations": [
+        {
+          "file": "src/baseevents.cpp",
+          "code": "int32_t id = scriptInterface->getEvent(name.c_str());"
+        }
+      ],
+      "fingerprint": "b5d0fcaa9b67c4be3e44a7656ee27f422ef5d4777446a1394e41a1d9e24a7cb0",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/baseevents.cpp": "247609da1458174f7b8832c559bf05c96cb3632353d6b8649034f979e035e599"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::File' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "f9a833403c501ae02639f9437be87b3816deadc2f4bd002cd73189093101e8a0",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::Filename' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "289bce3acd369b434216648815c236b3d75c4481d1d88ffe9fc8eaef06cb5839",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::Bytes' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "c09961ab037d0d5dd31e989b253031c995b1d23716cdfa2f31fc696fa99b3326",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::Line' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "82186dea93640e12c0a924c5107ee8708a1c46527c81b8ac135f95e02242fd1e",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::Number' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "ba082e724741e74fdae001b74af54d6e7663e1a3ed66d0ce0293dc47f4a9c4f0",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::CoordX' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "c85576344f85a28c966bc8bff17c8b09b6eab36789775e274035ab55d6b4bc9b",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::CoordY' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "29b080af72ad80ba6f5217bf92fa693892b8cf8a457ba95b35335b955a313b04",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::CoordZ' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "c5ac0b310d890ffd541096109e282453a6351a2fbc6e56c806a5b4510bec5a85",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'ScriptReader::Special' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/script.h",
+          "code": "ScriptReader()"
+        }
+      ],
+      "fingerprint": "693d4e0e70fde6fca87ad09d4bb203b9377891b325c58dc7f3bb95dd9fe1c328",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/script.h": "55d7688035db0e08d610985022b3861327b26bcf48b1f4e84cc0bf3f1a6c7042"
+      }
+    },
+    {
+      "id": "iterateByValue",
+      "severity": "performance",
+      "message": "Range variable 'entry' should be declared as const reference.",
+      "locations": [
+        {
+          "file": "src/behaviourdatabase.cpp",
+          "code": "for (NpcQueueEntry entry : queueList) {"
+        }
+      ],
+      "fingerprint": "cfdea28faa973ee392502701fafaa733f70dd7ac8234e505137c1a2670c8d1cb",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/behaviourdatabase.cpp": "58e5f2f00598a976afa3b817ff002ccc6c9e1d015d730016b8da441140ad3016"
+      }
+    },
+    {
+      "id": "identicalConditionAfterEarlyExit",
+      "severity": "warning",
+      "message": "Identical condition 'tile->hasProperty(CONST_PROP_BLOCKPROJECTILE)', second condition is always false",
+      "locations": [
+        {
+          "file": "src/combat.cpp",
+          "code": "if (tile->hasProperty(CONST_PROP_BLOCKPROJECTILE) && tile->hasProperty(CONST_PROP_IMMOVABLEBLOCKSOLID)) {"
+        },
+        {
+          "file": "src/combat.cpp",
+          "code": "if (tile->hasProperty(CONST_PROP_BLOCKPROJECTILE)) {"
+        }
+      ],
+      "fingerprint": "68cc9475a7d071cd53d3a5823578849737a45fd06cd4650a873026d7443a9457",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/combat.cpp": "c2b82b07cb2ce42afc7a6a2ce899c6329556a13d862f1f83df16cbec02957309"
+      }
+    },
+    {
+      "id": "localtimeCalled",
+      "severity": "portability",
+      "message": "Non reentrant function 'localtime' called. For threadsafe applications it is recommended to use the reentrant replacement function 'localtime_r'.",
+      "locations": [
+        {
+          "file": "src/timeutils.h",
+          "code": "const std::tm* sharedResult = std::localtime(&timestamp);"
+        }
+      ],
+      "fingerprint": "88436114ec3474abbd14019932e5868c3d6db8265721ec37eaa9a207107979e6",
+      "disposition": "FALSE_POSITIVE",
+      "reason": "The single std::localtime call is protected by the shared localTimeMutex and copies the result before unlocking. The concurrency regression exercises this helper.",
+      "source_checksums": {
+        "src/timeutils.h": "c6a3efa43f5cf4c60fc9164d328756f1b92138a40533332437cce265c511564b"
+      }
+    },
+    {
+      "id": "missingReturn",
+      "severity": "error",
+      "message": "Found an exit path from function with non-void return type that has missing return statement",
+      "locations": [
+        {
+          "file": "src/container.cpp",
+          "code": "}"
+        }
+      ],
+      "fingerprint": "98668d7f2d516f6c024bb44f2d21daa05174a5b8d1cf06db202e658c2f516876",
+      "disposition": "FALSE_POSITIVE",
+      "reason": "Container::queryRemove returns RETURNVALUE_NOERROR unconditionally before the final HouseTile block. No reachable fallthrough exists. The dead permission block is a separate gameplay review, not a missing return.",
+      "source_checksums": {
+        "src/container.cpp": "3f7239b530a02fbce9483a97fae3e9924267e317b0b2f8455c0fe2ea58185382"
+      }
+    },
+    {
+      "id": "passedByValue",
+      "severity": "performance",
+      "message": "Function parameter 'error' should be passed by const reference.",
+      "locations": [
+        {
+          "file": "src/iomap.h",
+          "code": "void setLastErrorString(std::string error) {"
+        }
+      ],
+      "fingerprint": "4e6c808eea7b623b80b1a302154d19527b56214339c39248125e43e2338145b1",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/iomap.h": "dbbbc3c0ec010f021ab5bfdbfa8dc33cbe36a8861d0b168671af2402b001d38e"
+      }
+    },
+    {
+      "id": "virtualCallInConstructor",
+      "severity": "style",
+      "message": "Virtual function 'onIdleStatus' is called from constructor 'Creature()' at line 34. Dynamic binding is not used.",
+      "locations": [
+        {
+          "file": "src/creature.h",
+          "code": "virtual void onIdleStatus();"
+        },
+        {
+          "file": "src/creature.cpp",
+          "code": "onIdleStatus();"
+        }
+      ],
+      "fingerprint": "fd4b27806578699d6d76f377f8a2711bbb7f90628e8358d85fed17e4d98707e6",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/creature.h": "d306e50bf3127aaaff02ece5ab4c28298ba19f4e75a836e1ee17102a1793e0c3",
+        "src/creature.cpp": "43c9dddbdd424f91173e0dad86121b7b6659662a59846ba2a54bc83501f1774e"
+      }
+    },
+    {
+      "id": "duplInheritedMember",
+      "severity": "warning",
+      "message": "The class 'DatabaseTasks' defines member function with name 'start' also defined in its parent class 'ThreadHolder < DatabaseTasks >'.",
+      "locations": [
+        {
+          "file": "src/databasetasks.cpp",
+          "code": "void DatabaseTasks::start()"
+        },
+        {
+          "file": "src/thread_holder_base.h",
+          "code": "void start() {"
+        }
+      ],
+      "fingerprint": "9cd0e9f39d543813998557d25734cd0225d2253d81d273071165b104287417bf",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/databasetasks.cpp": "396980d4e0548ff8bdc6c7fa216af543afa5854cd95ec159d0f14fd2bb4268c6",
+        "src/thread_holder_base.h": "4830cb4660afc729c3b6f2bc0fe16a260183fcb2e576f1c0c5dbfb2e171b4ab1"
+      }
+    },
+    {
+      "id": "passedByValue",
+      "severity": "performance",
+      "message": "Function parameter 'itemList' should be passed by const reference.",
+      "locations": [
+        {
+          "file": "src/game.cpp",
+          "code": "void Game::internalRemoveItems(std::vector<Item*> itemList, uint32_t amount, bool stackable)"
+        }
+      ],
+      "fingerprint": "384bddf29a8170a72cfe60f688eb0927ae9c8370efd64399c4eaf7e30f97032d",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/game.cpp": "4023bb277963bf239a5a6a7d932cb3e731ab059fc8d3490c5875358dca1b7811"
+      }
+    },
+    {
+      "id": "virtualCallInConstructor",
+      "severity": "style",
+      "message": "Virtual function 'closeState' is called from destructor '~LuaScriptInterface()' at line 253. Dynamic binding is not used.",
+      "locations": [
+        {
+          "file": "src/luascript.h",
+          "code": "virtual bool closeState();"
+        },
+        {
+          "file": "src/luascript.cpp",
+          "code": "closeState();"
+        }
+      ],
+      "fingerprint": "919044b1009e805713e2da0b9962055784a7a373efb49309afb2100d274c50e7",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/luascript.h": "8bcc00a2a8af51a521c1ca900de91c69391c74d3629a9e81276589b5aa42cd20",
+        "src/luascript.cpp": "6cd167e7a92b42c451e06fd9e492e76d4512008294d519f078a9da3598753c2e"
+      }
+    },
+    {
+      "id": "duplInheritedMember",
+      "severity": "warning",
+      "message": "The class 'LuaEnvironment' defines member function with name 'reInitState' also defined in its parent class 'LuaScriptInterface'.",
+      "locations": [
+        {
+          "file": "src/luascript.cpp",
+          "code": "bool LuaEnvironment::reInitState()"
+        },
+        {
+          "file": "src/luascript.cpp",
+          "code": "bool LuaScriptInterface::reInitState()"
+        }
+      ],
+      "fingerprint": "e8aaf5a9a81c1ceadbe062591df33789fdc39733dd484994102db1dd569ba7da",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/luascript.cpp": "6cd167e7a92b42c451e06fd9e492e76d4512008294d519f078a9da3598753c2e"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Npc::lastTalkCreature' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/npc.cpp",
+          "code": "Npc::Npc(const std::string& name) :"
+        }
+      ],
+      "fingerprint": "b82b23f596a07cdcdc9bc307d659c702108b28039efd626f556394d269b79392",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Npc::conversationStartTime' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/npc.cpp",
+          "code": "Npc::Npc(const std::string& name) :"
+        }
+      ],
+      "fingerprint": "ca4dbf8f8d18b787e293a43313b3e992bbcb363f2a042d86a3705abe96aaad06",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
+      }
+    },
+    {
+      "id": "uninitMemberVar",
+      "severity": "warning",
+      "message": "Member variable 'Npc::isIdle' is not initialized in the constructor.",
+      "locations": [
+        {
+          "file": "src/npc.cpp",
+          "code": "Npc::Npc(const std::string& name) :"
+        }
+      ],
+      "fingerprint": "7ccf3695678c5378f544a6719b999e133295642265e754576bec7dc11d792019",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing diagnostic retained visibly for lifecycle/call-site review; no confirmed exploit or automatic suppression.",
+      "source_checksums": {
+        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
+      }
+    },
+    {
+      "id": "uselessCallsSubstr",
+      "severity": "performance",
+      "message": "Ineffective call of function 'substr' because a prefix of the string is assigned to itself. Use resize() or pop_back() instead.",
+      "locations": [
+        {
+          "file": "src/npc.cpp",
+          "code": "npcName = npcName.substr(0, end);"
+        }
+      ],
+      "fingerprint": "12af488cf4d05bb534d67c2df1ab5e66cfc9df777473ba24e10bf21ad615d766",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/npc.cpp": "f70fd3bb5655a5452fcb2014f1da94822b2089cef07156ab9f8075416b420af4"
+      }
+    },
+    {
+      "id": "nullPointerRedundantCheck",
+      "severity": "warning",
+      "message": "Either the condition '!target' is redundant or there is possible null pointer dereference: target.",
+      "locations": [
+        {
+          "file": "src/spells.cpp",
+          "code": "const Position& toPos = target->getPosition();"
+        },
+        {
+          "file": "src/spells.cpp",
+          "code": "if (!canThrowSpell(player, target)) {"
+        },
+        {
+          "file": "src/spells.cpp",
+          "code": "if (!target || target->getHealth() <= 0) {"
+        }
+      ],
+      "fingerprint": "e8d7cadcf926cc67abace0bf55302a5d01897a613fccd5794b42f8c5916e6a56",
+      "disposition": "FALSE_POSITIVE",
+      "reason": "Both null/dead target branches return or set useDirection=true. canThrowSpell is reached only under !useDirection. Its other caller explicitly checks target and health. Recheck if target selection changes.",
+      "source_checksums": {
+        "src/spells.cpp": "c76a964745ac3e3fbabd9b85f13e440fb289f0c23ac6d817565b784db8a20127"
+      }
+    },
+    {
+      "id": "passedByValue",
+      "severity": "performance",
+      "message": "Function parameter 'str' should be passed by const reference.",
+      "locations": [
+        {
+          "file": "src/tools.cpp",
+          "code": "std::string pluralizeString(std::string str)"
+        }
+      ],
+      "fingerprint": "303aecac73514f097dac762c8454c95072d887b6813e709e8d729490f7dac1fc",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/tools.cpp": "81766600a17c28039a8a70c97fe82271704f4050e09c7ebfaed2a42d3fced62e"
+      }
+    },
+    {
+      "id": "uselessCallsSubstr",
+      "severity": "performance",
+      "message": "Ineffective call of function 'substr' because a prefix of the string is assigned to itself. Use replace() instead.",
+      "locations": [
+        {
+          "file": "src/tools.cpp",
+          "code": "str = str.substr(0, pos) + replacement + str.substr(pos + soughtLen);"
+        }
+      ],
+      "fingerprint": "dfa03aac92a0e4ca03a24c6029caddf663d2304581e0131f114d325f77daf340",
+      "disposition": "NEEDS_INVESTIGATION",
+      "reason": "Existing performance suggestion; defer changes until profiling demonstrates a benefit.",
+      "source_checksums": {
+        "src/tools.cpp": "81766600a17c28039a8a70c97fe82271704f4050e09c7ebfaed2a42d3fced62e"
+      }
+    },
+    {
+      "id": "ctunullpointer",
+      "severity": "warning",
+      "message": "Null pointer dereference: target",
+      "locations": [
+        {
+          "file": "src/spells.cpp",
+          "code": "const Position& toPos = target->getPosition();"
+        },
+        {
+          "file": "src/spells.cpp",
+          "code": "if (!canThrowSpell(player, target)) {"
+        }
+      ],
+      "fingerprint": "ec5b0059b5dac0b599fd81b9d9fea6e6b63d31587ff68276028c4eb6603deda2",
+      "disposition": "FALSE_POSITIVE",
+      "reason": "Both null/dead target branches return or set useDirection=true. canThrowSpell is reached only under !useDirection. Its other caller explicitly checks target and health. Recheck if target selection changes.",
+      "source_checksums": {
+        "src/spells.cpp": "c76a964745ac3e3fbabd9b85f13e440fb289f0c23ac6d817565b784db8a20127"
+      }
+    }
+  ]
+}
