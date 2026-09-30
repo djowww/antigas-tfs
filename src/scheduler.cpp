@@ -28,6 +28,12 @@ void Scheduler::threadMain()
 		std::cv_status ret = std::cv_status::no_timeout;
 
 		eventLockUnique.lock();
+		// Shutdown may have completed after the loop condition was read, before
+		// this lock was acquired. Do not wait after its notification is gone.
+		if (getState() == THREAD_STATE_TERMINATED) {
+			eventLockUnique.unlock();
+			break;
+		}
 		if (eventList.empty()) {
 			eventSignal.wait(eventLockUnique);
 		} else {
@@ -35,6 +41,12 @@ void Scheduler::threadMain()
 		}
 
 		// the mutex is locked again now...
+		// A timeout does not guarantee the queue still contains the old head:
+		// cancellation/shutdown can remove it while wait_until releases the lock.
+		if (getState() == THREAD_STATE_TERMINATED || eventList.empty()) {
+			eventLockUnique.unlock();
+			continue;
+		}
 		if (ret == std::cv_status::timeout) {
 			// ok we had a timeout, so there has to be an event we have to execute...
 			SchedulerTask* task = eventList.top();
