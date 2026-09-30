@@ -22,6 +22,7 @@
 
 #include <unordered_set>
 
+#include "connectionadmission.h"
 #include "networkmessage.h"
 
 class Protocol;
@@ -46,6 +47,8 @@ class ConnectionManager
 		}
 
 		Connection_ptr createConnection(boost::asio::io_service& io_service, ConstServicePort_ptr servicePort);
+		bool tryAdmitConnection(const Connection_ptr& connection, uint32_t remoteIP);
+		void configureAdmission(std::size_t maxConnections, std::size_t maxConnectionsPerIP);
 		void releaseConnection(const Connection_ptr& connection);
 		void closeAll();
 
@@ -54,6 +57,7 @@ class ConnectionManager
 
 		std::unordered_set<Connection_ptr> connections;
 		std::mutex connectionManagerLock;
+		ConnectionAdmission connectionAdmission;
 };
 
 class Connection : public std::enable_shared_from_this<Connection>
@@ -107,6 +111,7 @@ class Connection : public std::enable_shared_from_this<Connection>
 
 		void closeSocket();
 		void internalSend(const OutputMessage_ptr& msg);
+		void clearPendingOutputMessages();
 
 		boost::asio::ip::tcp::socket& getSocket() {
 			return socket;
@@ -132,6 +137,9 @@ class Connection : public std::enable_shared_from_this<Connection>
 
 		bool connectionState;
 		bool receivedFirst;
+		bool writeInProgress = false;
+		bool admitted = false;
+		uint32_t remoteIP = 0;
 };
 
 #endif

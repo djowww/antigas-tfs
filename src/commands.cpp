@@ -35,6 +35,7 @@
 #include "globalevent.h"
 #include "monster.h"
 #include "scheduler.h"
+#include "connection.h"
 
 #include "pugicast.h"
 
@@ -206,8 +207,14 @@ void Commands::reloadInfo(Player& player, const std::string& param)
 		g_actions->reload();
 		player.sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Reloaded actions.");
 	} else if (tmpParam == "config" || tmpParam == "configuration") {
-		g_config.reload();
-		player.sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Reloaded config.");
+		if (g_config.reload()) {
+			ConnectionManager::getInstance().configureAdmission(
+			        static_cast<std::size_t>(g_config.getNumber(ConfigManager::MAX_CONNECTIONS)),
+			        static_cast<std::size_t>(g_config.getNumber(ConfigManager::MAX_CONNECTIONS_PER_IP)));
+			player.sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Reloaded config.");
+		} else {
+			player.sendTextMessage(MESSAGE_STATUS_CONSOLE_RED, "Could not reload config.");
+		}
 	} else if (tmpParam == "command" || tmpParam == "commands") {
 		reload();
 		player.sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Reloaded commands.");

@@ -20,7 +20,10 @@
 #include "otpch.h"
 
 #include "configmanager.h"
+#include "connectionadmission.h"
 #include "game.h"
+
+#include <algorithm>
 
 #if LUA_VERSION_NUM >= 502
 #undef lua_strlen
@@ -95,6 +98,19 @@ bool ConfigManager::load()
 	string[BLOCK_LOGIN_TEXT] = getGlobalString(L, "blockLoginText", "");
 
 	integer[MAX_PLAYERS] = getGlobalNumber(L, "maxPlayers");
+	const int32_t configuredMaxConnections = getGlobalNumber(L, "maxConnections", 0);
+	integer[MAX_CONNECTIONS] = configuredMaxConnections == 0
+	                           ? ConnectionAdmissionSettings::defaultMaxConnections(integer[MAX_PLAYERS])
+	                           : configuredMaxConnections;
+	const int32_t configuredMaxConnectionsPerIP = getGlobalNumber(L, "maxConnectionsPerIP", 128);
+	if (integer[MAX_CONNECTIONS] <= 0 ||
+	        (integer[MAX_PLAYERS] > 0 && integer[MAX_CONNECTIONS] < integer[MAX_PLAYERS]) ||
+	        configuredMaxConnectionsPerIP <= 0) {
+		std::cout << "[ConfigManager::load] maxConnections must be positive and at least maxPlayers; maxConnectionsPerIP must be positive." << std::endl;
+		lua_close(L);
+		return false;
+	}
+	integer[MAX_CONNECTIONS_PER_IP] = std::min(configuredMaxConnectionsPerIP, integer[MAX_CONNECTIONS]);
 	integer[PZ_LOCKED] = getGlobalNumber(L, "pzLocked", 60000);
 	integer[DEFAULT_DESPAWNRANGE] = getGlobalNumber(L, "deSpawnRange", 2);
 	integer[DEFAULT_DESPAWNRADIUS] = getGlobalNumber(L, "deSpawnRadius", 50);
