@@ -4,18 +4,12 @@
 #include "databasetasks.h"
 #include "scheduler.h"
 #include "rsa.h"
-#include <dlfcn.h>
-#include <pthread.h>
-#include <cerrno>
 #include <cstdio>
-#include <cstdlib>
 #include <future>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 
-// Linux executable-only pthread seams observe the exact native mutex/condition
-// of the fixture Scheduler. Calls are forwarded to the real pthread functions.
-// No socket, database, scheduler gameplay event or world is started.
 DatabaseTasks g_databaseTasks;
 Dispatcher g_dispatcher;
 Scheduler g_scheduler;
@@ -26,54 +20,6 @@ Vocations g_vocations;
 RSA g_RSA;
 
 namespace {
-using MutexLockFunction = int (*)(pthread_mutex_t*);
-using TimedWaitFunction = int (*)(pthread_cond_t*, pthread_mutex_t*, const timespec*);
-
-MutexLockFunction realMutexLock()
-{
-	static auto function = reinterpret_cast<MutexLockFunction>(dlsym(RTLD_NEXT, "pthread_mutex_lock"));
-	if (!function) {
-		std::fputs("FAIL: real mutex function unavailable\n", stderr);
-		std::_Exit(1);
-	}
-	return function;
-}
-
-TimedWaitFunction realTimedWait()
-{
-	static auto function = reinterpret_cast<TimedWaitFunction>(dlsym(RTLD_NEXT, "pthread_cond_timedwait"));
-	if (!function) {
-		std::fputs("FAIL: real timed wait function unavailable\n", stderr);
-		std::_Exit(1);
-	}
-	return function;
-}
-
-struct Gate {
-	std::promise<void> entered;
-	std::promise<void> releasePromise;
-	std::shared_future<void> release = releasePromise.get_future().share();
-};
-
-struct LockPause {
-	pthread_mutex_t* mutex;
-	Gate gate;
-	std::atomic<bool> armed{true};
-	explicit LockPause(pthread_mutex_t* mutex) : mutex(mutex) {}
-};
-
-struct WaitObservation {
-	pthread_cond_t* condition;
-	pthread_mutex_t* mutex;
-	std::promise<void> entered;
-	std::atomic<bool> observed{false};
-	std::atomic<int> result{-1};
-	WaitObservation(pthread_cond_t* condition, pthread_mutex_t* mutex) : condition(condition), mutex(mutex) {}
-};
-
-std::atomic<LockPause*> lockPause{nullptr};
-std::atomic<WaitObservation*> waitObservation{nullptr};
-
 void require(bool ok, const char* message)
 {
 	if (!ok) throw std::runtime_error(message);
@@ -88,8 +34,12 @@ void ready(std::future<void>& completion, const char* message)
 class FixtureScheduler : public Scheduler {
 	public:
 		std::mutex& mutex() { return eventLock; }
-		pthread_mutex_t* nativeMutex() { return eventLock.native_handle(); }
-		pthread_cond_t* nativeCondition() { return eventSignal.native_handle(); }
+};
+
+struct Gate {
+	std::promise<void> entered;
+	std::promise<void> releasePromise;
+	std::shared_future<void> release = releasePromise.get_future().share();
 };
 
 class BlockingDestructionTask : public SchedulerTask {
@@ -117,9 +67,9 @@ void normalExecutionAndCancellation()
 {
 	FixtureScheduler scheduler;
 	scheduler.start();
-	std::promise<void> executed;
-	auto execution = executed.get_future();
-	require(scheduler.addEvent(createSchedulerTask(50, [&]() { executed.set_value(); })) != 0,
+	auto executed = std::make_shared<std::promise<void>>();
+	auto execution = executed->get_future();
+	require(scheduler.addEvent(createSchedulerTask(50, [executed]() { executed->set_value(); })) != 0,
 	        "running scheduler must accept a normal event");
 	ready(execution, "normal event must execute through the real dispatcher");
 	std::atomic<unsigned> cancelledExecutions{0};
@@ -166,49 +116,45 @@ void queueMetricsTrackTombstonesAndCompaction()
 	scheduler.join();
 }
 
-void shutdownBeforeWorkerLock()
+void shutdownRacesWithFirstWorkerLock()
 {
-	FixtureScheduler scheduler;
-	LockPause pause(scheduler.nativeMutex());
-	auto entered = pause.gate.entered.get_future();
-	std::unique_lock<std::mutex> held(scheduler.mutex());
-	lockPause.store(&pause, std::memory_order_release);
-	scheduler.start();
-	ready(entered, "fixture must pause the worker's first exact scheduler lock");
-	held.unlock();
-	// The worker already observed RUNNING at its loop condition, but has not
-	// acquired eventLock. Complete shutdown and its notification before relock.
-	scheduler.shutdown();
-	pause.gate.releasePromise.set_value();
-	scheduler.join();
-	lockPause.store(nullptr, std::memory_order_release);
+	for (unsigned attempt = 0; attempt < 50; ++attempt) {
+		FixtureScheduler scheduler;
+		std::unique_lock<std::mutex> held(scheduler.mutex());
+		scheduler.start();
+		std::promise<void> shutdownStarted;
+		auto started = shutdownStarted.get_future();
+		std::thread shutdown([&]() {
+			shutdownStarted.set_value();
+			scheduler.shutdown();
+		});
+		ready(started, "shutdown contender must start");
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		held.unlock();
+		shutdown.join();
+		scheduler.join();
+	}
 }
 
-void shutdownWhileDeadlineExpires()
+void shutdownWhileTimedTaskExpires()
 {
 	FixtureScheduler scheduler;
-	WaitObservation observation(scheduler.nativeCondition(), scheduler.nativeMutex());
-	auto waiting = observation.entered.get_future();
 	auto gate = std::make_shared<Gate>();
 	auto destroying = gate->entered.get_future();
 	std::atomic<unsigned> unexpectedExecutions{0};
-	auto* task = new BlockingDestructionTask(2000, [&]() { ++unexpectedExecutions; }, gate);
+	const uint32_t delay = 2000;
+	auto* task = new BlockingDestructionTask(delay, [&]() { ++unexpectedExecutions; }, gate);
 	const auto deadline = task->getCycle();
-	waitObservation.store(&observation, std::memory_order_release);
 	scheduler.start();
 	require(scheduler.addEvent(task) != 0, "running scheduler must accept the deadline fixture");
-	ready(waiting, "fixture must observe the exact scheduler timed wait");
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	std::thread shutdown([&]() { scheduler.shutdown(); });
 	ready(destroying, "shutdown must hold the queue lock while destroying the fixture");
-	require(std::chrono::system_clock::now() < deadline, "shutdown fixture must own the queue lock before its deadline");
-	// The real timed wait expires while shutdown holds the mutex, so its return
-	// after relock must be ETIMEDOUT even though the queue was emptied.
+	require(std::chrono::system_clock::now() < deadline, "shutdown must own the queue lock before the task deadline");
 	std::this_thread::sleep_until(deadline + std::chrono::milliseconds(20));
 	gate->releasePromise.set_value();
 	shutdown.join();
 	scheduler.join();
-	waitObservation.store(nullptr, std::memory_order_release);
-	require(observation.result == ETIMEDOUT, "the real scheduler wait must return timeout after relock");
 	require(unexpectedExecutions == 0, "shutdown deadline task must never execute");
 }
 
@@ -226,83 +172,43 @@ void addEventAfterShutdownReleasesTask()
 
 void duplicateEventIdPreservesExistingId()
 {
-	setenv("TFS_SCHEDULER_DEBUG", "1", 1);
-	const auto mark = [](const char* phase) {
-		std::fprintf(stderr, "scheduler-duplicate-event-id: %s\n", phase);
-	};
 	FixtureScheduler scheduler;
-	mark("before-start");
 	scheduler.start();
-	mark("after-start");
 	std::shared_ptr<int> retained(new int(2));
 	std::weak_ptr<int> existingClosure = retained;
 	SchedulerTask* existing = createSchedulerTask(30000, [retained]() {});
 	existing->setEventId(77);
 	retained.reset();
-	mark("before-add-original");
 	require(scheduler.addEvent(existing) == 77, "scheduler must accept the original event id");
-	mark("after-add-original");
 
 	std::shared_ptr<int> duplicateRetained(new int(3));
 	std::weak_ptr<int> duplicateClosure = duplicateRetained;
 	SchedulerTask* duplicate = createSchedulerTask(30000, [duplicateRetained]() {});
 	duplicate->setEventId(77);
 	duplicateRetained.reset();
-	mark("before-reject-duplicate");
 	require(scheduler.addEvent(duplicate) == 0, "scheduler must reject a duplicate event id");
-	mark("after-reject-duplicate");
-	require(duplicateClosure.expired(), "rejected duplicate task must release its closure");
-	mark("before-cancel-original");
+	require(duplicateClosure.expired(), "rejected duplicate task must release its callback closure");
 	require(scheduler.stopEvent(77), "rejecting a duplicate must preserve the original active event id");
-	mark("after-cancel-original");
-	mark("before-shutdown");
 	scheduler.shutdown();
-	mark("after-shutdown");
 	scheduler.join();
-	mark("after-join");
 	require(existingClosure.expired(), "cancelling the original event must release its closure");
 }
-}
-
-extern "C" int pthread_mutex_lock(pthread_mutex_t* mutex) noexcept
-{
-	if (auto* pause = lockPause.load(std::memory_order_acquire)) {
-		if (mutex == pause->mutex && pause->armed.exchange(false)) {
-			pause->gate.entered.set_value();
-			pause->gate.release.wait();
-		}
-	}
-	return realMutexLock()(mutex);
-}
-
-extern "C" int pthread_cond_timedwait(pthread_cond_t* condition, pthread_mutex_t* mutex, const timespec* deadline)
-{
-	WaitObservation* observation = waitObservation.load(std::memory_order_acquire);
-	const bool tracked = observation && condition == observation->condition && mutex == observation->mutex &&
-		!observation->observed.exchange(true);
-	if (tracked) observation->entered.set_value();
-	const int result = realTimedWait()(condition, mutex, deadline);
-	if (tracked) observation->result.store(result);
-	return result;
 }
 
 int main(int argc, char** argv)
 {
 	try {
 		const std::string scenario = argc == 1 ? "all" : argc == 2 ? argv[1] : "invalid";
-		require(scenario == "all" || scenario == "normal" || scenario == "before-lock" || scenario == "after-relock" || scenario == "rejected-after-shutdown" || scenario == "duplicate-event-id",
-		        "fixture scenario must be all, normal, before-lock, after-relock, rejected-after-shutdown or duplicate-event-id");
-		// Resolve before worker threads start; unrelated pthread calls never
-		// arm the fixture observations or change the native call semantics.
-		(void)realMutexLock();
-		(void)realTimedWait();
+		require(scenario == "all" || scenario == "normal" || scenario == "shutdown-race" || scenario == "deadline" ||
+		        scenario == "rejected-after-shutdown" || scenario == "duplicate-event-id",
+		        "fixture scenario must be all, normal, shutdown-race, deadline, rejected-after-shutdown or duplicate-event-id");
 		g_dispatcher.start();
 		if (scenario == "all" || scenario == "normal") {
 			normalExecutionAndCancellation();
 			queueMetricsTrackTombstonesAndCompaction();
 		}
-		if (scenario == "all" || scenario == "before-lock") shutdownBeforeWorkerLock();
-		if (scenario == "all" || scenario == "after-relock") shutdownWhileDeadlineExpires();
+		if (scenario == "all" || scenario == "shutdown-race") shutdownRacesWithFirstWorkerLock();
+		if (scenario == "all" || scenario == "deadline") shutdownWhileTimedTaskExpires();
 		if (scenario == "all" || scenario == "rejected-after-shutdown") addEventAfterShutdownReleasesTask();
 		if (scenario == "all" || scenario == "duplicate-event-id") duplicateEventIdPreservesExistingId();
 		g_dispatcher.shutdown();

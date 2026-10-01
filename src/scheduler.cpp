@@ -20,27 +20,15 @@
 #include "otpch.h"
 
 #include "scheduler.h"
-#include <cstdio>
-#include <cstdlib>
 
 void Scheduler::threadMain()
 {
-	const bool debugScheduler = std::getenv("TFS_SCHEDULER_DEBUG") != nullptr;
-	const auto traceScheduler = [this, debugScheduler](const char* phase) {
-		if (debugScheduler) {
-			std::fprintf(stderr, "scheduler-debug %s state=%d queue=%zu ids=%zu\n", phase,
-			             static_cast<int>(getState()), eventList.size(), eventIds.size());
-		}
-	};
 	std::unique_lock<std::mutex> eventLockUnique(eventLock);
-	traceScheduler("thread-enter");
 	while (getState() != THREAD_STATE_TERMINATED) {
 		if (eventList.empty()) {
-			traceScheduler("empty-wait-before");
 			eventSignal.wait(eventLockUnique, [this]() {
 				return getState() == THREAD_STATE_TERMINATED || !eventList.empty();
 			});
-			traceScheduler("empty-wait-after");
 			if (getState() == THREAD_STATE_TERMINATED) {
 				break;
 			}
@@ -49,12 +37,10 @@ void Scheduler::threadMain()
 			}
 		} else {
 			const std::chrono::system_clock::time_point nextCycle = eventList.top()->getCycle();
-			traceScheduler("timed-wait-before");
 			const bool queueChanged = eventSignal.wait_until(eventLockUnique, nextCycle, [this, nextCycle]() {
 				return getState() == THREAD_STATE_TERMINATED || eventList.empty() ||
 				       eventList.top()->getCycle() != nextCycle;
 			});
-			traceScheduler(queueChanged ? "timed-wait-queue-change" : "timed-wait-timeout");
 			if (getState() == THREAD_STATE_TERMINATED) {
 				break;
 			}
