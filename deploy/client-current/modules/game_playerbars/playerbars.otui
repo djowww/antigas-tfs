@@ -4,57 +4,77 @@ AntigasSidebarToggle < ButtonBox
   image-source: /images/ui/button
   image-clip: 0 0 22 23
   image-border: 3
-  image-color: #ffffffbb
-  icon-color: #e8dfd0
+  image-color: #ffffffdd
+  icon-color: #ebe7de
   icon-size: 12 12
   text-offset: 0 0
   border-width: 1
-  border-top-color: #8b7b62
-  border-left-color: #8b7b62
-  border-right-color: #30271c
-  border-bottom-color: #30271c
+  border-top-color: #77756e
+  border-left-color: #77756e
+  border-right-color: #2c2b28
+  border-bottom-color: #2c2b28
   change-cursor-image: true
   cursor: pointer
 
   $hover !disabled:
     image-clip: 0 23 22 23
     image-color: #ffffff
-    icon-color: #ffffff
-    border-top-color: #d1b475
-    border-left-color: #d1b475
-    border-right-color: #5b4326
-    border-bottom-color: #5b4326
+    icon-color: #f6f3ec
+    border-top-color: #aaa69a
+    border-left-color: #aaa69a
+    border-right-color: #4d4941
+    border-bottom-color: #4d4941
 
   $checked:
     image-clip: 0 0 22 23
     text-offset: 0 0
-    icon-color: #ffe0a0
-    image-color: #e0ad55
+    icon-color: #f2e5c9
+    image-color: #d0b783
     border-width: 1
-    border-top-color: #f4d27f
-    border-left-color: #f4d27f
-    border-right-color: #8e622c
-    border-bottom-color: #8e622c
+    border-top-color: #d8b46c
+    border-left-color: #d8b46c
+    border-right-color: #806136
+    border-bottom-color: #806136
 
-  $checked hover:
+  $checked hover !disabled:
     image-clip: 0 23 22 23
-    icon-color: #fff5de
-    image-color: #f2cf82
-    border-top-color: #fff0b4
-    border-left-color: #fff0b4
+    icon-color: #fff1d8
+    image-color: #e0c28c
+    border-top-color: #e8c67e
+    border-left-color: #e8c67e
+    border-right-color: #92713f
+    border-bottom-color: #92713f
 
-  $pressed:
+  $pressed !disabled:
     image-clip: 0 46 22 23
-    image-color: #b58c4b
-    border-top-color: #30271c
-    border-left-color: #30271c
-    border-right-color: #9a7841
-    border-bottom-color: #9a7841
+    text-offset: 0 0
+    image-color: #c9c5bc
+    icon-color: #ddd8cf
+    border-top-color: #34322e
+    border-left-color: #34322e
+    border-right-color: #858075
+    border-bottom-color: #858075
+
+  $checked pressed !disabled:
+    image-clip: 0 46 22 23
+    text-offset: 0 0
+    image-color: #b79c68
+    icon-color: #e8d9ba
+    border-top-color: #5b4729
+    border-left-color: #5b4729
+    border-right-color: #c6a15b
+    border-bottom-color: #c6a15b
 
   $disabled:
-    image-color: #ffffff33
-    icon-color: #817b71
-    color: #999187
+    image-clip: 0 0 22 23
+    text-offset: 0 0
+    image-color: #ffffff66
+    icon-color: #aaa69c
+    color: #aaa69c
+    border-top-color: #4d4a44
+    border-left-color: #4d4a44
+    border-right-color: #282622
+    border-bottom-color: #282622
     change-cursor-image: false
 
 AntigasSidebarAction < Button
@@ -64,75 +84,100 @@ AntigasSidebarAction < Button
   image-source: /images/ui/button
   image-clip: 0 0 22 23
   image-border: 3
-  image-color: #ffffffbb
-  color: #ded2bd
-  icon-color: #e8dfd0
+  image-color: #ffffffdd
+  color: #ebe7de
+  icon-color: #ebe7de
   icon-size: 12 12
   text-align: center
   text-offset: 0 0
   border-width: 1
-  border-top-color: #8b7b62
-  border-left-color: #8b7b62
-  border-right-color: #30271c
-  border-bottom-color: #30271c
+  border-top-color: #77756e
+  border-left-color: #77756e
+  border-right-color: #2c2b28
+  border-bottom-color: #2c2b28
   change-cursor-image: true
   cursor: pointer
 
   $hover !disabled:
     image-clip: 0 23 22 23
     image-color: #ffffff
-    color: #ffffff
-    icon-color: #ffffff
-    border-top-color: #d1b475
-    border-left-color: #d1b475
-    border-right-color: #5b4326
-    border-bottom-color: #5b4326
+    color: #f6f3ec
+    icon-color: #f6f3ec
+    border-top-color: #aaa69a
+    border-left-color: #aaa69a
+    border-right-color: #4d4941
+    border-bottom-color: #4d4941
 
-  $on:
+  $on !disabled:
     image-clip: 0 0 22 23
-    image-color: #e0ad55
-    icon-color: #ffe0a0
-    border-top-color: #f4d27f
-    border-left-color: #f4d27f
-    border-right-color: #8e622c
-    border-bottom-color: #8e622c
+    image-color: #d0b783
+    icon-color: #f2e5c9
+    border-top-color: #d8b46c
+    border-left-color: #d8b46c
+    border-right-color: #806136
+    border-bottom-color: #806136
 
-  $on hover:
+  $on hover !disabled:
     image-clip: 0 23 22 23
-    image-color: #f2cf82
-    icon-color: #fff5de
-    border-top-color: #fff0b4
-    border-left-color: #fff0b4
+    image-color: #e0c28c
+    icon-color: #fff1d8
+    border-top-color: #e8c67e
+    border-left-color: #e8c67e
+    border-right-color: #92713f
+    border-bottom-color: #92713f
 
-  $pressed:
+  $pressed !disabled:
     image-clip: 0 46 22 23
-    image-color: #b58c4b
-    text-offset: 1 1
-    border-top-color: #30271c
-    border-left-color: #30271c
-    border-right-color: #9a7841
-    border-bottom-color: #9a7841
+    image-color: #c9c5bc
+    icon-color: #ddd8cf
+    text-offset: 0 0
+    border-top-color: #34322e
+    border-left-color: #34322e
+    border-right-color: #858075
+    border-bottom-color: #858075
+
+  $on pressed !disabled:
+    image-clip: 0 46 22 23
+    text-offset: 0 0
+    image-color: #b79c68
+    icon-color: #e8d9ba
+    border-top-color: #5b4729
+    border-left-color: #5b4729
+    border-right-color: #c6a15b
+    border-bottom-color: #c6a15b
 
   $disabled:
-    image-color: #ffffff33
-    color: #8b857b
-    icon-color: #817b71
+    image-clip: 0 0 22 23
+    text-offset: 0 0
+    image-color: #ffffff66
+    color: #aaa69c
+    icon-color: #aaa69c
+    border-top-color: #4d4a44
+    border-left-color: #4d4a44
+    border-right-color: #282622
+    border-bottom-color: #282622
     change-cursor-image: false
 
 AntigasSidebarAchievementAction < AntigasSidebarAction
-  icon-color: #dddddd
+  icon-color: #d2cec6
 
   $hover !disabled:
-    icon-color: #ffffff
+    icon-color: #ebe6da
 
-  $on:
-    icon-color: #ffe0a0
+  $on !disabled:
+    icon-color: #f2e5c9
 
-  $on hover:
-    icon-color: #fff5de
+  $on hover !disabled:
+    icon-color: #fff1d8
+
+  $pressed !disabled:
+    icon-color: #c8c3b8
+
+  $on pressed !disabled:
+    icon-color: #e8d9ba
 
   $disabled:
-    icon-color: #817b71
+    icon-color: #aaa69c
 
 SpecialMiniWindow
   id: playerBarsWindow
@@ -240,7 +285,7 @@ SpecialMiniWindow
         margin-top: -1
         size: 12 12
         image-source: /images/game/slots/coins
-        image-color: #e6e6e6
+        image-color: #dedad0
         phantom: true
 
     AntigasSidebarAction
@@ -277,5 +322,5 @@ SpecialMiniWindow
     anchors.right: menuToggle.left
     margin-right: 4
     size: 1 12
-    background-color: #78664a
+    background-color: #6d685f
     phantom: true
