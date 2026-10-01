@@ -11,6 +11,7 @@ EXPECTED_EXIT = 86
 QUEUED_MARKER = "DISPATCHER_FAILFAST_TASKS_QUEUED"
 EXPECTED_MARKER = "DISPATCHER_FAILFAST_EXPECTED_TERMINATION"
 POSTERIOR_MARKER = "DISPATCHER_FAILFAST_POSTERIOR_EXECUTED"
+EXPECTED_DIAGNOSTIC = "[FATAL] Unhandled exception in Dispatcher: dispatcher failfast test fixture?second line?"
 
 
 def main() -> int:
@@ -46,7 +47,7 @@ def main() -> int:
     if result.returncode != EXPECTED_EXIT:
         print("FAIL: dispatcher fixture did not produce the expected exit status.", file=sys.stderr)
         return 1
-    if result.stdout.splitlines() != [QUEUED_MARKER, EXPECTED_MARKER] or result.stderr:
+    if result.stdout.splitlines() != [QUEUED_MARKER, EXPECTED_MARKER] or result.stderr.splitlines() != [EXPECTED_DIAGNOSTIC]:
         print("FAIL: dispatcher fixture produced missing or unexpected diagnostics.", file=sys.stderr)
         return 1
 

@@ -14,7 +14,11 @@ function onSay(player, words, param)
 		return false
 	end
 
-	target:setAccountType(ACCOUNT_TYPE_TUTOR)
+	if not target:setAccountType(ACCOUNT_TYPE_TUTOR) then
+		player:sendCancelMessage("Could not update the player's account type. Please try again later.")
+		return false
+	end
+
 	target:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have been promoted to a tutor by " .. player:getName() .. ".")
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have promoted " .. target:getName() .. " to a tutor.")
 	return false

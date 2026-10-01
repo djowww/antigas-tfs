@@ -28,6 +28,8 @@
 #include "scheduler.h"
 #include "monster.h"
 
+#include <algorithm>
+
 extern Game g_game;
 extern ConfigManager g_config;
 
@@ -39,8 +41,28 @@ Raids::Raids()
 
 Raids::~Raids()
 {
+	callbackGeneration.invalidate();
+	g_scheduler.stopEvent(checkRaidsEvent);
+	if (running) {
+		running->stopEvents();
+	}
+	const bool activeRaidIsOwned = running &&
+		(std::find(raidList.begin(), raidList.end(), running) != raidList.end() ||
+		 std::find(oneShotRaidList.begin(), oneShotRaidList.end(), running) != oneShotRaidList.end());
 	for (Raid* raid : raidList) {
+		if (raid != running) {
+			raid->stopEvents();
+		}
 		delete raid;
+	}
+	for (Raid* raid : oneShotRaidList) {
+		if (raid != running) {
+			raid->stopEvents();
+		}
+		delete raid;
+	}
+	if (running && !activeRaidIsOwned) {
+		delete running;
 	}
 }
 
@@ -124,14 +146,25 @@ bool Raids::startup()
 
 	setLastRaidEnd(OTSYS_TIME());
 
-	checkRaidsEvent = g_scheduler.addEvent(createSchedulerTask(CHECK_RAIDS_INTERVAL * 1000, std::bind(&Raids::checkRaids, this)));
-
 	started = true;
+	scheduleCheckRaids(callbackGeneration.snapshot());
 	return started;
 }
 
-void Raids::checkRaids()
+void Raids::scheduleCheckRaids(uint64_t generation)
 {
+	const std::function<void()> callback = callbackGeneration.guard(generation, [this, generation]() {
+		checkRaids(generation);
+	});
+	checkRaidsEvent = g_scheduler.addEvent(createSchedulerTask(CHECK_RAIDS_INTERVAL * 1000, callback));
+}
+
+void Raids::checkRaids(uint64_t generation)
+{
+	if (generation != callbackGeneration.snapshot() || !started) {
+		return;
+	}
+	checkRaidsEvent = 0;
 	if (!getRunning()) {
 		uint64_t now = OTSYS_TIME();
 
@@ -143,7 +176,7 @@ void Raids::checkRaids()
 					raid->startRaid();
 
 					if (!raid->canBeRepeated()) {
-						raidList.erase(it);
+						oneShotRaidList.splice(oneShotRaidList.end(), raidList, it);
 					}
 					break;
 				}
@@ -151,19 +184,35 @@ void Raids::checkRaids()
 		}
 	}
 
-	checkRaidsEvent = g_scheduler.addEvent(createSchedulerTask(CHECK_RAIDS_INTERVAL * 1000, std::bind(&Raids::checkRaids, this)));
+	scheduleCheckRaids(generation);
 }
 
 void Raids::clear()
 {
+	// A timer can already be queued on the dispatcher after Scheduler removed
+	// its event ID. Invalidate first so those callbacks never resolve old raids.
+	callbackGeneration.invalidate();
 	g_scheduler.stopEvent(checkRaidsEvent);
 	checkRaidsEvent = 0;
 
+	Raid* activeRaid = running;
+	const bool activeRaidIsOwned = activeRaid &&
+		(std::find(raidList.begin(), raidList.end(), activeRaid) != raidList.end() ||
+		 std::find(oneShotRaidList.begin(), oneShotRaidList.end(), activeRaid) != oneShotRaidList.end());
 	for (Raid* raid : raidList) {
 		raid->stopEvents();
 		delete raid;
 	}
 	raidList.clear();
+	for (Raid* raid : oneShotRaidList) {
+		raid->stopEvents();
+		delete raid;
+	}
+	oneShotRaidList.clear();
+	if (activeRaid && !activeRaidIsOwned) {
+		activeRaid->stopEvents();
+		delete activeRaid;
+	}
 
 	loaded = false;
 	started = false;
@@ -187,6 +236,37 @@ Raid* Raids::getRaidByName(const std::string& name)
 		}
 	}
 	return nullptr;
+}
+
+uint32_t Raids::scheduleRaidEvent(const std::string& raidName, uint32_t eventIndex, uint32_t delay)
+{
+	const uint64_t generation = callbackGeneration.snapshot();
+	const std::function<void()> callback = callbackGeneration.guard(generation, [this, raidName, eventIndex, generation]() {
+		executeRaidEvent(raidName, eventIndex, generation);
+	});
+
+	if (delay == 0) {
+		g_dispatcher.addTask(createTask(callback));
+		return 0;
+	}
+
+	return g_scheduler.addEvent(createSchedulerTask(delay, callback));
+}
+
+void Raids::executeRaidEvent(const std::string& raidName, uint32_t eventIndex, uint64_t generation)
+{
+	if (generation != callbackGeneration.snapshot()) {
+		return;
+	}
+
+	// There can be only one active raid. Resolve it only after validating the
+	// generation; queued callbacks do not retain Raid or RaidEvent pointers.
+	Raid* raid = getRunning();
+	if (!raid || raid->getName() != raidName) {
+		return;
+	}
+
+	raid->executeRaidEvent(eventIndex);
 }
 
 Raid::~Raid()
@@ -243,19 +323,24 @@ void Raid::startRaid()
 	RaidEvent* raidEvent = getNextRaidEvent();
 	if (raidEvent) {
 		state = RAIDSTATE_EXECUTING;
-		nextEventEvent = g_scheduler.addEvent(createSchedulerTask(raidEvent->getDelay(), std::bind(&Raid::executeRaidEvent, this, raidEvent)));
+		nextEventEvent = g_game.raids.scheduleRaidEvent(name, nextEvent, raidEvent->getDelay());
 	}
 }
 
-void Raid::executeRaidEvent(RaidEvent* raidEvent)
+void Raid::executeRaidEvent(uint32_t eventIndex)
 {
+	if (eventIndex != nextEvent || eventIndex >= raidEvents.size()) {
+		return;
+	}
+	nextEventEvent = 0;
+	RaidEvent* raidEvent = raidEvents[eventIndex];
 	if (raidEvent->executeEvent()) {
 		nextEvent++;
 		RaidEvent* newRaidEvent = getNextRaidEvent();
 
 		if (newRaidEvent) {
 			uint32_t ticks = static_cast<uint32_t>(std::max<int32_t>(RAID_MINTICKS, newRaidEvent->getDelay() - raidEvent->getDelay()));
-			nextEventEvent = g_scheduler.addEvent(createSchedulerTask(ticks, std::bind(&Raid::executeRaidEvent, this, newRaidEvent)));
+			nextEventEvent = g_game.raids.scheduleRaidEvent(name, nextEvent, ticks);
 		} else {
 			resetRaid();
 		}

@@ -35,6 +35,7 @@
 #include "talkaction.h"
 #include "spells.h"
 #include "configmanager.h"
+#include "clientassertionpolicy.h"
 #include "server.h"
 #include "globalevent.h"
 #include "bed.h"
@@ -4597,9 +4598,30 @@ void Game::playerDebugAssert(uint32_t playerId, const std::string& assertLine, c
 		return;
 	}
 
+	std::uint64_t payloadBytes = 0;
+	if (!ClientAssertionPolicy::getPayloadBytes(assertLine.size(), date.size(), description.size(), comment.size(), payloadBytes)) {
+		return;
+	}
+	std::uint64_t suppressedReports = 0;
+	if (!clientAssertionWriteRateLimiter().allow(suppressedReports)) {
+		return;
+	}
+
 	// TODO: move debug assertions to database
-	FILE* file = fopen("client_assertions.txt", "a");
+	FILE* file = fopen("client_assertions.txt", "a+");
 	if (file) {
+		if (fseek(file, 0, SEEK_END) != 0) {
+			fclose(file);
+			return;
+		}
+		const long currentFileBytes = ftell(file);
+		if (currentFileBytes < 0 || !ClientAssertionPolicy::canAppend(static_cast<std::uint64_t>(currentFileBytes), payloadBytes)) {
+			fclose(file);
+			return;
+		}
+		if (suppressedReports != 0) {
+			fprintf(file, "----- %llu client assertion reports suppressed by rate limit -----\n", static_cast<unsigned long long>(suppressedReports));
+		}
 		fprintf(file, "----- %s - %s (%s) -----\n", formatDate(time(nullptr)).c_str(), player->getName().c_str(), convertIPToString(player->getIP()).c_str());
 		fprintf(file, "%s\n%s\n%s\n%s\n", assertLine.c_str(), date.c_str(), description.c_str(), comment.c_str());
 		fclose(file);

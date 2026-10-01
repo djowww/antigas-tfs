@@ -23,6 +23,7 @@
 #include "const.h"
 #include "position.h"
 #include "baseevents.h"
+#include "callbackgeneration.h"
 
 enum RaidState_t {
 	RAIDSTATE_IDLE,
@@ -85,16 +86,22 @@ class Raids
 			lastRaidEnd = newLastRaidEnd;
 		}
 
-		void checkRaids();
+		void checkRaids(uint64_t generation);
+		uint32_t scheduleRaidEvent(const std::string& raidName, uint32_t eventIndex, uint32_t delay);
 
 		LuaScriptInterface& getScriptInterface() {
 			return scriptInterface;
 		}
 
 	private:
+		void scheduleCheckRaids(uint64_t generation);
+		void executeRaidEvent(const std::string& raidName, uint32_t eventIndex, uint64_t generation);
+
 		LuaScriptInterface scriptInterface{"Raid Interface"};
+		CallbackGeneration callbackGeneration;
 
 		std::list<Raid*> raidList;
+		std::list<Raid*> oneShotRaidList;
 		Raid* running = nullptr;
 		uint64_t lastRaidEnd = 0;
 		uint32_t checkRaidsEvent = 0;
@@ -117,7 +124,6 @@ class Raid
 
 		void startRaid();
 
-		void executeRaidEvent(RaidEvent* raidEvent);
 		void resetRaid();
 
 		RaidEvent* getNextRaidEvent();
@@ -144,6 +150,9 @@ class Raid
 		void stopEvents();
 
 	private:
+		friend class Raids;
+		void executeRaidEvent(uint32_t eventIndex);
+
 		std::vector<RaidEvent*> raidEvents;
 		std::string name;
 		uint32_t interval;

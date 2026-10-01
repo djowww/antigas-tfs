@@ -26,6 +26,7 @@
 #include "tasks.h"
 #include "walkmatrix.h"
 #include "mapviewport.h"
+#include <cstddef>
 #include <set>
 
 class NetworkMessage;
@@ -285,6 +286,14 @@ class ProtocolGame final : public Protocol
 				return;
 			}
 			addGameTask(function, std::forward<Args>(args)...);
+		}
+
+		template <typename Callable, typename... Args>
+		void addGameTaskWithTrackedPayload(const NetworkMessage& msg, std::size_t trackedPayloadBytes, Callable function, Args&&... args) {
+			if (!msg.isReadPositionValid()) {
+				return;
+			}
+			g_dispatcher.addTask(createTask(std::bind(function, &g_game, std::forward<Args>(args)...), trackedPayloadBytes));
 		}
 
 		template <typename Callable, typename... Args>

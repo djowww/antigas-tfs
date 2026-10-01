@@ -1,4 +1,7 @@
 wallLamps = {}
+wallLampStateCount = 0
+local MAX_LAMP_STATE_ENTRIES = 100000
+local MAX_LAMP_STATE_FILE_BYTES = 8 * 1024 * 1024
 lampTransformIds, reverseLampTransformIds = { -- used for direct access to flip ids
     [2907] = 2908,
     [2909] = 2910,
@@ -119,14 +122,42 @@ function unserializePos(s)
 end
 
 function dumpLampStates()
+	if wallLampStateCount > MAX_LAMP_STATE_ENTRIES then
+		return false
+	end
+	local serialized, contents = pcall(serialize, wallLamps)
+	if not serialized or type(contents) ~= 'string' or #contents > MAX_LAMP_STATE_FILE_BYTES then
+		return false
+	end
     local file = io.open('data/globalevents/lib/lamp_states.lua', 'w')
-    if file then
-        file:write(serialize(wallLamps))
-        file:close()
+    if not file then
+        return false
     end
+	local writeOk, writeResult = pcall(function() return file:write(contents) end)
+	local closeOk, closeResult = pcall(function() return file:close() end)
+	return writeOk and writeResult ~= nil and closeOk and closeResult ~= nil
+end
+
+function canStoreLampState(position)
+	local key = serializePos(position)
+	return wallLamps[key] ~= nil or wallLampStateCount < MAX_LAMP_STATE_ENTRIES
+end
+
+function storeLampState(position, itemId)
+	local key = serializePos(position)
+	if wallLamps[key] == nil then
+		if wallLampStateCount >= MAX_LAMP_STATE_ENTRIES then
+			return false
+		end
+		wallLampStateCount = wallLampStateCount + 1
+	end
+	wallLamps[key] = itemId
+	return dumpLampStates()
 end
 
 function loadLampStates()
+	wallLamps = {}
+	wallLampStateCount = 0
     local file = io.open('data/globalevents/lib/lamp_states.lua')
     if file then
         local contents = file:read(8 * 1024 * 1024 + 1)
@@ -141,6 +172,7 @@ function loadLampStates()
             wallLamps = {}
             return
         end
+		wallLampStateCount = table.size(wallLamps)
         for serializedPos, state in pairs(wallLamps) do
             local searchState = reverseLampTransformIds[state] or lampTransformIds[state]
             if searchState then

@@ -25,7 +25,7 @@ Vocations g_vocations;
 RSA g_RSA;
 
 namespace {
-constexpr const char* FIXTURE_MESSAGE = "dispatcher failfast test fixture";
+constexpr const char* FIXTURE_MESSAGE = "dispatcher failfast test fixture\nsecond line\x1B";
 constexpr const char* QUEUED_MARKER = "DISPATCHER_FAILFAST_TASKS_QUEUED";
 constexpr const char* EXPECTED_MARKER = "DISPATCHER_FAILFAST_EXPECTED_TERMINATION";
 constexpr const char* POSTERIOR_MARKER = "DISPATCHER_FAILFAST_POSTERIOR_EXECUTED";
@@ -65,19 +65,30 @@ int main()
 		std::mutex barrierMutex;
 		std::condition_variable barrierSignal;
 		bool readyToThrow = false;
+		std::promise<void> firstTaskStarted;
+		auto firstStarted = firstTaskStarted.get_future();
 
 		g_dispatcher.start();
 		g_dispatcher.addTask(createTask([&]() {
 			std::unique_lock<std::mutex> barrierLock(barrierMutex);
+			firstTaskStarted.set_value();
 			barrierSignal.wait(barrierLock, [&]() { return readyToThrow; });
 			barrierLock.unlock();
 			throw std::runtime_error(FIXTURE_MESSAGE);
-		}));
+		}, 17));
+		if (firstStarted.wait_for(std::chrono::seconds(3)) != std::future_status::ready) {
+			failUnexpectedly();
+		}
 		g_dispatcher.addTask(createTask([]() {
 			std::puts(POSTERIOR_MARKER);
 			std::fflush(stdout);
 			failUnexpectedly();
-		}));
+		}, 23));
+		const QueueMetricsSnapshot pending = g_dispatcher.getQueueMetrics();
+		if (pending.queuedCount != 1 || pending.trackedPayloadBytes != 23 ||
+		        pending.peakQueuedCount != 1 || pending.peakTrackedPayloadBytes != 23 || pending.counterAnomaly) {
+			failUnexpectedly();
+		}
 
 		// The throwing task cannot leave its barrier until the posterior task
 		// has been published to the real production dispatcher queue.

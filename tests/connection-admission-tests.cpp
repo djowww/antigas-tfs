@@ -1,9 +1,11 @@
 #include "connectionadmission.h"
 #include "connectionattemptlimiter.h"
+#include "connectionratelimit.h"
 
 #include <atomic>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <thread>
 #include <vector>
 
@@ -110,6 +112,42 @@ void testConnectionAttemptLimiterHasBoundedExpiringState()
 	require(limiter.getTrackedCount() == limiter.getCapacity(), "reclaimed tracking state should remain bounded");
 	require(!limiter.allow(0, 5101), "invalid source addresses must not consume limiter state");
 }
+
+void testConnectionAttemptLimiterClockIsMonotonic()
+{
+	const uint64_t first = ConnectionAttemptLimiter::getMonotonicTimeMs();
+	const uint64_t second = ConnectionAttemptLimiter::getMonotonicTimeMs();
+	require(second >= first, "limiter clock must not move backwards");
+}
+
+void testConnectionAttemptLimiterDelaysRapidReconnects()
+{
+	ConnectionAttemptLimiter limiter(8, 2);
+	require(limiter.allow(10, 1000), "first connection attempt should pass");
+	for (uint64_t timestamp = 1100; timestamp <= 1400; timestamp += 100) {
+		require(limiter.allow(10, timestamp), "first five rapid attempts should pass");
+	}
+	require(!limiter.allow(10, 1500), "sixth rapid attempt should start a temporary block");
+	require(!limiter.allow(10, 2000), "attempt during the temporary block should remain rejected");
+	require(limiter.allow(10, 4751), "attempt after the block should pass again");
+}
+
+void testPacketRateLimitConfigurationIsValid()
+{
+	require(ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(1), "minimum positive packet rate should be valid");
+	require(ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(50), "ordinary packet rate should be valid");
+	require(ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(std::numeric_limits<int32_t>::max()),
+	        "largest representable packet rate should remain configurable");
+	require(!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(0), "zero packet rate should be rejected");
+	require(!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(-1), "negative packet rate should be rejected");
+	require(!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(1.5), "fractional packet rate should be rejected");
+	require(!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(std::numeric_limits<double>::infinity()),
+	        "infinite packet rate should be rejected");
+	require(!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(std::numeric_limits<double>::quiet_NaN()),
+	        "NaN packet rate should be rejected");
+	require(!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(static_cast<double>(std::numeric_limits<int32_t>::max()) + 1),
+	        "packet rate outside the stored integer range should be rejected");
+}
 }
 
 int main()
@@ -119,6 +157,9 @@ int main()
 	testConcurrentPerAddressLimit();
 	testDefaultLimitsPreserveConfiguredPlayers();
 	testConnectionAttemptLimiterHasBoundedExpiringState();
+	testConnectionAttemptLimiterDelaysRapidReconnects();
+	testConnectionAttemptLimiterClockIsMonotonic();
+	testPacketRateLimitConfigurationIsValid();
 	std::cout << "Connection admission tests passed." << std::endl;
 	return 0;
 }

@@ -24,14 +24,14 @@
 class DatabaseManager
 {
 	public:
-		static bool tableExists(const std::string& table);
+		static bool tableExists(const std::string& table, bool* querySucceeded = nullptr);
 
 		static int32_t getDatabaseVersion();
-		static bool isDatabaseSetup();
+		static bool isDatabaseSetup(bool* querySucceeded = nullptr);
 
 		static bool optimizeTables();
 
-		static bool getDatabaseConfig(const std::string& config, int32_t& value);
+		static bool getDatabaseConfig(const std::string& config, int32_t& value, bool* querySucceeded = nullptr);
 		static void registerDatabaseConfig(const std::string& config, int32_t value);
 };
 #endif

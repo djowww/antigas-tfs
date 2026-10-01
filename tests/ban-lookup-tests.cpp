@@ -10,6 +10,7 @@
 namespace {
 enum class Response { Error, Empty, Row };
 Response response = Response::Empty;
+bool escapeSucceeds = true;
 std::map<std::string, std::string> fields;
 std::vector<std::string> reads, queuedWrites;
 struct FakeResult {
@@ -25,6 +26,7 @@ void require(bool ok, const char* message)
 void fixture(Response next, time_t expires = 0)
 {
 	response = next;
+	escapeSucceeds = true;
 	fields = {{"reason", "fixture reason"}, {"expires_at", std::to_string(expires)},
 	          {"banned_at", "100"}, {"banned_by", "7"}, {"name", "Fixture Moderator"}, {"1", "1"}};
 	reads.clear();
@@ -45,10 +47,13 @@ DBResult_ptr Database::storeQuery(const std::string& query, bool* success)
 	return std::make_shared<DBResult>(reinterpret_cast<MYSQL_RES*>(data));
 }
 
-std::string Database::escapeString(const std::string& value) const
+bool Database::escapeString(const std::string& value, std::string& escaped) const
 {
 	// This seam handles only the ASCII fixture reason, not untrusted SQL input.
-	return "'" + value + "'";
+	escaped.clear();
+	if (!escapeSucceeds) return false;
+	escaped = "'" + value + "'";
+	return true;
 }
 
 DBResult::DBResult(MYSQL_RES* result) : handle(result)
@@ -107,6 +112,10 @@ int main()
 		fixture(Response::Row, time(nullptr) - 3600);
 		require(IOBan::lookupAccountBan(42, info) == BanLookupResult::Clear, "expired account ban must retain access behavior");
 		require(queuedWrites.size() == 2 && queuedWrites[0].find("INSERT INTO `account_ban_history`") == 0 && queuedWrites[1].find("DELETE FROM `account_bans`") == 0, "expired account ban must queue history before deletion");
+		fixture(Response::Row, time(nullptr) - 3600);
+		escapeSucceeds = false;
+		require(IOBan::lookupAccountBan(42, info) == BanLookupResult::Error, "failed reason escaping must fail the expired-ban lookup closed");
+		require(queuedWrites.empty(), "failed reason escaping must not enqueue history or delete the original ban");
 		fixture(Response::Row, time(nullptr) - 3600);
 		require(IOBan::lookupIpBan(1234, info) == BanLookupResult::Clear, "expired IP ban must retain access behavior");
 		require(queuedWrites.size() == 1 && queuedWrites[0].find("DELETE FROM `ip_bans`") == 0, "expired IP ban must queue deletion");

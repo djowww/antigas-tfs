@@ -64,8 +64,10 @@ class DatabaseAuthenticationDataSource : public AuthenticationDataSource
 		AuthQueryStatus getCharacter(const std::string& name, AuthCharacterRow& row) override
 		{
 			Database* db = Database::getInstance();
+			std::string escapedName;
+			if (!db->escapeString(name, escapedName)) return AuthQueryStatus::Error;
 			std::ostringstream query;
-			query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << db->escapeString(name);
+			query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << escapedName;
 			bool success = false;
 			DBResult_ptr result = db->storeQuery(query.str(), &success);
 			if (!success) return AuthQueryStatus::Error;
@@ -92,8 +94,14 @@ Account IOLoginData::loadAccount(uint32_t accno)
 		return account;
 	}
 
+	const int64_t rawAccountType = result->getNumber<int64_t>("type");
+	if (!isValidAccountTypeValue(rawAccountType)) {
+		std::cout << "[Error - IOLoginData::loadAccount] Invalid account type for account " << accno << std::endl;
+		return account;
+	}
+
 	account.id = result->getNumber<uint32_t>("id");
-	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
+	account.accountType = static_cast<AccountType_t>(rawAccountType);
 	account.premiumDays = result->getNumber<uint16_t>("premdays");
 	account.lastDay = result->getNumber<time_t>("lastday");
 	return account;
@@ -126,14 +134,24 @@ AccountType_t IOLoginData::getAccountType(uint32_t accountId)
 	if (!result) {
 		return ACCOUNT_TYPE_NORMAL;
 	}
-	return static_cast<AccountType_t>(result->getNumber<uint16_t>("type"));
+
+	const int64_t rawAccountType = result->getNumber<int64_t>("type");
+	if (!isValidAccountTypeValue(rawAccountType)) {
+		std::cout << "[Error - IOLoginData::getAccountType] Invalid account type for account " << accountId << std::endl;
+		return ACCOUNT_TYPE_NORMAL;
+	}
+	return static_cast<AccountType_t>(rawAccountType);
 }
 
-void IOLoginData::setAccountType(uint32_t accountId, AccountType_t accountType)
+bool IOLoginData::setAccountType(uint32_t accountId, AccountType_t accountType)
 {
+	if (accountType < ACCOUNT_TYPE_NORMAL || accountType > ACCOUNT_TYPE_GOD) {
+		return false;
+	}
+
 	std::ostringstream query;
 	query << "UPDATE `accounts` SET `type` = " << static_cast<uint16_t>(accountType) << " WHERE `id` = " << accountId;
-	Database::getInstance()->executeQuery(query.str());
+	return Database::getInstance()->executeQuery(query.str());
 }
 
 void IOLoginData::updateOnlineStatus(uint32_t guid, bool login)
@@ -155,18 +173,26 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
 	query << "SELECT `id`, `account_id`, `group_id`, `deletion`, (SELECT `type` FROM `accounts` WHERE `accounts`.`id` = `account_id`) AS `account_type`";
 	if (!g_config.getBoolean(ConfigManager::FREE_PREMIUM)) {
 		query << ", (SELECT `premdays` FROM `accounts` WHERE `accounts`.`id` = `account_id`) AS `premium_days`";
 	}
-	query << " FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << " FROM `players` WHERE `name` = " << escapedName;
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return false;
 	}
 
 	if (result->getNumber<uint64_t>("deletion") != 0) {
+		return false;
+	}
+
+	const int64_t rawAccountType = result->getNumber<int64_t>("account_type");
+	if (!isValidAccountTypeValue(rawAccountType)) {
+		std::cout << "[Error - IOLoginData::preloadPlayer] Invalid persisted account type." << std::endl;
 		return false;
 	}
 
@@ -178,7 +204,7 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 	}
 	player->setGroup(group);
 	player->accountNumber = result->getNumber<uint32_t>("account_id");
-	player->accountType = static_cast<AccountType_t>(result->getNumber<uint16_t>("account_type"));
+	player->accountType = static_cast<AccountType_t>(rawAccountType);
 	if (!g_config.getBoolean(ConfigManager::FREE_PREMIUM)) {
 		player->premiumDays = result->getNumber<uint16_t>("premium_days");
 	} else {
@@ -203,8 +229,10 @@ bool IOLoginData::loadPlayerByName(Player* player, const std::string& name)
 	DBTransaction transaction;
 	if (!transaction.begin(true)) return false;
 	Database* db = Database::getInstance();
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
-	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `ridingmount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `ridingmount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << escapedName;
 	bool loaded = loadPlayer(player, db->storeQuery(query.str() + " FOR UPDATE"));
 	return loaded && transaction.commit();
 }
@@ -219,6 +247,9 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 
 	uint32_t accno = result->getNumber<uint32_t>("account_id");
 	Account acc = loadAccount(accno);
+	if (acc.id != accno) {
+		return false;
+	}
 
 	player->setGUID(result->getNumber<uint32_t>("id"));
 	player->name = result->getString("name");
@@ -775,7 +806,9 @@ bool IOLoginData::savePlayer(Player* player, bool manageTransaction)
 
 	DBInsert spellsQuery("INSERT INTO `player_spells` (`player_id`, `name` ) VALUES ");
 	for (const std::string& spellName : player->learnedInstantSpellList) {
-		query << player->getGUID() << ',' << db->escapeString(spellName);
+		std::string escapedSpellName;
+		if (!db->escapeString(spellName, escapedSpellName)) return false;
+		query << player->getGUID() << ',' << escapedSpellName;
 		if (!spellsQuery.addRow(query)) {
 			return false;
 		}
@@ -924,8 +957,10 @@ uint32_t IOLoginData::getGuidByName(const std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return 0;
 	std::ostringstream query;
-	query << "SELECT `id` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `id` FROM `players` WHERE `name` = " << escapedName;
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return 0;
@@ -937,8 +972,10 @@ bool IOLoginData::getGuidByNameEx(uint32_t& guid, bool& specialVip, std::string&
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
-	query << "SELECT `name`, `id`, `group_id`, `account_id` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `name`, `id`, `group_id`, `account_id` FROM `players` WHERE `name` = " << escapedName;
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return false;
@@ -963,8 +1000,10 @@ bool IOLoginData::formatPlayerName(std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
-	query << "SELECT `name` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `name` FROM `players` WHERE `name` = " << escapedName;
 
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {

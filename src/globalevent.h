@@ -20,6 +20,7 @@
 #ifndef FS_GLOBALEVENT_H_B3FB9B848EA3474B9AFC326873947E3C
 #define FS_GLOBALEVENT_H_B3FB9B848EA3474B9AFC326873947E3C
 #include "baseevents.h"
+#include "callbackgeneration.h"
 
 #include "const.h"
 
@@ -47,8 +48,8 @@ class GlobalEvents final : public BaseEvents
 
 		void startup() const;
 
-		void timer();
-		void think();
+		void timer(uint64_t generation);
+		void think(uint64_t generation);
 		void execute(GlobalEvent_t type) const;
 
 		GlobalEventMap getEventMap(GlobalEvent_t type);
@@ -67,6 +68,7 @@ class GlobalEvents final : public BaseEvents
 			return scriptInterface;
 		}
 		LuaScriptInterface scriptInterface;
+		CallbackGeneration callbackGeneration;
 
 		GlobalEventMap thinkMap, serverMap, timerMap;
 		int32_t thinkEventId = 0, timerEventId = 0;
