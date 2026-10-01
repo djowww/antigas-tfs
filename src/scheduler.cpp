@@ -23,57 +23,56 @@
 
 void Scheduler::threadMain()
 {
-	std::unique_lock<std::mutex> eventLockUnique(eventLock, std::defer_lock);
+	std::unique_lock<std::mutex> eventLockUnique(eventLock);
 	while (getState() != THREAD_STATE_TERMINATED) {
-		std::cv_status ret = std::cv_status::no_timeout;
-
-		eventLockUnique.lock();
-		// Shutdown may have completed after the loop condition was read, before
-		// this lock was acquired. Do not wait after its notification is gone.
-		if (getState() == THREAD_STATE_TERMINATED) {
-			eventLockUnique.unlock();
-			break;
-		}
 		if (eventList.empty()) {
-			eventSignal.wait(eventLockUnique);
-		} else {
-			ret = eventSignal.wait_until(eventLockUnique, eventList.top()->getCycle());
-		}
-
-		// the mutex is locked again now...
-		// A timeout does not guarantee the queue still contains the old head:
-		// cancellation/shutdown can remove it while wait_until releases the lock.
-		if (getState() == THREAD_STATE_TERMINATED || eventList.empty()) {
-			eventLockUnique.unlock();
-			continue;
-		}
-		if (ret == std::cv_status::timeout) {
-			// ok we had a timeout, so there has to be an event we have to execute...
-			SchedulerTask* task = eventList.top();
-			eventList.pop();
-
-			// check if the event was stopped
-			auto it = eventIds.find(task->getEventId());
-			if (it == eventIds.end()) {
-				eventLockUnique.unlock();
-				delete task;
+			eventSignal.wait(eventLockUnique, [this]() {
+				return getState() == THREAD_STATE_TERMINATED || !eventList.empty();
+			});
+			if (getState() == THREAD_STATE_TERMINATED) {
+				break;
+			}
+			if (eventList.empty()) {
 				continue;
 			}
-			eventIds.erase(it);
-			std::vector<SchedulerTask*> cancelledTasks;
-			if (eventList.needsCompaction(eventIds.size())) {
-				cancelledTasks = eventList.discardCancelled(eventIds);
-			}
-			eventLockUnique.unlock();
-			for (SchedulerTask* cancelledTask : cancelledTasks) {
-				delete cancelledTask;
-			}
-
-			task->setDontExpire();
-			g_dispatcher.addTask(task, true);
 		} else {
-			eventLockUnique.unlock();
+			const std::chrono::system_clock::time_point nextCycle = eventList.top()->getCycle();
+			const bool queueChanged = eventSignal.wait_until(eventLockUnique, nextCycle, [this, nextCycle]() {
+				return getState() == THREAD_STATE_TERMINATED || eventList.empty() ||
+				       eventList.top()->getCycle() != nextCycle;
+			});
+			if (getState() == THREAD_STATE_TERMINATED) {
+				break;
+			}
+			if (queueChanged || eventList.empty()) {
+				continue;
+			}
 		}
+
+		SchedulerTask* task = eventList.top();
+		eventList.pop();
+
+		// A timed wait can expire after stopEvent has removed this id.
+		auto it = eventIds.find(task->getEventId());
+		if (it == eventIds.end()) {
+			eventLockUnique.unlock();
+			delete task;
+			eventLockUnique.lock();
+			continue;
+		}
+		eventIds.erase(it);
+		std::vector<SchedulerTask*> cancelledTasks;
+		if (eventList.needsCompaction(eventIds.size())) {
+			cancelledTasks = eventList.discardCancelled(eventIds);
+		}
+		eventLockUnique.unlock();
+		for (SchedulerTask* cancelledTask : cancelledTasks) {
+			delete cancelledTask;
+		}
+
+		task->setDontExpire();
+		g_dispatcher.addTask(task, true);
+		eventLockUnique.lock();
 	}
 }
 
@@ -156,8 +155,8 @@ bool Scheduler::stopEvent(uint32_t eventid)
 
 void Scheduler::shutdown()
 {
-	setState(THREAD_STATE_TERMINATED);
 	eventLock.lock();
+	setState(THREAD_STATE_TERMINATED);
 
 	//this list should already be empty
 	while (!eventList.empty()) {
@@ -168,7 +167,7 @@ void Scheduler::shutdown()
 
 	eventIds.clear();
 	eventLock.unlock();
-	eventSignal.notify_one();
+	eventSignal.notify_all();
 }
 
 SchedulerQueueMetricsSnapshot Scheduler::getQueueMetrics()

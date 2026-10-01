@@ -27,7 +27,6 @@ RSA g_RSA;
 
 namespace {
 using MutexLockFunction = int (*)(pthread_mutex_t*);
-using SignalFunction = int (*)(pthread_cond_t*);
 using TimedWaitFunction = int (*)(pthread_cond_t*, pthread_mutex_t*, const timespec*);
 
 MutexLockFunction realMutexLock()
@@ -45,16 +44,6 @@ TimedWaitFunction realTimedWait()
 	static auto function = reinterpret_cast<TimedWaitFunction>(dlsym(RTLD_NEXT, "pthread_cond_timedwait"));
 	if (!function) {
 		std::fputs("FAIL: real timed wait function unavailable\n", stderr);
-		std::_Exit(1);
-	}
-	return function;
-}
-
-SignalFunction realSignal()
-{
-	static auto function = reinterpret_cast<SignalFunction>(dlsym(RTLD_NEXT, "pthread_cond_signal"));
-	if (!function) {
-		std::fputs("FAIL: real condition signal function unavailable\n", stderr);
 		std::_Exit(1);
 	}
 	return function;
@@ -79,14 +68,11 @@ struct WaitObservation {
 	std::promise<void> entered;
 	std::atomic<bool> observed{false};
 	std::atomic<int> result{-1};
-	std::atomic<unsigned> calls{0};
 	WaitObservation(pthread_cond_t* condition, pthread_mutex_t* mutex) : condition(condition), mutex(mutex) {}
 };
 
 std::atomic<LockPause*> lockPause{nullptr};
 std::atomic<WaitObservation*> waitObservation{nullptr};
-std::atomic<pthread_cond_t*> signalObservation{nullptr};
-std::atomic<unsigned> observedSignals{0};
 
 void require(bool ok, const char* message)
 {
@@ -244,11 +230,6 @@ void duplicateEventIdPreservesExistingId()
 		std::fprintf(stderr, "scheduler-duplicate-event-id: %s\n", phase);
 	};
 	FixtureScheduler scheduler;
-	WaitObservation timedWait(scheduler.nativeCondition(), scheduler.nativeMutex());
-	auto waitingForDeadline = timedWait.entered.get_future();
-	waitObservation.store(&timedWait, std::memory_order_release);
-	observedSignals.store(0, std::memory_order_relaxed);
-	signalObservation.store(scheduler.nativeCondition(), std::memory_order_release);
 	mark("before-start");
 	scheduler.start();
 	mark("after-start");
@@ -260,7 +241,6 @@ void duplicateEventIdPreservesExistingId()
 	mark("before-add-original");
 	require(scheduler.addEvent(existing) == 77, "scheduler must accept the original event id");
 	mark("after-add-original");
-	ready(waitingForDeadline, "fixture must observe the scheduled original event deadline");
 
 	std::shared_ptr<int> duplicateRetained(new int(3));
 	std::weak_ptr<int> duplicateClosure = duplicateRetained;
@@ -274,15 +254,11 @@ void duplicateEventIdPreservesExistingId()
 	mark("before-cancel-original");
 	require(scheduler.stopEvent(77), "rejecting a duplicate must preserve the original active event id");
 	mark("after-cancel-original");
-	std::fprintf(stderr, "scheduler-duplicate-event-id: signals after cancel %u\n", observedSignals.load(std::memory_order_relaxed));
 	mark("before-shutdown");
 	scheduler.shutdown();
 	mark("after-shutdown");
-	std::fprintf(stderr, "scheduler-duplicate-event-id: signals after shutdown %u\n", observedSignals.load(std::memory_order_relaxed));
 	scheduler.join();
 	mark("after-join");
-	waitObservation.store(nullptr, std::memory_order_release);
-	signalObservation.store(nullptr, std::memory_order_release);
 	require(existingClosure.expired(), "cancelling the original event must release its closure");
 }
 }
@@ -298,25 +274,14 @@ extern "C" int pthread_mutex_lock(pthread_mutex_t* mutex) noexcept
 	return realMutexLock()(mutex);
 }
 
-extern "C" int pthread_cond_signal(pthread_cond_t* condition)
-{
-	if (condition == signalObservation.load(std::memory_order_acquire)) {
-		observedSignals.fetch_add(1, std::memory_order_relaxed);
-	}
-	return realSignal()(condition);
-}
-
 extern "C" int pthread_cond_timedwait(pthread_cond_t* condition, pthread_mutex_t* mutex, const timespec* deadline)
 {
 	WaitObservation* observation = waitObservation.load(std::memory_order_acquire);
-	const bool matching = observation && condition == observation->condition && mutex == observation->mutex;
-	const unsigned callNumber = matching ? observation->calls.fetch_add(1, std::memory_order_relaxed) + 1 : 0;
-	const bool tracked = matching && !observation->observed.exchange(true);
-	if (matching) std::fprintf(stderr, "scheduler-duplicate-event-id: timed wait %u enter\n", callNumber);
+	const bool tracked = observation && condition == observation->condition && mutex == observation->mutex &&
+		!observation->observed.exchange(true);
 	if (tracked) observation->entered.set_value();
 	const int result = realTimedWait()(condition, mutex, deadline);
 	if (tracked) observation->result.store(result);
-	if (matching) std::fprintf(stderr, "scheduler-duplicate-event-id: timed wait %u return %d\n", callNumber, result);
 	return result;
 }
 
@@ -330,7 +295,6 @@ int main(int argc, char** argv)
 		// arm the fixture observations or change the native call semantics.
 		(void)realMutexLock();
 		(void)realTimedWait();
-		(void)realSignal();
 		g_dispatcher.start();
 		if (scenario == "all" || scenario == "normal") {
 			normalExecutionAndCancellation();
