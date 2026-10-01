@@ -20,6 +20,7 @@ internal static class ClassicLauncherTheme
     internal static void Build(Form form, string subtitle, Label status, Label detail,
         ClassicProgressBar progress, Button primary, Button? secondary, Button close)
     {
+        form.FormBorderStyle = FormBorderStyle.None;
         form.AutoScaleDimensions = new SizeF(96F, 96F);
         form.AutoScaleMode = AutoScaleMode.Dpi;
         form.ClientSize = new Size(596, 334);
@@ -187,14 +188,50 @@ internal sealed class ClassicSurface : Panel
 internal sealed class ClassicBanner : Control
 {
     private readonly string _subtitle;
+    private bool _dragging;
+    private Point _dragMouseOrigin, _dragWindowOrigin;
 
     internal ClassicBanner(string subtitle)
     {
         _subtitle = subtitle;
         TabStop = false;
+        Cursor = Cursors.SizeAll;
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
             ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
         AccessibleName = "Antigas 7.4, " + subtitle;
+    }
+
+    protected override void OnMouseDown(MouseEventArgs e)
+    {
+        base.OnMouseDown(e);
+        if (e.Button != MouseButtons.Left || FindForm() is not { WindowState: FormWindowState.Normal } form) return;
+        _dragMouseOrigin = MousePosition;
+        _dragWindowOrigin = form.Location;
+        _dragging = true;
+        Capture = true;
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+        if (!_dragging || FindForm() is not { } form) return;
+        var pointer = MousePosition;
+        form.Location = new Point(_dragWindowOrigin.X + pointer.X - _dragMouseOrigin.X,
+            _dragWindowOrigin.Y + pointer.Y - _dragMouseOrigin.Y);
+    }
+
+    protected override void OnMouseUp(MouseEventArgs e)
+    {
+        base.OnMouseUp(e);
+        if (e.Button != MouseButtons.Left) return;
+        _dragging = false;
+        Capture = false;
+    }
+
+    protected override void OnMouseCaptureChanged(EventArgs e)
+    {
+        base.OnMouseCaptureChanged(e);
+        if (!Capture) _dragging = false;
     }
 
     protected override void OnPaint(PaintEventArgs e)

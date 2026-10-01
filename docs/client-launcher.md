@@ -17,7 +17,7 @@ dotnet publish deploy/launcher/AntigasLauncher/AntigasLauncher.csproj -c Release
 Prepare a client source directory whose modules and assets are ready for release, then create both ZIPs and sign the update package:
 
 ```powershell
-.\deploy\launcher\build-release.ps1 -Version 57 -ClientSource C:\path\to\client -LauncherExe .\launcher-publish\AntigasLauncher.exe -OutputDirectory .\release-v57 -IncludeLauncherInUpdate
+.\deploy\launcher\build-release.ps1 -Version 58 -ClientSource C:\path\to\client -LauncherExe .\launcher-publish\AntigasLauncher.exe -OutputDirectory .\release-v58 -IncludeLauncherInUpdate
 ```
 
 The script signs `Antigas-7.4-Update-vN.zip` and creates full `Antigas-7.4-Client-vN.zip` and `Antigas-7.4-Launcher-vN.zip` bundles. Omit `-IncludeLauncherInUpdate` when the launcher executable is unchanged. Publish the signed manifest as `client-release.json`, the update ZIP under its exact name, and link the launcher bundle from the website.
@@ -63,3 +63,13 @@ The website shares `classic-refinement.css` across the home, wiki, account, and 
 The Release build completed with warning-as-error checks enabled. The main launcher was captured in its native 596×334 client area at the current desktop scale. Candidate web pages were visually reviewed in the browser at desktop width and at 375/320 px, including the anonymous account, wiki, and coins pages. No horizontal overflow was observed in those views; an inherited mobile wiki flex-basis gap was corrected. Other Windows DPI settings, authenticated account/payment states, and end-to-end updater integration were not exercised for this visual release.
 
 The online site and all three v57 packages were installed with uploaded hash checks, PHP syntax checks, and the signed manifest switched last. Previous pages are backed up under `/opt/imperium772/backups/taste-v57-20261001T192344Z-9fe7a8/site`. The game service remained active with the same process. Local site/client/launcher copies were synchronized with backups; the public home page was captured after deployment with the new stylesheet hash and v57 download URL.
+
+## Release v58 — 2026-10-01
+
+Launcher 1.1.1 removes the Windows title bar and window border from both themed forms using `FormBorderStyle.None`. The existing stone frame, client dimensions, action buttons, keyboard closing, and update closure guard remain intact. The classic banner supports moving the window with a left-button drag; screen-coordinate deltas use signed `Point` values and mouse capture is released on mouse-up or loss of capture. No native interop or new dependency was introduced.
+
+The three signed release ZIPs contain the updated launcher automatically. All three have SHA-256 `44a46f982246bb1cf062cb8bf917f79d7b69eaee1408b79123ac673b32d392e9`; the launcher executable hash is `03ace5fac021f11b7c4d49e9b4f5323faf66de769c89d48f42b639e141f531d3`. Compared with v57, only the launcher and the three release metadata files change. All 682 game files remain identical.
+
+Release compilation and archive/signature checks passed. Drag and the unchanged `OnFormClosing` guard were reviewed statically. Native capture could not be completed because window activation failed and the preview window was subsequently absent; no visual or runtime drag verification is claimed for v58.
+
+The online packages and pages were published with uploaded hash checks and PHP syntax checks, switching the signed manifest last. Previous pages are backed up under `/opt/imperium772/backups/borderless-v58-20261001T195408Z-40e0e3/site`. The game service remained active with the same process. The local launcher/client metadata and site copies were synchronized with backups under `backup/Client-releases/borderless-v58-20261001/local-before-v58`.

@@ -17,7 +17,6 @@ internal sealed class LauncherForm : Form
     {
         Text = "Antigas 7.4 Launcher";
         StartPosition = FormStartPosition.CenterScreen;
-        FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; Icon = SystemIcons.Application;
         _status.Text = "Verificando atualizações…";
         _detail.Text = "Os pacotes são conferidos antes de instalar.";
