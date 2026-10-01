@@ -59,11 +59,12 @@ class RaidCallbackLifetimeTests(unittest.TestCase):
         source = (ROOT / "src" / "scheduler.cpp").read_text(encoding="utf-8")
         worker = source.split("void Scheduler::threadMain()", 1)[1]
         worker = worker.split("uint32_t Scheduler::addEvent(", 1)[0]
-        timeout_branch = worker.split("if (ret == std::cv_status::timeout)", 1)[1]
-        timeout_branch = timeout_branch.split("\n\t\t} else {", 1)[0]
-        erased = timeout_branch.index("eventIds.erase(it);")
-        unlocked_after_erase = timeout_branch.index("eventLockUnique.unlock();", erased)
-        dispatched = timeout_branch.index("g_dispatcher.addTask(task, true);")
+        self.assertIn("eventSignal.wait(eventLockUnique, [this]()", worker)
+        self.assertIn("eventSignal.wait_until(eventLockUnique, nextCycle, [this, nextCycle]()", worker)
+        self.assertIn("getState() == THREAD_STATE_TERMINATED", worker)
+        erased = worker.index("eventIds.erase(it);")
+        unlocked_after_erase = worker.index("eventLockUnique.unlock();", erased)
+        dispatched = worker.index("g_dispatcher.addTask(task, true);")
         self.assertLess(erased, unlocked_after_erase)
         self.assertLess(unlocked_after_erase, dispatched)
 
