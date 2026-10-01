@@ -9,8 +9,14 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         using var appMutex = new Mutex(false, @"Local\AntigasLauncher.v1");
         var isUpdater = args.Length > 0 && args[0] == "--apply-update";
+        var isUpdatedRelaunch = args.Length == 2 && args[0] == "--updated" &&
+            int.TryParse(args[1], out var updatedVersion) && updatedVersion is >= 1 and <= 1_000_000;
         var ownsMutex = false;
-        try { ownsMutex = appMutex.WaitOne(isUpdater ? TimeSpan.FromMinutes(2) : TimeSpan.Zero); }
+        // The update helper launches this process just before releasing its mutex.
+        // Normal duplicate launches still fail immediately.
+        var mutexWait = isUpdater ? TimeSpan.FromMinutes(2) :
+            isUpdatedRelaunch ? TimeSpan.FromSeconds(10) : TimeSpan.Zero;
+        try { ownsMutex = appMutex.WaitOne(mutexWait); }
         catch (AbandonedMutexException) { ownsMutex = true; }
         if (!ownsMutex)
         {

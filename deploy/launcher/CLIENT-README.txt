@@ -2,7 +2,7 @@ ANTIGAS 7.4 — CLIENTE v{{VERSION}} COM LAUNCHER
 
 INSTALAÇÃO
 1. Para uma instalação nova, baixe o pacote Antigas-7.4-Launcher-v{{VERSION}}.zip no site oficial, extraia todos os arquivos para uma pasta própria (por exemplo C:\Games\Antigas) e abra AntigasLauncher.exe.
-2. O pacote Antigas-7.4-Update-v{{VERSION}}.zip é usado pelo launcher para atualizar o cliente e não contém o executável do launcher.
+2. O pacote Antigas-7.4-Update-v{{VERSION}}.zip é usado pelo launcher para atualizar o cliente. Quando há uma versão nova do launcher, ela também é incluída na atualização assinada.
 3. O link de atualização do cliente antigo baixa Antigas-7.4-Client-v{{VERSION}}.zip, o pacote completo com launcher. O site também oferece Antigas-7.4-Launcher-v{{VERSION}}.zip para novas instalações.
 4. Evite Program Files para que as atualizações não precisem de permissões de administrador.
 5. Se preferir, Antigas_gl.exe e Antigas_dx.exe continuam disponíveis para abrir o cliente diretamente.
