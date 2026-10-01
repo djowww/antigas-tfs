@@ -17,6 +17,8 @@ import signal
 import subprocess
 import threading
 import time
+from staging_recovery import record_recovery, recover_staging
+from staging_safety import pin_staging_rsa_public, require_isolated_staging_service, require_staging_target
 
 ROOT = Path(__file__).resolve().parents[1]
 STAGE = Path('/opt/imperium772-staging/server')
@@ -50,10 +52,11 @@ def main():
     parser.add_argument('--approved-maintenance', action='store_true', required=True)
     parser.add_argument('--skip-smoke', action='store_true', help='only after a passed smoke on this exact build')
     options = parser.parse_args()
+    require_staging_target()
     assert value('imperium772', 'ActiveState') == 'active'
     assert value('imperium772-staging', 'ActiveState') == 'inactive'
+    require_isolated_staging_service(value)
     assert os.environ.get('INVOCATION_ID'), 'Run under the documented systemd watchdog'
-    from staging_safety import pin_staging_rsa_public
     pin_staging_rsa_public(os.environ, STAGE / 'staging-rsa-public.json')
     signal.signal(signal.SIGTERM, interrupt)
     signal.signal(signal.SIGINT, interrupt)
@@ -82,23 +85,16 @@ def main():
     finally:
         STOP.set()
         monitor.join(timeout=2) if monitor.is_alive() else None
-        # Each operation is independent so a failed stop does not skip recovery.
-        recovery = []
-        for command in (['systemctl', 'stop', 'imperium772-staging'],
-                        ['systemctl', 'set-property', '--runtime', 'imperium772-staging', 'MemoryMax=1G'],
-                        ['systemctl', 'start', 'imperium772']):
-            try:
-                recovery.append(subprocess.run(command, timeout=45).returncode)
-            except (OSError, subprocess.TimeoutExpired) as error:
-                recovery.append(str(error))
-        result.update(ended=time.time(), recovery_codes=recovery, production=value('imperium772', 'ActiveState'),
-                      staging=value('imperium772-staging', 'ActiveState'), samples=SAMPLES)
+        recovery = recover_staging()
+        recovery_ok = record_recovery(result, recovery, ended=time.time(), samples=SAMPLES)
         if SAMPLES:
             result['peak_rss_mib'] = max(s['rss_bytes'] for s in SAMPLES)/1024**2
             result['peak_memory_mib'] = max(s['memory_current'] for s in SAMPLES)/1024**2
             result['cpu_seconds'] = SAMPLES[-1]['cpu_seconds'] - SAMPLES[0]['cpu_seconds']
         (ROOT/'load-result.json').write_text(json.dumps(result, indent=2))
         print(json.dumps({k:v for k,v in result.items() if k!='samples'}), flush=True)
+    if not recovery_ok:
+        raise SystemExit('Staging recovery failed; inspect the recovery fields in load-result.json')
 
 if __name__ == '__main__':
     main()

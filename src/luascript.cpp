@@ -1583,6 +1583,7 @@ void LuaScriptInterface::registerFunctions()
 	registerEnumIn("configKeys", ConfigManager::FREE_PREMIUM)
 	registerEnumIn("configKeys", ConfigManager::REPLACE_KICK_ON_LOGIN)
 	registerEnumIn("configKeys", ConfigManager::ALLOW_CLONES)
+	registerEnumIn("configKeys", ConfigManager::ONLY_INVITED_CAN_MOVE_HOUSE_ITEMS)
 	registerEnumIn("configKeys", ConfigManager::BIND_ONLY_GLOBAL_ADDRESS)
 	registerEnumIn("configKeys", ConfigManager::OPTIMIZE_DATABASE)
 	registerEnumIn("configKeys", ConfigManager::EMOTE_SPELLS)
@@ -2211,6 +2212,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMetaMethod("House", "__eq", LuaScriptInterface::luaUserdataCompare);
 
 	registerMethod("House", "getId", LuaScriptInterface::luaHouseGetId);
+	registerMethod("House", "isInvited", LuaScriptInterface::luaHouseIsInvited);
 	registerMethod("House", "getName", LuaScriptInterface::luaHouseGetName);
 	registerMethod("House", "getTown", LuaScriptInterface::luaHouseGetTown);
 	registerMethod("House", "getExitPosition", LuaScriptInterface::luaHouseGetExitPosition);
@@ -3794,7 +3796,12 @@ int LuaScriptInterface::luaDatabaseAsyncStoreQuery(lua_State* L)
 
 int LuaScriptInterface::luaDatabaseEscapeString(lua_State* L)
 {
-	pushString(L, Database::getInstance()->escapeString(getString(L, -1)));
+	std::string escaped;
+	if (!Database::getInstance()->escapeString(getString(L, -1), escaped)) {
+		lua_pushnil(L);
+		return 1;
+	}
+	pushString(L, escaped);
 	return 1;
 }
 
@@ -3813,7 +3820,16 @@ int LuaScriptInterface::luaDatabaseLastInsertId(lua_State* L)
 
 int LuaScriptInterface::luaDatabaseTableExists(lua_State* L)
 {
-	pushBoolean(L, DatabaseManager::tableExists(getString(L, -1)));
+	bool querySucceeded = false;
+	bool exists = false;
+	{
+		const std::string tableName = getString(L, -1);
+		exists = DatabaseManager::tableExists(tableName, &querySucceeded);
+	}
+	if (!querySucceeded) {
+		return luaL_error(L, "Database table existence check failed.");
+	}
+	pushBoolean(L, exists);
 	return 1;
 }
 
@@ -7639,8 +7655,24 @@ int LuaScriptInterface::luaPlayerSetAccountType(lua_State* L)
 	// player:setAccountType(accountType)
 	Player* player = getUserdata<Player>(L, 1);
 	if (player) {
-		player->accountType = getNumber<AccountType_t>(L, 2);
-		IOLoginData::setAccountType(player->getAccount(), player->accountType);
+		const lua_Number rawAccountType = lua_tonumber(L, 2);
+		if (!isValidAccountTypeNumber(rawAccountType)) {
+			pushBoolean(L, false);
+			return 1;
+		}
+		const AccountType_t accountType = static_cast<AccountType_t>(rawAccountType);
+		const uint32_t accountId = player->getAccount();
+		if (!IOLoginData::setAccountType(accountId, accountType)) {
+			pushBoolean(L, false);
+			return 1;
+		}
+
+		for (const auto& playerEntry : g_game.getPlayers()) {
+			Player* onlinePlayer = playerEntry.second;
+			if (onlinePlayer->getAccount() == accountId) {
+				onlinePlayer->accountType = accountType;
+			}
+		}
 		pushBoolean(L, true);
 	} else {
 		lua_pushnil(L);
@@ -10201,6 +10233,15 @@ int LuaScriptInterface::luaHouseGetId(lua_State* L)
 	} else {
 		lua_pushnil(L);
 	}
+	return 1;
+}
+
+int LuaScriptInterface::luaHouseIsInvited(lua_State* L)
+{
+	// house:isInvited(player)
+	House* house = getUserdata<House>(L, 1);
+	Player* player = getUserdata<Player>(L, 2);
+	pushBoolean(L, house && player && house->isInvited(player));
 	return 1;
 }
 

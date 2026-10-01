@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Install server build dependencies
         run: |
@@ -77,7 +79,10 @@ jobs:
             -DTFS_BUILD_LUA_WATCHDOG_TESTS=ON \
             -DTFS_BUILD_LUA_ENVIRONMENT_LIFECYCLE_TESTS=ON \
             -DTFS_BUILD_STATUS_QUERY_TESTS=ON \
+            -DTFS_BUILD_REMOTE_LOG_RATE_LIMITER_TESTS=ON \
             -DTFS_BUILD_SCHEDULER_TESTS=ON \
+            -DTFS_BUILD_CALLBACK_GENERATION_TESTS=ON \
+            -DTFS_BUILD_QUEUE_METRICS_TESTS=ON \
             -DTFS_BUILD_SCHEDULER_SHUTDOWN_TESTS=ON \
             -DTFS_BUILD_SCRIPT_READER_TESTS=ON \
             -DTFS_BUILD_SCRIPT_ENVIRONMENT_INDEX_TESTS=ON \
@@ -85,8 +90,10 @@ jobs:
             -DTFS_BUILD_CONNECTION_ADMISSION_TESTS=ON \
             -DTFS_BUILD_LOGIN_GATE_TESTS=ON \
             -DTFS_BUILD_AUTHENTICATION_TESTS=ON \
+            -DTFS_BUILD_TALKACTION_AUTHORIZATION_TESTS=ON \
             -DTFS_BUILD_DISPATCHER_FAILFAST_TESTS=ON \
             -DTFS_BUILD_SQL_IDENTIFIER_TESTS=ON \
+            -DTFS_BUILD_DATABASE_ESCAPE_TESTS=ON \
             -DTFS_BUILD_SCRIPT_FILENAME_TESTS=ON \
             -DTFS_BUILD_LOCALTIME_TESTS=ON \
             -DTFS_BUILD_NETWORKMESSAGE_TESTS=ON \
@@ -116,6 +123,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Install LuaJIT syntax checker
         run: |
@@ -154,13 +163,22 @@ jobs:
       - name: Run persisted lamp-state parser regression tests
         run: luajit tests/lamp-state-parser-tests.lua
 
+      - name: Run lamp-state action regression tests
+        run: luajit tests/lamp-state-action-tests.lua
+
+      - name: Run IP-ban authorization and persistence tests
+        run: luajit tests/ipban-security-tests.lua
+
+      - name: Run account-type persistence tests
+        run: luajit tests/account-type-persistence-tests.lua
+
       - name: Run rarity, Market inventory and economy regression tests
         run: luajit tests/rarity-economy-tests.lua
 
       - name: Run safe Python regression tests
         env:
           PYTHONPATH: tests
-        run: python3 -m unittest test_load_test test_staging_safety test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_report_bug_path test_coin_page_cache test_dispatcher_shutdown_order test_connection_shutdown_serialization test_connection_admission test_lamp_state_parser test_deployment_preconditions test_connection_output_queue test_sql_identifier test_script_filename -v
+        run: python3 -m unittest test_load_test test_staging_safety test_staging_recovery test_recovery_script test_database_task_thread_affinity test_scheduler_lifetime test_raid_callback_lifetime test_spawn_callback_lifetime test_global_event_callback_lifetime test_npc_callback_lifetime test_report_bug_path test_coin_page_cache test_dispatcher_shutdown_order test_connection_shutdown_serialization test_connection_admission test_lamp_state_parser test_deployment_preconditions test_connection_output_queue test_sql_identifier test_database_escape test_queue_metrics test_workflow_checkout_credentials test_script_filename test_talkaction_authorization test_account_type_persistence test_staff_ban_commands test_remote_log_rate_limiter -v
 
       - name: Parse tracked Python files
         run: |
@@ -181,6 +199,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Install fuzzer and server headers
         run: |
@@ -227,6 +247,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Build launcher
         run: dotnet build deploy/launcher/AntigasLauncher/AntigasLauncher.csproj --configuration Release

@@ -21,10 +21,26 @@
 
 #include "tasks.h"
 #include "game.h"
+#include "workerexceptiondiagnostic.h"
+
+#include <exception>
 
 extern Game g_game;
 
 void Dispatcher::threadMain()
+{
+	try {
+		threadMainLoop();
+	} catch (const std::exception& exception) {
+		WorkerExceptionDiagnostic::log("Dispatcher", exception.what());
+		throw;
+	} catch (...) {
+		WorkerExceptionDiagnostic::log("Dispatcher", nullptr);
+		throw;
+	}
+}
+
+void Dispatcher::threadMainLoop()
 {
 	// NOTE: second argument defer_lock is to prevent from immediate locking
 	std::unique_lock<std::mutex> taskLockUnique(taskLock, std::defer_lock);
@@ -42,11 +58,13 @@ void Dispatcher::threadMain()
 			// take the first task
 			Task* task = taskList.front();
 			taskList.pop_front();
+			queueMetrics.taskDequeued(task->getTrackedPayloadBytes());
 			taskLockUnique.unlock();
 
 			if (!task->hasExpired()) {
 				++dispatcherCycle;
-				// execute it
+				// Execute it. A worker-level boundary reports failures and rethrows
+				// so partially applied world operations still fail fast.
 				(*task)();
 
 				g_game.map.clearSpectatorCache();
@@ -72,6 +90,7 @@ void Dispatcher::addTask(Task* task, bool push_front /*= false*/)
 		} else {
 			taskList.push_back(task);
 		}
+		queueMetrics.taskQueued(task->getTrackedPayloadBytes());
 	} else {
 		delete task;
 	}
@@ -92,6 +111,7 @@ void Dispatcher::addTaskAndStop(Task* task)
 		if (getState() == THREAD_STATE_RUNNING) {
 			do_signal = taskList.empty();
 			taskList.push_back(task);
+			queueMetrics.taskQueued(task->getTrackedPayloadBytes());
 			setState(THREAD_STATE_CLOSING);
 		} else {
 			delete task;
@@ -112,6 +132,13 @@ void Dispatcher::shutdown()
 
 	std::lock_guard<std::mutex> lockClass(taskLock);
 	taskList.push_back(task);
+	queueMetrics.taskQueued(task->getTrackedPayloadBytes());
 
 	taskSignal.notify_one();
+}
+
+QueueMetricsSnapshot Dispatcher::getQueueMetrics()
+{
+	std::lock_guard<std::mutex> lock(taskLock);
+	return queueMetrics.snapshot();
 }

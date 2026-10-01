@@ -12,6 +12,7 @@
 #define FS_CONNECTION_ATTEMPT_LIMITER_H_3EE0F57B392A4BEB9AAEF014BB688156
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <mutex>
@@ -61,6 +62,13 @@ class ConnectionAttemptLimiter
 			entry.occupied = true;
 			indexByIP.emplace(ip, slot);
 			return true;
+		}
+
+		static uint64_t getMonotonicTimeMs()
+		{
+			static const std::chrono::steady_clock::time_point clockOrigin = std::chrono::steady_clock::now();
+			const auto elapsed = std::chrono::steady_clock::now() - clockOrigin;
+			return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
 		}
 
 		std::size_t getTrackedCount() const

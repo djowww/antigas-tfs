@@ -3,7 +3,12 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from staging_safety import pin_staging_rsa_public, require_staging_target, rsa_public_modulus
+from staging_safety import (
+    pin_staging_rsa_public,
+    require_isolated_staging_service,
+    require_staging_target,
+    rsa_public_modulus,
+)
 
 
 class StagingSafetyTests(unittest.TestCase):
@@ -47,6 +52,28 @@ class StagingSafetyTests(unittest.TestCase):
         env = self.valid_env(TFS_DB_NAME="antigas;drop_test")
         with self.assertRaises(SystemExit):
             require_staging_target(env)
+
+    def test_accepts_only_the_dedicated_staging_service_user_and_environment(self):
+        properties = {
+            "User": "tfs74-stage",
+            "EnvironmentFiles": "/etc/imperium772-staging.env (ignore_errors=no)",
+        }
+        require_isolated_staging_service(lambda unit, prop: properties[prop])
+
+    def test_rejects_staging_service_with_production_user_or_environment(self):
+        for prop, value in (
+            ("User", "root"),
+            ("EnvironmentFiles", "/etc/imperium772.env (ignore_errors=no)"),
+            ("EnvironmentFiles", "/etc/imperium772-staging.env /etc/imperium772.env"),
+        ):
+            with self.subTest(prop=prop, value=value):
+                properties = {
+                    "User": "tfs74-stage",
+                    "EnvironmentFiles": "/etc/imperium772-staging.env (ignore_errors=no)",
+                }
+                properties[prop] = value
+                with self.assertRaises(SystemExit):
+                    require_isolated_staging_service(lambda unit, name: properties[name])
 
     def test_staging_runner_pins_and_uses_staging_rsa_key(self):
         modulus = (1 << 1023) + 12345

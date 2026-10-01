@@ -21,6 +21,7 @@
 
 #include "script.h"
 #include "enums.h"
+#include "callbackgeneration.h"
 
 enum BehaviourSituation_t
 {
@@ -295,6 +296,7 @@ class BehaviourDatabase
 
 		std::list<NpcQueueEntry> queueList;
 		std::vector<uint32_t> delayedEvents;
+		CallbackGeneration delayedSayGeneration;
 		std::list<NpcBehaviour*> behaviourEntries;
 		std::recursive_mutex mutex;
 

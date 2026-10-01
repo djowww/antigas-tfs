@@ -9,7 +9,8 @@ import signal
 import subprocess
 import threading
 import time
-from staging_safety import pin_staging_rsa_public, require_staging_target
+from staging_safety import pin_staging_rsa_public, require_isolated_staging_service, require_staging_target
+from staging_recovery import record_recovery, recover_staging
 
 ROOT = Path(__file__).resolve().parents[1]
 STAGE = Path('/opt/imperium772-staging/server')
@@ -33,8 +34,9 @@ def main():
     pin_staging_rsa_public(os.environ, STAGE / 'staging-rsa-public.json')
     if not os.environ.get('INVOCATION_ID') or value('imperium772', 'ActiveState') != 'active':
         raise SystemExit('Requires systemd watchdog and active production before maintenance')
-    if value('imperium772-staging', 'ActiveState') != 'inactive' or value('imperium772-staging', 'User') != 'tfs74-stage':
-        raise SystemExit('Staging must be stopped and use its isolated OS account')
+    if value('imperium772-staging', 'ActiveState') != 'inactive':
+        raise SystemExit('Staging must be stopped before maintenance')
+    require_isolated_staging_service(value)
     if hashlib.sha256((STAGE / 'tfs').read_bytes()).hexdigest() != args.binary_sha256:
         raise SystemExit('Staging binary does not match tested CI artifact')
     for probe in ('rarity-live.py', 'ground-rarity-live.py'):
@@ -96,18 +98,16 @@ def main():
         stop.set()
         if monitor.is_alive():
             monitor.join(timeout=3)
-        recovery = []
-        for cmd in (['systemctl','stop','imperium772-staging'], ['systemctl','set-property','--runtime','imperium772-staging','MemoryMax=1G'], ['systemctl','start','imperium772']):
-            try:
-                recovery.append(subprocess.run(cmd, timeout=55).returncode)
-            except (OSError, subprocess.TimeoutExpired):
-                recovery.append(-1)
-        report.update(ended=time.time(), recovery=recovery, production=value('imperium772','ActiveState'), staging=value('imperium772-staging','ActiveState'))
+        recovery = recover_staging()
+        recovery_ok = record_recovery(
+            report, recovery, ended=time.time(), recovery=recovery['recovery_codes'])
         if report['samples']:
             report['peak_rss_mib'] = max(s['rss_mib'] for s in report['samples'])
         report_name = 'security-validation-result.json' if args.phase == 'full' else 'security-validation-ground-result.json'
         (ROOT/report_name).write_text(json.dumps(report, indent=2))
         print(json.dumps({k:v for k,v in report.items() if k!='samples'}), flush=True)
+    if not recovery_ok:
+        raise SystemExit('Staging recovery failed; inspect the recovery fields in the validation report')
 
 
 if __name__ == '__main__':

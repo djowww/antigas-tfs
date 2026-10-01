@@ -80,9 +80,10 @@ class Database
 		 * Prepares string to fit SQL queries including quoting it.
 		 *
 		 * @param s string to be escaped
-		 * @return quoted string
+		 * @param escaped receives the quoted string; cleared when escaping fails
+		 * @return true if the connection can safely escape the string
 		 */
-		std::string escapeString(const std::string& s) const;
+		bool escapeString(const std::string& s, std::string& escaped) const;
 
 		/**
 		 * Escapes binary stream for query.

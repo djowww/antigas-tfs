@@ -51,6 +51,56 @@ std::mutex g_loaderLock;
 std::condition_variable g_loaderSignal;
 std::unique_lock<std::mutex> g_loaderUniqueLock(g_loaderLock);
 
+namespace {
+void scheduleQueueMetricsLog();
+
+void logQueueMetrics()
+{
+	const QueueMetricsSnapshot dispatcher = g_dispatcher.getQueueMetrics();
+	const SchedulerQueueMetricsSnapshot scheduler = g_scheduler.getQueueMetrics();
+	const DatabaseQueueMetricsSnapshot database = g_databaseTasks.getQueueMetrics();
+
+	std::ostringstream log;
+	log << "[QueueMetrics] dispatcher queued=" << dispatcher.queuedCount
+		<< " tracked_payload_bytes=" << dispatcher.trackedPayloadBytes
+		<< " peak_queued=" << dispatcher.peakQueuedCount
+		<< " peak_tracked_payload_bytes=" << dispatcher.peakTrackedPayloadBytes
+		<< " total_enqueued=" << dispatcher.totalQueuedCount
+		<< " total_dequeued=" << dispatcher.totalDequeuedCount
+		<< " counter_anomaly=" << (dispatcher.counterAnomaly ? 1 : 0)
+		<< "; scheduler active_events=" << scheduler.activeEventCount
+		<< " retained_nodes=" << scheduler.retained.queuedCount
+		<< " cancelled_retained_nodes=" << scheduler.cancelledRetainedCount
+		<< " tracked_payload_bytes=" << scheduler.retained.trackedPayloadBytes
+		<< " peak_retained_nodes=" << scheduler.retained.peakQueuedCount
+		<< " peak_tracked_payload_bytes=" << scheduler.retained.peakTrackedPayloadBytes
+		<< " total_enqueued=" << scheduler.retained.totalQueuedCount
+		<< " total_dequeued=" << scheduler.retained.totalDequeuedCount
+		<< " counter_anomaly=" << (scheduler.retained.counterAnomaly ? 1 : 0)
+		<< "; database queued=" << database.queue.queuedCount
+		<< " queued_sql_bytes=" << database.queue.trackedPayloadBytes
+		<< " peak_queued=" << database.queue.peakQueuedCount
+		<< " peak_queued_sql_bytes=" << database.queue.peakTrackedPayloadBytes
+		<< " total_enqueued=" << database.queue.totalQueuedCount
+		<< " total_dequeued=" << database.queue.totalDequeuedCount
+		<< " oldest_queued_age_ms=" << database.oldestQueuedAgeMs
+		<< " completed_tasks=" << database.queue.completedTaskCount
+		<< " total_execution_us=" << database.queue.totalTaskExecutionMicroseconds
+		<< " max_execution_us=" << database.queue.maxTaskExecutionMicroseconds
+		<< " counter_anomaly=" << (database.queue.counterAnomaly ? 1 : 0);
+	std::cout << log.str() << std::endl;
+
+	scheduleQueueMetricsLog();
+}
+
+void scheduleQueueMetricsLog()
+{
+	g_scheduler.addEvent(createSchedulerTask(60000, []() {
+		logQueueMetrics();
+	}));
+}
+}
+
 void startupErrorMessage(const std::string& errorStr)
 {
 	std::cout << "> ERROR: " << errorStr << std::endl;
@@ -182,8 +232,13 @@ void mainLoader(int, char*[], ServiceManager* services)
 	// run database manager
 	std::cout << ">> Running database manager" << std::endl;
 
-	if (!DatabaseManager::isDatabaseSetup()) {
-		startupErrorMessage("The database you have specified in config.lua is empty, please import the schema.sql to your database.");
+	bool databaseSetupCheckSucceeded = false;
+	if (!DatabaseManager::isDatabaseSetup(&databaseSetupCheckSucceeded)) {
+		if (databaseSetupCheckSucceeded) {
+			startupErrorMessage("The database you have specified in config.lua is empty, please import the schema.sql to your database.");
+		} else {
+			startupErrorMessage("Failed to verify database schema. Check database connectivity and configuration.");
+		}
 		return;
 	}
 	g_databaseTasks.start();
@@ -293,6 +348,7 @@ void mainLoader(int, char*[], ServiceManager* services)
 */
 
 	g_game.start(services);
+	scheduleQueueMetricsLog();
 	g_game.setGameState(GAME_STATE_NORMAL);
 	g_loaderSignal.notify_all();
 }

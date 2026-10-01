@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <atomic>
+#include <limits>
 #include <thread>
 
 static void require(bool condition, const char* message)
@@ -78,6 +79,48 @@ static void testAccountQueryOutcomes()
 	auto unknown = authenticateLoginServer(data, 999, "synthetic-password");
 	require(unknown.status == AuthenticationStatus::InvalidCredentials, "missing account must map to generic invalid credentials");
 	require(data.accountCalls == 1 && data.charactersCalls == 0, "unknown account must stop before character query");
+}
+
+static void testInvalidPersistedAccountTypesFailClosed()
+{
+	for (int32_t accountType : {0, 6, 258, 259, 261, -1}) {
+		require(!isValidAccountTypeValue(accountType), "out-of-range persisted account type must be rejected before enum conversion");
+
+		FakeAuthenticationData loginData;
+		loginData.account.type = accountType;
+		auto login = authenticateLoginServer(loginData, 42, "synthetic-password");
+		require(login.status == AuthenticationStatus::DatabaseError, "invalid loginserver account type must fail closed as a data error");
+		require(loginData.charactersCalls == 0, "invalid account type must stop before querying characters");
+
+		FakeAuthenticationData gameData;
+		gameData.account.type = accountType;
+		auto game = authenticateGameWorld(gameData, 42, "synthetic-password", "Synthetic Character");
+		require(game.status == AuthenticationStatus::DatabaseError, "invalid gameworld account type must fail closed as a data error");
+		require(gameData.characterCalls == 0, "invalid account type must stop before querying character");
+	}
+
+	for (int32_t accountType = ACCOUNT_TYPE_NORMAL; accountType <= ACCOUNT_TYPE_GOD; ++accountType) {
+		require(isValidAccountTypeValue(accountType), "all defined account types must remain valid");
+		FakeAuthenticationData data;
+		data.account.type = accountType;
+		auto login = authenticateLoginServer(data, 42, "synthetic-password");
+		require(login.status == AuthenticationStatus::Success, "defined account types must continue to authenticate");
+		require(login.account.accountType == static_cast<AccountType_t>(accountType), "defined account types must be preserved");
+	}
+}
+
+static void testAccountTypeNumericInputIsValidatedBeforeNarrowing()
+{
+	for (double accountType = ACCOUNT_TYPE_NORMAL; accountType <= ACCOUNT_TYPE_GOD; ++accountType) {
+		require(isValidAccountTypeNumber(accountType), "all exact account types must be accepted as numeric input");
+	}
+
+	for (double accountType : {0.0, 6.0, 258.0, -254.0, 2.5,
+	                           std::numeric_limits<double>::infinity(),
+	                           -std::numeric_limits<double>::infinity(),
+	                           std::numeric_limits<double>::quiet_NaN()}) {
+		require(!isValidAccountTypeNumber(accountType), "invalid numeric input must be rejected before uint8 enum conversion");
+	}
 }
 
 static void testLoginserverDecisions()
@@ -234,6 +277,8 @@ int main()
 {
 	try {
 		testAccountQueryOutcomes();
+		testInvalidPersistedAccountTypesFailClosed();
+		testAccountTypeNumericInputIsValidatedBeforeNarrowing();
 		testLoginserverDecisions();
 		testGameworldDecisions();
 		testPublicErrorMapping();

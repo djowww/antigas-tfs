@@ -24,6 +24,7 @@
 #include "connectionqueue.h"
 #include "outputmessage.h"
 #include "protocol.h"
+#include "remotelogratelimiter.h"
 #include "scheduler.h"
 #include "server.h"
 
@@ -206,7 +207,14 @@ void Connection::parseHeader(const boost::system::error_code& error)
 
 	uint32_t timePassed = std::max<uint32_t>(1, (time(nullptr) - timeConnected) + 1);
 	if ((++packetsSent / timePassed) > static_cast<uint32_t>(g_config.getNumber(ConfigManager::MAX_PACKETS_PER_SECOND))) {
-		std::cout << convertIPToString(getIP()) << " disconnected for exceeding packet per second limit." << std::endl;
+		std::uint64_t suppressedMessages = 0;
+		if (remoteDiagnosticLogRateLimiter().allow(suppressedMessages)) {
+			std::cout << convertIPToString(getIP()) << " disconnected for exceeding packet per second limit.";
+			if (suppressedMessages != 0) {
+				std::cout << " (" << suppressedMessages << " remote log messages suppressed since the previous record)";
+			}
+			std::cout << std::endl;
+		}
 		close();
 		return;
 	}

@@ -165,12 +165,21 @@ bool Spawns::isInZone(const Position& centerPos, int32_t radius, const Position&
 void Spawn::startSpawnCheck()
 {
 	if (checkSpawnEvent == 0) {
-		checkSpawnEvent = g_scheduler.addEvent(createSchedulerTask(getInterval(), std::bind(&Spawn::checkSpawn, this)));
+		scheduleSpawnCheck(getInterval(), callbackGeneration.snapshot());
 	}
+}
+
+void Spawn::scheduleSpawnCheck(uint32_t delay, uint64_t generation)
+{
+	const std::function<void()> callback = callbackGeneration.guard(generation, [this, generation]() {
+		checkSpawn(generation);
+	});
+	checkSpawnEvent = g_scheduler.addEvent(createSchedulerTask(delay, callback));
 }
 
 Spawn::~Spawn()
 {
+	stopEvent();
 	for (const auto& it : spawnedMap) {
 		Monster* monster = it.second;
 		monster->setSpawn(nullptr);
@@ -249,8 +258,11 @@ void Spawn::startup()
 	}
 }
 
-void Spawn::checkSpawn()
+void Spawn::checkSpawn(uint64_t generation)
 {
+	if (generation != callbackGeneration.snapshot()) {
+		return;
+	}
 	checkSpawnEvent = 0;
 
 	cleanup();
@@ -278,7 +290,7 @@ void Spawn::checkSpawn()
 	}
 
 	if (spawnedMap.size() < spawnMap.size()) {
-		checkSpawnEvent = g_scheduler.addEvent(createSchedulerTask(getInterval(), std::bind(&Spawn::checkSpawn, this)));
+		scheduleSpawnCheck(getInterval(), generation);
 	}
 }
 
@@ -336,6 +348,7 @@ void Spawn::removeMonster(Monster* monster)
 
 void Spawn::stopEvent()
 {
+	callbackGeneration.invalidate();
 	if (checkSpawnEvent != 0) {
 		g_scheduler.stopEvent(checkSpawnEvent);
 		checkSpawnEvent = 0;

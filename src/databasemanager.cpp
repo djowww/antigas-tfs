@@ -31,7 +31,9 @@ bool DatabaseManager::optimizeTables()
 	Database* db = Database::getInstance();
 	std::ostringstream query;
 
-	query << "SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = " << db->escapeString(g_config.getString(ConfigManager::MYSQL_DB)) << " AND `DATA_FREE` > 0";
+	std::string escapedDatabase;
+	if (!db->escapeString(g_config.getString(ConfigManager::MYSQL_DB), escapedDatabase)) return false;
+	query << "SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = " << escapedDatabase << " AND `DATA_FREE` > 0";
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return false;
@@ -53,26 +55,44 @@ bool DatabaseManager::optimizeTables()
 	return true;
 }
 
-bool DatabaseManager::tableExists(const std::string& tableName)
+bool DatabaseManager::tableExists(const std::string& tableName, bool* querySucceeded)
 {
+	if (querySucceeded) *querySucceeded = false;
 	Database* db = Database::getInstance();
 
+	std::string escapedDatabase;
+	std::string escapedTable;
+	if (!db->escapeString(g_config.getString(ConfigManager::MYSQL_DB), escapedDatabase)
+		|| !db->escapeString(tableName, escapedTable)) return false;
+
 	std::ostringstream query;
-	query << "SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = " << db->escapeString(g_config.getString(ConfigManager::MYSQL_DB)) << " AND `TABLE_NAME` = " << db->escapeString(tableName) << " LIMIT 1";
-	return db->storeQuery(query.str()).get() != nullptr;
+	query << "SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = " << escapedDatabase << " AND `TABLE_NAME` = " << escapedTable << " LIMIT 1";
+	bool succeeded = false;
+	DBResult_ptr result = db->storeQuery(query.str(), &succeeded);
+	if (querySucceeded) *querySucceeded = succeeded;
+	return result != nullptr;
 }
 
-bool DatabaseManager::isDatabaseSetup()
+bool DatabaseManager::isDatabaseSetup(bool* querySucceeded)
 {
+	if (querySucceeded) *querySucceeded = false;
 	Database* db = Database::getInstance();
+	std::string escapedDatabase;
+	if (!db->escapeString(g_config.getString(ConfigManager::MYSQL_DB), escapedDatabase)) return false;
 	std::ostringstream query;
-	query << "SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = " << db->escapeString(g_config.getString(ConfigManager::MYSQL_DB));
-	return db->storeQuery(query.str()).get() != nullptr;
+	query << "SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = " << escapedDatabase;
+	bool succeeded = false;
+	DBResult_ptr result = db->storeQuery(query.str(), &succeeded);
+	if (querySucceeded) *querySucceeded = succeeded;
+	return result != nullptr;
 }
 
 int32_t DatabaseManager::getDatabaseVersion()
 {
-	if (!tableExists("server_config")) {
+	bool querySucceeded = false;
+	const bool configTableExists = tableExists("server_config", &querySucceeded);
+	if (!querySucceeded) return -1;
+	if (!configTableExists) {
 		Database* db = Database::getInstance();
 		db->executeQuery("CREATE TABLE `server_config` (`config` VARCHAR(50) NOT NULL, `value` VARCHAR(256) NOT NULL DEFAULT '', UNIQUE(`config`)) ENGINE = InnoDB");
 		db->executeQuery("INSERT INTO `server_config` VALUES ('db_version', 0)");
@@ -86,13 +106,18 @@ int32_t DatabaseManager::getDatabaseVersion()
 	return -1;
 }
 
-bool DatabaseManager::getDatabaseConfig(const std::string& config, int32_t& value)
+bool DatabaseManager::getDatabaseConfig(const std::string& config, int32_t& value, bool* querySucceeded)
 {
+	if (querySucceeded) *querySucceeded = false;
 	Database* db = Database::getInstance();
+	std::string escapedConfig;
+	if (!db->escapeString(config, escapedConfig)) return false;
 	std::ostringstream query;
-	query << "SELECT `value` FROM `server_config` WHERE `config` = " << db->escapeString(config);
+	query << "SELECT `value` FROM `server_config` WHERE `config` = " << escapedConfig;
 
-	DBResult_ptr result = db->storeQuery(query.str());
+	bool succeeded = false;
+	DBResult_ptr result = db->storeQuery(query.str(), &succeeded);
+	if (querySucceeded) *querySucceeded = succeeded;
 	if (!result) {
 		return false;
 	}
@@ -105,13 +130,18 @@ void DatabaseManager::registerDatabaseConfig(const std::string& config, int32_t 
 {
 	Database* db = Database::getInstance();
 	std::ostringstream query;
+	std::string escapedConfig;
+	if (!db->escapeString(config, escapedConfig)) return;
 
 	int32_t tmp;
+	bool querySucceeded = false;
+	const bool configExists = getDatabaseConfig(config, tmp, &querySucceeded);
+	if (!querySucceeded) return;
 
-	if (!getDatabaseConfig(config, tmp)) {
-		query << "INSERT INTO `server_config` VALUES (" << db->escapeString(config) << ", '" << value << "')";
+	if (!configExists) {
+		query << "INSERT INTO `server_config` VALUES (" << escapedConfig << ", '" << value << "')";
 	} else {
-		query << "UPDATE `server_config` SET `value` = '" << value << "' WHERE `config` = " << db->escapeString(config);
+		query << "UPDATE `server_config` SET `value` = '" << value << "' WHERE `config` = " << escapedConfig;
 	}
 
 	db->executeQuery(query.str());

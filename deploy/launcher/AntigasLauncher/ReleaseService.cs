@@ -83,9 +83,12 @@ internal static class ReleaseService
 
     internal static async Task<string> DownloadPackageAsync(ReleaseManifest manifest, IProgress<double> progress, CancellationToken cancellationToken, string downloadDirectory)
     {
-        var packageUri = new Uri(SiteUri, manifest.Package);
-        if (packageUri.Scheme != Uri.UriSchemeHttps || !string.Equals(packageUri.Host, SiteUri.Host, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("O endereço do pacote não pertence ao site oficial.");
+        return await DownloadPackageAsync(manifest, progress, cancellationToken, downloadDirectory, SiteUri);
+    }
+
+    internal static async Task<string> DownloadPackageAsync(ReleaseManifest manifest, IProgress<double> progress, CancellationToken cancellationToken, string downloadDirectory, Uri packageBaseUri)
+    {
+        var packageUri = ResolvePackageUri(manifest, packageBaseUri);
 
         Directory.CreateDirectory(downloadDirectory);
         var target = Path.Combine(downloadDirectory, manifest.Package);
@@ -132,6 +135,42 @@ internal static class ReleaseService
             try { if (File.Exists(temporary)) File.Delete(temporary); } catch { }
             throw;
         }
+    }
+
+    internal static Uri ResolvePackageUri(ReleaseManifest manifest, Uri packageBaseUri)
+    {
+        if (!packageBaseUri.IsAbsoluteUri || packageBaseUri.Scheme != Uri.UriSchemeHttps ||
+            !IsOfficialReleaseHost(packageBaseUri.Host) ||
+            packageBaseUri.Port != 443 || packageBaseUri.UserInfo.Length != 0 ||
+            packageBaseUri.Query.Length != 0 || packageBaseUri.Fragment.Length != 0 ||
+            !packageBaseUri.AbsolutePath.EndsWith("/", StringComparison.Ordinal))
+            throw new InvalidDataException("O diretório do pacote não pertence ao site oficial.");
+
+        if (manifest.Version is < 1 or > 1_000_000 ||
+            !string.Equals(manifest.Package, $"Antigas-7.4-Update-v{manifest.Version}.zip", StringComparison.Ordinal))
+            throw new InvalidDataException("O nome do pacote não corresponde à versão publicada.");
+
+        var packageUri = new Uri(packageBaseUri, manifest.Package);
+        if (packageUri.Scheme != Uri.UriSchemeHttps ||
+            !IsOfficialReleaseHost(packageUri.Host) ||
+            packageUri.Port != 443)
+            throw new InvalidDataException("O endereço do pacote não pertence ao site oficial.");
+        return packageUri;
+    }
+
+    internal static bool IsOfficialReleaseHost(string host) =>
+        string.Equals(host, SiteUri.Host, StringComparison.OrdinalIgnoreCase) ||
+        host.EndsWith("." + SiteUri.Host, StringComparison.OrdinalIgnoreCase);
+
+    internal static bool IsStagingManifestUri(Uri uri)
+    {
+        if (!uri.IsAbsoluteUri || uri.Scheme != Uri.UriSchemeHttps || !IsOfficialReleaseHost(uri.Host) ||
+            uri.Port != 443 || uri.UserInfo.Length != 0 || uri.Query.Length != 0 || uri.Fragment.Length != 0)
+            return false;
+
+        return string.Equals(uri.Host, "staging." + SiteUri.Host, StringComparison.OrdinalIgnoreCase) ||
+            (string.Equals(uri.Host, SiteUri.Host, StringComparison.OrdinalIgnoreCase) &&
+             uri.AbsolutePath.StartsWith("/staging/", StringComparison.OrdinalIgnoreCase));
     }
 
     public static async Task<string> HashFileAsync(string path, CancellationToken cancellationToken = default)

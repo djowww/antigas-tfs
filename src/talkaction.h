@@ -23,6 +23,7 @@
 #include "luascript.h"
 #include "baseevents.h"
 #include "const.h"
+#include "talkactionpolicy.h"
 
 enum TalkActionResult_t {
 	TALKACTION_CONTINUE,
@@ -70,6 +71,7 @@ class TalkAction : public Event
 		char getSeparator() const {
 			return separator;
 		}
+		bool isAuthorized(Player* player) const;
 
 		//scripting
 		bool executeSay(Player* player, const std::string& param, SpeakClasses type) const;
@@ -80,6 +82,8 @@ class TalkAction : public Event
 
 		std::string words;
 		char separator = '"';
+		TalkActionPolicy authorization;
+		bool authorizationConfigured = false;
 };
 
 #endif

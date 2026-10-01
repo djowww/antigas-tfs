@@ -23,6 +23,28 @@
 #include "talkaction.h"
 #include "pugicast.h"
 
+namespace {
+
+bool parseAccountType(const std::string& value, AccountType_t& accountType)
+{
+	if (value == "normal") {
+		accountType = ACCOUNT_TYPE_NORMAL;
+	} else if (value == "tutor") {
+		accountType = ACCOUNT_TYPE_TUTOR;
+	} else if (value == "senior-tutor") {
+		accountType = ACCOUNT_TYPE_SENIORTUTOR;
+	} else if (value == "gamemaster") {
+		accountType = ACCOUNT_TYPE_GAMEMASTER;
+	} else if (value == "god") {
+		accountType = ACCOUNT_TYPE_GOD;
+	} else {
+		return false;
+	}
+	return true;
+}
+
+} // namespace
+
 TalkActions::TalkActions()
 	: scriptInterface("TalkAction Interface")
 {
@@ -98,10 +120,10 @@ TalkActionResult_t TalkActions::playerSaySpell(Player* player, SpeakClasses type
 			}
 		}
 
-		// Player-facing bang commands are reserved for staff. Party shared
-		// experience remains available through the client's native party UI.
-		if (!talkactionWords.empty() && talkactionWords.front() == '!' && !player->getGroup()->access) {
-			player->sendCancelMessage("This command is reserved for Gamemasters.");
+		const bool requiresAuthorization = !talkactionWords.empty() &&
+			(talkactionWords.front() == '/' || talkactionWords.front() == '!');
+		if (requiresAuthorization && !talkAction->isAuthorized(player)) {
+			player->sendCancelMessage("You are not authorized to use this command.");
 			return TALKACTION_BREAK;
 		}
 
@@ -128,7 +150,65 @@ bool TalkAction::configureEvent(const pugi::xml_node& node)
 	}
 
 	words = wordsAttribute.as_string();
+	if (!words.empty() && (words.front() == '/' || words.front() == '!')) {
+		pugi::xml_attribute permissionAttribute = node.attribute("permission");
+		if (!permissionAttribute) {
+			std::cout << "[Error - TalkAction::configureEvent] Missing permission policy for command " << words << std::endl;
+			return false;
+		}
+
+		const std::string permission = permissionAttribute.as_string();
+		TalkActionPolicy parsedAuthorization;
+		if (permission == "public") {
+			if (node.attribute("minaccounttype")) {
+				std::cout << "[Error - TalkAction::configureEvent] Public command cannot set minaccounttype: " << words << std::endl;
+				return false;
+			}
+		} else if (permission == "access") {
+			parsedAuthorization.requireGroupAccess = true;
+		} else if (permission == "broadcast") {
+			if (node.attribute("minaccounttype")) {
+				std::cout << "[Error - TalkAction::configureEvent] Broadcast command cannot set minaccounttype: " << words << std::endl;
+				return false;
+			}
+			parsedAuthorization.requireBroadcastFlag = true;
+		} else if (permission == "account") {
+			parsedAuthorization.requireAccountType = true;
+		} else {
+			std::cout << "[Error - TalkAction::configureEvent] Unknown permission policy for " << words << ": " << permission << std::endl;
+			return false;
+		}
+
+		pugi::xml_attribute minimumAccountTypeAttribute = node.attribute("minaccounttype");
+		if (permission == "account" && !minimumAccountTypeAttribute) {
+			std::cout << "[Error - TalkAction::configureEvent] Account policy requires minaccounttype for " << words << std::endl;
+			return false;
+		}
+		if (minimumAccountTypeAttribute) {
+			if (permission != "access" && permission != "account") {
+				std::cout << "[Error - TalkAction::configureEvent] minaccounttype is not supported by policy for " << words << std::endl;
+				return false;
+			}
+			if (!parseAccountType(minimumAccountTypeAttribute.as_string(), parsedAuthorization.minimumAccountType)) {
+				std::cout << "[Error - TalkAction::configureEvent] Invalid minaccounttype for " << words << std::endl;
+				return false;
+			}
+			parsedAuthorization.requireAccountType = true;
+		}
+
+		authorization = parsedAuthorization;
+		authorizationConfigured = true;
+	}
 	return true;
+}
+
+bool TalkAction::isAuthorized(Player* player) const
+{
+	if (!authorizationConfigured || !player) {
+		return false;
+	}
+	const bool hasGroupAccess = player->getGroup() && player->getGroup()->access;
+	return authorization.allows(hasGroupAccess, player->getAccountType(), player->hasFlag(PlayerFlag_CanBroadcast));
 }
 
 std::string TalkAction::getScriptEventName() const

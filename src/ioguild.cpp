@@ -26,8 +26,11 @@ uint32_t IOGuild::getGuildIdByName(const std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return 0;
+
 	std::ostringstream query;
-	query << "SELECT `id` FROM `guilds` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `id` FROM `guilds` WHERE `name` = " << escapedName;
 
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {

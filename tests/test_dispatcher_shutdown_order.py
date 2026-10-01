@@ -7,6 +7,15 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class DispatcherShutdownOrderTests(unittest.TestCase):
+    def test_worker_reports_then_rethrows_unhandled_exceptions(self):
+        source = (ROOT / "src" / "tasks.cpp").read_text(encoding="utf-8")
+        worker_entry = source.split("void Dispatcher::threadMain()", 1)[1].split("\n}", 1)[0]
+
+        self.assertIn("threadMainLoop();", worker_entry)
+        self.assertIn('WorkerExceptionDiagnostic::log("Dispatcher", exception.what())', worker_entry)
+        self.assertIn('WorkerExceptionDiagnostic::log("Dispatcher", nullptr)', worker_entry)
+        self.assertEqual(worker_entry.count("throw;"), 2)
+
     def test_final_cleanup_task_and_dispatcher_close_share_the_queue_lock(self):
         source = (ROOT / "src" / "tasks.cpp").read_text(encoding="utf-8")
         method = source.split("void Dispatcher::addTaskAndStop(Task* task)", 1)[1]
