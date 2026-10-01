@@ -1,9 +1,9 @@
-ANTIGAS 7.4 — CLIENTE v54 COM LAUNCHER
+ANTIGAS 7.4 — CLIENTE v55 COM LAUNCHER
 
 INSTALAÇÃO
-1. Para uma instalação nova, baixe o pacote Antigas-7.4-Launcher-v54.zip no site oficial, extraia todos os arquivos para uma pasta própria (por exemplo C:\Games\Antigas) e abra AntigasLauncher.exe.
-2. O pacote Antigas-7.4-Update-v54.zip é usado pelo launcher para atualizar o cliente e não contém o executável do launcher.
-3. O link de atualização do cliente antigo baixa Antigas-7.4-Client-v54.zip, o pacote completo com launcher. O site também oferece Antigas-7.4-Launcher-v54.zip para novas instalações.
+1. Para uma instalação nova, baixe o pacote Antigas-7.4-Launcher-v55.zip no site oficial, extraia todos os arquivos para uma pasta própria (por exemplo C:\Games\Antigas) e abra AntigasLauncher.exe.
+2. O pacote Antigas-7.4-Update-v55.zip é usado pelo launcher para atualizar o cliente e não contém o executável do launcher.
+3. O link de atualização do cliente antigo baixa Antigas-7.4-Client-v55.zip, o pacote completo com launcher. O site também oferece Antigas-7.4-Launcher-v55.zip para novas instalações.
 4. Evite Program Files para que as atualizações não precisem de permissões de administrador.
 5. Se preferir, Antigas_gl.exe e Antigas_dx.exe continuam disponíveis para abrir o cliente diretamente.
 6. Site oficial: https://tibia74.tech.

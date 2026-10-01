@@ -17,7 +17,7 @@ dotnet publish deploy/launcher/AntigasLauncher/AntigasLauncher.csproj -c Release
 Prepare a client source directory whose modules and assets are ready for release, then create both ZIPs and sign the update package:
 
 ```powershell
-.\deploy\launcher\build-release.ps1 -Version 54 -ClientSource C:\path\to\client -LauncherExe .\launcher-publish\AntigasLauncher.exe -OutputDirectory .\release-v54
+.\deploy\launcher\build-release.ps1 -Version 55 -ClientSource C:\path\to\client -LauncherExe .\launcher-publish\AntigasLauncher.exe -OutputDirectory .\release-v55
 ```
 
 The script signs the smaller `Antigas-7.4-Update-vN.zip` for launcher updates and creates full `Antigas-7.4-Client-vN.zip` and `Antigas-7.4-Launcher-vN.zip` bundles. Publish the signed manifest as `client-release.json`, the update ZIP under its exact name, and link the launcher bundle from the website.
@@ -29,3 +29,7 @@ The self-contained launcher is currently unsigned with an Authenticode publisher
 ## Release v54
 
 The update window refuses normal X/Alt+F4 closure while validation, file installation or rollback is running. This does not protect against forced process termination or power loss. Existing launchers are preserved by the smaller Update ZIP, so receiving this launcher fix requires downloading the full v54 Launcher/Client bundle once. The signed v54 candidate passed the isolated HTTPS integration harness; publication is recorded in the security audit addendum.
+
+## Release v55 — 2026-10-01
+
+This release carries the stricter official-host and package-path validation in `ReleaseService`. The v55 bundle was based on the published v54 bundle; comparison found changes only to `AntigasLauncher.exe`, `client.version`, `APP_VERSION` in `init.lua`, and `LEIA-ME.txt`. The other 682 files are unchanged. The update manifest is signed with the existing pinned ECDSA release key.
