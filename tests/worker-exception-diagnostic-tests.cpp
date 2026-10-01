@@ -33,6 +33,29 @@ int main()
 		return 1;
 	}
 
+	const std::size_t shortLength = WorkerExceptionDiagnostic::format("Scheduler", "short", output, sizeof(output));
+	const std::string shortMessage(output, shortLength);
+	if (shortMessage != "[FATAL] Unhandled exception in Scheduler: short\n") {
+		std::fputs("short worker exception diagnostic mismatch\n", stderr);
+		return 1;
+	}
+
+	const std::string exactLimit(WorkerExceptionDiagnostic::MAX_EXCEPTION_MESSAGE_BYTES - 3, 'e');
+	const std::size_t exactLength = WorkerExceptionDiagnostic::format("Scheduler", exactLimit.c_str(), output, sizeof(output));
+	const std::string exactMessage(output, exactLength);
+	if (exactMessage.find("...") != std::string::npos || exactMessage.back() != '\n') {
+		std::fputs("exact-limit worker exception diagnostic was incorrectly marked truncated\n", stderr);
+		return 1;
+	}
+
+	const std::string overLimit(WorkerExceptionDiagnostic::MAX_EXCEPTION_MESSAGE_BYTES - 2, 'o');
+	const std::size_t overLength = WorkerExceptionDiagnostic::format("Scheduler", overLimit.c_str(), output, sizeof(output));
+	const std::string overMessage(output, overLength);
+	if (overMessage.compare(overMessage.size() - 4, 3, "...") != 0) {
+		std::fputs("over-limit worker exception diagnostic was not marked truncated\n", stderr);
+		return 1;
+	}
+
 	char guarded[10] = {'L', 0, 0, 0, 0, 0, 0, 0, 0, 'R'};
 	const std::size_t truncatedLength = WorkerExceptionDiagnostic::format("Dispatcher", "message", guarded + 1, 8);
 	if (truncatedLength != 8 || guarded[0] != 'L' || guarded[9] != 'R') {

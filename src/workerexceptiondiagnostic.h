@@ -21,15 +21,18 @@ inline char sanitizeByte(unsigned char value) noexcept
 	return value >= 0x20 && value <= 0x7E ? static_cast<char>(value) : '?';
 }
 
-inline void appendSanitized(char* output, std::size_t capacity, std::size_t& length,
+inline std::size_t appendSanitized(char* output, std::size_t capacity, std::size_t& length,
 		const char* text, std::size_t maxBytes) noexcept
 {
 	if (!text) {
-		return;
+		return 0;
 	}
-	for (std::size_t i = 0; i < maxBytes && text[i] != '\0'; ++i) {
-		appendByte(output, capacity, length, sanitizeByte(static_cast<unsigned char>(text[i])));
+	std::size_t copied = 0;
+	while (copied < maxBytes && text[copied] != '\0') {
+		appendByte(output, capacity, length, sanitizeByte(static_cast<unsigned char>(text[copied])));
+		++copied;
 	}
+	return copied;
 }
 
 inline std::size_t format(const char* worker, const char* message,
@@ -50,8 +53,8 @@ inline std::size_t format(const char* worker, const char* message,
 		appendSanitized(output, capacity, length, UNKNOWN, sizeof(UNKNOWN) - 1);
 	} else {
 		constexpr std::size_t MESSAGE_PREFIX_BYTES = MAX_EXCEPTION_MESSAGE_BYTES - 3;
-		appendSanitized(output, capacity, length, message, MESSAGE_PREFIX_BYTES);
-		if (message[MESSAGE_PREFIX_BYTES] != '\0') {
+		const std::size_t copiedMessageBytes = appendSanitized(output, capacity, length, message, MESSAGE_PREFIX_BYTES);
+		if (copiedMessageBytes == MESSAGE_PREFIX_BYTES && message[MESSAGE_PREFIX_BYTES] != '\0') {
 			appendSanitized(output, capacity, length, "...", 3);
 		}
 	}
