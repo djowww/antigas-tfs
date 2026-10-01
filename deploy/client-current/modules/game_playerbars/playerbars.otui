@@ -4,66 +4,66 @@ AntigasSidebarToggle < ButtonBox
   image-source: /images/ui/button
   image-clip: 0 0 22 23
   image-border: 3
-  image-color: #ffffffdd
-  icon-color: #ebe7de
+  image-color: #ffffffee
+  icon-color: #eeeade
   icon-size: 12 12
   text-offset: 0 0
   border-width: 1
-  border-top-color: #77756e
-  border-left-color: #77756e
-  border-right-color: #2c2b28
-  border-bottom-color: #2c2b28
+  border-top-color: #919087
+  border-left-color: #919087
+  border-right-color: #262621
+  border-bottom-color: #262621
   change-cursor-image: true
   cursor: pointer
 
   $hover !disabled:
     image-clip: 0 23 22 23
     image-color: #ffffff
-    icon-color: #f6f3ec
-    border-top-color: #aaa69a
-    border-left-color: #aaa69a
-    border-right-color: #4d4941
-    border-bottom-color: #4d4941
+    icon-color: #fff8e9
+    border-top-color: #b9b7ac
+    border-left-color: #b9b7ac
+    border-right-color: #44443b
+    border-bottom-color: #44443b
 
   $checked:
-    image-clip: 0 0 22 23
+    image-clip: 0 46 22 23
     text-offset: 0 0
-    icon-color: #f2e5c9
-    image-color: #d0b783
+    icon-color: #f4e7c8
+    image-color: #cab184
     border-width: 1
-    border-top-color: #d8b46c
-    border-left-color: #d8b46c
-    border-right-color: #806136
-    border-bottom-color: #806136
+    border-top-color: #665130
+    border-left-color: #665130
+    border-right-color: #d8ba79
+    border-bottom-color: #d8ba79
 
   $checked hover !disabled:
-    image-clip: 0 23 22 23
+    image-clip: 0 46 22 23
     icon-color: #fff1d8
-    image-color: #e0c28c
-    border-top-color: #e8c67e
-    border-left-color: #e8c67e
-    border-right-color: #92713f
-    border-bottom-color: #92713f
+    image-color: #ddc18a
+    border-top-color: #755b32
+    border-left-color: #755b32
+    border-right-color: #eed394
+    border-bottom-color: #eed394
 
   $pressed !disabled:
     image-clip: 0 46 22 23
     text-offset: 0 0
-    image-color: #c9c5bc
-    icon-color: #ddd8cf
-    border-top-color: #34322e
-    border-left-color: #34322e
-    border-right-color: #858075
-    border-bottom-color: #858075
+    image-color: #bcbab0
+    icon-color: #ddd8ca
+    border-top-color: #252620
+    border-left-color: #252620
+    border-right-color: #9c9b87
+    border-bottom-color: #9c9b87
 
   $checked pressed !disabled:
     image-clip: 0 46 22 23
     text-offset: 0 0
     image-color: #b79c68
     icon-color: #e8d9ba
-    border-top-color: #5b4729
-    border-left-color: #5b4729
-    border-right-color: #c6a15b
-    border-bottom-color: #c6a15b
+    border-top-color: #574227
+    border-left-color: #574227
+    border-right-color: #bc9c58
+    border-bottom-color: #bc9c58
 
   $disabled:
     image-clip: 0 0 22 23
@@ -84,17 +84,17 @@ AntigasSidebarAction < Button
   image-source: /images/ui/button
   image-clip: 0 0 22 23
   image-border: 3
-  image-color: #ffffffdd
+  image-color: #ffffffee
   color: #ebe7de
-  icon-color: #ebe7de
+  icon-color: #eeeade
   icon-size: 12 12
   text-align: center
   text-offset: 0 0
   border-width: 1
-  border-top-color: #77756e
-  border-left-color: #77756e
-  border-right-color: #2c2b28
-  border-bottom-color: #2c2b28
+  border-top-color: #919087
+  border-left-color: #919087
+  border-right-color: #262621
+  border-bottom-color: #262621
   change-cursor-image: true
   cursor: pointer
 
@@ -102,49 +102,49 @@ AntigasSidebarAction < Button
     image-clip: 0 23 22 23
     image-color: #ffffff
     color: #f6f3ec
-    icon-color: #f6f3ec
-    border-top-color: #aaa69a
-    border-left-color: #aaa69a
-    border-right-color: #4d4941
-    border-bottom-color: #4d4941
+    icon-color: #fff8e9
+    border-top-color: #b9b7ac
+    border-left-color: #b9b7ac
+    border-right-color: #44443b
+    border-bottom-color: #44443b
 
   $on !disabled:
-    image-clip: 0 0 22 23
-    image-color: #d0b783
-    icon-color: #f2e5c9
-    border-top-color: #d8b46c
-    border-left-color: #d8b46c
-    border-right-color: #806136
-    border-bottom-color: #806136
+    image-clip: 0 46 22 23
+    image-color: #cab184
+    icon-color: #f4e7c8
+    border-top-color: #665130
+    border-left-color: #665130
+    border-right-color: #d8ba79
+    border-bottom-color: #d8ba79
 
   $on hover !disabled:
-    image-clip: 0 23 22 23
-    image-color: #e0c28c
+    image-clip: 0 46 22 23
+    image-color: #ddc18a
     icon-color: #fff1d8
-    border-top-color: #e8c67e
-    border-left-color: #e8c67e
-    border-right-color: #92713f
-    border-bottom-color: #92713f
+    border-top-color: #755b32
+    border-left-color: #755b32
+    border-right-color: #eed394
+    border-bottom-color: #eed394
 
   $pressed !disabled:
     image-clip: 0 46 22 23
-    image-color: #c9c5bc
-    icon-color: #ddd8cf
+    image-color: #bcbab0
+    icon-color: #ddd8ca
     text-offset: 0 0
-    border-top-color: #34322e
-    border-left-color: #34322e
-    border-right-color: #858075
-    border-bottom-color: #858075
+    border-top-color: #252620
+    border-left-color: #252620
+    border-right-color: #9c9b87
+    border-bottom-color: #9c9b87
 
   $on pressed !disabled:
     image-clip: 0 46 22 23
     text-offset: 0 0
     image-color: #b79c68
     icon-color: #e8d9ba
-    border-top-color: #5b4729
-    border-left-color: #5b4729
-    border-right-color: #c6a15b
-    border-bottom-color: #c6a15b
+    border-top-color: #574227
+    border-left-color: #574227
+    border-right-color: #bc9c58
+    border-bottom-color: #bc9c58
 
   $disabled:
     image-clip: 0 0 22 23
@@ -200,6 +200,7 @@ SpecialMiniWindow
     size: 14 14
     image-source: /images/ui/miniwindow_buttons
     image-clip: 0 0 14 14
+    image-color: #e5e2d7
     change-cursor-image: true
     cursor: pointer
     tooltip: Minimizar menu
@@ -207,9 +208,11 @@ SpecialMiniWindow
 
     $hover:
       image-clip: 0 14 14 14
+      image-color: #fff8e9
 
     $pressed:
       image-clip: 0 28 14 14
+      image-color: #bcbab0
 
     $on:
       image-clip: 14 0 14 14
@@ -322,5 +325,5 @@ SpecialMiniWindow
     anchors.right: menuToggle.left
     margin-right: 4
     size: 1 12
-    background-color: #6d685f
+    background-color: #74756c
     phantom: true
