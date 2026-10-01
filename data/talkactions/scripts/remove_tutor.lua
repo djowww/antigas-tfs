@@ -25,7 +25,21 @@ function onSay(player, words, param)
 			return false
 		end
 	else
-		if not db.query("UPDATE `accounts` SET `type` = " .. ACCOUNT_TYPE_NORMAL .. " WHERE `id` = " .. accountId) then
+		local accountSession = nil
+		for _, onlinePlayer in ipairs(Game.getPlayers()) do
+			if onlinePlayer:getAccountId() == accountId then
+				accountSession = onlinePlayer
+				break
+			end
+		end
+
+		if accountSession ~= nil then
+			if not accountSession:setAccountType(ACCOUNT_TYPE_NORMAL) then
+				result.free(resultId)
+				player:sendCancelMessage("Could not update the player's account type. Please try again later.")
+				return false
+			end
+		elseif not db.query("UPDATE `accounts` SET `type` = " .. ACCOUNT_TYPE_NORMAL .. " WHERE `id` = " .. accountId) then
 			result.free(resultId)
 			player:sendCancelMessage("Could not update the player's account type. Please try again later.")
 			return false

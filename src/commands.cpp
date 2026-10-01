@@ -335,20 +335,13 @@ void Commands::forceRaid(Player& player, const std::string& param)
 
 	g_game.raids.setRunning(raid);
 
-	RaidEvent* event = raid->getNextRaidEvent();
-	if (!event) {
+	if (!raid->getNextRaidEvent()) {
 		player.sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "The raid does not contain any data.");
+		g_game.raids.setRunning(nullptr);
 		return;
 	}
 
-	raid->setState(RAIDSTATE_EXECUTING);
-
-	uint32_t ticks = event->getDelay();
-	if (ticks > 0) {
-		g_scheduler.addEvent(createSchedulerTask(ticks, std::bind(&Raid::executeRaidEvent, raid, event)));
-	} else {
-		g_dispatcher.addTask(createTask(std::bind(&Raid::executeRaidEvent, raid, event)));
-	}
+	raid->startRaid();
 
 	player.sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE, "Raid started.");
 }

@@ -25,6 +25,13 @@ inline bool isValidAccountTypeValue(int64_t value)
 	return value >= ACCOUNT_TYPE_NORMAL && value <= ACCOUNT_TYPE_GOD;
 }
 
+inline bool isValidAccountTypeNumber(double value)
+{
+	return value == ACCOUNT_TYPE_NORMAL || value == ACCOUNT_TYPE_TUTOR ||
+	       value == ACCOUNT_TYPE_SENIORTUTOR || value == ACCOUNT_TYPE_GAMEMASTER ||
+	       value == ACCOUNT_TYPE_GOD;
+}
+
 enum class AuthenticationStatus {
 	Success,
 	InvalidCredentials,

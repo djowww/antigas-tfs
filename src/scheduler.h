@@ -48,16 +48,17 @@ class SchedulerTask : public Task
 		}
 
 	protected:
-		SchedulerTask(uint32_t delay, const std::function<void (void)>& f) : Task(delay, f) {}
+		SchedulerTask(uint32_t delay, const std::function<void (void)>& f, std::size_t trackedPayloadBytes = 0) :
+			Task(delay, f, trackedPayloadBytes) {}
 
 		uint32_t eventId = 0;
 
-		friend SchedulerTask* createSchedulerTask(uint32_t, const std::function<void (void)>&);
+		friend SchedulerTask* createSchedulerTask(uint32_t, const std::function<void (void)>&, std::size_t);
 };
 
-inline SchedulerTask* createSchedulerTask(uint32_t delay, const std::function<void (void)>& f)
+inline SchedulerTask* createSchedulerTask(uint32_t delay, const std::function<void (void)>& f, std::size_t trackedPayloadBytes = 0)
 {
-	return new SchedulerTask(delay, f);
+	return new SchedulerTask(delay, f, trackedPayloadBytes);
 }
 
 struct TaskComparator {
@@ -68,7 +69,23 @@ struct TaskComparator {
 
 class SchedulerTaskQueue : public std::priority_queue<SchedulerTask*, std::deque<SchedulerTask*>, TaskComparator>
 {
+		using Base = std::priority_queue<SchedulerTask*, std::deque<SchedulerTask*>, TaskComparator>;
 	public:
+		void push(SchedulerTask* task) {
+			Base::push(task);
+			queueMetrics.taskQueued(task->getTrackedPayloadBytes());
+		}
+
+		void pop() {
+			SchedulerTask* task = Base::top();
+			Base::pop();
+			queueMetrics.taskDequeued(task->getTrackedPayloadBytes());
+		}
+
+		QueueMetricsSnapshot getMetrics() const {
+			return queueMetrics.snapshot();
+		}
+
 		// Limit retained cancelled nodes to roughly the number of live queued tasks.
 		bool needsCompaction(std::size_t activeTaskCount) const {
 			return this->size() > activeTaskCount && this->size() - activeTaskCount >= activeTaskCount;
@@ -96,8 +113,20 @@ class SchedulerTaskQueue : public std::priority_queue<SchedulerTask*, std::deque
 			});
 			this->c.erase(newEnd, this->c.end());
 			std::make_heap(this->c.begin(), this->c.end(), this->comp);
+			for (SchedulerTask* task : cancelledTasks) {
+				queueMetrics.taskDequeued(task->getTrackedPayloadBytes());
+			}
 			return cancelledTasks;
 		}
+
+	private:
+		QueueMetrics queueMetrics;
+};
+
+struct SchedulerQueueMetricsSnapshot {
+	QueueMetricsSnapshot retained;
+	uint64_t activeEventCount = 0;
+	uint64_t cancelledRetainedCount = 0;
 };
 
 class Scheduler : public ThreadHolder<Scheduler>
@@ -105,6 +134,7 @@ class Scheduler : public ThreadHolder<Scheduler>
 	public:
 		uint32_t addEvent(SchedulerTask* task);
 		bool stopEvent(uint32_t eventId);
+		SchedulerQueueMetricsSnapshot getQueueMetrics();
 
 		void shutdown();
 

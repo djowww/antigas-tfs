@@ -161,12 +161,25 @@ void Scheduler::shutdown()
 
 	//this list should already be empty
 	while (!eventList.empty()) {
-		delete eventList.top();
+		SchedulerTask* task = eventList.top();
 		eventList.pop();
+		delete task;
 	}
 
 	eventIds.clear();
 	eventLock.unlock();
 	eventSignal.notify_one();
+}
+
+SchedulerQueueMetricsSnapshot Scheduler::getQueueMetrics()
+{
+	std::lock_guard<std::mutex> lock(eventLock);
+	SchedulerQueueMetricsSnapshot snapshot;
+	snapshot.retained = eventList.getMetrics();
+	snapshot.activeEventCount = eventIds.size();
+	if (snapshot.retained.queuedCount > snapshot.activeEventCount) {
+		snapshot.cancelledRetainedCount = snapshot.retained.queuedCount - snapshot.activeEventCount;
+	}
+	return snapshot;
 }
 

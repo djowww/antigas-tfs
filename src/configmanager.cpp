@@ -21,6 +21,7 @@
 
 #include "configmanager.h"
 #include "connectionadmission.h"
+#include "connectionratelimit.h"
 #include "game.h"
 
 #include <algorithm>
@@ -46,6 +47,19 @@ bool ConfigManager::load()
 		lua_close(L);
 		return false;
 	}
+
+	lua_getglobal(L, "maxPacketsPerSecond");
+	lua_Number configuredMaxPacketsPerSecond = 25;
+	if (lua_isnumber(L, -1)) {
+		configuredMaxPacketsPerSecond = lua_tonumber(L, -1);
+	}
+	lua_pop(L, 1);
+	if (!ConnectionRateLimitSettings::isValidMaxPacketsPerSecond(static_cast<double>(configuredMaxPacketsPerSecond))) {
+		std::cout << "[ConfigManager::load] maxPacketsPerSecond must be a positive integer." << std::endl;
+		lua_close(L);
+		return false;
+	}
+	const int32_t maxPacketsPerSecond = static_cast<int32_t>(configuredMaxPacketsPerSecond);
 
 	//parse config
 	if (!loaded) { //info that must be loaded one time (unless we reset the modules involved)
@@ -139,7 +153,7 @@ bool ConfigManager::load()
 	integer[KILLS_MONTH_BANISHMENT] = getGlobalNumber(L, "killsMonthBanishment", 10);
 	integer[STAIRHOP_DELAY] = getGlobalNumber(L, "stairJumpExhaustion", 2000);
 	integer[EXP_FROM_PLAYERS_LEVEL_RANGE] = getGlobalNumber(L, "expFromPlayersLevelRange", 75);
-	integer[MAX_PACKETS_PER_SECOND] = getGlobalNumber(L, "maxPacketsPerSecond", 25);
+	integer[MAX_PACKETS_PER_SECOND] = maxPacketsPerSecond;
 	integer[NEWBIE_TOWN] = getGlobalNumber(L, "newbieTownId", 1);
 	integer[NEWBIE_LEVEL_THRESHOLD] = getGlobalNumber(L, "newbieLevelThreshold", 5);
 	integer[MONEY_RATE] = getGlobalNumber(L, "moneyRate", 1);

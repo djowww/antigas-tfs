@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="LauncherSafetyTests.cs" />
+    <Compile Include="../deploy/launcher/AntigasLauncher/ReleaseService.cs" Link="ReleaseService.cs" />
     <Compile Include="../deploy/launcher/AntigasLauncher/BoundedContentReader.cs" Link="BoundedContentReader.cs" />
     <Compile Include="../deploy/launcher/AntigasLauncher/BoundedStreamCopy.cs" Link="BoundedStreamCopy.cs" />
   </ItemGroup>

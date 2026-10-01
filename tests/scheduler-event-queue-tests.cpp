@@ -22,9 +22,9 @@ void require(bool condition, const char* message)
 	}
 }
 
-SchedulerTask* makeTask(uint32_t eventId, uint32_t delay, const std::shared_ptr<int>& retained)
+SchedulerTask* makeTask(uint32_t eventId, uint32_t delay, const std::shared_ptr<int>& retained, std::size_t trackedPayloadBytes = 0)
 {
-	SchedulerTask* task = createSchedulerTask(delay, [retained]() {});
+	SchedulerTask* task = createSchedulerTask(delay, [retained]() {}, trackedPayloadBytes);
 	task->setEventId(eventId);
 	return task;
 }
@@ -38,10 +38,13 @@ void testCancelledTasksAreRemovedAtBoundedRatio()
 	std::shared_ptr<int> retainedSecond(new int(2));
 	std::weak_ptr<int> secondClosure = retainedSecond;
 
-	tasks.push(makeTask(1, 1000, retainedFirst));
-	tasks.push(makeTask(2, 2000, retainedSecond));
-	tasks.push(makeTask(3, 3000, std::shared_ptr<int>(new int(3))));
-	tasks.push(makeTask(4, 4000, std::shared_ptr<int>(new int(4))));
+	tasks.push(makeTask(1, 1000, retainedFirst, 10));
+	tasks.push(makeTask(2, 2000, retainedSecond, 20));
+	tasks.push(makeTask(3, 3000, std::shared_ptr<int>(new int(3)), 7));
+	tasks.push(makeTask(4, 4000, std::shared_ptr<int>(new int(4)), 3));
+	QueueMetricsSnapshot initialMetrics = tasks.getMetrics();
+	require(initialMetrics.queuedCount == 4 && initialMetrics.trackedPayloadBytes == 40, "scheduler metrics must count physical tasks and declared payload bytes");
+	require(initialMetrics.peakQueuedCount == 4 && initialMetrics.peakTrackedPayloadBytes == 40, "scheduler metrics must retain high-water values");
 	activeEventIds.insert(1);
 	activeEventIds.insert(2);
 	activeEventIds.insert(3);
@@ -60,15 +63,21 @@ void testCancelledTasksAreRemovedAtBoundedRatio()
 	}
 
 	require(tasks.size() == 2, "compaction should retain only active tasks");
+	QueueMetricsSnapshot compactedMetrics = tasks.getMetrics();
+	require(compactedMetrics.queuedCount == 2 && compactedMetrics.trackedPayloadBytes == 10, "compaction must remove metrics for cancelled tombstones");
 	require(firstClosure.expired() && secondClosure.expired(), "compaction should release cancelled task closures");
 	require(tasks.top()->getEventId() == 3, "compaction should preserve the earliest active task");
 	SchedulerTask* firstActive = tasks.top();
 	tasks.pop();
+	QueueMetricsSnapshot afterFirstPop = tasks.getMetrics();
+	require(afterFirstPop.queuedCount == 1 && afterFirstPop.trackedPayloadBytes == 3, "scheduler pop must remove the task's tracked payload bytes");
 	delete firstActive;
 	require(tasks.top()->getEventId() == 4, "compaction should preserve the next active task");
 	SchedulerTask* secondActive = tasks.top();
 	tasks.pop();
 	delete secondActive;
+	QueueMetricsSnapshot emptyMetrics = tasks.getMetrics();
+	require(emptyMetrics.queuedCount == 0 && emptyMetrics.trackedPayloadBytes == 0, "empty scheduler queue must report no pending work");
 }
 
 void testCompactionRemovesEveryCancelledTask()
@@ -77,7 +86,7 @@ void testCompactionRemovesEveryCancelledTask()
 	std::unordered_set<uint32_t> activeEventIds;
 	std::shared_ptr<int> retained(new int(5));
 	std::weak_ptr<int> closure = retained;
-	tasks.push(makeTask(5, 100000, retained));
+	tasks.push(makeTask(5, 100000, retained, 11));
 	activeEventIds.insert(5);
 	retained.reset();
 	activeEventIds.erase(5);
@@ -88,6 +97,8 @@ void testCompactionRemovesEveryCancelledTask()
 		delete task;
 	}
 	require(tasks.empty(), "compaction should empty a fully cancelled queue");
+	QueueMetricsSnapshot metrics = tasks.getMetrics();
+	require(metrics.queuedCount == 0 && metrics.trackedPayloadBytes == 0, "full cancellation compaction must clear queue metrics");
 	require(!tasks.needsCompaction(0), "an empty queue should not trigger compaction");
 	require(closure.expired(), "fully cancelled task closure should be released");
 }

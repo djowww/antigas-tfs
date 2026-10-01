@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <atomic>
+#include <limits>
 #include <thread>
 
 static void require(bool condition, const char* message)
@@ -105,6 +106,20 @@ static void testInvalidPersistedAccountTypesFailClosed()
 		auto login = authenticateLoginServer(data, 42, "synthetic-password");
 		require(login.status == AuthenticationStatus::Success, "defined account types must continue to authenticate");
 		require(login.account.accountType == static_cast<AccountType_t>(accountType), "defined account types must be preserved");
+	}
+}
+
+static void testAccountTypeNumericInputIsValidatedBeforeNarrowing()
+{
+	for (double accountType = ACCOUNT_TYPE_NORMAL; accountType <= ACCOUNT_TYPE_GOD; ++accountType) {
+		require(isValidAccountTypeNumber(accountType), "all exact account types must be accepted as numeric input");
+	}
+
+	for (double accountType : {0.0, 6.0, 258.0, -254.0, 2.5,
+	                           std::numeric_limits<double>::infinity(),
+	                           -std::numeric_limits<double>::infinity(),
+	                           std::numeric_limits<double>::quiet_NaN()}) {
+		require(!isValidAccountTypeNumber(accountType), "invalid numeric input must be rejected before uint8 enum conversion");
 	}
 }
 
@@ -263,6 +278,7 @@ int main()
 	try {
 		testAccountQueryOutcomes();
 		testInvalidPersistedAccountTypesFailClosed();
+		testAccountTypeNumericInputIsValidatedBeforeNarrowing();
 		testLoginserverDecisions();
 		testGameworldDecisions();
 		testPublicErrorMapping();

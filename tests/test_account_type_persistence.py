@@ -43,8 +43,12 @@ class AccountTypePersistenceTests(unittest.TestCase):
         source = (ROOT / "src" / "luascript.cpp").read_text(encoding="utf-8-sig")
         body = source.split("int LuaScriptInterface::luaPlayerSetAccountType(", 1)[1]
         body = body.split("\nint LuaScriptInterface::luaPlayerGetCapacity(", 1)[0]
+        validate_input = body.index("if (!isValidAccountTypeNumber(rawAccountType))")
+        narrow_input = body.index("static_cast<AccountType_t>(rawAccountType)")
         persist = body.index("if (!IOLoginData::setAccountType(accountId, accountType))")
         update_sessions = body.index("for (const auto& playerEntry : g_game.getPlayers())")
+        self.assertLess(validate_input, narrow_input)
+        self.assertLess(narrow_input, persist)
         self.assertLess(persist, update_sessions)
         self.assertIn("pushBoolean(L, false);", body[persist:update_sessions])
         self.assertIn("onlinePlayer->getAccount() == accountId", body)
@@ -57,6 +61,12 @@ class AccountTypePersistenceTests(unittest.TestCase):
         self.assertLess(add_tutor.index("if not target:setAccountType"), add_tutor.index("You have been promoted"))
         self.assertIn("if not target:setAccountType(ACCOUNT_TYPE_NORMAL) then", remove_tutor)
         self.assertIn("if not db.query(\"UPDATE `accounts`", remove_tutor)
+        session_scan = remove_tutor.index("for _, onlinePlayer in ipairs(Game.getPlayers()) do")
+        sync_account = remove_tutor.index("if not accountSession:setAccountType(ACCOUNT_TYPE_NORMAL) then")
+        direct_update = remove_tutor.index("elseif not db.query(\"UPDATE `accounts`")
+        self.assertLess(session_scan, sync_account)
+        self.assertLess(sync_account, direct_update)
+        self.assertIn("onlinePlayer:getAccountId() == accountId", remove_tutor)
         self.assertLess(remove_tutor.index("if not db.query("), remove_tutor.index("You have demoted"))
         self.assertIn("result.free(resultId)\n\t\tplayer:sendCancelMessage(\"You can only demote", remove_tutor)
 

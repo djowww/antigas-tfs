@@ -64,8 +64,10 @@ class DatabaseAuthenticationDataSource : public AuthenticationDataSource
 		AuthQueryStatus getCharacter(const std::string& name, AuthCharacterRow& row) override
 		{
 			Database* db = Database::getInstance();
+			std::string escapedName;
+			if (!db->escapeString(name, escapedName)) return AuthQueryStatus::Error;
 			std::ostringstream query;
-			query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << db->escapeString(name);
+			query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << escapedName;
 			bool success = false;
 			DBResult_ptr result = db->storeQuery(query.str(), &success);
 			if (!success) return AuthQueryStatus::Error;
@@ -171,12 +173,14 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
 	query << "SELECT `id`, `account_id`, `group_id`, `deletion`, (SELECT `type` FROM `accounts` WHERE `accounts`.`id` = `account_id`) AS `account_type`";
 	if (!g_config.getBoolean(ConfigManager::FREE_PREMIUM)) {
 		query << ", (SELECT `premdays` FROM `accounts` WHERE `accounts`.`id` = `account_id`) AS `premium_days`";
 	}
-	query << " FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << " FROM `players` WHERE `name` = " << escapedName;
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return false;
@@ -225,8 +229,10 @@ bool IOLoginData::loadPlayerByName(Player* player, const std::string& name)
 	DBTransaction transaction;
 	if (!transaction.begin(true)) return false;
 	Database* db = Database::getInstance();
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
-	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `ridingmount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `ridingmount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << escapedName;
 	bool loaded = loadPlayer(player, db->storeQuery(query.str() + " FOR UPDATE"));
 	return loaded && transaction.commit();
 }
@@ -800,7 +806,9 @@ bool IOLoginData::savePlayer(Player* player, bool manageTransaction)
 
 	DBInsert spellsQuery("INSERT INTO `player_spells` (`player_id`, `name` ) VALUES ");
 	for (const std::string& spellName : player->learnedInstantSpellList) {
-		query << player->getGUID() << ',' << db->escapeString(spellName);
+		std::string escapedSpellName;
+		if (!db->escapeString(spellName, escapedSpellName)) return false;
+		query << player->getGUID() << ',' << escapedSpellName;
 		if (!spellsQuery.addRow(query)) {
 			return false;
 		}
@@ -949,8 +957,10 @@ uint32_t IOLoginData::getGuidByName(const std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return 0;
 	std::ostringstream query;
-	query << "SELECT `id` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `id` FROM `players` WHERE `name` = " << escapedName;
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return 0;
@@ -962,8 +972,10 @@ bool IOLoginData::getGuidByNameEx(uint32_t& guid, bool& specialVip, std::string&
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
-	query << "SELECT `name`, `id`, `group_id`, `account_id` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `name`, `id`, `group_id`, `account_id` FROM `players` WHERE `name` = " << escapedName;
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {
 		return false;
@@ -988,8 +1000,10 @@ bool IOLoginData::formatPlayerName(std::string& name)
 {
 	Database* db = Database::getInstance();
 
+	std::string escapedName;
+	if (!db->escapeString(name, escapedName)) return false;
 	std::ostringstream query;
-	query << "SELECT `name` FROM `players` WHERE `name` = " << db->escapeString(name);
+	query << "SELECT `name` FROM `players` WHERE `name` = " << escapedName;
 
 	DBResult_ptr result = db->storeQuery(query.str());
 	if (!result) {

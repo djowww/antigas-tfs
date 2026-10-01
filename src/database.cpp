@@ -21,6 +21,7 @@
 
 #include "configmanager.h"
 #include "database.h"
+#include "databaseescape.h"
 
 #include <errmsg.h>
 #include <cstdlib>
@@ -159,24 +160,37 @@ DBResult_ptr Database::storeQuery(const std::string& query, bool* success)
 	return result;
 }
 
-std::string Database::escapeString(const std::string& s) const
+bool Database::escapeString(const std::string& s, std::string& escaped) const
 {
 	std::lock_guard<std::recursive_mutex> lock(databaseLock);
-	if (!handle) return escapeBlob(s.data(), s.size());
-	const size_t maxLength = (s.length() * 2) + 1;
-	std::string escaped;
-	escaped.reserve(maxLength + 2);
-	escaped.push_back('\'');
-
-	if (!s.empty()) {
-		char* output = new char[maxLength];
-		const unsigned long escapedLength = mysql_real_escape_string(handle, output, s.c_str(), s.length());
-		escaped.append(output, escapedLength);
-		delete[] output;
+	std::string aliasedInput;
+	const std::string* input = &s;
+	if (&s == &escaped) {
+		aliasedInput = s;
+		input = &aliasedInput;
+	}
+	escaped.clear();
+	std::size_t outputCapacity = 0;
+	if (!connected || !handle || !databaseEscape::getOutputCapacity(input->size(), outputCapacity)) {
+		return false;
 	}
 
+	if (input->empty()) {
+		escaped = "''";
+		return true;
+	}
+
+	std::string output(outputCapacity, '\0');
+	const unsigned long escapedLength = mysql_real_escape_string(handle, &output[0], input->data(), static_cast<unsigned long>(input->size()));
+	if (!databaseEscape::isValidOutputLength(escapedLength, outputCapacity)) {
+		return false;
+	}
+
+	escaped.reserve(static_cast<std::size_t>(escapedLength) + 2);
 	escaped.push_back('\'');
-	return escaped;
+	escaped.append(output.data(), static_cast<std::size_t>(escapedLength));
+	escaped.push_back('\'');
+	return true;
 }
 
 std::string Database::escapeBlob(const char* s, uint32_t length) const

@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <future>
 #include <stdexcept>
+#include <vector>
 
 // Linux executable-only pthread seams observe the exact native mutex/condition
 // of the fixture Scheduler. Calls are forwarded to the real pthread functions.
@@ -132,6 +133,39 @@ void normalExecutionAndCancellation()
 	scheduler.join();
 }
 
+void queueMetricsTrackTombstonesAndCompaction()
+{
+	FixtureScheduler scheduler;
+	scheduler.start();
+	std::vector<uint32_t> ids;
+	for (std::size_t index = 0; index < 4; ++index) {
+		const std::size_t trackedBytes = 11 + index;
+		const uint32_t eventId = scheduler.addEvent(createSchedulerTask(30000, []() {}, trackedBytes));
+		require(eventId != 0, "running scheduler must accept metrics fixtures");
+		ids.push_back(eventId);
+	}
+
+	SchedulerQueueMetricsSnapshot snapshot = scheduler.getQueueMetrics();
+	require(snapshot.activeEventCount == 4 && snapshot.retained.queuedCount == 4, "scheduler metrics must expose active and retained event counts separately");
+	require(snapshot.retained.trackedPayloadBytes == 50, "scheduler metrics must sum explicitly tracked event payloads");
+
+	require(scheduler.stopEvent(ids[0]), "scheduler must cancel the first metrics event");
+	snapshot = scheduler.getQueueMetrics();
+	require(snapshot.activeEventCount == 3 && snapshot.retained.queuedCount == 4 && snapshot.cancelledRetainedCount == 1, "cancelled tombstone remains counted until compaction");
+	require(snapshot.retained.trackedPayloadBytes == 50, "tombstone payload remains counted while its node is retained");
+
+	require(scheduler.stopEvent(ids[1]), "scheduler must cancel the second metrics event");
+	snapshot = scheduler.getQueueMetrics();
+	require(snapshot.activeEventCount == 2 && snapshot.retained.queuedCount == 2 && snapshot.cancelledRetainedCount == 0, "compaction must remove cancelled nodes from retained counts");
+	require(snapshot.retained.trackedPayloadBytes == 27, "compaction must remove cancelled payload bytes");
+
+	require(scheduler.stopEvent(ids[2]) && scheduler.stopEvent(ids[3]), "scheduler must cancel remaining metrics events");
+	snapshot = scheduler.getQueueMetrics();
+	require(snapshot.activeEventCount == 0 && snapshot.retained.queuedCount == 0 && snapshot.retained.trackedPayloadBytes == 0, "cancelling all events must clear current queue metrics");
+	scheduler.shutdown();
+	scheduler.join();
+}
+
 void shutdownBeforeWorkerLock()
 {
 	FixtureScheduler scheduler;
@@ -192,25 +226,39 @@ void addEventAfterShutdownReleasesTask()
 
 void duplicateEventIdPreservesExistingId()
 {
+	const auto mark = [](const char* phase) {
+		std::fprintf(stderr, "scheduler-duplicate-event-id: %s\n", phase);
+	};
 	FixtureScheduler scheduler;
+	mark("before-start");
 	scheduler.start();
+	mark("after-start");
 	std::shared_ptr<int> retained(new int(2));
 	std::weak_ptr<int> existingClosure = retained;
 	SchedulerTask* existing = createSchedulerTask(30000, [retained]() {});
 	existing->setEventId(77);
 	retained.reset();
+	mark("before-add-original");
 	require(scheduler.addEvent(existing) == 77, "scheduler must accept the original event id");
+	mark("after-add-original");
 
 	std::shared_ptr<int> duplicateRetained(new int(3));
 	std::weak_ptr<int> duplicateClosure = duplicateRetained;
 	SchedulerTask* duplicate = createSchedulerTask(30000, [duplicateRetained]() {});
 	duplicate->setEventId(77);
 	duplicateRetained.reset();
+	mark("before-reject-duplicate");
 	require(scheduler.addEvent(duplicate) == 0, "scheduler must reject a duplicate event id");
+	mark("after-reject-duplicate");
 	require(duplicateClosure.expired(), "rejected duplicate task must release its closure");
+	mark("before-cancel-original");
 	require(scheduler.stopEvent(77), "rejecting a duplicate must preserve the original active event id");
+	mark("after-cancel-original");
+	mark("before-shutdown");
 	scheduler.shutdown();
+	mark("after-shutdown");
 	scheduler.join();
+	mark("after-join");
 	require(existingClosure.expired(), "cancelling the original event must release its closure");
 }
 }
@@ -248,7 +296,10 @@ int main(int argc, char** argv)
 		(void)realMutexLock();
 		(void)realTimedWait();
 		g_dispatcher.start();
-		if (scenario == "all" || scenario == "normal") normalExecutionAndCancellation();
+		if (scenario == "all" || scenario == "normal") {
+			normalExecutionAndCancellation();
+			queueMetricsTrackTombstonesAndCompaction();
+		}
 		if (scenario == "all" || scenario == "before-lock") shutdownBeforeWorkerLock();
 		if (scenario == "all" || scenario == "after-relock") shutdownWhileDeadlineExpires();
 		if (scenario == "all" || scenario == "rejected-after-shutdown") addEventAfterShutdownReleasesTask();

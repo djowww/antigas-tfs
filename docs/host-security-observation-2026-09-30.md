@@ -14,7 +14,7 @@ de memória do staging para 3 GiB; na recuperação restaurou o limite de 1 GiB.
 - Produção observada às 04:47 UTC: ativa, PID 3560, NRestarts=0, binário `fdec99926b45a3e8f1d3866c59c92654de3197c251b2debd612a35c83330eb27`.
 - Staging: inativo, usuário `tfs74-stage`, MemoryMax=1 GiB. Drop-in bloqueia o acesso do serviço aos arquivos de produção, ambiente de produção, chave/public assets externos e site.
 - Portas: jogo 7173/7174 público; MariaDB 3306 somente 127.0.0.1; staging sem listener quando parado. Durante testes, o runner exige suas portas em loopback.
-- UFW: ativo. SSH e jogo permitidos; web 80/443 limitada aos ranges configurados de Cloudflare IPv4/IPv6. Não foi comparada nesta rodada a lista com os ranges atuais da Cloudflare.
+- UFW: ativo. SSH e jogo permitidos; web 80/443 limitada aos ranges configurados de Cloudflare IPv4/IPv6. Em 30/09/2026, a lista versionada em `deploy/nginx/antigas-cloudflare-realip.conf` foi comparada com as listas oficiais IPv4/IPv6 e coincidiu exatamente (15 + 7 redes). A configuração efetivamente instalada no host não foi relida nesta retomada.
 - Arquivos: ambiente produção e chave RSA 0640 root:tfs74; ambiente staging 0600 root:root. Nenhum conteúdo de senha/chave foi incluído neste relatório.
 - Usuário SQL staging existe apenas para 127.0.0.1. A consulta `mysql.db` mostrou permissões para o banco escapado `antigas_security_staging`. Essa leitura parcial não substitui uma prova integral de todos os privilégios globais/rotinas.
 - Biblioteca SQL efetivamente linkada: libmariadb.so.3. Também estão linkadas LuaJIT, pugixml, GMP, Boost filesystem, libstdc++, libc, zlib e OpenSSL 3.
