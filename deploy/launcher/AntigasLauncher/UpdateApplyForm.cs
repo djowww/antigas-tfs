@@ -17,7 +17,7 @@ internal sealed class UpdateApplyForm : Form
     {
         _package = package; _manifestPath = manifestPath; _stage = stage; _root = root; _version = version; _parentPid = parentPid;
         Text = "Antigas 7.4 — Atualização"; StartPosition = FormStartPosition.CenterScreen;
-        FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false;
+        MaximizeBox = false;
         _status.Text = "Aguardando o cliente fechar para trocar os arquivos…";
         _detail.Text = "As configurações e arquivos pessoais são preservados.";
         _progress.Style = ProgressBarStyle.Marquee; _progress.MarqueeAnimationSpeed = 25;
