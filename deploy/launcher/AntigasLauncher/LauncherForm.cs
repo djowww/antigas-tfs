@@ -8,8 +8,8 @@ internal sealed class LauncherForm : Form
 {
     private readonly string _root = Path.GetFullPath(AppContext.BaseDirectory).TrimEnd(Path.DirectorySeparatorChar);
     private readonly Label _status = new(), _detail = new();
-    private readonly ProgressBar _progress = new();
-    private readonly Button _play = new(), _retry = new(), _website = new();
+    private readonly ClassicProgressBar _progress = new();
+    private readonly Button _play = new ClassicButton(true), _retry = new ClassicButton(), _website = new ClassicButton();
     private readonly CancellationTokenSource _lifetime = new();
     private bool _checking;
 
@@ -18,18 +18,14 @@ internal sealed class LauncherForm : Form
         Text = "Antigas 7.4 Launcher";
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false; ClientSize = new Size(560, 300);
-        BackColor = Color.FromArgb(28, 30, 32); ForeColor = Color.FromArgb(230, 225, 211);
-        Font = new Font("Segoe UI", 9F); Icon = SystemIcons.Application;
-        var title = new Label { Text = "ANTIGAS 7.4", Font = new Font("Segoe UI", 21F, FontStyle.Bold), ForeColor = Color.FromArgb(221, 174, 73), AutoSize = true, Location = new Point(28, 22) };
-        var subtitle = new Label { Text = "Cliente oficial", ForeColor = Color.FromArgb(174, 169, 157), AutoSize = true, Location = new Point(31, 62) };
-        _status.SetBounds(31, 111, 498, 27); _status.Font = new Font("Segoe UI", 10F, FontStyle.Bold); _status.Text = "Verificando atualizações…";
-        _detail.SetBounds(31, 142, 498, 36); _detail.ForeColor = Color.FromArgb(174, 169, 157); _detail.Text = "Os pacotes são conferidos antes de instalar.";
-        _progress.SetBounds(31, 188, 498, 13); _progress.Maximum = 1000; _progress.Visible = false;
-        _play.Text = "Jogar"; _play.SetBounds(31, 226, 132, 38); StyleButton(_play, true); _play.Enabled = false; _play.Click += (_, _) => LaunchGame();
-        _retry.Text = "Verificar novamente"; _retry.SetBounds(174, 226, 150, 38); StyleButton(_retry, false); _retry.Click += async (_, _) => await CheckForUpdateAsync();
-        _website.Text = "Fechar"; _website.SetBounds(397, 226, 132, 38); StyleButton(_website, false); _website.Click += (_, _) => Close();
-        Controls.AddRange([title, subtitle, _status, _detail, _progress, _play, _retry, _website]);
+        MaximizeBox = false; Icon = SystemIcons.Application;
+        _status.Text = "Verificando atualizações…";
+        _detail.Text = "Os pacotes são conferidos antes de instalar.";
+        _progress.Maximum = 1000; _progress.Visible = false;
+        _play.Text = "Jogar"; _play.Enabled = false; _play.Click += (_, _) => LaunchGame();
+        _retry.Text = "Verificar novamente"; _retry.Click += async (_, _) => await CheckForUpdateAsync();
+        _website.Text = "Fechar"; _website.Click += (_, _) => Close();
+        ClassicLauncherTheme.Build(this, "Cliente oficial", _status, _detail, _progress, _play, _retry, _website);
         Shown += async (_, _) => { ClientPackage.CleanupOldStaging(); ClientPackage.CleanupOldBackups(); await CheckForUpdateAsync(); };
         FormClosing += (_, _) => _lifetime.Cancel();
     }
@@ -120,14 +116,4 @@ internal sealed class LauncherForm : Form
         }
     }
 
-    private static void StyleButton(Button button, bool primary)
-    {
-        button.FlatStyle = FlatStyle.Flat;
-        button.FlatAppearance.BorderColor = primary ? Color.FromArgb(221, 174, 73) : Color.FromArgb(92, 91, 86);
-        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(62, 59, 49);
-        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(84, 71, 43);
-        button.BackColor = primary ? Color.FromArgb(76, 62, 37) : Color.FromArgb(42, 43, 43);
-        button.ForeColor = primary ? Color.FromArgb(245, 224, 174) : Color.FromArgb(218, 214, 203);
-        button.Cursor = Cursors.Hand;
-    }
 }

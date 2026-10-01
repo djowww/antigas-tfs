@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory = $true)][ValidateRange(1, 1000000)][int]$Version,
     [Parameter(Mandatory = $true)][string]$ClientSource,
     [Parameter(Mandatory = $true)][string]$LauncherExe,
-    [Parameter(Mandatory = $true)][string]$OutputDirectory
+    [Parameter(Mandatory = $true)][string]$OutputDirectory,
+    [switch]$IncludeLauncherInUpdate
 )
 
 $ErrorActionPreference = 'Stop'
@@ -47,7 +48,9 @@ function Write-ClientZip([string]$Target, [bool]$IncludeLauncher) {
     finally { $archive.Dispose() }
 }
 
-Write-ClientZip $packagePath $false
+# Ship a new launcher inside the signed update when its executable has changed.
+# Existing launchers preserve their executable only if the package omits it.
+Write-ClientZip $packagePath $IncludeLauncherInUpdate.IsPresent
 Write-ClientZip $bundlePath $true
 Copy-Item -LiteralPath $bundlePath -Destination $legacyPath
 $signer = Join-Path $repo 'tools\ReleaseSigner\ReleaseSigner.csproj'

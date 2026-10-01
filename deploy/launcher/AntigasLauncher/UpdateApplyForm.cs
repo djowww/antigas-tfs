@@ -9,23 +9,21 @@ internal sealed class UpdateApplyForm : Form
     private readonly string _package, _manifestPath, _stage, _root;
     private readonly int _version, _parentPid;
     private readonly Label _status = new(), _detail = new();
-    private readonly ProgressBar _progress = new();
-    private readonly Button _playOld = new(), _close = new();
+    private readonly ClassicProgressBar _progress = new();
+    private readonly Button _playOld = new ClassicButton(true), _close = new ClassicButton();
     private bool _updateInProgress = true;
 
     public UpdateApplyForm(string package, string manifestPath, string stage, string root, int version, int parentPid)
     {
         _package = package; _manifestPath = manifestPath; _stage = stage; _root = root; _version = version; _parentPid = parentPid;
         Text = "Antigas 7.4 — Atualização"; StartPosition = FormStartPosition.CenterScreen;
-        FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; ClientSize = new Size(520, 210);
-        BackColor = Color.FromArgb(28, 30, 32); ForeColor = Color.FromArgb(230, 225, 211); Font = new Font("Segoe UI", 9F);
-        var title = new Label { Text = "Instalando atualização", Font = new Font("Segoe UI", 15F, FontStyle.Bold), ForeColor = Color.FromArgb(221, 174, 73), AutoSize = true, Location = new Point(26, 24) };
-        _status.SetBounds(29, 74, 458, 26); _status.Text = "Aguardando o cliente fechar para trocar os arquivos…";
-        _detail.SetBounds(29, 105, 458, 32); _detail.ForeColor = Color.FromArgb(174, 169, 157); _detail.Text = "As configurações e arquivos pessoais são preservados.";
-        _progress.SetBounds(29, 146, 458, 13); _progress.Style = ProgressBarStyle.Marquee; _progress.MarqueeAnimationSpeed = 25;
-        _playOld.Text = "Abrir versão anterior"; _playOld.SetBounds(29, 166, 160, 30); _playOld.Visible = false; _playOld.Click += (_, _) => LaunchOldClient();
-        _close.Text = "Fechar"; _close.SetBounds(386, 166, 101, 30); _close.Visible = false; _close.Click += (_, _) => Close();
-        Controls.AddRange([title, _status, _detail, _progress, _playOld, _close]);
+        FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false;
+        _status.Text = "Aguardando o cliente fechar para trocar os arquivos…";
+        _detail.Text = "As configurações e arquivos pessoais são preservados.";
+        _progress.Style = ProgressBarStyle.Marquee; _progress.MarqueeAnimationSpeed = 25;
+        _playOld.Text = "Abrir versão anterior"; _playOld.Visible = false; _playOld.Click += (_, _) => LaunchOldClient();
+        _close.Text = "Fechar"; _close.Visible = false; _close.Click += (_, _) => Close();
+        ClassicLauncherTheme.Build(this, "Instalando atualização", _status, _detail, _progress, _playOld, null, _close);
         Shown += async (_, _) => await ApplyAsync();
     }
 

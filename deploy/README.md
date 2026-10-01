@@ -1,6 +1,6 @@
 # Arquivos usados na implantação atual
 
-- `site-public/`: cópia versionada do site público atual, alinhado ao cliente v56. Bibliotecas privadas e credenciais ficam fora desta pasta.
+- `site-public/`: cópia versionada do site público atual, alinhado ao cliente v57, com a camada clássica compartilhada `classic-refinement.css`. Bibliotecas privadas e credenciais ficam fora desta pasta.
 - O portal começa em inglês e oferece bandeiras para português, espanhol e polonês; a wiki local fica em `site-public/wiki.php` e liga à edição original publicada.
 - `client-current/`: fontes atuais da barra de ícones e dos sinais de visibilidade usados para destacar painéis abertos, além das regressões; não contém releases antigos.
 - `systemd/graceful-stop.conf`: configuração operacional do encerramento gracioso.
