@@ -27,7 +27,6 @@ RSA g_RSA;
 
 namespace {
 using MutexLockFunction = int (*)(pthread_mutex_t*);
-using WaitFunction = int (*)(pthread_cond_t*, pthread_mutex_t*);
 using TimedWaitFunction = int (*)(pthread_cond_t*, pthread_mutex_t*, const timespec*);
 
 MutexLockFunction realMutexLock()
@@ -45,16 +44,6 @@ TimedWaitFunction realTimedWait()
 	static auto function = reinterpret_cast<TimedWaitFunction>(dlsym(RTLD_NEXT, "pthread_cond_timedwait"));
 	if (!function) {
 		std::fputs("FAIL: real timed wait function unavailable\n", stderr);
-		std::_Exit(1);
-	}
-	return function;
-}
-
-WaitFunction realWait()
-{
-	static auto function = reinterpret_cast<WaitFunction>(dlsym(RTLD_NEXT, "pthread_cond_wait"));
-	if (!function) {
-		std::fputs("FAIL: real condition wait function unavailable\n", stderr);
 		std::_Exit(1);
 	}
 	return function;
@@ -83,16 +72,8 @@ struct WaitObservation {
 	WaitObservation(pthread_cond_t* condition, pthread_mutex_t* mutex) : condition(condition), mutex(mutex) {}
 };
 
-struct NormalWaitObservation {
-	pthread_cond_t* condition;
-	pthread_mutex_t* mutex;
-	std::atomic<unsigned> calls{0};
-	NormalWaitObservation(pthread_cond_t* condition, pthread_mutex_t* mutex) : condition(condition), mutex(mutex) {}
-};
-
 std::atomic<LockPause*> lockPause{nullptr};
 std::atomic<WaitObservation*> waitObservation{nullptr};
-std::atomic<NormalWaitObservation*> normalWaitObservation{nullptr};
 
 void require(bool ok, const char* message)
 {
@@ -251,10 +232,8 @@ void duplicateEventIdPreservesExistingId()
 	};
 	FixtureScheduler scheduler;
 	WaitObservation timedWait(scheduler.nativeCondition(), scheduler.nativeMutex());
-	NormalWaitObservation normalWait(scheduler.nativeCondition(), scheduler.nativeMutex());
 	auto waitingForDeadline = timedWait.entered.get_future();
 	waitObservation.store(&timedWait, std::memory_order_release);
-	normalWaitObservation.store(&normalWait, std::memory_order_release);
 	mark("before-start");
 	scheduler.start();
 	mark("after-start");
@@ -286,7 +265,6 @@ void duplicateEventIdPreservesExistingId()
 	scheduler.join();
 	mark("after-join");
 	waitObservation.store(nullptr, std::memory_order_release);
-	normalWaitObservation.store(nullptr, std::memory_order_release);
 	require(existingClosure.expired(), "cancelling the original event must release its closure");
 }
 }
@@ -316,17 +294,6 @@ extern "C" int pthread_cond_timedwait(pthread_cond_t* condition, pthread_mutex_t
 	return result;
 }
 
-extern "C" int pthread_cond_wait(pthread_cond_t* condition, pthread_mutex_t* mutex)
-{
-	NormalWaitObservation* observation = normalWaitObservation.load(std::memory_order_acquire);
-	const bool matching = observation && condition == observation->condition && mutex == observation->mutex;
-	const unsigned callNumber = matching ? observation->calls.fetch_add(1, std::memory_order_relaxed) + 1 : 0;
-	if (matching) std::fprintf(stderr, "scheduler-duplicate-event-id: untimed wait %u enter\n", callNumber);
-	const int result = realWait()(condition, mutex);
-	if (matching) std::fprintf(stderr, "scheduler-duplicate-event-id: untimed wait %u return %d\n", callNumber, result);
-	return result;
-}
-
 int main(int argc, char** argv)
 {
 	try {
@@ -337,7 +304,6 @@ int main(int argc, char** argv)
 		// arm the fixture observations or change the native call semantics.
 		(void)realMutexLock();
 		(void)realTimedWait();
-		(void)realWait();
 		g_dispatcher.start();
 		if (scenario == "all" || scenario == "normal") {
 			normalExecutionAndCancellation();
