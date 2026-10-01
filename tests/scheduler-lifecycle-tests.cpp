@@ -25,10 +25,11 @@ void require(bool ok, const char* message)
 	if (!ok) throw std::runtime_error(message);
 }
 
-void ready(std::future<void>& completion, const char* message)
+template <typename T>
+T ready(std::future<T>& completion, const char* message)
 {
 	require(completion.wait_for(std::chrono::seconds(3)) == std::future_status::ready, message);
-	completion.get();
+	return completion.get();
 }
 
 class FixtureScheduler : public Scheduler {
@@ -67,11 +68,17 @@ void normalExecutionAndCancellation()
 {
 	FixtureScheduler scheduler;
 	scheduler.start();
-	auto executed = std::make_shared<std::promise<void>>();
+	auto executed = std::make_shared<std::promise<std::chrono::system_clock::time_point>>();
 	auto execution = executed->get_future();
-	require(scheduler.addEvent(createSchedulerTask(50, [executed]() { executed->set_value(); })) != 0,
+	const uint32_t delay = 250;
+	SchedulerTask* delayedTask = createSchedulerTask(delay, [executed]() {
+		executed->set_value(std::chrono::system_clock::now());
+	});
+	const auto deadline = delayedTask->getCycle();
+	require(scheduler.addEvent(delayedTask) != 0,
 	        "running scheduler must accept a normal event");
-	ready(execution, "normal event must execute through the real dispatcher");
+	const auto executedAt = ready(execution, "normal event must execute through the real dispatcher");
+	require(executedAt >= deadline, "newly inserted events must not execute before their deadline");
 	std::atomic<unsigned> cancelledExecutions{0};
 	std::promise<void> destroyed;
 	auto destruction = destroyed.get_future();
@@ -202,9 +209,6 @@ int main(int argc, char** argv)
 		require(scenario == "all" || scenario == "normal" || scenario == "shutdown-race" || scenario == "deadline" ||
 		        scenario == "rejected-after-shutdown" || scenario == "duplicate-event-id",
 		        "fixture scenario must be all, normal, shutdown-race, deadline, rejected-after-shutdown or duplicate-event-id");
-		if (scenario == "deadline" || scenario == "duplicate-event-id") {
-			setenv("TFS_SCHEDULER_DEBUG", "1", 1);
-		}
 		g_dispatcher.start();
 		if (scenario == "all" || scenario == "normal") {
 			normalExecutionAndCancellation();

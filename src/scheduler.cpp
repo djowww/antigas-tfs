@@ -20,47 +20,32 @@
 #include "otpch.h"
 
 #include "scheduler.h"
-#include <cstdio>
-#include <cstdlib>
 
 void Scheduler::threadMain()
 {
-	const bool debugScheduler = std::getenv("TFS_SCHEDULER_DEBUG") != nullptr;
-	const auto traceScheduler = [this, debugScheduler](const char* phase) {
-		if (debugScheduler) {
-			std::fprintf(stderr, "scheduler-debug %s state=%d queue=%zu ids=%zu\n", phase,
-			             static_cast<int>(getState()), eventList.size(), eventIds.size());
-		}
-	};
 	std::unique_lock<std::mutex> eventLockUnique(eventLock);
-	traceScheduler("worker-start");
 	while (getState() != THREAD_STATE_TERMINATED) {
 		if (eventList.empty()) {
-			traceScheduler("empty-wait-before");
 			eventSignal.wait(eventLockUnique, [this]() {
 				return getState() == THREAD_STATE_TERMINATED || !eventList.empty();
 			});
-			traceScheduler("empty-wait-after");
 			if (getState() == THREAD_STATE_TERMINATED) {
 				break;
 			}
-			if (eventList.empty()) {
-				continue;
-			}
-		} else {
-			const std::chrono::system_clock::time_point nextCycle = eventList.top()->getCycle();
-			traceScheduler("timed-wait-before");
-			const bool queueChanged = eventSignal.wait_until(eventLockUnique, nextCycle, [this, nextCycle]() {
-				return getState() == THREAD_STATE_TERMINATED || eventList.empty() ||
-				       eventList.top()->getCycle() != nextCycle;
-			});
-			traceScheduler(queueChanged ? "timed-wait-predicate" : "timed-wait-timeout");
-			if (getState() == THREAD_STATE_TERMINATED) {
-				break;
-			}
-			if (queueChanged || eventList.empty()) {
-				continue;
-			}
+			// Re-evaluate the queue so a newly inserted task still waits for its deadline.
+			continue;
+		}
+
+		const std::chrono::system_clock::time_point nextCycle = eventList.top()->getCycle();
+		const bool queueChanged = eventSignal.wait_until(eventLockUnique, nextCycle, [this, nextCycle]() {
+			return getState() == THREAD_STATE_TERMINATED || eventList.empty() ||
+			       eventList.top()->getCycle() != nextCycle;
+		});
+		if (getState() == THREAD_STATE_TERMINATED) {
+			break;
+		}
+		if (queueChanged || eventList.empty()) {
+			continue;
 		}
 
 		SchedulerTask* task = eventList.top();
@@ -88,7 +73,6 @@ void Scheduler::threadMain()
 		g_dispatcher.addTask(task, true);
 		eventLockUnique.lock();
 	}
-	traceScheduler("worker-exit");
 }
 
 uint32_t Scheduler::addEvent(SchedulerTask* task)
@@ -170,13 +154,8 @@ bool Scheduler::stopEvent(uint32_t eventid)
 
 void Scheduler::shutdown()
 {
-	const bool debugScheduler = std::getenv("TFS_SCHEDULER_DEBUG") != nullptr;
 	eventLock.lock();
 	setState(THREAD_STATE_TERMINATED);
-	if (debugScheduler) {
-		std::fprintf(stderr, "scheduler-debug shutdown-locked state=%d queue=%zu ids=%zu\n",
-		             static_cast<int>(getState()), eventList.size(), eventIds.size());
-	}
 
 	//this list should already be empty
 	while (!eventList.empty()) {
@@ -187,7 +166,6 @@ void Scheduler::shutdown()
 
 	eventIds.clear();
 	eventLock.unlock();
-	if (debugScheduler) std::fprintf(stderr, "scheduler-debug shutdown-notify\n");
 	eventSignal.notify_all();
 }
 
