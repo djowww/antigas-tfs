@@ -3933,7 +3933,8 @@ void Player::addUnjustifiedDead(const Player* attacked)
 			std::ostringstream ss;
 			ss << "INSERT INTO `account_bans` (`account_id`, `reason`, `banned_at`, `expires_at`, `banned_by`) VALUES (";
 			ss << getAccount() << ", ";
-			ss << db->escapeString("Too many unjustified kills") << ", ";
+			// This fixed literal contains no user-controlled bytes and needs no DB escaping.
+			ss << "'Too many unjustified kills'" << ", ";
 			ss << std::time(nullptr) << ", ";
 			ss << std::time(nullptr) + g_config.getNumber(ConfigManager::BAN_LENGTH) << ", ";
 			ss << "1);";

@@ -6,10 +6,11 @@ using System.Text.Json.Nodes;
 
 // Explicit opt-in: reads a signed release over HTTPS, installs only in a new
 // disposable directory, and never starts the game or edits a real installation.
-if ((args.Length != 3 && args.Length != 4) || args[0] != "--signed-manifest" || (args.Length == 4 && args[3] != "--candidate"))
-    throw new ArgumentException("Usage: --signed-manifest <https://tibia74.tech/staging-path/manifest.json> <built-launcher.exe>");
+if (args.Length != 3 || args[0] != "--signed-manifest")
+    throw new ArgumentException("Usage: --signed-manifest <staging manifest URL> <built-launcher.exe>");
 var uri = new Uri(args[1]);
-if (uri.Scheme != "https" || uri.Host != "tibia74.tech") throw new ArgumentException("Official HTTPS host required");
+if (!ReleaseService.IsStagingManifestUri(uri))
+    throw new ArgumentException("A clean HTTPS staging URL is required: use /staging/ on tibia74.tech or staging.tibia74.tech");
 var launcher = Path.GetFullPath(args[2]);
 if (!File.Exists(launcher)) throw new FileNotFoundException("Build the launcher first", launcher);
 var root = Path.Combine(Path.GetTempPath(), "AntigasUpdaterValidation-" + Guid.NewGuid().ToString("N"));
@@ -28,11 +29,11 @@ try
     await File.WriteAllBytesAsync(manifestPath, bytes);
     var manifest = ReleaseService.ReadAndVerifyManifest(manifestPath);
     checks.Add("HTTPS staging manifest and pinned ECDSA signature");
-    var live = await ReleaseService.GetManifestAsync(CancellationToken.None);
-    Require((live.Version == manifest.Version && live.Sha256 == manifest.Sha256) ||
-        (args.Length == 4 && manifest.Version == live.Version + 1), "Fixture must be the current release or the explicitly selected next signed candidate");
-    var package = await ReleaseService.DownloadPackageAsync(manifest, new InlineProgress<double>(_ => { }), CancellationToken.None, Path.Combine(root, "download"));
-    checks.Add("Production HTTPS download path and signed SHA-256 verification");
+    var packageBaseUri = new Uri(uri, ".");
+    var expectedPackageUri = new Uri(packageBaseUri, manifest.Package);
+    Require(ReleaseService.ResolvePackageUri(manifest, packageBaseUri) == expectedPackageUri, "Package URL must resolve beside the signed staging manifest");
+    var package = await ReleaseService.DownloadPackageAsync(manifest, new InlineProgress<double>(_ => { }), CancellationToken.None, Path.Combine(root, "download"), packageBaseUri);
+    checks.Add("Staging HTTPS package path and signed SHA-256 verification");
 
     var altered = JsonNode.Parse(bytes)!.AsObject();
     altered["sha256"] = new string('0', 64);

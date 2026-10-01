@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Install linters from verified official archives
         run: python3 tools/script_lint_tools.py --directory "$RUNNER_TEMP/script-lint-tools"

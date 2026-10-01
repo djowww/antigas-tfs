@@ -40,6 +40,7 @@ BehaviourDatabase::BehaviourDatabase(Npc * _npc) : npc(_npc) {
 }
 
 BehaviourDatabase::~BehaviourDatabase() {
+	reset();
 	for (NpcBehaviour* behaviour : behaviourEntries) {
 		delete behaviour;
 	}
@@ -818,7 +819,11 @@ void BehaviourDatabase::checkAction(const NpcBehaviourAction* action, Player* pl
 	switch (action->type) {
 	case BEHAVIOUR_TYPE_NOP: break;
 	case BEHAVIOUR_TYPE_STRING: {
-		delayedEvents.push_back(g_scheduler.addEvent(createSchedulerTask(delay, std::bind(&Npc::doSay, npc, parseResponse(player, action->string)))));
+		const std::string response = parseResponse(player, action->string);
+		const CallbackGeneration::Snapshot generation = delayedSayGeneration.snapshot();
+		delayedEvents.push_back(g_scheduler.addEvent(createSchedulerTask(
+			delay, delayedSayGeneration.guard(generation, std::bind(&Npc::doSay, npc, response))
+		)));
 		delay += 100 * (message.length() / 5) + 10000;
 		break;
 	}
@@ -1381,6 +1386,7 @@ void BehaviourDatabase::idle()
 
 void BehaviourDatabase::reset()
 {
+	delayedSayGeneration.invalidate();
 	delay = 1000;
 	for (uint32_t eventId : delayedEvents) {
 		g_scheduler.stopEvent(eventId);

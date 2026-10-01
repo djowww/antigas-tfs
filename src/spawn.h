@@ -22,6 +22,7 @@
 
 #include "tile.h"
 #include "position.h"
+#include "callbackgeneration.h"
 
 class Monster;
 class MonsterType;
@@ -71,10 +72,12 @@ class Spawn
 
 		uint32_t interval = 60000;
 		uint32_t checkSpawnEvent = 0;
+		CallbackGeneration callbackGeneration;
 
 		static bool findPlayer(const Position& pos);
 		bool spawnMonster(uint32_t spawnId, MonsterType* mType, const Position& pos, Direction dir, bool startup = false);
-		void checkSpawn();
+		void scheduleSpawnCheck(uint32_t delay, uint64_t generation);
+		void checkSpawn(uint64_t generation);
 };
 
 class Spawns

@@ -13,6 +13,10 @@ AuthenticationResult failed(AuthenticationStatus status)
 
 AuthenticationResult loadAccount(const AuthAccountRow& row)
 {
+	if (!isValidAccountTypeValue(row.type)) {
+		return failed(AuthenticationStatus::DatabaseError);
+	}
+
 	AuthenticationResult result;
 	result.status = AuthenticationStatus::Success;
 	result.account.id = row.id;
@@ -36,6 +40,10 @@ AuthenticationResult authenticateLoginServer(AuthenticationDataSource& data, uin
 	}
 
 	AuthenticationResult result = loadAccount(accountRow);
+	if (result.status != AuthenticationStatus::Success) {
+		return result;
+	}
+
 	std::vector<AuthCharacterRow> characterRows;
 	const AuthQueryStatus charactersQuery = data.getCharacters(accountRow.id, characterRows);
 	if (charactersQuery == AuthQueryStatus::Error) {
@@ -61,6 +69,11 @@ AuthenticationResult authenticateGameWorld(AuthenticationDataSource& data, uint3
 		return failed(AuthenticationStatus::InvalidCredentials);
 	}
 
+	AuthenticationResult result = loadAccount(accountRow);
+	if (result.status != AuthenticationStatus::Success) {
+		return result;
+	}
+
 	AuthCharacterRow characterRow;
 	const AuthQueryStatus characterQuery = data.getCharacter(characterName, characterRow);
 	if (characterQuery == AuthQueryStatus::Error) {
@@ -70,7 +83,6 @@ AuthenticationResult authenticateGameWorld(AuthenticationDataSource& data, uint3
 		return failed(AuthenticationStatus::InvalidCharacter);
 	}
 
-	AuthenticationResult result = loadAccount(accountRow);
 	result.characterName = characterRow.name;
 	return result;
 }

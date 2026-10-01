@@ -37,6 +37,7 @@
 #include "waitlist.h"
 #include "ban.h"
 #include "scheduler.h"
+#include "remotelogratelimiter.h"
 
 extern ConfigManager g_config;
 extern Actions actions;
@@ -516,8 +517,18 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		case 0xE8: parseDebugAssert(msg); break;
 		case 0xF9: parseModalWindowAnswer(msg); break;
 		default:
-		    std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex << static_cast<uint16_t>(recvbyte) << std::dec << "!" << std::endl;
+		{
+			std::uint64_t suppressedMessages = 0;
+			if (remoteDiagnosticLogRateLimiter().allow(suppressedMessages)) {
+				std::cout << "Player: " << player->getName() << " sent an unknown packet header: 0x" << std::hex
+				          << static_cast<uint16_t>(recvbyte) << std::dec << "!";
+				if (suppressedMessages != 0) {
+					std::cout << " (" << suppressedMessages << " remote log messages suppressed since the previous record)";
+				}
+				std::cout << std::endl;
+			}
 			break;
+		}
 	}
 
 	if (!msg.isReadPositionValid()) {
@@ -2436,7 +2447,7 @@ void ProtocolGame::parseExtendedOpcode(NetworkMessage& msg)
 	const std::string& buffer = msg.getString();
 
 	// process additional opcodes via lua script event
-	addGameTask(msg, &Game::parsePlayerExtendedOpcode, player->getID(), opcode, buffer);
+	addGameTaskWithTrackedPayload(msg, buffer.size(), &Game::parsePlayerExtendedOpcode, player->getID(), opcode, buffer);
 }
 
 void ProtocolGame::parseNewPing(NetworkMessage& msg)
@@ -2536,6 +2547,7 @@ void ProtocolGame::parseNewWalking(NetworkMessage& msg)
 
 
 	uint32_t playerId = player->getID();
+	const std::size_t trackedPathBytes = path.size() * sizeof(Direction);
 
 	auto self(getThis());
 	g_dispatcher.addTask(createTask([self, playerWalkId, predictiveWalkId, playerId, playerPosition, flags, path] {
@@ -2557,7 +2569,7 @@ void ProtocolGame::parseNewWalking(NetworkMessage& msg)
 		}
 
 		g_game.playerNewWalk(playerId, playerPosition, flags, path);
-	}));
+	}, trackedPathBytes));
 }
 
 void ProtocolGame::checkPredictiveWalking(const Position& pos)

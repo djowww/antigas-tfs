@@ -49,6 +49,9 @@ void GlobalEvents::clearMap(GlobalEventMap& map)
 
 void GlobalEvents::clear()
 {
+	// Invalidate callbacks already transferred from Scheduler but still queued
+	// in Dispatcher before replacing the event maps during reload.
+	callbackGeneration.invalidate();
 	g_scheduler.stopEvent(thinkEventId);
 	thinkEventId = 0;
 	g_scheduler.stopEvent(timerEventId);
@@ -76,7 +79,11 @@ bool GlobalEvents::registerEvent(Event* event, const pugi::xml_node&)
 		auto result = timerMap.emplace(globalEvent->getName(), globalEvent);
 		if (result.second) {
 			if (timerEventId == 0) {
-				timerEventId = g_scheduler.addEvent(createSchedulerTask(SCHEDULER_MINTICKS, std::bind(&GlobalEvents::timer, this)));
+				const uint64_t generation = callbackGeneration.snapshot();
+				const std::function<void()> callback = callbackGeneration.guard(generation, [this, generation]() {
+					timer(generation);
+				});
+				timerEventId = g_scheduler.addEvent(createSchedulerTask(SCHEDULER_MINTICKS, callback));
 			}
 			return true;
 		}
@@ -89,7 +96,11 @@ bool GlobalEvents::registerEvent(Event* event, const pugi::xml_node&)
 		auto result = thinkMap.emplace(globalEvent->getName(), globalEvent);
 		if (result.second) {
 			if (thinkEventId == 0) {
-				thinkEventId = g_scheduler.addEvent(createSchedulerTask(SCHEDULER_MINTICKS, std::bind(&GlobalEvents::think, this)));
+				const uint64_t generation = callbackGeneration.snapshot();
+				const std::function<void()> callback = callbackGeneration.guard(generation, [this, generation]() {
+					think(generation);
+				});
+				thinkEventId = g_scheduler.addEvent(createSchedulerTask(SCHEDULER_MINTICKS, callback));
 			}
 			return true;
 		}
@@ -104,8 +115,12 @@ void GlobalEvents::startup() const
 	execute(GLOBALEVENT_STARTUP);
 }
 
-void GlobalEvents::timer()
+void GlobalEvents::timer(uint64_t generation)
 {
+	if (generation != callbackGeneration.snapshot()) {
+		return;
+	}
+	timerEventId = 0;
 	time_t now = time(nullptr);
 
 	int64_t nextScheduledTime = std::numeric_limits<int64_t>::max();
@@ -140,13 +155,19 @@ void GlobalEvents::timer()
 	}
 
 	if (nextScheduledTime != std::numeric_limits<int64_t>::max()) {
-		timerEventId = g_scheduler.addEvent(createSchedulerTask(std::max<int64_t>(1000, nextScheduledTime * 1000),
-							                std::bind(&GlobalEvents::timer, this)));
+		const std::function<void()> callback = callbackGeneration.guard(generation, [this, generation]() {
+			timer(generation);
+		});
+		timerEventId = g_scheduler.addEvent(createSchedulerTask(std::max<int64_t>(1000, nextScheduledTime * 1000), callback));
 	}
 }
 
-void GlobalEvents::think()
+void GlobalEvents::think(uint64_t generation)
 {
+	if (generation != callbackGeneration.snapshot()) {
+		return;
+	}
+	thinkEventId = 0;
 	int64_t now = OTSYS_TIME();
 
 	int64_t nextScheduledTime = std::numeric_limits<int64_t>::max();
@@ -174,7 +195,10 @@ void GlobalEvents::think()
 	}
 
 	if (nextScheduledTime != std::numeric_limits<int64_t>::max()) {
-		thinkEventId = g_scheduler.addEvent(createSchedulerTask(nextScheduledTime, std::bind(&GlobalEvents::think, this)));
+		const std::function<void()> callback = callbackGeneration.guard(generation, [this, generation]() {
+			think(generation);
+		});
+		thinkEventId = g_scheduler.addEvent(createSchedulerTask(nextScheduledTime, callback));
 	}
 }
 

@@ -20,18 +20,26 @@
 #ifndef FS_DATABASETASKS_H_9CBA08E9F5FEBA7275CCEE6560059576
 #define FS_DATABASETASKS_H_9CBA08E9F5FEBA7275CCEE6560059576
 
+#include <chrono>
 #include <condition_variable>
+#include "queuemetrics.h"
 #include "thread_holder_base.h"
 #include "database.h"
 #include "enums.h"
 
 struct DatabaseTask {
 	DatabaseTask(std::string query, std::function<void(DBResult_ptr, bool)> callback, bool store) :
-		query(std::move(query)), callback(std::move(callback)), store(store) {}
+		query(std::move(query)), callback(std::move(callback)), store(store), enqueuedAt(std::chrono::steady_clock::now()) {}
 
 	std::string query;
 	std::function<void(DBResult_ptr, bool)> callback;
 	bool store;
+	std::chrono::steady_clock::time_point enqueuedAt;
+};
+
+struct DatabaseQueueMetricsSnapshot {
+	QueueMetricsSnapshot queue;
+	uint64_t oldestQueuedAgeMs = 0;
 };
 
 class DatabaseTasks : public ThreadHolder<DatabaseTasks>
@@ -41,16 +49,19 @@ class DatabaseTasks : public ThreadHolder<DatabaseTasks>
 		void start();
 		void flush();
 		void shutdown();
+		DatabaseQueueMetricsSnapshot getQueueMetrics();
 
 		void addTask(const std::string& query, const std::function<void(DBResult_ptr, bool)>& callback = nullptr, bool store = false);
 
 		void threadMain();
 	private:
-		void runTask(const DatabaseTask& task);
+		void threadMainLoop();
+		uint64_t runTask(const DatabaseTask& task);
 
 		Database db;
 		std::thread thread;
 		std::list<DatabaseTask> tasks;
+		QueueMetrics queueMetrics;
 		std::mutex taskLock;
 		std::condition_variable taskSignal;
 };

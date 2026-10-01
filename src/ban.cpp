@@ -21,11 +21,9 @@
 #include "ban.h"
 #include "database.h"
 #include "databasetasks.h"
-#include "tools.h"
-
 bool Ban::acceptConnection(uint32_t clientip)
 {
-	return connectionAttempts.allow(clientip, OTSYS_TIME());
+	return connectionAttempts.allow(clientip, ConnectionAttemptLimiter::getMonotonicTimeMs());
 }
 
 BanLookupResult IOBan::lookupAccountBan(uint32_t accountId, BanInfo& banInfo)
@@ -47,8 +45,12 @@ BanLookupResult IOBan::lookupAccountBan(uint32_t accountId, BanInfo& banInfo)
 	int64_t expiresAt = result->getNumber<int64_t>("expires_at");
 	if (expiresAt != 0 && time(nullptr) > expiresAt) {
 		// Move the ban to history if it has expired
+		std::string escapedReason;
+		if (!db->escapeString(result->getString("reason"), escapedReason)) {
+			return BanLookupResult::Error;
+		}
 		query.str(std::string());
-		query << "INSERT INTO `account_ban_history` (`account_id`, `reason`, `banned_at`, `expired_at`, `banned_by`) VALUES (" << accountId << ',' << db->escapeString(result->getString("reason")) << ',' << result->getNumber<time_t>("banned_at") << ',' << expiresAt << ',' << result->getNumber<uint32_t>("banned_by") << ')';
+		query << "INSERT INTO `account_ban_history` (`account_id`, `reason`, `banned_at`, `expired_at`, `banned_by`) VALUES (" << accountId << ',' << escapedReason << ',' << result->getNumber<time_t>("banned_at") << ',' << expiresAt << ',' << result->getNumber<uint32_t>("banned_by") << ')';
 		g_databaseTasks.addTask(query.str());
 
 		query.str(std::string());
