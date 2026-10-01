@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../deploy/launcher/AntigasLauncher/UpdateApplyForm.cs" Link="UpdateApplyForm.cs" />
+    <Compile Include="../../deploy/launcher/AntigasLauncher/ClassicLauncherTheme.cs" Link="ClassicLauncherTheme.cs" />
     <Compile Include="../../deploy/launcher/AntigasLauncher/ReleaseService.cs" Link="ReleaseService.cs" />
     <Compile Include="../../deploy/launcher/AntigasLauncher/ClientPackage.cs" Link="ClientPackage.cs" />
     <Compile Include="../../deploy/launcher/AntigasLauncher/LauncherLog.cs" Link="LauncherLog.cs" />
