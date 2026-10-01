@@ -226,6 +226,7 @@ void addEventAfterShutdownReleasesTask()
 
 void duplicateEventIdPreservesExistingId()
 {
+	setenv("TFS_SCHEDULER_DEBUG", "1", 1);
 	const auto mark = [](const char* phase) {
 		std::fprintf(stderr, "scheduler-duplicate-event-id: %s\n", phase);
 	};
