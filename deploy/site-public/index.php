@@ -6,7 +6,7 @@ require __DIR__.'/i18n.php';
 $language=siteStartI18n();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v56.zip?site=toolbar-v56-20261001';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v57.zip?site=taste-v57-20261001';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   <link rel="stylesheet" href="/home-improvements.css?v=20260927-2">
   <link rel="stylesheet" href="/news-changelog.css?v=20260927-1">
   <link rel="stylesheet" href="/language.css?v=security-20260928">
+  <link rel="stylesheet" href="/classic-refinement.css?v=taste-4cddc266105f">
 </head>
 <body class="portal-home">
   <a class="skip-link" href="#conteudo"><?= siteT('Skip to content') ?></a>
@@ -81,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <a href="/wiki.php" aria-label="<?= siteT('Game wiki') ?>"> <?= siteT('Game wiki') ?> ↗</a>
         <a href="#sobre"><?= siteT('About Antigas') ?></a>
         <div class="side-rule" aria-hidden="true"></div>
+        <p class="side-signature">Antigas<span>7.4</span></p>
       </nav>
-      <p class="side-signature">Antigas<span>7.4</span></p>
       <section class="world-note" aria-labelledby="world-heading">
         <h2 id="world-heading"><?= siteT('Our world') ?></h2>
         <dl><div><dt><?= siteT('Version') ?></dt><dd>7.4</dd></div><div><dt><?= siteT('Start') ?></dt><dd>Rookgaard</dd></div></dl>
