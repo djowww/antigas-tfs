@@ -202,6 +202,9 @@ int main(int argc, char** argv)
 		require(scenario == "all" || scenario == "normal" || scenario == "shutdown-race" || scenario == "deadline" ||
 		        scenario == "rejected-after-shutdown" || scenario == "duplicate-event-id",
 		        "fixture scenario must be all, normal, shutdown-race, deadline, rejected-after-shutdown or duplicate-event-id");
+		if (scenario == "deadline" || scenario == "duplicate-event-id") {
+			setenv("TFS_SCHEDULER_DEBUG", "1", 1);
+		}
 		g_dispatcher.start();
 		if (scenario == "all" || scenario == "normal") {
 			normalExecutionAndCancellation();
