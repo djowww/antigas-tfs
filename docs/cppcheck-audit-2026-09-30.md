@@ -34,10 +34,14 @@ regras de experiência ou a autorização de uso/remoção de itens.
 
 ## Diagnósticos revisados que não confirmaram vulnerabilidade
 
-- `missingReturn`, `Container::queryRemove`: existe retorno incondicional antes
-  do bloco final de `HouseTile`; não há caminho alcançável sem retorno. O bloco
-  de permissão morto merece revisão separada de gameplay/autorização e não foi
-  movido só para satisfazer o analisador.
+- `missingReturn`, `Container::queryRemove`: o aviso de caminho sem retorno era
+  falso, mas a revisão separada do bloco `HouseTile` confirmou um problema de
+  autorização: `onlyInvitedCanMoveHouseItems` é verdadeiro por padrão, porém a
+  função retornava sucesso antes de delegar a checagem de convite. A delegação
+  agora ocorre antes do retorno de sucesso, com uma regressão de ordem no teste
+  `test_container_house_removal`. O achado `missingReturn` foi removido do
+  baseline após não aparecer no novo relatório Cppcheck 2.13; ainda falta um
+  ensaio dinâmico no jogo com uma conta não convidada.
 - `ctunullpointer` e `nullPointerRedundantCheck`, `InstantSpell`: ambos os ramos
   que encontram alvo nulo retornam ou definem `useDirection = true`. A chamada
   denunciada ocorre somente quando `useDirection` é falso. O outro chamador
@@ -95,5 +99,5 @@ Referência: [manual oficial do Cppcheck](https://cppcheck.sourceforge.io/manual
   serviço ativo, zero reinícios automáticos e startup sem erros Lua observados.
   As portas 7173/7174 responderam a conexões TCP externas. Staging permanece
   inativo e o manifesto oficial do cliente continua na versão 53.
-- Backup do executável anterior preservado em
-  `/opt/imperium772/backups/events-reset-30abd16-20260930`.
+- Backup do executável anterior preservado fora do repositório; o caminho
+  exato do servidor foi omitido desta documentação pública.

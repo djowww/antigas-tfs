@@ -5,6 +5,7 @@ Evidências e identificadores da compilação: [resultados das verificações](v
 ## Correções
 
 - Consultas não entram mais em repetição infinita quando o banco perde a conexão. Há timeout de conexão/leitura/escrita, espera de lock limitada e intervalo de recuperação. Nenhuma escrita é repetida implicitamente.
+- As leituras idempotentes usadas para autenticar a conta, listar personagens e verificar bloqueios podem refazer uma única tentativa após uma desconexão transitória. A reconexão tem timeout limitado; consultas em transações e escritas mantêm a regra de não repetir.
 - Falhas de conexão ou ROLLBACK no Market não encerram mais todo o processo.
 - Antes de uma alteração financeira, um checkpoint salva o progresso anterior do personagem.
 - Uma falha anterior ao COMMIT desfaz a operação. Se o resultado do COMMIT for desconhecido, ou se a compensação em memória falhar, somente o personagem afetado é desconectado e removido sem sobrescrever seu estado persistido.
