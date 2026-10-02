@@ -91,6 +91,8 @@ function methods:isEnabled() return self.enabled end
 function methods:setText(value) self.text=value end
 function methods:setTooltip(value) self.tooltip=value end
 function methods:setColor(value) self.color=value end
+function methods:setIconOffsetX(value) self.iconOffsetX=value end
+function methods:setIconOffsetY(value) self.iconOffsetY=value end
 function methods:setWidth(value) self.width=value end
 function methods:setHeight(value) self.height=value end
 function methods:getWidth()
