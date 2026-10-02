@@ -1,11 +1,13 @@
-# Arquivos usados na implantação atual
+# Arquivos de cliente, site e implantação
 
-- `site-public/`: cópia versionada do site público atual, alinhado ao cliente v59, com a camada clássica compartilhada `classic-refinement.css`. Bibliotecas privadas e credenciais ficam fora desta pasta.
-- O portal começa em inglês e oferece bandeiras para português, espanhol e polonês; a wiki local fica em `site-public/wiki.php` e liga à edição original publicada.
-- `client-current/`: fontes atuais da barra de ícones e dos sinais de visibilidade usados para destacar painéis abertos, além das regressões; não contém releases antigos.
-- `systemd/graceful-stop.conf`: configuração operacional do encerramento gracioso.
-- `systemd/staging-maintenance-recovery.sh`: recuperação da janela de carga isolada; execução manual exige nova janela coordenada.
+Este diretório reúne fontes auxiliares e referências de implantação. Consulte [cliente, launcher e site](../docs/client-and-web.md) para conhecer os pré-requisitos e componentes externos.
 
-As pastas antigas de clientes, manifests e scripts de release foram arquivadas em `../../backup/TFS-deploy-antigo-20260927/deploy/` e relacionadas no inventário correspondente. Elas não são necessárias para iniciar o TFS nem para publicar o cliente v49 e o site.
+- `client-current/`: snapshot de módulos, layouts e estilos do cliente personalizado; não contém uma distribuição completa do OTClient.
+- `launcher/`: fonte do launcher Windows, chave pública de verificação e script de empacotamento. O assinador fica em `../tools/ReleaseSigner/`.
+- `site-public/`: páginas PHP, traduções, estilos e manifesto público de downloads. Bibliotecas privadas de autenticação, banco e pagamento precisam ser fornecidas separadamente.
+- `nginx/`: configurações e scripts de hardening para uma infraestrutura específica.
+- `systemd/`: referências de encerramento gracioso, restrições do processo e recuperação de staging.
+- `prepare-security-staging.py`: ferramenta de preparação de um ambiente isolado.
+- `deploy-*.py` e `rarity-rollback-compat.patch`: scripts e patch de implantações anteriores, preservados como referências técnicas. Os cinco scripts de deploy continuam cobertos por `../tests/test_deployment_preconditions.py`; o script de recuperação systemd é usado por `../tests/test_recovery_script.py`.
 
-`../tests/` contém ferramentas de desenvolvimento, regressão e carga; não é carregado pelo servidor em produção nem incluído em pacotes de cliente/site.
+Os scripts operacionais contêm pressupostos de ambiente e podem modificar arquivos ou controlar serviços. Revise-os e adapte-os ao seu ambiente antes de executar. Eles não são necessários para compilar o servidor nem são executados automaticamente por um push ao GitHub.
