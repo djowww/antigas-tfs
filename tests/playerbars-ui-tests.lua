@@ -171,12 +171,23 @@ for _, id in ipairs({'SkillsButton', 'BattleButton', 'VipButton', 'huntButton', 
   buttons[#buttons+1]=assert(contents:getChildById(id), id..' must be inside contentsPanel')
 end
 
+local function assertIconOffsets(expectedX, expectedY, expectedAchievementsY, layout)
+  for _, button in ipairs(buttons) do
+    local wantedY = button == achievementsButton and expectedAchievementsY or expectedY
+    assert(button.iconOffsetX == expectedX and button.iconOffsetY == wantedY,
+      string.format('%s: %s icon offsets should be %d,%d, got %s,%s',
+        layout, button.id, expectedX, wantedY,
+        tostring(button.iconOffsetX), tostring(button.iconOffsetY)))
+  end
+end
+
 g_game={}
 g_ui={loadUI=function() return window end}
 function connect() end
 REGISTRATION_KEY='AbcDeFgH'
 init()
 assert(window.height==30 and skillsButton.width==22 and skillsButton.height==22 and skillsButton.marginLeft==2)
+assertIconOffsets(5, 5, 4, 'native-width toolbar')
 assert(not toggle:isOn() and toggle.tooltip=='Recolher barra')
 for _, button in ipairs(buttons) do
   assert(button.width==22 and button.height==22, 'all seven icons share a 22 px click area at native width')
@@ -201,6 +212,7 @@ resizeButtons()
 assert(window.height==18 and toggle:getWidth()==14, 'sidebar resizing cannot expand the minimized menu')
 assert(skillsButton.width==20 and skillsButton.height==20,
   'buttons shrink uniformly when the toolbar has less width')
+assertIconOffsets(4, 4, 3, '178 px toolbar')
 settings.playerBarsWindow.height=90 -- A saved height from the previous three-row menu.
 toggle:onClick()
 assert(not window:isOn() and window.height==28 and settings.playerBarsWindow.minimized==false)
@@ -211,10 +223,12 @@ window.width=160
 resizeButtons()
 assert(skillsButton.width==18 and skillsButton.height==18 and window.height==26,
   'all controls remain inside a narrower 160 px toolbar')
+assertIconOffsets(3, 3, 2, '160 px toolbar')
 window.width=192
 resizeButtons()
 assert(skillsButton.width==22 and skillsButton.height==22 and window.height==30,
   'the toolbar returns to native 22 px buttons when space is available')
+assertIconOffsets(5, 5, 4, '192 px toolbar')
 setActionSelected('market', true)
 setActionSelected('quest', true)
 setActionSelected('achievements', true)
@@ -232,4 +246,4 @@ window:setup()
 assert(window.height==18 and not contents:isVisible() and toggle:isOn(), 'saved minimized state survives setup')
 toggle:onClick()
 assert(window.height==30 and contents:isVisible() and not toggle:isOn(), 'saved minimization still permits expansion')
-print('PASS: unique OTUI ids, icon states, Portuguese tooltips, responsive spacing, minimize behavior and real selected states')
+print('PASS: unique OTUI ids, icon states, Portuguese tooltips, responsive spacing and icon offsets, minimize behavior and real selected states')
