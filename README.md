@@ -47,7 +47,7 @@ Os sistemas antigos de tarefas Tusker, bounty hunter, coleta customizada de fras
 
 ## Market — histórico e catálogo (cliente v15)
 
-- Em instalação nova, aplique `data/sql/market.sql`, `market-v2.sql` e `market-v3.sql`, nessa ordem. Em instalação com Market v2, aplique somente `market-v3.sql` **antes** de carregar o novo `market.lua`. A migração é aditiva, usa InnoDB e pode ser repetida no MariaDB.
+- Em instalação nova, aplique `data/sql/market.sql`, `market-v2.sql` e `market-v3.sql`, nessa ordem. Em instalação com Market v2, aplique somente `market-v3.sql` **antes** de carregar o novo `market.lua`. As migrações são aditivas, usam InnoDB e podem ser repetidas no MariaDB. No MySQL, siga a etapa condicional do índice em [README-market.md](data/sql/README-market.md): `market-v3.sql` usa `CREATE INDEX IF NOT EXISTS`, sintaxe que não pode ser aplicada sem adaptação.
 - O histórico começa nesta atualização: compras, vendas e cancelamentos são registrados na mesma transação dos bens e do comprovante de idempotência. Entregas anteriores continuam disponíveis, mas não têm histórico retroativo inventado.
 - Cada registro acompanha sua entrega: uma coleta parcial mantém o saldo pendente; a coleta completa passa a constar como recolhida. Gold vai ao banco; itens e Antigas Coins vão ao depot da cidade do personagem.
 - O catálogo oferece filtro de itens próprios e menor preço de venda/maior preço de compra por moeda. Os preços são calculados sobre ofertas ativas, não são cotações garantidas e não misturam as moedas.
