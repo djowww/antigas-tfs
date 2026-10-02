@@ -182,6 +182,14 @@ for _, id in ipairs({'SkillsButton', 'BattleButton', 'VipButton', 'huntButton', 
   buttons[#buttons+1]=assert(contents:getChildById(id), id..' must be inside contentsPanel')
 end
 
+local function assertButtonSizes(expectedSize, layout)
+  for _, button in ipairs(buttons) do
+    assert(button.width==expectedSize and button.height==expectedSize,
+      string.format('%s: %s should have a %d px click area, got %sx%s',
+        layout, button.id, expectedSize, tostring(button.width), tostring(button.height)))
+  end
+end
+
 local function assertIconOffsets(expectedX, expectedY, expectedAchievementsY, layout)
   for _, button in ipairs(buttons) do
     local wantedY = button == achievementsButton and expectedAchievementsY or expectedY
@@ -209,9 +217,8 @@ init()
 assert(window.height==30 and skillsButton.width==22 and skillsButton.height==22 and skillsButton.marginLeft==2)
 assertIconOffsets(5, 5, 4, 'native-width toolbar')
 assert(not toggle:isOn() and toggle.tooltip=='Recolher barra')
-for _, button in ipairs(buttons) do
-  assert(button.width==22 and button.height==22, 'all seven icons share a 22 px click area at native width')
-end
+assertButtonSizes(22, 'native-width toolbar')
+assert(skillsButton.tooltip=='Habilidades.', 'skills tooltip is preserved')
 assert(buttons[2].tooltip=='Lista de batalha (Ctrl+B).' and buttons[3].tooltip=='Lista VIP (Ctrl+P).'
   and questButton.tooltip=='Diário de missões (Ctrl+J).', 'only verified shortcuts appear in Portuguese tooltips')
 assert(marketButton.tooltip=='Mercado.' and huntButton.tooltip=='Estatísticas de caça e loot.'
@@ -233,6 +240,7 @@ resizeButtons()
 assert(window.height==18 and toggle:getWidth()==14, 'sidebar resizing cannot expand the minimized menu')
 assert(skillsButton.width==20 and skillsButton.height==20,
   'buttons shrink uniformly when the toolbar has less width')
+assertButtonSizes(20, '178 px toolbar')
 assertIconOffsets(4, 4, 3, '178 px toolbar')
 settings.playerBarsWindow.height=90 -- A saved height from the previous three-row menu.
 toggle:onClick()
@@ -245,12 +253,14 @@ window.width=160
 resizeButtons()
 assert(skillsButton.width==18 and skillsButton.height==18 and window.height==26,
   'all controls remain inside a narrower 160 px toolbar')
+assertButtonSizes(18, '160 px toolbar')
 assertIconOffsets(3, 3, 2, '160 px toolbar')
 clearIconOffsetCalls()
 window.width=192
 resizeButtons()
 assert(skillsButton.width==22 and skillsButton.height==22 and window.height==30,
   'the toolbar returns to native 22 px buttons when space is available')
+assertButtonSizes(22, '192 px toolbar')
 assertIconOffsets(5, 5, 4, '192 px toolbar')
 setActionSelected('market', true)
 setActionSelected('quest', true)
