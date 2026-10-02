@@ -134,7 +134,8 @@ local function instantiate(node, parent)
   expandStyle(node, props, children)
   local result={parent=parent, props=props, children={}, visible=true, enabled=true,
     width=tonumber(props.width) or 0, height=tonumber(props.height) or 0,
-    id=props.id, save=props['&save']=='true', minimizedHeight=tonumber(props['&minimizedHeight'])}
+    id=props.id, tooltip=props.tooltip, save=props['&save']=='true',
+    minimizedHeight=tonumber(props['&minimizedHeight'])}
   setmetatable(result, {__index=function(self, key)
     return (not parent and UIMiniWindow[key]) or methods[key] or methods.getChildById(self, key)
   end})
@@ -194,10 +195,10 @@ assert(not toggle:isOn() and toggle.tooltip=='Recolher barra')
 for _, button in ipairs(buttons) do
   assert(button.width==22 and button.height==22, 'all seven icons share a 22 px click area at native width')
 end
-assert(buttons[2].tooltip=='Lista de batalha (Ctrl+B)' and buttons[3].tooltip=='Lista VIP (Ctrl+P)'
-  and questButton.tooltip=='Diário de missões (Ctrl+J)', 'only verified shortcuts appear in Portuguese tooltips')
-assert(marketButton.tooltip=='Mercado' and huntButton.tooltip=='Estatísticas de caça e loot'
-  and achievementsButton.tooltip=='Conquistas')
+assert(buttons[2].tooltip=='Lista de batalha (Ctrl+B).' and buttons[3].tooltip=='Lista VIP (Ctrl+P).'
+  and questButton.tooltip=='Diário de missões (Ctrl+J).', 'only verified shortcuts appear in Portuguese tooltips')
+assert(marketButton.tooltip=='Mercado.' and huntButton.tooltip=='Estatísticas de caça e loot.'
+  and achievementsButton.tooltip=='Conquistas.')
 assert(type(inheritedMinimize.onClick)=='function', 'UIMiniWindow setup still binds the inherited control')
 toggle:onClick()
 assert(window:isOn() and window.height==18 and settings.playerBarsWindow.minimized==true)
