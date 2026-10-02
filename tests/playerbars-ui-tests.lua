@@ -91,8 +91,16 @@ function methods:isEnabled() return self.enabled end
 function methods:setText(value) self.text=value end
 function methods:setTooltip(value) self.tooltip=value end
 function methods:setColor(value) self.color=value end
-function methods:setIconOffsetX(value) self.iconOffsetX=value end
-function methods:setIconOffsetY(value) self.iconOffsetY=value end
+function methods:setIconOffsetX(value)
+  self.iconOffsetX=value
+  self.iconOffsetXCalls=self.iconOffsetXCalls or {}
+  self.iconOffsetXCalls[#self.iconOffsetXCalls+1]=value
+end
+function methods:setIconOffsetY(value)
+  self.iconOffsetY=value
+  self.iconOffsetYCalls=self.iconOffsetYCalls or {}
+  self.iconOffsetYCalls[#self.iconOffsetYCalls+1]=value
+end
 function methods:setWidth(value) self.width=value end
 function methods:setHeight(value) self.height=value end
 function methods:getWidth()
@@ -177,10 +185,19 @@ end
 local function assertIconOffsets(expectedX, expectedY, expectedAchievementsY, layout)
   for _, button in ipairs(buttons) do
     local wantedY = button == achievementsButton and expectedAchievementsY or expectedY
-    assert(button.iconOffsetX == expectedX and button.iconOffsetY == wantedY,
-      string.format('%s: %s icon offsets should be %d,%d, got %s,%s',
+    local xCalls, yCalls = button.iconOffsetXCalls or {}, button.iconOffsetYCalls or {}
+    assert(button.iconOffsetX == expectedX and xCalls[#xCalls] == expectedX
+        and button.iconOffsetY == wantedY and yCalls[#yCalls] == wantedY,
+      string.format('%s: %s icon offsets should be %d,%d, got %s,%s (setter args %s,%s)',
         layout, button.id, expectedX, wantedY,
-        tostring(button.iconOffsetX), tostring(button.iconOffsetY)))
+        tostring(button.iconOffsetX), tostring(button.iconOffsetY),
+        tostring(xCalls[#xCalls]), tostring(yCalls[#yCalls])))
+  end
+end
+
+local function clearIconOffsetCalls()
+  for _, button in ipairs(buttons) do
+    button.iconOffsetXCalls, button.iconOffsetYCalls = {}, {}
   end
 end
 
@@ -210,6 +227,7 @@ assert(toggle:isVisible() and toggle:getChildById('menuUnreadIndicator'):isVisib
   'unread achievements remain noticeable while the menu is collapsed')
 assert(achievementsButton.tooltip=='Conquistas: 3 novas'
   and not achievementsButton:isVisible())
+clearIconOffsetCalls()
 window.width=178
 resizeButtons()
 assert(window.height==18 and toggle:getWidth()==14, 'sidebar resizing cannot expand the minimized menu')
@@ -222,11 +240,13 @@ assert(not window:isOn() and window.height==28 and settings.playerBarsWindow.min
 for _, button in ipairs(buttons) do assert(button:isVisible(), 'expanding restores every button') end
 assert(not toggle:isOn() and toggle:getChildById('menuUnreadIndicator'):isVisible())
 assert(skillsButton.width==20 and skillsButton.marginLeft==2 and battleButton.marginLeft==2)
+clearIconOffsetCalls()
 window.width=160
 resizeButtons()
 assert(skillsButton.width==18 and skillsButton.height==18 and window.height==26,
   'all controls remain inside a narrower 160 px toolbar')
 assertIconOffsets(3, 3, 2, '160 px toolbar')
+clearIconOffsetCalls()
 window.width=192
 resizeButtons()
 assert(skillsButton.width==22 and skillsButton.height==22 and window.height==30,
