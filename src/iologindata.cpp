@@ -32,7 +32,7 @@ class DatabaseAuthenticationDataSource : public AuthenticationDataSource
 			std::ostringstream query;
 			query << "SELECT `id`, `password`, `type`, `premdays`, `lastday` FROM `accounts` WHERE `id` = " << accountNumber;
 			bool success = false;
-			DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success);
+			DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success, true);
 			if (!success) return AuthQueryStatus::Error;
 			if (!result) return AuthQueryStatus::Empty;
 			row.id = result->getNumber<uint32_t>("id");
@@ -48,7 +48,7 @@ class DatabaseAuthenticationDataSource : public AuthenticationDataSource
 			std::ostringstream query;
 			query << "SELECT `name`, `deletion` FROM `players` WHERE `account_id` = " << accountId;
 			bool success = false;
-			DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success);
+			DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success, true);
 			if (!success) return AuthQueryStatus::Error;
 			if (!result) return AuthQueryStatus::Empty;
 			do {
@@ -69,7 +69,7 @@ class DatabaseAuthenticationDataSource : public AuthenticationDataSource
 			std::ostringstream query;
 			query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << escapedName;
 			bool success = false;
-			DBResult_ptr result = db->storeQuery(query.str(), &success);
+			DBResult_ptr result = db->storeQuery(query.str(), &success, true);
 			if (!success) return AuthQueryStatus::Error;
 			if (!result) return AuthQueryStatus::Empty;
 			row.accountId = result->getNumber<uint32_t>("account_id");
@@ -181,7 +181,7 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 		query << ", (SELECT `premdays` FROM `accounts` WHERE `accounts`.`id` = `account_id`) AS `premium_days`";
 	}
 	query << " FROM `players` WHERE `name` = " << escapedName;
-	DBResult_ptr result = db->storeQuery(query.str());
+	DBResult_ptr result = db->storeQuery(query.str(), nullptr, true);
 	if (!result) {
 		return false;
 	}

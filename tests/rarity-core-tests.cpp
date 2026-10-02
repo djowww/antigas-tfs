@@ -70,6 +70,23 @@ static void setLootChance(int32_t chance)
 	require(loaded, "isolated loot config must load");
 }
 
+static void setHouseItemPolicy(bool enabled)
+{
+	const boost::filesystem::path original = boost::filesystem::current_path();
+	const boost::filesystem::path scratch = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("antigas-house-policy-%%%%-%%%%");
+	boost::filesystem::create_directory(scratch);
+	{
+		std::ofstream config((scratch / "config.lua").string());
+		config << "onlyInvitedCanMoveHouseItems = " << (enabled ? "true" : "false") << "\n";
+	}
+	boost::filesystem::current_path(scratch);
+	const bool loaded = g_config.load();
+	boost::filesystem::current_path(original);
+	boost::filesystem::remove_all(scratch);
+	require(loaded, "isolated house item policy config must load");
+	require(g_config.getBoolean(ConfigManager::ONLY_INVITED_CAN_MOVE_HOUSE_ITEMS) == enabled, "house item policy must match isolated config");
+}
+
 static uint16_t findType(const std::function<bool(const ItemType&)>& predicate)
 {
 	for (size_t id = 1; id < Item::items.size(); ++id) {
@@ -308,6 +325,79 @@ static void groundRarityTests()
 	GroundRarity::resetMap(observer);
 	GroundRarity::resetSession(observer);
 	require(GroundRarity::describe(tile.getPosition(), GroundRarity::collect(tile, observer)) == GroundRarity::describe(tile.getPosition(), entries), "handshake, map reset and session reset must leave actual world items unchanged");
+}
+
+static void houseContainerRemovalTests()
+{
+	setHouseItemPolicy(true);
+	DynamicTile outsideTile(103, 100, 7);
+	Group group = {};
+	Player invited(nullptr), visitor(nullptr);
+	for (auto* player : {&invited, &visitor}) {
+		player->setGroup(&group);
+		player->setID();
+	}
+	invited.setGUID(990101);
+	invited.setName("House Container Invitee");
+	visitor.setGUID(990102);
+	visitor.setName("House Container Visitor");
+	g_game.addPlayer(&invited);
+	g_game.addPlayer(&visitor);
+	struct PlayerRegistryCleanup {
+		Player& invited;
+		Player& visitor;
+		~PlayerRegistryCleanup() {
+			g_game.removePlayer(&visitor);
+			g_game.removePlayer(&invited);
+		}
+	} playerRegistryCleanup{invited, visitor};
+
+	House house(990101);
+	HouseTile houseTile(104, 100, 7, &house);
+	house.addTile(&houseTile);
+	house.setAccessList(GUEST_LIST, invited.getName());
+	require(house.isInvited(&invited) && !house.isInvited(&visitor), "fixture must distinguish invited and uninvited players");
+	houseTile.internalAddThing(0, &invited);
+
+	Container* direct = Item::CreateItem(2853)->getContainer();
+	houseTile.internalAddThing(0, direct);
+	Item* directItem = Item::CreateItem(3031, 3);
+	direct->internalAddThing(directItem);
+	require(direct->getTile() == &houseTile, "direct house container must resolve to its house tile");
+	const ReturnValue directVisitorResult = direct->queryRemove(*directItem, 1, 0, &visitor);
+	require(directVisitorResult == RETURNVALUE_NOTPOSSIBLE, "uninvited player must not remove an item from a direct house container");
+	require(direct->queryRemove(*directItem, 1, 0, &invited) == RETURNVALUE_NOERROR, "invited player must remove an item from a direct house container");
+	require(direct->queryRemove(*directItem, 1, 0, nullptr) == RETURNVALUE_NOERROR, "system removal without an actor must remain allowed");
+
+	Container* outer = Item::CreateItem(2853)->getContainer();
+	houseTile.internalAddThing(0, outer);
+	Container* inner = Item::CreateItem(2853)->getContainer();
+	outer->internalAddThing(inner);
+	Item* nestedItem = Item::CreateItem(3031, 3);
+	inner->internalAddThing(nestedItem);
+	require(inner->getTile() == &houseTile, "nested house container must resolve through its parent containers");
+	require(inner->queryRemove(*nestedItem, 1, 0, &visitor) == RETURNVALUE_NOTPOSSIBLE, "uninvited player must not remove an item from a nested house container");
+	require(inner->queryRemove(*nestedItem, 1, 0, &invited) == RETURNVALUE_NOERROR, "invited player must remove an item from a nested house container");
+	require(inner->queryRemove(*nestedItem, 1, 0, nullptr) == RETURNVALUE_NOERROR, "nested system removal without an actor must remain allowed");
+
+	Container* carried = Item::CreateItem(2853)->getContainer();
+	static_cast<Cylinder&>(invited).internalAddThing(CONST_SLOT_BACKPACK, carried);
+	Item* carriedItem = Item::CreateItem(3031, 3);
+	carried->internalAddThing(carriedItem);
+	require(carried->getTile() == &houseTile && carried->getHoldingPlayer() == &invited, "player-carried container must resolve through its holder to the actual house tile");
+	require(carried->queryRemove(*carriedItem, 1, 0, &visitor) == RETURNVALUE_NOERROR, "house invitation policy must not apply to a player-carried container");
+	Container* nestedCarried = Item::CreateItem(2853)->getContainer();
+	carried->internalAddThing(nestedCarried);
+	Item* nestedCarriedItem = Item::CreateItem(3031, 3);
+	nestedCarried->internalAddThing(nestedCarriedItem);
+	require(nestedCarried->getTile() == &houseTile && nestedCarried->getHoldingPlayer() == &invited, "nested player-carried container must retain its holder and house tile context");
+	require(nestedCarried->queryRemove(*nestedCarriedItem, 1, 0, &visitor) == RETURNVALUE_NOERROR, "house invitation policy must not apply to a nested player-carried container");
+
+	setHouseItemPolicy(false);
+	require(inner->queryRemove(*nestedItem, 1, 0, &visitor) == RETURNVALUE_NOERROR, "uninvited removal must be allowed when house protection is disabled");
+	setHouseItemPolicy(true);
+	houseTile.removeThing(&invited, 1);
+	outsideTile.internalAddThing(0, &invited);
 }
 
 static void groundRarityMovementTests()
@@ -694,6 +784,7 @@ int main()
 		lootTests();
 		groundRarityTests();
 		groundRarityMovementTests();
+		houseContainerRemovalTests();
 		g_game.cleanup(true);
 		std::cout << "PASS: " << checks << " rarity core checks (production C++, isolated from live data)." << std::endl;
 		return 0;

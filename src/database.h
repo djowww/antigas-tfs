@@ -70,9 +70,12 @@ class Database
 		 *
 		 * Executes query which generates results (mostly SELECT).
 		 *
+		 * @param retryConnectionFailure retries one transient disconnect only for
+		 *        idempotent reads outside a transaction.
+		 *
 		 * @return results object (nullptr on error)
 		 */
-		DBResult_ptr storeQuery(const std::string& query, bool* success = nullptr);
+		DBResult_ptr storeQuery(const std::string& query, bool* success = nullptr, bool retryConnectionFailure = false);
 
 		/**
 		 * Escapes string for query.
