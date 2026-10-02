@@ -38,12 +38,8 @@ ctest --test-dir build --output-on-failure
 
 O teste C++ usa o núcleo real, `items.srv`, vocações e uma definição de NPC; não inicia mundo, banco ou listeners. Abrange atributos persistidos, refino, dano, resistência, evolução, chamadas Lua, loot e os caminhos de equipar/retirar/transformar anéis com efeitos nativos.
 
-As suítes `rarity-ui-tests.lua` e `rarity-economy-tests.lua` exercitam os scripts reais com objetos simulados. `rarity-ui-runner.py` executa Lua 5.2 e LuaJIT via Lupa. `rarity-live.py` é um teste operacional separado: cria uma única conta comum descartável e só a remove após confirmar o logout. Sua execução exige o ambiente administrativo do banco e o servidor já atualizado.
+As suítes [`rarity-ui-tests.lua`](../tests/rarity-ui-tests.lua) e [`rarity-economy-tests.lua`](../tests/rarity-economy-tests.lua) exercitam os scripts com objetos simulados. [`rarity-ui-runner.py`](../tests/rarity-ui-runner.py) executa os cenários Lua 5.2 e LuaJIT via Lupa.
 
-## Recuperação
+## Compatibilidade dos dados
 
-O binário anterior à raridade não entende os atributos 39 e 40. Não reinstalá-lo diretamente depois que itens raros forem salvos. `deploy/rarity-rollback-compat.patch` ensina o binário de recuperação a preservar ambos como dados opacos durante leitura, salvamento e transformação. Definir chance zero suspende novos sorteios, sem remover os atributos já existentes.
-
-`deploy/rarity-rollback-compat.patch`, aplicado à base `64f50b8`, adiciona apenas leitura, escrita e preservação opaca da raridade nas transformações. Serve para compilar um binário de recuperação que conserva o banco atual sem aplicar os bônus novos. `tests/rarity-compat-tests.cpp` valida essa base com o patch. Use esse fallback em manutenção e restaure os scripts da versão anterior: ele não oferece as APIs Lua nem as proteções de venda da v44.
-
-Backups de banco e configuração devem permanecer privados no host. Restaurar um banco antigo pode descartar progresso posterior; o fallback compatível evita essa exigência.
+Itens raros persistem os atributos 39 e 40. Uma versão do servidor que não conheça esses atributos pode perder os metadados ao carregar ou salvar itens. Mudanças no formato precisam preservar os dois atributos. Definir `itemRarityLootChance = 0` suspende novos sorteios e mantém a raridade dos itens existentes.
