@@ -34,6 +34,8 @@ cp config.example.lua config.lua
 
 Disponibilize uma base compatível antes de iniciar. Os arquivos em `data/sql/` acrescentam tabelas do Market e não substituem o schema base. Consulte [migrações e compatibilidade MySQL/MariaDB](../data/sql/README-market.md): `market-v3.sql` usa uma sintaxe de criação de índice aceita pelo MariaDB que requer adaptação no MySQL.
 
+As correções de recuperação de conexão do banco e de permissão para retirar itens de contêineres em casas não exigem migração SQL. Elas são aplicadas ao recompilar e substituir o executável, após salvamento e encerramento gracioso do servidor. A recuperação permite uma reconexão e repetição apenas para leituras idempotentes explicitamente habilitadas fora de transações; escritas e consultas em transações não são repetidas.
+
 ## Chave RSA e cliente
 
 A inicialização exige que `ANTIGAS_RSA_KEY_FILE` aponte para um arquivo privado legível pelo processo. O [carregador RSA](../src/rsa.cpp) espera exatamente dois primos decimais, `p` e `q`, separados por espaço ou quebra de linha, cujo módulo tenha 1024 bits; o expoente público é 65537. Um PEM não é o formato esperado por esse carregador.

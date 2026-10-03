@@ -34,7 +34,7 @@ BanLookupResult IOBan::lookupAccountBan(uint32_t accountId, BanInfo& banInfo)
 	query << "SELECT `reason`, `expires_at`, `banned_at`, `banned_by`, (SELECT `name` FROM `players` WHERE `id` = `banned_by`) AS `name` FROM `account_bans` WHERE `account_id` = " << accountId;
 
 	bool success = false;
-	DBResult_ptr result = db->storeQuery(query.str(), &success);
+	DBResult_ptr result = db->storeQuery(query.str(), &success, true);
 	if (!success) {
 		return BanLookupResult::Error;
 	}
@@ -77,7 +77,7 @@ BanLookupResult IOBan::lookupIpBan(uint32_t clientip, BanInfo& banInfo)
 	query << "SELECT `reason`, `expires_at`, (SELECT `name` FROM `players` WHERE `id` = `banned_by`) AS `name` FROM `ip_bans` WHERE `ip` = " << clientip;
 
 	bool success = false;
-	DBResult_ptr result = db->storeQuery(query.str(), &success);
+	DBResult_ptr result = db->storeQuery(query.str(), &success, true);
 	if (!success) {
 		return BanLookupResult::Error;
 	}
@@ -104,7 +104,7 @@ BanLookupResult IOBan::lookupPlayerNamelock(uint32_t playerId)
 	std::ostringstream query;
 	query << "SELECT 1 FROM `player_namelocks` WHERE `player_id` = " << playerId;
 	bool success = false;
-	DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success);
+	DBResult_ptr result = Database::getInstance()->storeQuery(query.str(), &success, true);
 	if (!success) {
 		return BanLookupResult::Error;
 	}
