@@ -1,4 +1,4 @@
--- Keep the sprite readable. Rarity belongs to its accents, not a flat paint layer.
+-- Keep the sprite readable, with a restrained shimmer matching its pixel accents.
 local families = {
   [0] = { {151, 125, 88}, {189, 161, 112}, {210, 190, 149} },
   [1] = { {93, 139, 110}, {129, 173, 137}, {167, 195, 151} },
@@ -61,6 +61,17 @@ function getAccentColor(tier, now, seed)
   return hex(colorAt(tier, now, seed))
 end
 
+function getSlotTint(tier, now, seed, locked)
+  tier = tierNumber(tier)
+  if tier == 0 then return '#FFFFFF' end
+  now = now or g_clock.millis()
+  local phase = (now + phaseSeed(seed)) / CYCLE_MS * TWO_PI
+  local shimmer = (1 - math.cos(phase)) * 0.5
+  local strength = 0.035 + shimmer * (0.065 + tier * 0.015)
+  if locked then strength = strength * 0.45 end
+  return hex(mix({255, 255, 255}, colorAt(tier, now, seed), strength))
+end
+
 function getWorldTint(tier, now, seed, surface)
   tier = tierNumber(tier)
   now = now or g_clock.millis()
@@ -101,6 +112,12 @@ local function removeDecoration(entry)
 end
 
 local function paintSlot(widget, entry, now)
+  local spriteColor = getSlotTint(entry.tier, now, entry.seed, entry.locked)
+  -- Native item color preserves sprite shading; no extra overlay covers its art.
+  if entry.spriteColor ~= spriteColor then
+    widget:setColor(spriteColor)
+    entry.spriteColor = spriteColor
+  end
   local color = getAccentColor(entry.tier, now, entry.seed)
   if entry.locked then color = hex(mix(colorAt(entry.tier, now, entry.seed), {94, 91, 87}, 0.45)) end
   if entry.color ~= color then
@@ -142,6 +159,7 @@ function clearSlot(widget)
   if not entry then return end
   widget.antigasRarityVisualEntry = nil
   slots[entry] = nil
+  if alive(widget) then widget:setColor('#FFFFFF') end
   removeDecoration(entry)
   entry.widget = nil
   if not next(slots) and animationEvent then
@@ -185,6 +203,8 @@ function applySlot(widget, tier, locked)
     end
   end
   entry.locked = locked == true
+  -- Inventory rarity refreshes first restore the native sprite to white.
+  entry.spriteColor = nil
   paintSlot(widget, entry, g_clock.millis())
   if not animationEvent then animationEvent = scheduleEvent(animateSlots, ANIMATION_MS) end
 end
@@ -193,7 +213,10 @@ function resetSlots()
   if animationEvent then removeEvent(animationEvent); animationEvent = nil end
   for entry in pairs(slots) do
     slots[entry] = nil
-    if alive(entry.widget) then entry.widget.antigasRarityVisualEntry = nil end
+    if alive(entry.widget) then
+      entry.widget.antigasRarityVisualEntry = nil
+      entry.widget:setColor('#FFFFFF')
+    end
     removeDecoration(entry)
     entry.widget = nil
   end

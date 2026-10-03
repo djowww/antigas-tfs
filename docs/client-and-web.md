@@ -8,6 +8,8 @@ O servidor apresenta as regras e a identidade Antigas 7.4, usando protocolo 772 
 
 Integre esses arquivos em uma base de cliente compatível e confira seus módulos e dependências. `init.lua` contém endpoints e uma chave RSA pública específicos da distribuição. Para uma instalação própria, ajuste os endpoints e use a chave pública correspondente à chave privada do servidor. O número de release do cliente é independente da versão de protocolo.
 
+A distribuição usa interface em inglês. `allowedLocales` limita a instalação dos locales ao inglês e faz uma preferência anterior por outro idioma voltar a `en`. Rótulos locais dos módulos personalizados também usam inglês; nomes, narrativas e mensagens recebidos do servidor continuam sendo conteúdo do servidor.
+
 ## Launcher Windows
 
 O [projeto do launcher](../deploy/launcher/AntigasLauncher/AntigasLauncher.csproj) usa Windows Forms, .NET 10 e runtime `win-x64`. Em Windows com o SDK .NET 10, execute na raiz do repositório:

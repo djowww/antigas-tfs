@@ -203,7 +203,7 @@ SpecialMiniWindow
     image-color: #e5e2d7
     change-cursor-image: true
     cursor: pointer
-    tooltip: Minimizar menu
+    tooltip: Collapse toolbar
     @onClick: modules.game_playerbars.toggleMenu()
 
     $hover:
@@ -248,7 +248,7 @@ SpecialMiniWindow
       anchors.top: parent.top
       margin-top: 0
       icon-source: /images/topbuttons/skills
-      tooltip: Habilidades.
+      tooltip: Skills.
       @onCheckChange: modules.game_playerbars.togglePanel('skills')
 
     AntigasSidebarToggle
@@ -256,7 +256,7 @@ SpecialMiniWindow
       anchors.left: SkillsButton.right
       anchors.top: SkillsButton.top
       icon-source: /images/topbuttons/battle
-      tooltip: Lista de batalha (Ctrl+B).
+      tooltip: Battle list (Ctrl+B).
       @onCheckChange: modules.game_playerbars.togglePanel('battle')
 
     AntigasSidebarToggle
@@ -264,7 +264,7 @@ SpecialMiniWindow
       anchors.left: BattleButton.right
       anchors.top: SkillsButton.top
       icon-source: /images/topbuttons/viplist
-      tooltip: Lista VIP (Ctrl+P).
+      tooltip: VIP list (Ctrl+P).
       @onCheckChange: modules.game_playerbars.togglePanel('vip')
 
     AntigasSidebarToggle
@@ -272,14 +272,14 @@ SpecialMiniWindow
       anchors.left: VipButton.right
       anchors.top: SkillsButton.top
       icon-source: /images/topbuttons/huntinganalyzer
-      tooltip: Estatísticas de caça e loot.
+      tooltip: Hunt and loot statistics.
       @onCheckChange: modules.game_playerbars.togglePanel('hunt')
 
     AntigasSidebarAction
       id: marketButton
       anchors.left: huntButton.right
       anchors.top: huntButton.top
-      tooltip: Mercado.
+      tooltip: Market.
       @onClick: modules.game_market_antigas.toggle()
 
       UIWidget
@@ -296,7 +296,7 @@ SpecialMiniWindow
       anchors.left: marketButton.right
       anchors.top: huntButton.top
       icon-source: /images/topbuttons/questlog
-      tooltip: Diário de missões (Ctrl+J).
+      tooltip: Quest log (Ctrl+J).
       @onClick: modules.game_questlog.toggle()
 
     AntigasSidebarAchievementAction
@@ -305,7 +305,7 @@ SpecialMiniWindow
       anchors.top: SkillsButton.top
       icon-source: /images/game/viplist/icons
       icon-clip: 60 0 12 12
-      tooltip: Conquistas.
+      tooltip: Achievements.
       @onClick: modules.game_achievements.toggle()
 
       UIWidget
