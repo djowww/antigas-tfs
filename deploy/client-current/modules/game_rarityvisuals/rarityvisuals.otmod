@@ -1,0 +1,11 @@
+Module
+  name: game_rarityvisuals
+  description: Shared restrained loot colors and pixel item accents
+  author: Antigas
+  sandboxed: true
+  autoload: true
+  autoload-priority: 499
+  dependencies: [ gamelib ]
+  scripts: [ rarityvisuals ]
+  @onLoad: init()
+  @onUnload: terminate()
