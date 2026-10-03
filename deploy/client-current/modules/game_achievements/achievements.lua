@@ -4,8 +4,122 @@ local current, incoming, latestSnapshot, lastRequest
 local statusFilter, categoryFilter = 'next', 'all'
 local categories = {}
 local readyCount = 0
+local ranks = {
+  {name='Novice', numeral='I', fraction=0},
+  {name='Adventurer', numeral='II', fraction=0.10},
+  {name='Veteran', numeral='III', fraction=0.25},
+  {name='Elite', numeral='IV', fraction=0.50},
+  {name='Master', numeral='V', fraction=0.75},
+  {name='Legend', numeral='VI', fraction=1}
+}
+-- Horizontal runs of the three tones in a native 9 x 9 pixel star.
+local rankStarRectangles = {
+  h={{4,0,1},{3,1,1},{3,2,1},{0,3,4},{1,4,1},{2,5,1},{2,6,1},{1,7,1},{1,8,1}},
+  f={{4,1,1},{4,2,1},{4,3,3},{2,4,5},{3,5,3},{3,6,3},{2,7,1},{5,7,1}},
+  s={{5,1,1},{5,2,1},{7,3,2},{7,4,1},{6,5,1},{6,6,1},{3,7,1},{6,7,2},{2,8,1},{6,8,2}}
+}
+local rankStarPalettes = {
+  earned={h='#DAC6A0', f='#BCA473', s='#29271F'},
+  locked={h='#8A8B7E', f='#62645B', s='#252720'}
+}
 
 local function cancel(event) if event then removeEvent(event) end end
+
+local function paintRankStar(star, earned)
+  if not star then return end
+  star:setPhantom(true)
+  star:setFocusable(false)
+  local pixels = star.antigasRankStarPixels
+  if not pixels then
+    pixels = {h={}, f={}, s={}}
+    local left = math.max(0, math.floor((star:getWidth() - 9) / 2))
+    local top = math.max(0, math.floor((star:getHeight() - 9) / 2))
+    for tone, runs in pairs(rankStarRectangles) do
+      for _, run in ipairs(runs) do
+        local rectangle = g_ui.createWidget('UIWidget', star)
+        rectangle:setPhantom(true)
+        rectangle:setFocusable(false)
+        rectangle:setSize({width=run[3], height=1})
+        rectangle:addAnchor(AnchorLeft, 'parent', AnchorLeft)
+        rectangle:addAnchor(AnchorTop, 'parent', AnchorTop)
+        rectangle:setMarginLeft(left + run[1])
+        rectangle:setMarginTop(top + run[2])
+        pixels[tone][#pixels[tone] + 1] = rectangle
+      end
+    end
+    -- The authored star owns its pixel children and this strong Lua field.
+    star.antigasRankStarPixels = pixels
+  end
+  local palette = earned and rankStarPalettes.earned or rankStarPalettes.locked
+  for tone, rectangles in pairs(pixels) do
+    for _, rectangle in ipairs(rectangles) do rectangle:setBackgroundColor(palette[tone]) end
+  end
+end
+
+local function updateRank(completed, total)
+  if not window then return end
+  local banner = window:getChildById('rankBanner')
+  if not banner then return end
+  local rankIndex, thresholds = 1, {}
+  for index, rank in ipairs(ranks) do
+    thresholds[index] = math.ceil(total * rank.fraction)
+    if total > 0 and completed >= thresholds[index] then rankIndex = index end
+  end
+  local rank = ranks[rankIndex]
+  banner:recursiveGetChildById('rankName'):setText('Rank ' .. rank.numeral .. ' - ' .. rank.name)
+  local progress = banner:recursiveGetChildById('rankProgress')
+  local percent = 0
+  if total == 0 then
+    progress:setText('Complete achievements to advance your rank.')
+  elseif rankIndex == #ranks then
+    progress:setText(string.format('All %d / %d completed - Legend achieved.', completed, total))
+    percent = 100
+  else
+    local nextThreshold = thresholds[rankIndex + 1]
+    progress:setText(string.format('Next: %s at %d / %d completed | %d remaining',
+      ranks[rankIndex + 1].name, nextThreshold, total, nextThreshold - completed))
+    percent = math.max(0, math.min(100, 100 * (completed - thresholds[rankIndex]) /
+      (nextThreshold - thresholds[rankIndex])))
+  end
+  banner:recursiveGetChildById('rankBar'):setPercent(percent)
+  local stars = banner:recursiveGetChildById('rankStars')
+  for index = 1, 5 do paintRankStar(stars:getChildById('star' .. index), index < rankIndex) end
+  local milestones = banner:recursiveGetChildById('rankMilestones')
+  for index, milestone in ipairs(ranks) do
+    local label = milestones:getChildById('rank' .. index)
+    label:setText(milestone.name .. '\n' .. (total > 0 and tostring(thresholds[index]) or '--') .. ' completed')
+    label:setColor(index < rankIndex and '#BCA473' or (index == rankIndex and '#DDD8C6'
+      or (index == rankIndex + 1 and '#C3C3BC' or '#AAA99E')))
+  end
+end
+
+local function fit(label, text)
+  label:setTooltip(text)
+  local lines, current = {}, ''
+  local width = math.max(40, label:getWidth() - 2)
+  for word in text:gmatch('%S+') do
+    label:setText(word)
+    if label:getTextSize().width > width then
+      if current ~= '' then lines[#lines + 1] = current; current = '' end
+      local part = ''
+      for char in word:gmatch('.') do
+        label:setText(part .. char)
+        if part ~= '' and label:getTextSize().width > width then
+          lines[#lines + 1] = part; part = char
+        else part = part .. char end
+      end
+      word = part
+    end
+    local candidate = current == '' and word or current .. ' ' .. word
+    label:setText(candidate)
+    if current ~= '' and label:getTextSize().width > width then
+      lines[#lines + 1] = current; current = word
+    else current = candidate end
+  end
+  if current ~= '' then lines[#lines + 1] = current end
+  label:setText(table.concat(lines, '\n'))
+  label:setHeight(math.max(14, #lines * 14 + 2))
+end
 
 local function syncPlayerBarSelection()
   local playerBars = modules.game_playerbars
@@ -48,6 +162,8 @@ local function render(resetScroll)
       priority=entry.completed and 2 or (entry.ready and 0 or 1),
       ratio=(entry.ready or entry.completed) and 1 or entry.progress / entry.target}
   end
+  -- Rank uses the entire accepted snapshot, before either objective filter.
+  updateRank(completed, #current.entries)
   table.sort(ordered, function(a, b)
     if a.priority ~= b.priority then return a.priority < b.priority end
     if a.ratio ~= b.ratio then return a.ratio > b.ratio end
@@ -63,16 +179,20 @@ local function render(resetScroll)
       and (categoryFilter == 'all' or categoryFilter == entry.category) then
       shown = shown + 1
       local row = g_ui.createWidget('AchievementEntry', window.entries)
-      row.title:setText((entry.completed and '[DONE] ' or (entry.ready and '[READY] ' or '')) .. entry.title)
+      fit(row.title, (entry.completed and '[DONE] ' or (entry.ready and '[READY] ' or '')) .. entry.title)
       row.title:setTooltip(entry.category .. ': ' .. entry.title)
-      row.reward:setText('Reward: ' .. entry.reward)
+      fit(row.reward, 'Reward: ' .. entry.reward)
       row.reward:setTooltip(entry.reward)
       local progress = (entry.completed or entry.ready) and entry.target or entry.progress
       local percent = math.min(100, 100 * progress / entry.target)
       local state = entry.completed and 'Completed' or (entry.ready and 'Reward pending' or 'In progress')
-      row.progress:setText(string.format('%s  |  %d / %d  (%d%%)  |  %d remaining', state, progress, entry.target, math.floor(percent), entry.target-progress))
+      fit(row.progress, string.format('%s  |  %d / %d  (%d%%)  |  %d remaining', state, progress, entry.target, math.floor(percent), entry.target-progress))
+      row.progress:setColor(entry.ready and not entry.completed and '#BCA473' or (entry.completed and '#AAA99E' or '#C3C3BC'))
       row.bar:setPercent(percent)
-      row:setBackgroundColor(entry.ready and not entry.completed and '#49402c' or (entry.completed and '#3b392f' or '#303030'))
+      row.bar:setBackgroundColor(entry.ready and not entry.completed and '#BCA473' or (entry.completed and '#847A5F' or '#8E805E'))
+      row:setBackgroundColor(entry.ready and not entry.completed and '#39362fbb' or (entry.completed and '#2e302b99' or '#28292799'))
+      row.separator:setBackgroundColor(entry.ready and not entry.completed and '#BCA47366' or '#ffffff16')
+      row:setHeight(row.title:getHeight() + row.reward:getHeight() + row.progress:getHeight() + 32)
     end
   end
   window.summary:setText(string.format('%d / %d completed  |  %d rewards pending  |  %d shown', completed, #current.entries, readyCount, shown))
@@ -176,6 +296,8 @@ function claimRewards() request('claimRewards') end
 
 function show()
   if not window then return end
+  local size = g_ui.getRootWidget():getSize()
+  window:setSize({width=660, height=math.min(580, size.height-16)})
   window:show(); window:raise(); window:focus()
   if current then render(false); send('markSeen'); updateUnread(0) end
   refresh()
@@ -212,6 +334,7 @@ local function onGameEnd()
   current,incoming,latestSnapshot,lastRequest=nil,nil,nil,nil
   readyCount=0
   if window then
+    updateRank(0, 0)
     window.entries:destroyChildren()
     window.summary:setText('Achievement objectives')
     window.bonuses:setText('Progress and rewards are saved per character.')
@@ -223,6 +346,7 @@ end
 
 function init()
   window=g_ui.displayUI('achievements'); window:hide()
+  updateRank(0, 0)
   connect(window, {onVisibilityChange=syncPlayerBarSelection})
   syncPlayerBarSelection()
   for _,option in ipairs({{'Next objectives','next'},{'All objectives','all'},{'In progress','active'},{'Completed','completed'},{'Ready to claim','ready'}}) do

@@ -110,15 +110,6 @@ function onContainerOpen(container, previousContainer)
     previousContainer.itemsPanel = nil
   else
     containerWindow = g_ui.createWidget('ContainerWindow', modules.game_interface.getRightPanel())
-  
-  -- white border flash effect
-    containerWindow:setBorderWidth(1)
-    containerWindow:setBorderColor("#ffffff")
-    scheduleEvent(function() 
-      if containerWindow then
-        containerWindow:setBorderWidth(0)
-      end
-    end, 500)
   end
   
   containerWindow:setId('container' .. container:getId())

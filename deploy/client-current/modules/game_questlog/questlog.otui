@@ -1,0 +1,252 @@
+QuestRow < Panel
+  height: 47
+  background-color: #2b2c2aaa
+  border: 1 #55564f66
+  focusable: true
+
+  Label
+    id: title
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin: 6 8 0 8
+    height: 14
+    text-align: left
+    color: #DDD8C6
+    phantom: true
+
+  Label
+    id: status
+    anchors.top: title.bottom
+    anchors.left: title.left
+    anchors.right: title.right
+    margin-top: 4
+    height: 14
+    text-align: left
+    color: #AAA99E
+    phantom: true
+
+QuestStep < Panel
+  height: 45
+  background-color: #ffffff03
+
+  Label
+    id: title
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin: 6 7 0 7
+    height: 14
+    text-align: left
+    color: #C3C3BC
+
+  Label
+    id: progress
+    anchors.left: title.left
+    anchors.right: title.right
+    anchors.top: title.bottom
+    margin-top: 3
+    height: 14
+    text-align: left
+    color: #AAA99E
+
+  UIWidget
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 1
+    background-color: #ffffff0b
+    phantom: true
+
+MainWindow
+  id: questLogWindow
+  text: Quest Log
+  size: 720 480
+  @onEscape: modules.game_questlog.hide()
+
+  ComboBox
+    id: filter
+    anchors.top: parent.top
+    anchors.left: parent.left
+    width: 158
+    height: 22
+
+  Label
+    id: count
+    anchors.left: filter.right
+    anchors.right: parent.right
+    anchors.verticalCenter: filter.verticalCenter
+    margin-left: 10
+    height: 16
+    text-align: right
+    color: #AAA99E
+    text: A personal journal
+
+  TextList
+    id: quests
+    anchors.left: parent.left
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    margin-top: 9
+    margin-bottom: 9
+    width: 286
+    padding: 2
+    vertical-scrollbar: questScroll
+    focusable: false
+
+  VerticalScrollBar
+    id: questScroll
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    anchors.left: quests.right
+    margin-top: 9
+    margin-bottom: 9
+    margin-left: 2
+    step: 49
+    pixels-scroll: true
+
+  ScrollablePanel
+    id: detail
+    anchors.left: questScroll.right
+    anchors.right: detailScroll.left
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    margin: 9 3 9 9
+    padding: 10
+    background-color: #262725aa
+    vertical-scrollbar: detailScroll
+    layout:
+      type: verticalBox
+      spacing: 9
+      fit-children: false
+
+    Label
+      id: title
+      text: Unwritten pages
+      height: 30
+      text-wrap: false
+      text-auto-resize: false
+      text-align: topleft
+      color: #DDD8C6
+
+    Label
+      id: state
+      height: 28
+      text-wrap: false
+      text-align: topleft
+      color: #AAA99E
+
+    Label
+      id: description
+      height: 80
+      text-wrap: false
+      text-align: topleft
+      color: #C3C3BC
+
+    Label
+      id: reward
+      height: 60
+      text-wrap: false
+      text-align: topleft
+      color: #BCA473
+
+    Label
+      id: entriesTitle
+      text: Notes from my travels
+      height: 18
+      text-align: left
+      color: #DDD8C6
+
+    Panel
+      id: steps
+      layout:
+        type: verticalBox
+        spacing: 4
+        fit-children: true
+
+  VerticalScrollBar
+    id: detailScroll
+    anchors.top: filter.bottom
+    anchors.bottom: search.top
+    anchors.right: parent.right
+    margin-top: 9
+    margin-bottom: 9
+    step: 40
+    pixels-scroll: true
+
+  TextEdit
+    id: search
+    anchors.left: parent.left
+    anchors.right: clear.left
+    anchors.bottom: message.top
+    margin-right: 3
+    margin-bottom: 7
+    height: 22
+    max-length: 48
+    placeholder: Search my journal...
+
+  Button
+    id: clear
+    anchors.right: parent.right
+    anchors.bottom: message.top
+    margin-bottom: 7
+    size: 24 22
+    text: X
+    tooltip: Clear search
+    @onClick: self:getParent().search:setText('')
+
+  Label
+    id: message
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: close.top
+    margin-bottom: 8
+    height: 26
+    text-wrap: true
+    text-align: left
+    color: #AAA99E
+    text: Your journal grows with the paths you discover. Seek answers in the world.
+
+  Button
+    id: refresh
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    size: 70 22
+    text: Refresh
+    @onClick: modules.game_questlog.refresh()
+
+  Button
+    id: previous
+    anchors.left: refresh.right
+    anchors.bottom: parent.bottom
+    margin-left: 8
+    size: 28 22
+    text: <
+    @onClick: modules.game_questlog.changePage(-1)
+
+  Label
+    id: page
+    anchors.left: previous.right
+    anchors.bottom: parent.bottom
+    margin-left: 3
+    size: 84 22
+    text-align: center
+    color: #C3C3BC
+    text: Page 1 / 1
+
+  Button
+    id: next
+    anchors.left: page.right
+    anchors.bottom: parent.bottom
+    margin-left: 3
+    size: 28 22
+    text: >
+    @onClick: modules.game_questlog.changePage(1)
+
+  Button
+    id: close
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 62 22
+    text: Close
+    @onClick: modules.game_questlog.hide()
