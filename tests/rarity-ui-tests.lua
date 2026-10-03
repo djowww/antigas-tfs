@@ -66,6 +66,7 @@ local globals = {
   InventorySlotFirst = 1, InventorySlotLast = 10,
   PlayerStates = setmetatable({}, {__index = function(t, k) t[k] = k; return k end}),
   modules = {},
+  g_ui = {getDraggingWidget = function() return nil end},
   g_game = {
     isOnline = function() return online end,
     getFeature = function() return feature end,
@@ -286,7 +287,7 @@ globals.disconnect = function(object, events)
   if object == globals.g_game then disconnected = events.onGameEnd end
 end
 globals.Container = {}
-globals.g_ui = {importStyle = function() end}
+globals.g_ui.importStyle = function() end
 globals.REGISTRATION_KEY = 'AbcDeFgH'
 local originalReload = containerModule.reloadContainers
 containerModule.reloadContainers = function() end
