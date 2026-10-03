@@ -37,8 +37,9 @@ void fixture(Response next, time_t expires = 0)
 DatabaseTasks g_databaseTasks;
 Database::~Database() = default;
 
-DBResult_ptr Database::storeQuery(const std::string& query, bool* success)
+DBResult_ptr Database::storeQuery(const std::string& query, bool* success, bool retryConnectionFailure)
 {
+	(void)retryConnectionFailure;
 	reads.push_back(query);
 	if (success) *success = response != Response::Error;
 	if (response != Response::Row) return nullptr;
