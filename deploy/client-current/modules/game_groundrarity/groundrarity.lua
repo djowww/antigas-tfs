@@ -1,14 +1,24 @@
 -- Tile snapshots arrive directly after the native map update they describe.
 -- Bind immediately to actual Item objects; sprite IDs alone are not identity.
-local OPCODE, MAX_TILES, CHECK_MS, PULSE_MS = 129, 256, 500, 500
-local colors = {'#42C96B', '#3E8BFF', '#A855F7', '#F5C542', '#EF4444'}
-local pulseColors = {'#4ACF72', '#4B93FF', '#AE63F9', '#F7CD4B', '#F04E4E'}
+local OPCODE, MAX_TILES, CHECK_MS = 129, 256, 150
+local fallbackTints = {'#BDD3C3', '#B9CADD', '#CCBFDA', '#DED1AB', '#DBBAB5'}
 local tiles, tileCount, sequence = {}, 0, 0
 local checkEvent, helloEvent, ready, helloAttempts, lastSnapshotRequest
-local pulseBright, lastPulse = false, 0
 
-local function colorize(mark)
-  g_map.colorizeThing(mark.item, pulseBright and pulseColors[mark.tier] or colors[mark.tier])
+local function colorize(mark, now, force)
+  local visuals = modules.game_rarityvisuals
+  local color = visuals and visuals.getWorldTint
+    and visuals.getWorldTint(mark.tier, now or g_clock.millis(), mark.seed, 'ground')
+    or fallbackTints[mark.tier]
+  if force or color ~= mark.lastColor then
+    g_map.colorizeThing(mark.item, color)
+    mark.lastColor = color
+  end
+end
+
+local function itemSeed(position, itemId, stackpos)
+  -- Stable for this snapshot's native object; nearby items breathe out of phase.
+  return (position.x * 31 + position.y * 131 + position.z * 17 + itemId * 7 + stackpos * 53) % 65521
 end
 
 local function integer(value, minimum, maximum)
@@ -41,6 +51,7 @@ end
 local function clearMark(entry)
   -- Native sprite color and cursor/corpse marks are separate render layers.
   g_map.removeThingColor(entry.item)
+  entry.lastColor = nil
 end
 
 local function removeTile(key)
@@ -54,7 +65,6 @@ local function clearTiles()
   if checkEvent then removeEvent(checkEvent); checkEvent = nil end
   for key in pairs(tiles) do removeTile(key) end
   tiles, tileCount, sequence = {}, 0, 0
-  pulseBright, lastPulse = false, 0
 end
 
 local function requestSnapshot()
@@ -76,7 +86,8 @@ function restoreMark(item)
   local tile = g_map.getTile(entry.position)
   for _, mark in ipairs(entry.items) do
     if mark.item == item and containsItem(tile, mark, entry.position) then
-      colorize(mark)
+      -- A different render owner may have cleared the color since the last tick.
+      colorize(mark, g_clock.millis(), true)
       return true
     end
   end
@@ -87,11 +98,6 @@ function updateMarks()
   if checkEvent then removeEvent(checkEvent); checkEvent = nil end
   if not ready or not g_game.isOnline() then return end
   local now = g_clock.millis()
-  local pulse = now - lastPulse >= PULSE_MS
-  if pulse then
-    lastPulse = now
-    pulseBright = not pulseBright
-  end
   local missingNativeItem = false
   for key, entry in pairs(tiles) do
     local tile = g_map.getTile(entry.position)
@@ -101,8 +107,8 @@ function updateMarks()
         table.remove(entry.items, index)
         clearMark(mark)
         missingNativeItem = true
-      elseif pulse then
-        colorize(mark)
+      else
+        colorize(mark, now)
       end
     end
     if #entry.items == 0 then removeTile(key) end
@@ -138,7 +144,8 @@ local function applySnapshot(data)
     local item = tile:getThing(record.stackpos)
     if item and item:isItem() and item:getId() == record.itemId
         and samePosition(item:getPosition(), data.position) then
-      entry.items[#entry.items+1] = {item=item, itemId=record.itemId, tier=record.tier}
+      entry.items[#entry.items+1] = {item=item, itemId=record.itemId, tier=record.tier,
+        seed=itemSeed(data.position, record.itemId, record.stackpos)}
     end
   end
   if #entry.items == 0 then return end

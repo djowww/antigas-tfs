@@ -66,6 +66,9 @@ function UIItem:onDestroy()
   if self.hoveredWho then
     self.hoveredWho = nil
   end
+
+  local visuals = modules.game_rarityvisuals
+  if visuals and visuals.clearSlot then visuals.clearSlot(self) end
 end
 
 function UIItem:onHoverChange(hovered)
@@ -142,6 +145,9 @@ function UIItem:onItemChange()
   local rarity = modules.game_inventory and modules.game_inventory.AntigasItemRarity
   if rarity and (self.rarityTier or self.rarityTooltip or self.rarityLocked) then
     rarity.apply(self, 0, self.rarityLocked)
+  else
+    local visuals = modules.game_rarityvisuals
+    if visuals and visuals.clearSlot then visuals.clearSlot(self) end
   end
   local tooltip = nil
   if self:getItem() and self:getItem():getTooltip():len() > 0 then

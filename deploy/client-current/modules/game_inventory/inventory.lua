@@ -39,13 +39,6 @@ local inventoryRarityRequests = {}
 local inventoryRarityCache = {}
 local pendingInventoryRarityPushes = {}
 local containerRarityRequests = {}
-local itemRarityColors = {
-  [1] = '#42C96B',
-  [2] = '#3E8BFF',
-  [3] = '#A855F7',
-  [4] = '#F5C542',
-  [5] = '#EF4444'
-}
 local itemRarityBorderColors = {
   [1] = '#5FAE78',
   [2] = '#5F8FCA',
@@ -151,17 +144,20 @@ function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, su
   extraBonuses = boundedInteger(extraBonuses, 0, 33554431) or 0
   locked = not not locked
   local item = widget:getItem()
-  local color = item and itemRarityColors[tier]
-  local borderColor = item and itemRarityBorderColors[tier]
-  widget:setColor(color or '#FFFFFF')
-  widget.rarityTier = color and tier or nil
+  local hasRarity = item and itemRarityNames[tier] ~= nil
+  local visuals = modules.game_rarityvisuals
+  local decorated = hasRarity and visuals and visuals.applySlot and visuals.clearSlot
+  local borderColor = hasRarity and itemRarityBorderColors[tier]
+  -- Preserve the original pixel-art sprite; rarity lives in child decorations.
+  widget:setColor('#FFFFFF')
+  widget.rarityTier = hasRarity and tier or nil
   widget.rarityLocked = locked
   widget.rarityBonusType = bonusType > 0 and bonusType or nil
   widget.rarityBonusValue = bonusValue > 0 and bonusValue or nil
   widget.raritySubtype = subtype
   widget.rarityExtraBonuses = extraBonuses
 
-  local tooltip = color and getItemRarityTooltip(tier, bonusType, bonusValue, subtype, extraBonuses)
+  local tooltip = hasRarity and getItemRarityTooltip(tier, bonusType, bonusValue, subtype, extraBonuses)
   if tooltip then
     local item = widget:getItem()
     local itemTooltip = item and item:getTooltip() or ''
@@ -174,14 +170,22 @@ function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, su
     widget.rarityTooltip = nil
   end
 
+  if decorated then
+    visuals.applySlot(widget, tier, locked)
+  elseif visuals and visuals.clearSlot then
+    visuals.clearSlot(widget)
+  end
+
+  local draggingWidget = g_ui.getDraggingWidget()
+  local dragging = widget.currentDragThing or (draggingWidget and draggingWidget.hoveredWho == widget)
   if locked then
     widget:setBorderWidth(1)
     widget:setBorderColor('#ff0000')
-  elseif borderColor then
+  elseif borderColor and not decorated then
     widget:setBorderWidth(1)
     widget:setBorderColor(borderColor)
   else
-    widget:setBorderWidth(0)
+    widget:setBorderWidth(dragging and 1 or 0)
     widget:setBorderColor('#ffffff')
   end
 end
@@ -191,8 +195,34 @@ function AntigasItemRarity.restoreBorder(widget)
   if widget.rarityTier or widget.rarityLocked then
     AntigasItemRarity.apply(widget, widget.rarityTier, widget.rarityLocked,
       widget.rarityBonusType, widget.rarityBonusValue, widget.raritySubtype, widget.rarityExtraBonuses)
+    local visuals = modules.game_rarityvisuals
+    if not widget.rarityLocked and visuals and visuals.applySlot and visuals.clearSlot then
+      -- Hover/drag callbacks can restore before clearing hoveredWho.
+      widget:setBorderWidth(0)
+    end
   else
+    local visuals = modules.game_rarityvisuals
+    if visuals and visuals.clearSlot then visuals.clearSlot(widget) end
     widget:setBorderWidth(0)
+  end
+end
+
+local function clearInventoryRaritySlots()
+  -- A module reload must only remove the slots managed by this inventory.
+  -- The visual module owns global cleanup for the game-end lifecycle.
+  if inventoryPanel then
+    for slot = InventorySlotFirst, InventorySlotLast do
+      local widget = inventoryPanel:getChildById('slot' .. slot)
+      if widget then AntigasItemRarity.apply(widget, 0, widget.rarityLocked) end
+    end
+  end
+  for _, container in pairs(g_game.getContainers()) do
+    if container.itemsPanel then
+      for slot = 0, container:getCapacity() - 1 do
+        local widget = container.itemsPanel:getChildById('item' .. slot)
+        if widget then AntigasItemRarity.apply(widget, 0, not container:isUnlocked()) end
+      end
+    end
   end
 end
 
@@ -525,6 +555,8 @@ function terminate()
   disconnect(Creature, {onSkullChange = onSkullChange})
   if g_game.isOnline() then
     offline()
+  else
+    clearInventoryRaritySlots()
   end
 
   disconnect(LocalPlayer, { onInventoryChange = onInventoryChange,
@@ -674,6 +706,7 @@ end
 function offline()
   inventoryRarityRequests = {}
   containerRarityRequests = {}
+  clearInventoryRaritySlots()
   conditionStates, conditionSkull = 0, 0
   renderConditions()
   inventoryWindow:recursiveGetChildById('conditionPanel'):destroyChildren()
