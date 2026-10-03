@@ -125,11 +125,20 @@ ReturnValue HouseTile::queryRemove(const Thing& thing, uint32_t count, uint32_t 
 		return RETURNVALUE_NOTPOSSIBLE;
 	}
 
+	ReturnValue ret = queryRemoveFromContainer(actor);
+	if (ret != RETURNVALUE_NOERROR) {
+		return ret;
+	}
+	return Tile::queryRemove(thing, count, flags);
+}
+
+ReturnValue HouseTile::queryRemoveFromContainer(Creature* actor) const
+{
 	if (actor && g_config.getBoolean(ConfigManager::ONLY_INVITED_CAN_MOVE_HOUSE_ITEMS)) {
 		Player* actorPlayer = actor->getPlayer();
 		if (!house->isInvited(actorPlayer)) {
 			return RETURNVALUE_NOTPOSSIBLE;
 		}
 	}
-	return Tile::queryRemove(thing, count, flags);
+	return RETURNVALUE_NOERROR;
 }

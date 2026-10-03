@@ -623,23 +623,6 @@
       }
     },
     {
-      "id": "missingReturn",
-      "severity": "error",
-      "message": "Found an exit path from function with non-void return type that has missing return statement",
-      "locations": [
-        {
-          "file": "src/container.cpp",
-          "code": "}"
-        }
-      ],
-      "fingerprint": "98668d7f2d516f6c024bb44f2d21daa05174a5b8d1cf06db202e658c2f516876",
-      "disposition": "FALSE_POSITIVE",
-      "reason": "Container::queryRemove returns RETURNVALUE_NOERROR unconditionally before the final HouseTile block. No reachable fallthrough exists. The dead permission block is a separate gameplay review, not a missing return.",
-      "source_checksums": {
-        "src/container.cpp": "3f7239b530a02fbce9483a97fae3e9924267e317b0b2f8455c0fe2ea58185382"
-      }
-    },
-    {
       "id": "passedByValue",
       "severity": "performance",
       "message": "Function parameter 'error' should be passed by const reference.",

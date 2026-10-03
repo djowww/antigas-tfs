@@ -21,6 +21,7 @@
 
 #include "configmanager.h"
 #include "database.h"
+#include "database-recovery.h"
 #include "databaseescape.h"
 
 #include <errmsg.h>
@@ -83,8 +84,7 @@ void Database::queryFailed()
 	if (transactionOpen) transactionFailed = true;
 	unsigned int error = handle ? mysql_errno(handle) : CR_CONNECTION_ERROR;
 	std::cout << "[Database] Query failed (code " << error << "); not replayed." << std::endl;
-	if (error == CR_SERVER_LOST || error == CR_SERVER_GONE_ERROR || error == CR_CONN_HOST_ERROR
-		|| error == CR_CONNECTION_ERROR || error == 1053 || error == CR_COMMANDS_OUT_OF_SYNC) connectionFailed();
+	if (databaseRecovery::isConnectionFailure(error)) connectionFailed();
 }
 
 void Database::finishTransaction()
@@ -144,20 +144,44 @@ bool Database::executeQuery(const std::string& query)
 	return true;
 }
 
-DBResult_ptr Database::storeQuery(const std::string& query, bool* success)
+DBResult_ptr Database::storeQuery(const std::string& query, bool* success, bool retryConnectionFailure)
 {
 	std::lock_guard<std::recursive_mutex> lock(databaseLock);
 	if (success) *success = false;
 	if (transactionFailed || (transactionOpen && !connected) || !ensureConnection()) return nullptr;
-	if (mysql_real_query(handle, query.c_str(), query.length()) != 0) { queryFailed(); return nullptr; }
-	MYSQL_RES* res = mysql_store_result(handle);
-	if (!res) { queryFailed(); return nullptr; }
-	if (success) *success = true;
-	DBResult_ptr result = std::make_shared<DBResult>(res);
-	if (!result->hasNext()) {
-		return nullptr;
+	for (unsigned int attempt = 0; ; ++attempt) {
+		if (mysql_real_query(handle, query.c_str(), query.length()) != 0) {
+			const unsigned int error = mysql_errno(handle);
+			if (databaseRecovery::shouldRetryRead(error, attempt, transactionOpen, retryConnectionFailure)) {
+				std::cout << "[Database] Connection lost during a recoverable read; reconnecting once." << std::endl;
+				connectionFailed();
+				retryAfter = std::chrono::steady_clock::now();
+				if (ensureConnection()) continue;
+				return nullptr;
+			}
+			queryFailed();
+			return nullptr;
+		}
+
+		MYSQL_RES* res = mysql_store_result(handle);
+		if (!res) {
+			const unsigned int error = mysql_errno(handle);
+			if (databaseRecovery::shouldRetryRead(error, attempt, transactionOpen, retryConnectionFailure)) {
+				std::cout << "[Database] Connection lost during a recoverable read; reconnecting once." << std::endl;
+				connectionFailed();
+				retryAfter = std::chrono::steady_clock::now();
+				if (ensureConnection()) continue;
+				return nullptr;
+			}
+			queryFailed();
+			return nullptr;
+		}
+
+		if (success) *success = true;
+		DBResult_ptr result = std::make_shared<DBResult>(res);
+		if (!result->hasNext()) return nullptr;
+		return result;
 	}
-	return result;
 }
 
 bool Database::escapeString(const std::string& s, std::string& escaped) const

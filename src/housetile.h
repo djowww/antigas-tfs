@@ -37,6 +37,7 @@ class HouseTile final : public DynamicTile
 				uint32_t& flags) final;
         
 		ReturnValue queryRemove(const Thing& thing, uint32_t count, uint32_t flags, Creature* actor = nullptr) const override;
+		ReturnValue queryRemoveFromContainer(Creature* actor) const;
 
 		void addThing(int32_t index, Thing* thing) final;
 		void internalAddThing(uint32_t index, Thing* thing) final;
