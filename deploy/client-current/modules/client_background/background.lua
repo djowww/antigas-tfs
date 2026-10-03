@@ -23,10 +23,10 @@ function init()
 
   infoWindow = background:getChildById('infoBox')
   infoWindow:hide()
-  
+
   connect(g_game, { onGameStart = hide })
   connect(g_game, { onGameEnd = show })
-  
+
   setClientInfo()
 end
 
@@ -68,7 +68,7 @@ function openWebsite()
 end
 
 function setClientInfo()
-  for label, text in pairs(infoTexts) do 
+  for label, text in pairs(infoTexts) do
     local label = infoWindow:getChildById('infoLabel' .. label)
     label:setText(text)
   end
