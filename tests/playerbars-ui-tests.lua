@@ -91,6 +91,16 @@ function methods:isEnabled() return self.enabled end
 function methods:setText(value) self.text=value end
 function methods:setTooltip(value) self.tooltip=value end
 function methods:setColor(value) self.color=value end
+function methods:setIconOffsetX(value)
+  self.iconOffsetX=value
+  self.iconOffsetXCalls=self.iconOffsetXCalls or {}
+  self.iconOffsetXCalls[#self.iconOffsetXCalls+1]=value
+end
+function methods:setIconOffsetY(value)
+  self.iconOffsetY=value
+  self.iconOffsetYCalls=self.iconOffsetYCalls or {}
+  self.iconOffsetYCalls[#self.iconOffsetYCalls+1]=value
+end
 function methods:setWidth(value) self.width=value end
 function methods:setHeight(value) self.height=value end
 function methods:getWidth()
@@ -132,7 +142,8 @@ local function instantiate(node, parent)
   expandStyle(node, props, children)
   local result={parent=parent, props=props, children={}, visible=true, enabled=true,
     width=tonumber(props.width) or 0, height=tonumber(props.height) or 0,
-    id=props.id, save=props['&save']=='true', minimizedHeight=tonumber(props['&minimizedHeight'])}
+    id=props.id, tooltip=props.tooltip, save=props['&save']=='true',
+    minimizedHeight=tonumber(props['&minimizedHeight'])}
   setmetatable(result, {__index=function(self, key)
     return (not parent and UIMiniWindow[key]) or methods[key] or methods.getChildById(self, key)
   end})
@@ -171,20 +182,47 @@ for _, id in ipairs({'SkillsButton', 'BattleButton', 'VipButton', 'huntButton', 
   buttons[#buttons+1]=assert(contents:getChildById(id), id..' must be inside contentsPanel')
 end
 
+local function assertButtonSizes(expectedSize, layout)
+  for _, button in ipairs(buttons) do
+    assert(button.width==expectedSize and button.height==expectedSize,
+      string.format('%s: %s should have a %d px click area, got %sx%s',
+        layout, button.id, expectedSize, tostring(button.width), tostring(button.height)))
+  end
+end
+
+local function assertIconOffsets(expectedX, expectedY, expectedAchievementsY, layout)
+  for _, button in ipairs(buttons) do
+    local wantedY = button == achievementsButton and expectedAchievementsY or expectedY
+    local xCalls, yCalls = button.iconOffsetXCalls or {}, button.iconOffsetYCalls or {}
+    assert(button.iconOffsetX == expectedX and xCalls[#xCalls] == expectedX
+        and button.iconOffsetY == wantedY and yCalls[#yCalls] == wantedY,
+      string.format('%s: %s icon offsets should be %d,%d, got %s,%s (setter args %s,%s)',
+        layout, button.id, expectedX, wantedY,
+        tostring(button.iconOffsetX), tostring(button.iconOffsetY),
+        tostring(xCalls[#xCalls]), tostring(yCalls[#yCalls])))
+  end
+end
+
+local function clearIconOffsetCalls()
+  for _, button in ipairs(buttons) do
+    button.iconOffsetXCalls, button.iconOffsetYCalls = {}, {}
+  end
+end
+
 g_game={}
 g_ui={loadUI=function() return window end}
 function connect() end
 REGISTRATION_KEY='AbcDeFgH'
 init()
 assert(window.height==30 and skillsButton.width==22 and skillsButton.height==22 and skillsButton.marginLeft==2)
+assertIconOffsets(5, 5, 4, 'native-width toolbar')
 assert(not toggle:isOn() and toggle.tooltip=='Recolher barra')
-for _, button in ipairs(buttons) do
-  assert(button.width==22 and button.height==22, 'all seven icons share a 22 px click area at native width')
-end
-assert(buttons[2].tooltip=='Lista de batalha (Ctrl+B)' and buttons[3].tooltip=='Lista VIP (Ctrl+P)'
-  and questButton.tooltip=='Diário de missões (Ctrl+J)', 'only verified shortcuts appear in Portuguese tooltips')
-assert(marketButton.tooltip=='Mercado' and huntButton.tooltip=='Estatísticas de caça e loot'
-  and achievementsButton.tooltip=='Conquistas')
+assertButtonSizes(22, 'native-width toolbar')
+assert(skillsButton.tooltip=='Habilidades.', 'skills tooltip is preserved')
+assert(buttons[2].tooltip=='Lista de batalha (Ctrl+B).' and buttons[3].tooltip=='Lista VIP (Ctrl+P).'
+  and questButton.tooltip=='Diário de missões (Ctrl+J).', 'only verified shortcuts appear in Portuguese tooltips')
+assert(marketButton.tooltip=='Mercado.' and huntButton.tooltip=='Estatísticas de caça e loot.'
+  and achievementsButton.tooltip=='Conquistas.')
 assert(type(inheritedMinimize.onClick)=='function', 'UIMiniWindow setup still binds the inherited control')
 toggle:onClick()
 assert(window:isOn() and window.height==18 and settings.playerBarsWindow.minimized==true)
@@ -196,25 +234,34 @@ assert(toggle:isVisible() and toggle:getChildById('menuUnreadIndicator'):isVisib
   'unread achievements remain noticeable while the menu is collapsed')
 assert(achievementsButton.tooltip=='Conquistas: 3 novas'
   and not achievementsButton:isVisible())
+clearIconOffsetCalls()
 window.width=178
 resizeButtons()
 assert(window.height==18 and toggle:getWidth()==14, 'sidebar resizing cannot expand the minimized menu')
 assert(skillsButton.width==20 and skillsButton.height==20,
   'buttons shrink uniformly when the toolbar has less width')
+assertButtonSizes(20, '178 px toolbar')
+assertIconOffsets(4, 4, 3, '178 px toolbar')
 settings.playerBarsWindow.height=90 -- A saved height from the previous three-row menu.
 toggle:onClick()
 assert(not window:isOn() and window.height==28 and settings.playerBarsWindow.minimized==false)
 for _, button in ipairs(buttons) do assert(button:isVisible(), 'expanding restores every button') end
 assert(not toggle:isOn() and toggle:getChildById('menuUnreadIndicator'):isVisible())
 assert(skillsButton.width==20 and skillsButton.marginLeft==2 and battleButton.marginLeft==2)
+clearIconOffsetCalls()
 window.width=160
 resizeButtons()
 assert(skillsButton.width==18 and skillsButton.height==18 and window.height==26,
   'all controls remain inside a narrower 160 px toolbar')
+assertButtonSizes(18, '160 px toolbar')
+assertIconOffsets(3, 3, 2, '160 px toolbar')
+clearIconOffsetCalls()
 window.width=192
 resizeButtons()
 assert(skillsButton.width==22 and skillsButton.height==22 and window.height==30,
   'the toolbar returns to native 22 px buttons when space is available')
+assertButtonSizes(22, '192 px toolbar')
+assertIconOffsets(5, 5, 4, '192 px toolbar')
 setActionSelected('market', true)
 setActionSelected('quest', true)
 setActionSelected('achievements', true)
@@ -232,4 +279,4 @@ window:setup()
 assert(window.height==18 and not contents:isVisible() and toggle:isOn(), 'saved minimized state survives setup')
 toggle:onClick()
 assert(window.height==30 and contents:isVisible() and not toggle:isOn(), 'saved minimization still permits expansion')
-print('PASS: unique OTUI ids, icon states, Portuguese tooltips, responsive spacing, minimize behavior and real selected states')
+print('PASS: unique OTUI ids, icon states, Portuguese tooltips, responsive spacing and icon offsets, minimize behavior and real selected states')
