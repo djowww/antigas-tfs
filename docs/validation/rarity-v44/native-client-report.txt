@@ -1,2 +1,0 @@
-START: native OTClient rarity UI
-PASS: OTClient v44 native UI, 67 assertions, no connection

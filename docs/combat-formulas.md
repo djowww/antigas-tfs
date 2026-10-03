@@ -1,6 +1,6 @@
 # Fórmula de dano do servidor
 
-Este documento resume o cálculo encontrado no código do servidor em `Servidor/TFS`.
+Este documento resume os cálculos implementados no núcleo do servidor.
 
 ## Ataque físico de jogador
 
@@ -39,11 +39,11 @@ O dano calculado ainda pode ser reduzido ou zerado ao atingir o alvo, por defesa
 
 ## Arquivos usados como referência
 
-- `Servidor/TFS/src/weapons.cpp` — cálculo do dano máximo e dano aleatório de armas.
-- `Servidor/TFS/src/player.cpp` — fator de ataque dos modos de luta.
-- `Servidor/TFS/src/combat.cpp` — fórmula genérica por nível e magic level.
-- `Servidor/TFS/src/game.cpp` e `Servidor/TFS/src/creature.cpp` — aplicação de bloqueio/mitigação.
-- `Servidor/TFS/data/XML/vocations.xml` — modificadores de dano por vocação.
-- `Servidor/TFS/data/spells/lib/spells.lua` — função auxiliar de dano em Lua; atualmente só está definida nesse arquivo.
+- [`src/weapons.cpp`](../src/weapons.cpp) — cálculo do dano máximo e dano aleatório de armas.
+- [`src/player.cpp`](../src/player.cpp) — fator de ataque dos modos de luta.
+- [`src/combat.cpp`](../src/combat.cpp) — fórmula genérica por nível e magic level.
+- [`src/game.cpp`](../src/game.cpp) e [`src/creature.cpp`](../src/creature.cpp) — aplicação de bloqueio e mitigação.
+- [`data/XML/vocations.xml`](../data/XML/vocations.xml) — modificadores de dano por vocação.
+- [`data/spells/lib/spells.lua`](../data/spells/lib/spells.lua) — função auxiliar de dano em Lua.
 
-> Observação: a fórmula reflete o código que está nesta cópia do servidor. Scripts individuais podem usar cálculos diferentes.
+Scripts individuais podem usar cálculos diferentes das fórmulas do núcleo.

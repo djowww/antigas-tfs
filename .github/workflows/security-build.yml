@@ -158,6 +158,9 @@ jobs:
             fi
           done < <(git ls-files -z -- '*.lua')
 
+      - name: Run player bar UI regression tests
+        run: luajit tests/playerbars-ui-tests.lua
+
       - name: Run Economy inventory regression tests
         run: luajit tests/economy-inventory-tests.lua
 
