@@ -1,0 +1,253 @@
+BestiaryFilter < Button
+  size: 86 20
+  color: #C3C3BC
+
+  $on:
+    image-clip: 0 46 22 23
+    color: #BCA473
+
+BestiaryStage < UIWidget
+  size: 4 4
+  border: 1 #777164
+  background-color: #292B28
+  phantom: true
+
+MonsterObject < UIWidget
+  background-color: alpha
+  border: 1 #77766B55
+  focusable: true
+  @onClick: modules.game_wiki.selectCreature(self.creatureId)
+
+  Label
+    id: creatureLabel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 4
+    margin-left: 12
+    margin-right: 12
+    height: 28
+    text-wrap: false
+    text-align: center
+    color: #DDD8C6
+    font: verdana-11px-rounded
+    phantom: true
+
+  Panel
+    id: spriteArea
+    size: 64 64
+    anchors.top: creatureLabel.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    background-color: alpha
+
+    UICreature
+      id: creature
+      size: 32 32
+      anchors.centerIn: parent
+      old-scaling: true
+      outfit-center: true
+      animate: false
+      phantom: true
+
+  Panel
+    id: killProgressTrack
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: spriteArea.bottom
+    margin-top: 2
+    margin-left: 10
+    margin-right: 10
+    height: 7
+    background-color: #292B28
+    border: 1 #1D1E1B
+
+    UIProgressBar
+      id: killProgressBar
+      anchors.fill: parent
+      margin: 1
+      background-color: #BCA473
+      phantom: true
+
+  Label
+    id: killProgressText
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: killProgressTrack.bottom
+    margin-top: 2
+    height: 13
+    text-align: center
+    color: #C3C3BC
+    font: verdana-11px-rounded
+    phantom: true
+
+  BestiaryStage
+    id: stage2
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.top: killProgressText.bottom
+    margin-top: 3
+
+  BestiaryStage
+    id: stage1
+    anchors.right: stage2.left
+    anchors.top: stage2.top
+    margin-right: 5
+
+  BestiaryStage
+    id: stage3
+    anchors.left: stage2.right
+    anchors.top: stage2.top
+    margin-left: 5
+
+MainWindow
+  id: wikiWindow
+  visible: false
+  !text: tr('Bestiary')
+  size: 700 450
+  color: #DDD8C6
+  @onEscape: modules.game_wiki.hide()
+
+  BestiaryFilter
+    id: filter_all
+    anchors.top: parent.top
+    anchors.left: parent.left
+    text: All
+    tooltip: Show every monster, including those not yet hunted.
+    on: true
+    @onClick: modules.game_wiki.setProgressFilter('all')
+
+  BestiaryFilter
+    id: filter_progress
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 4
+    text: In Progress
+    tooltip: Monsters with 1 to 999 kills.
+    @onClick: modules.game_wiki.setProgressFilter('progress')
+
+  BestiaryFilter
+    id: filter_completed
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 4
+    text: Completed
+    tooltip: Monsters with 1000 kills. Each completed bestiary grants +0.2% permanent XP.
+    @onClick: modules.game_wiki.setProgressFilter('completed')
+
+  Label
+    id: xpBonus
+    anchors.right: parent.right
+    anchors.verticalCenter: filter_all.verticalCenter
+    width: 80
+    text: XP +0.0%
+    text-align: right
+    color: #BCA473
+    tooltip: Permanent XP bonus. Each completed bestiary grants +0.2%.
+
+  Label
+    id: resultCount
+    anchors.right: xpBonus.left
+    margin-right: 8
+    anchors.verticalCenter: filter_all.verticalCenter
+    width: 70
+    text-align: right
+    color: #AAA99E
+    tooltip: Visible monsters / all monsters
+
+  HorizontalSeparator
+    id: catalogSeparator
+    anchors.top: filter_all.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 5
+    phantom: true
+
+  Panel
+    id: listPanel
+    anchors.top: catalogSeparator.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: creatureFilter.top
+    margin-top: 5
+    margin-bottom: 13
+
+    ScrollablePanel
+      id: list
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: listScrollbar.left
+      anchors.bottom: parent.bottom
+      margin-right: 5
+      vertical-scrollbar: listScrollbar
+      layout:
+        type: grid
+        align-center: false
+        cell-size: 160 132
+        cell-spacing: 4
+        num-columns: 4
+
+    VerticalScrollBar
+      id: listScrollbar
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      pixels-scroll: true
+      step: 40
+
+    Label
+      id: emptyState
+      anchors.fill: list
+      text: No monsters match these filters.
+      text-align: center
+      text-wrap: true
+      color: #AAA99E
+      visible: false
+      phantom: true
+
+  HorizontalSeparator
+    id: footerSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: creatureFilter.top
+    margin-bottom: 6
+    phantom: true
+
+  Label
+    id: searchLabel
+    anchors.bottom: parent.bottom
+    margin-bottom: 2
+    anchors.left: parent.left
+    width: 42
+    height: 16
+    text: Search
+    color: #C3C3BC
+
+  TextEdit
+    id: creatureFilter
+    anchors.left: searchLabel.right
+    anchors.right: clearFilterButton.left
+    anchors.bottom: parent.bottom
+    margin-left: 6
+    margin-right: 4
+    height: 20
+    color: #C3C3BC
+    placeholder: Search monster...
+
+  Button
+    id: clearFilterButton
+    text: x
+    tooltip: Clear search
+    @onClick: modules.game_wiki.clearFilter()
+    anchors.right: buttonCancel.left
+    anchors.bottom: parent.bottom
+    margin-right: 12
+    size: 20 20
+    color: #C3C3BC
+
+  Button
+    id: buttonCancel
+    !text: tr('Close')
+    width: 64
+    color: #C3C3BC
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    @onClick: modules.game_wiki.hide()
