@@ -16,6 +16,10 @@ local animationEvent
 local ANIMATION_MS = 200
 local CYCLE_MS = 4200
 local TWO_PI = math.pi * 2
+local BOLT_PIXELS = {
+  {3, 0, 2}, {2, 1, 2}, {1, 2, 2}, {0, 3, 5},
+  {2, 4, 2}, {1, 5, 2}, {0, 6, 2}
+}
 
 local function tierNumber(tier)
   return type(tier) == 'number' and tier == math.floor(tier)
@@ -111,6 +115,46 @@ local function removeDecoration(entry)
   end
 end
 
+local function slotBolt(parent)
+  local children = {}
+  for _, rect in ipairs(BOLT_PIXELS) do
+    children[#children + 1] = pixel(parent, rect[3], 1, AnchorRight, AnchorTop,
+      3 + 5 - rect[1] - rect[3], 5 + rect[2])
+  end
+  return children
+end
+
+-- The ground controller owns this parentless widget. Tile draws and projects it,
+-- so it never needs a screen-space overlay or an extra animation event.
+function createGroundBolt()
+  local widget = g_ui.createWidget('UIWidget')
+  widget:setPhantom(true)
+  widget:setFocusable(false)
+  widget:setSize({width = 10, height = 14})
+  widget:setMarginLeft(-8)
+  widget:setMarginTop(-20)
+  widget:setOpacity(0)
+  local children = {}
+  for _, rect in ipairs(BOLT_PIXELS) do
+    children[#children + 1] = pixel(widget, rect[3] * 2, 2, AnchorLeft, AnchorTop,
+      rect[1] * 2, rect[2] * 2)
+  end
+  widget.antigasRarityBoltPixels = children
+  return widget
+end
+
+function paintGroundBolt(widget, tier, now, seed, opacity)
+  if not alive(widget) then return end
+  local color = getAccentColor(tier, now, seed)
+  if widget.antigasRarityBoltColor ~= color then
+    for _, child in ipairs(widget.antigasRarityBoltPixels) do
+      child:setBackgroundColor(color)
+    end
+    widget.antigasRarityBoltColor = color
+  end
+  widget:setOpacity(math.max(0, math.min(1, opacity)))
+end
+
 local function paintSlot(widget, entry, now)
   local spriteColor = getSlotTint(entry.tier, now, entry.seed, entry.locked)
   -- Native item color preserves sprite shading; no extra overlay covers its art.
@@ -122,8 +166,12 @@ local function paintSlot(widget, entry, now)
   if entry.locked then color = hex(mix(colorAt(entry.tier, now, entry.seed), {94, 91, 87}, 0.45)) end
   if entry.color ~= color then
     for _, child in ipairs(entry.accents) do child:setBackgroundColor(color) end
+    for _, child in ipairs(entry.bolt) do child:setBackgroundColor(color) end
     entry.color = color
   end
+  local wave = (1 - math.cos((now + entry.seed) / CYCLE_MS * TWO_PI)) * 0.5
+  local boltOpacity = entry.locked and 0.3 or 0.4 + wave * 0.5
+  for _, child in ipairs(entry.bolt) do child:setOpacity(boltOpacity) end
   if entry.glint then
     local travel = ((now + entry.seed) % 5600) / 5600
     -- A short, slow pass along the top edge, followed by a quiet interval.
@@ -177,7 +225,7 @@ function applySlot(widget, tier, locked)
   local entry = widget.antigasRarityVisualEntry
   if entry and entry.tier ~= tier then clearSlot(widget); entry = nil end
   if not entry then
-    entry = {widget = widget, tier = tier, seed = phaseSeed(tostring(widget)), children = {}, accents = {}}
+    entry = {widget = widget, tier = tier, seed = phaseSeed(tostring(widget)), children = {}, accents = {}, bolt = {}}
     slots[entry] = true
     widget.antigasRarityVisualEntry = entry
     local corners = {
@@ -196,6 +244,10 @@ function applySlot(widget, tier, locked)
       local child = pixel(widget, 2, 2, AnchorLeft, AnchorBottom, 7 + (i - 1) * 3, 1)
       entry.children[#entry.children + 1] = child
       entry.accents[#entry.accents + 1] = child
+    end
+    entry.bolt = slotBolt(widget)
+    for _, child in ipairs(entry.bolt) do
+      entry.children[#entry.children + 1] = child
     end
     if tier >= 3 then
       entry.glint = pixel(widget, 3, 1, AnchorLeft, AnchorTop, 3, 1)
