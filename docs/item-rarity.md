@@ -4,13 +4,13 @@
 
 Cada equipamento elegível criado pelo loot de monstros pode receber uma raridade. A quantidade de status adicionais corresponde ao tier: verde 1, azul 2, roxo 3, lendário 4 e mítico 5. Cada item recebe status distintos, sem repetição no mesmo item. A configuração `itemRarityLootChance` usa escala de 0 a 10000; o padrão 1000 representa 10% dos equipamentos elegíveis. As chances originais de cada item no loot continuam valendo.
 
-| Raridade | Borda | Peso entre os itens com raridade | Status por item |
+| Raridade | Identidade visual | Peso entre os itens com raridade | Status por item |
 |---|---|---:|---:|
-| Incomum | Verde `#42C96B` | 50% | 1 |
-| Raro | Azul `#3E8BFF` | 27% | 2 |
-| Épico | Roxo `#A855F7` | 14% | 3 |
-| Lendário | Amarelo `#F5C542` | 7% | 4 |
-| Mítico | Vermelho `#EF4444` | 2% | 5 |
+| Incomum | Jade; 1 marca | 50% | 1 |
+| Raro | Azul aço; 2 marcas | 27% | 2 |
+| Épico | Lavanda; 3 marcas | 14% | 3 |
+| Lendário | Ouro antigo; 4 marcas | 7% | 4 |
+| Mítico | Carmim; 5 marcas | 2% | 5 |
 
 - A primeira linha preserva o status principal do tipo do equipamento: armas recebem ataque, escudos defesa, botas velocidade, joias uma skill, e torso/pernas vida, mana ou resistência.
 - Os status adicionais são sorteados sem repetição entre vida máxima, mana máxima, velocidade, resistências (físico, energia, terra, fogo e gelo) e skills (fist, club, sword, axe, distance, shielding, fishing e magic level). Eles também funcionam em outros equipamentos elegíveis.
@@ -19,6 +19,14 @@ Cada equipamento elegível criado pelo loot de monstros pode receber uma raridad
 - Capacetes, mochilas, munição e outros itens empilháveis ficam fora do sorteio desta versão.
 
 Percentuais de HP/mana usam os valores base e arredondam para cima; velocidade arredonda para o inteiro mais próximo. Bônus acompanham mudanças de nível e alterações dos máximos via Lua. Duas resistências do mesmo tipo se somam e são aplicadas ao dano restante após os efeitos nativos. Carregar armadura na mão não concede o bônus do slot de torso/pernas.
+
+## Identificação no cliente
+
+O módulo `game_rarityvisuals` reúne as cores e o ritmo dos efeitos. Inventário e containers preservam o desenho do item, com cantos de um pixel e de uma a cinco pequenas marcas para identificar o tier também pela forma. Um pequeno raio no canto do slot acompanha a cor da raridade e varia lentamente de intensidade. O próprio sprite recebe uma variação suave de tom e luminosidade, na mesma família e fase das bordas. Itens épicos, lendários e míticos também recebem um reflexo discreto na borda superior. A borda vermelha de slots bloqueados continua indicando o bloqueio.
+
+No chão, a cor é aplicada com intensidade moderada e transições contínuas de 4,2 segundos. Um raio da mesma família aparece em pulsos breves junto ao primeiro item raro da pilha, com limite de seis raios simultâneos. A fase depende da posição e da instância confirmada pelo servidor, evitando que todos os itens pulsem juntos. Corpos ainda não abertos usam uma tintura mais sutil, bronze para loot comum e a família correspondente para loot raro. Essa indicação usa a cor do sprite, separada do destaque do cursor, e termina quando o servidor confirma a abertura. Ela indica um corpo ainda não aberto, não a quantidade de itens que restam nele.
+
+Esses efeitos não alteram as chances, os atributos ou o protocolo de raridade. O efeito nativo emitido uma vez na morte do monstro continua sendo enviado pelo servidor.
 
 ## Persistência e integração
 
