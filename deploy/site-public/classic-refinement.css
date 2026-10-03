@@ -119,6 +119,9 @@ body, body.portal-home { background: #080907; color: var(--ink); font: 14px/1.7 
 .news-ribbon, .portal-home .news-ribbon { margin: 0 0 16px; padding: 8px 12px; border: 3px ridge #a67b49; box-shadow: none; color: #fff2d7; font: bold 17px/1.3 Georgia, 'Times New Roman', serif; }
 .news-ribbon span { white-space: normal; }
 .news-ribbon time, .portal-home .news-ribbon time { color: #f0ddbf; font: 10px/1.5 Verdana, Arial, sans-serif; }
+.news-ribbon h3 { flex: 1; min-width: 0; margin: 0; color: inherit; font: inherit; }
+.news-ribbon time { align-self: center; margin-left: auto; }
+.portal-home .dropcap::first-letter { margin: 2px 4px 0 0; font: 38px/.9 Georgia, 'Times New Roman', serif; }
 .news-body, .content-section, .portal-home .news-body, .portal-home .content-section { padding: 0 8px 12px; font: 14px/1.75 Verdana, Arial, sans-serif; }
 .news-body p, .content-section p, .portal-home .news-body p, .portal-home .content-section p { max-width: 75ch; margin-block: 14px; }
 .portal-home .gold-list { max-width: 75ch; }
@@ -160,7 +163,25 @@ footer, .portal-home footer { color: #6c553b; font-size: 11px; line-height: 1.7;
 .wiki-entry p, .wiki-original p { max-width: 72ch; line-height: 1.75; }
 .wiki-original { margin-inline: 8px; padding: 18px 0 0; border: 0; border-top: 2px groove #b49a60; background: none; }
 
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible,
+/* Compact indexes use the same parchment and inset controls as the portal. */
+.classic-index { margin: 0 8px 22px; border: 2px groove #c3a780; background: #ead6af40; }
+.classic-index summary { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 10px; color: #67330b; font: bold 12px/1.5 Verdana, Arial, sans-serif; cursor: pointer; list-style: none; }
+.classic-index summary::-webkit-details-marker { display: none; }
+.classic-index summary::before { content: '+'; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; flex: 0 0 15px; border: 1px solid #a4895e; background: #f7e8c8; color: #674826; font: 13px/1 monospace; }
+.classic-index[open] summary::before { content: '-'; }
+.classic-index summary:hover { background: #e0c69666; color: var(--wine); }
+.classic-index[open] summary { border-bottom: 1px solid #bfa279; }
+.classic-index nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 16px; padding: 10px; }
+.classic-index nav a { display: block; min-width: 0; padding: 6px; color: #67330b; font: bold 12px/1.5 Verdana, Arial, sans-serif; overflow-wrap: anywhere; }
+.classic-index nav a:hover { background: #d5b77e40; color: var(--wine); text-decoration: underline; }
+.classic-index time { display: block; margin-top: 2px; color: #6c553b; font: normal 11px/1.5 Verdana, Arial, sans-serif; }
+.wiki-index { display: none; }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 100; padding: 10px 16px; background: #fff3d8; color: #563006; border: 3px ridge #bba16a; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
+.button:active { border-style: inset; }
+.portal-home .button-secondary:active { background: linear-gradient(#d3b476, #ead2a1); }
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible,
 .portal-home a:focus-visible, .portal-home button:focus-visible { outline: 3px solid #205a87; outline-offset: 3px; }
 .topnav a:focus-visible, .sidebar a:focus-visible, .language-switcher a:focus-visible,
 .portal-home .sidebar a:focus-visible, .portal-home .topnav a:focus-visible { outline-color: #ffe092; outline-offset: -3px; }
@@ -176,6 +197,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 @media (max-width: 760px) {
   .wiki-callout p { flex: none; }
+  .wiki-index { display: block; }
 }
 @media (max-width: 700px) {
   .skyline, .layout { width: 100%; }
@@ -194,6 +216,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .layout, .portal-home .layout, .wiki-page .wiki-layout { display: block; }
   .sidebar, .wiki-sidebar { display: none; }
   .paper, .portal-home .paper, .wiki-paper { min-height: 0; padding: 21px 17px; border-width: 3px; }
+  .account-page .paper, .coins-page .paper { min-height: 0; }
   .page-title, .portal-home .page-title { margin-bottom: 20px; padding-inline: 3px; }
   .page-title h1, .wiki-paper .page-title h1 { font-size: 33px; }
   .portal-home .welcome { grid-template-columns: minmax(0, 1fr); margin-bottom: 23px; padding: 2px 3px 20px; }
@@ -201,8 +224,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .portal-home .welcome-crest { display: none; }
   .portal-home .welcome-actions .button { flex: 1 1 100%; }
   .portal-home .journey-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 7px; }
-  .portal-home .journey-steps li { min-height: 38px; font-size: 12px; }
-  .portal-home .journey-steps a { min-height: 38px; }
+  .portal-home .journey-steps li { min-height: 44px; font-size: 12px; }
+  .portal-home .journey-steps a { display: inline-flex; align-items: center; min-height: 44px; }
   .news-ribbon, .portal-home .news-ribbon { display: block; padding: 8px 10px; font-size: 16px; }
   .news-ribbon time, .portal-home .news-ribbon time { display: block; margin-top: 6px; }
   .news-body, .content-section, .portal-home .news-body, .portal-home .content-section { padding-inline: 3px; }
@@ -218,6 +241,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .coin-panel form .button, .wiki-callout .button { width: 100%; }
   .wiki-callout, .wiki-original { margin-inline: 3px; }
   .wiki-entry { padding-inline: 3px; }
+  .classic-index { margin-inline: 3px; }
+  .classic-index summary { min-height: 44px; }
+  .classic-index nav { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .classic-index nav a { display: flex; flex-direction: column; justify-content: center; min-height: 44px; }
 }
 @media (max-width: 380px) {
   .paper, .portal-home .paper, .wiki-paper { padding-inline: 12px; }
