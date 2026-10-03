@@ -1,7 +1,8 @@
 -- Only server-confirmed corpse tokens may create or clear an unopened marker.
 local OPCODE, CHANNEL = 128, 10
 local MAX_MARKERS, MAX_SEEN, PULSE_MS = 256, 512, 150
-local colors = {'#42C96B', '#3E8BFF', '#A855F7', '#F5C542', '#EF4444'}
+local fallbackTints = {[0]='#CCBCA7', '#BDD3C3', '#B9CADD', '#CCBFDA', '#DED1AB', '#DBBAB5'}
+local fallbackTextColors = {'#86C39A', '#87AFD4', '#B59ACD', '#D9BE7B', '#D38B83'}
 local neutral = '#C8CED8'
 local markers, seen, seenOrder = {}, {}, {}
 local pulseEvent, helloEvent, ready, helloAttempts
@@ -29,14 +30,15 @@ local function validPosition(pos)
   return type(pos) == 'table' and integer(pos.x, 1, 65534) and integer(pos.y, 1, 65534) and integer(pos.z, 0, 15)
 end
 
-local function isHovered(item)
-  local map = modules.game_interface.getMapPanel()
-  return map and map.markedThing == item and g_settings.getBoolean('highlightThingsUnderCursor')
-end
-
 local function clearMark(entry)
-  if entry.item and not isHovered(entry.item) then entry.item:setMarked('') end
+  if entry.item then
+    -- Sprite tint and cursor setMarked are independent native layers.
+    g_map.removeThingColor(entry.item)
+    local ground = modules.game_groundrarity
+    if ground and ground.restoreMark then ground.restoreMark(entry.item) end
+  end
   entry.item = nil
+  entry.lastColor = nil
 end
 
 local function removeMarker(id)
@@ -67,19 +69,28 @@ local function resolveItem(entry)
   return true
 end
 
-local function pulseColor(tier, now)
-  local color = colors[tier] or '#B6C8D8'
-  local brightness = 0.50 + 0.25 * (1 + math.sin(now * math.pi / 900))
-  return string.format('#%02X%02X%02X',
-    math.floor(tonumber(color:sub(2,3),16) * brightness),
-    math.floor(tonumber(color:sub(4,5),16) * brightness),
-    math.floor(tonumber(color:sub(6,7),16) * brightness))
+local function markerSeed(data)
+  local seed = (data.position.x * 31 + data.position.y * 131
+    + data.position.z * 17 + data.corpseId * 7 + data.stackpos * 53) % 65521
+  for index = 1, #data.id do seed = (seed * 33 + data.id:byte(index)) % 65521 end
+  return seed
+end
+
+local function colorize(entry, now, force)
+  local visuals = modules.game_rarityvisuals
+  local color = visuals and visuals.getWorldTint
+    and visuals.getWorldTint(entry.tier, now, entry.seed, 'corpse')
+    or fallbackTints[entry.tier]
+  if force or color ~= entry.lastColor then
+    g_map.colorizeThing(entry.item, color)
+    entry.lastColor = color
+  end
 end
 
 function restoreMark(item)
   for _, entry in pairs(markers) do
     if entry.item == item and containsItem(entry) then
-      item:setMarked(pulseColor(entry.tier, g_clock.millis()))
+      colorize(entry, g_clock.millis(), true)
       return true
     end
   end
@@ -100,7 +111,7 @@ function updateMarkers()
       -- Never bind a replacement with the same sprite without a new server marker.
       removeMarker(id)
     elseif entry.item then
-      if not isHovered(entry.item) then entry.item:setMarked(pulseColor(entry.tier, now)) end
+      colorize(entry, now)
     elseif now - entry.created > 2000 then
       removeMarker(id)
     end
@@ -131,7 +142,7 @@ local function addMarker(data)
   end
   if count >= MAX_MARKERS then removeMarker(oldestId) end
   markers[data.id] = {position=data.position, corpseId=data.corpseId, stackpos=data.stackpos,
-    tier=data.tier, created=g_clock.millis()}
+    tier=data.tier, seed=markerSeed(data), created=g_clock.millis()}
   -- Bind while this server snapshot is current. A later pulse could see a new
   -- identical corpse at the old stack index. Missing items await server replay.
   resolveItem(markers[data.id])
@@ -170,7 +181,10 @@ local function showLoot(data)
   if #data.items == 0 then append('nothing', neutral) end
   for index, item in ipairs(data.items) do
     if index > 1 then append(', ', neutral) end
-    append(item.name, colors[item.tier] or neutral)
+    local visuals = modules.game_rarityvisuals
+    local color = item.tier > 0 and visuals and visuals.getTextColor and visuals.getTextColor(item.tier)
+      or fallbackTextColors[item.tier] or neutral
+    append(item.name, color)
   end
   if data.omitted and data.omitted > 0 then append(', ... +' .. data.omitted .. ' itens', neutral) end
   console.addTabText(table.concat(plain), {color=neutral}, tab, nil, rich)
