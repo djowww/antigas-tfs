@@ -7,7 +7,11 @@ local families = {
   [4] = { {178, 139, 78}, {207, 174, 111}, {225, 204, 156} },
   [5] = { {177, 107, 103}, {204, 142, 126}, {225, 177, 151} }
 }
-local slots = setmetatable({}, { __mode = 'k' })
+-- A native widget can have several Lua userdata wrappers. Weak userdata keys
+-- may remain visible after their native pointer was finalized by LuaJIT.
+-- Keep a strong wrapper in a plain Lua entry and share its token via the
+-- widget's native fields, so callbacks with another wrapper find the same slot.
+local slots = {}
 local animationEvent
 local ANIMATION_MS = 200
 local CYCLE_MS = 4200
@@ -73,7 +77,7 @@ function getWorldTint(tier, now, seed, surface)
 end
 
 local function alive(widget)
-  return widget and (not widget.isDestroyed or not widget:isDestroyed())
+  return widget and not widget:isDestroyed()
 end
 
 local function pixel(parent, width, height, horizontal, vertical, insetX, insetY)
@@ -119,9 +123,12 @@ end
 local function animateSlots()
   animationEvent = nil
   local now = g_clock.millis()
-  for widget, entry in pairs(slots) do
+  for entry in pairs(slots) do
+    local widget = entry.widget
     if not alive(widget) then
-      slots[widget] = nil
+      slots[entry] = nil
+      removeDecoration(entry)
+      entry.widget = nil
     elseif widget:isVisible() then
       paintSlot(widget, entry, now)
     end
@@ -130,10 +137,13 @@ local function animateSlots()
 end
 
 function clearSlot(widget)
-  local entry = slots[widget]
+  if not widget then return end
+  local entry = widget.antigasRarityVisualEntry
   if not entry then return end
-  slots[widget] = nil
+  widget.antigasRarityVisualEntry = nil
+  slots[entry] = nil
   removeDecoration(entry)
+  entry.widget = nil
   if not next(slots) and animationEvent then
     removeEvent(animationEvent)
     animationEvent = nil
@@ -146,11 +156,12 @@ function applySlot(widget, tier, locked)
     clearSlot(widget)
     return
   end
-  local entry = slots[widget]
+  local entry = widget.antigasRarityVisualEntry
   if entry and entry.tier ~= tier then clearSlot(widget); entry = nil end
   if not entry then
-    entry = {tier = tier, seed = phaseSeed(tostring(widget)), children = {}, accents = {}}
-    slots[widget] = entry
+    entry = {widget = widget, tier = tier, seed = phaseSeed(tostring(widget)), children = {}, accents = {}}
+    slots[entry] = true
+    widget.antigasRarityVisualEntry = entry
     local corners = {
       {AnchorLeft, AnchorTop}, {AnchorRight, AnchorTop},
       {AnchorLeft, AnchorBottom}, {AnchorRight, AnchorBottom}
@@ -180,9 +191,11 @@ end
 
 function resetSlots()
   if animationEvent then removeEvent(animationEvent); animationEvent = nil end
-  for widget, entry in pairs(slots) do
-    slots[widget] = nil
+  for entry in pairs(slots) do
+    slots[entry] = nil
+    if alive(entry.widget) then entry.widget.antigasRarityVisualEntry = nil end
     removeDecoration(entry)
+    entry.widget = nil
   end
 end
 
