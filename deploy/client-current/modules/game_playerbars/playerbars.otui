@@ -4,77 +4,40 @@ AntigasSidebarToggle < ButtonBox
   image-source: /images/ui/button
   image-clip: 0 0 22 23
   image-border: 3
-  image-color: #ffffffee
-  icon-color: #eeeade
-  icon-size: 12 12
+  image-color: #e2e1db
   text-offset: 0 0
-  border-width: 1
-  border-top-color: #919087
-  border-left-color: #919087
-  border-right-color: #262621
-  border-bottom-color: #262621
+  border-width: 0
   change-cursor-image: true
   cursor: pointer
 
   $hover !disabled:
     image-clip: 0 23 22 23
-    image-color: #ffffff
-    icon-color: #fff8e9
-    border-top-color: #b9b7ac
-    border-left-color: #b9b7ac
-    border-right-color: #44443b
-    border-bottom-color: #44443b
+    image-color: #efeee6
 
   $checked:
     image-clip: 0 46 22 23
     text-offset: 0 0
-    icon-color: #f4e7c8
-    image-color: #cab184
-    border-width: 1
-    border-top-color: #665130
-    border-left-color: #665130
-    border-right-color: #d8ba79
-    border-bottom-color: #d8ba79
+    image-color: #e4e0d5
 
   $checked hover !disabled:
     image-clip: 0 46 22 23
-    icon-color: #fff1d8
-    image-color: #ddc18a
-    border-top-color: #755b32
-    border-left-color: #755b32
-    border-right-color: #eed394
-    border-bottom-color: #eed394
+    image-color: #eee9dd
 
   $pressed !disabled:
     image-clip: 0 46 22 23
     text-offset: 0 0
-    image-color: #bcbab0
-    icon-color: #ddd8ca
-    border-top-color: #252620
-    border-left-color: #252620
-    border-right-color: #9c9b87
-    border-bottom-color: #9c9b87
+    image-color: #c6c6bf
 
   $checked pressed !disabled:
     image-clip: 0 46 22 23
     text-offset: 0 0
-    image-color: #b79c68
-    icon-color: #e8d9ba
-    border-top-color: #574227
-    border-left-color: #574227
-    border-right-color: #bc9c58
-    border-bottom-color: #bc9c58
+    image-color: #c8c3b7
 
   $disabled:
     image-clip: 0 0 22 23
     text-offset: 0 0
     image-color: #ffffff66
-    icon-color: #aaa69c
     color: #aaa69c
-    border-top-color: #4d4a44
-    border-left-color: #4d4a44
-    border-right-color: #282622
-    border-bottom-color: #282622
     change-cursor-image: false
 
 AntigasSidebarAction < Button
@@ -84,100 +47,44 @@ AntigasSidebarAction < Button
   image-source: /images/ui/button
   image-clip: 0 0 22 23
   image-border: 3
-  image-color: #ffffffee
+  image-color: #e2e1db
   color: #ebe7de
-  icon-color: #eeeade
-  icon-size: 12 12
   text-align: center
   text-offset: 0 0
-  border-width: 1
-  border-top-color: #919087
-  border-left-color: #919087
-  border-right-color: #262621
-  border-bottom-color: #262621
+  border-width: 0
   change-cursor-image: true
   cursor: pointer
 
   $hover !disabled:
     image-clip: 0 23 22 23
-    image-color: #ffffff
-    color: #f6f3ec
-    icon-color: #fff8e9
-    border-top-color: #b9b7ac
-    border-left-color: #b9b7ac
-    border-right-color: #44443b
-    border-bottom-color: #44443b
+    image-color: #efeee6
 
   $on !disabled:
     image-clip: 0 46 22 23
-    image-color: #cab184
-    icon-color: #f4e7c8
-    border-top-color: #665130
-    border-left-color: #665130
-    border-right-color: #d8ba79
-    border-bottom-color: #d8ba79
+    image-color: #e4e0d5
 
   $on hover !disabled:
     image-clip: 0 46 22 23
-    image-color: #ddc18a
-    icon-color: #fff1d8
-    border-top-color: #755b32
-    border-left-color: #755b32
-    border-right-color: #eed394
-    border-bottom-color: #eed394
+    image-color: #eee9dd
 
   $pressed !disabled:
     image-clip: 0 46 22 23
-    image-color: #bcbab0
-    icon-color: #ddd8ca
     text-offset: 0 0
-    border-top-color: #252620
-    border-left-color: #252620
-    border-right-color: #9c9b87
-    border-bottom-color: #9c9b87
+    image-color: #c6c6bf
 
   $on pressed !disabled:
     image-clip: 0 46 22 23
     text-offset: 0 0
-    image-color: #b79c68
-    icon-color: #e8d9ba
-    border-top-color: #574227
-    border-left-color: #574227
-    border-right-color: #bc9c58
-    border-bottom-color: #bc9c58
+    image-color: #c8c3b7
 
   $disabled:
     image-clip: 0 0 22 23
     text-offset: 0 0
     image-color: #ffffff66
     color: #aaa69c
-    icon-color: #aaa69c
-    border-top-color: #4d4a44
-    border-left-color: #4d4a44
-    border-right-color: #282622
-    border-bottom-color: #282622
     change-cursor-image: false
 
 AntigasSidebarAchievementAction < AntigasSidebarAction
-  icon-color: #d2cec6
-
-  $hover !disabled:
-    icon-color: #ebe6da
-
-  $on !disabled:
-    icon-color: #f2e5c9
-
-  $on hover !disabled:
-    icon-color: #fff1d8
-
-  $pressed !disabled:
-    icon-color: #c8c3b8
-
-  $on pressed !disabled:
-    icon-color: #e8d9ba
-
-  $disabled:
-    icon-color: #aaa69c
 
 SpecialMiniWindow
   id: playerBarsWindow
@@ -247,7 +154,6 @@ SpecialMiniWindow
       anchors.left: parent.left
       anchors.top: parent.top
       margin-top: 0
-      icon-source: /images/topbuttons/skills
       tooltip: Skills.
       @onCheckChange: modules.game_playerbars.togglePanel('skills')
 
@@ -255,7 +161,6 @@ SpecialMiniWindow
       id: BattleButton
       anchors.left: SkillsButton.right
       anchors.top: SkillsButton.top
-      icon-source: /images/topbuttons/battle
       tooltip: Battle list (Ctrl+B).
       @onCheckChange: modules.game_playerbars.togglePanel('battle')
 
@@ -263,7 +168,6 @@ SpecialMiniWindow
       id: VipButton
       anchors.left: BattleButton.right
       anchors.top: SkillsButton.top
-      icon-source: /images/topbuttons/viplist
       tooltip: VIP list (Ctrl+P).
       @onCheckChange: modules.game_playerbars.togglePanel('vip')
 
@@ -271,7 +175,6 @@ SpecialMiniWindow
       id: huntButton
       anchors.left: VipButton.right
       anchors.top: SkillsButton.top
-      icon-source: /images/topbuttons/huntinganalyzer
       tooltip: Hunt and loot statistics.
       @onCheckChange: modules.game_playerbars.togglePanel('hunt')
 
@@ -282,20 +185,10 @@ SpecialMiniWindow
       tooltip: Market.
       @onClick: modules.game_market_antigas.toggle()
 
-      UIWidget
-        id: marketIcon
-        anchors.centerIn: parent
-        margin-top: -1
-        size: 12 12
-        image-source: /images/game/slots/coins
-        image-color: #dedad0
-        phantom: true
-
     AntigasSidebarAction
       id: questButton
       anchors.left: marketButton.right
       anchors.top: huntButton.top
-      icon-source: /images/topbuttons/questlog
       tooltip: Quest log (Ctrl+J).
       @onClick: modules.game_questlog.toggle()
 
@@ -303,8 +196,6 @@ SpecialMiniWindow
       id: achievementsButton
       anchors.left: questButton.right
       anchors.top: SkillsButton.top
-      icon-source: /images/game/viplist/icons
-      icon-clip: 60 0 12 12
       tooltip: Achievements.
       @onClick: modules.game_achievements.toggle()
 
