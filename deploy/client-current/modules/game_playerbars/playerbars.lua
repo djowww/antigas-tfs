@@ -142,10 +142,9 @@ function updateMenuToggle()
   local button = playerBarsWindow:getChildById('menuToggle')
   if not button then return end
   local collapsed = playerBarsWindow:isOn()
-  local unreadHint = achievementUnread > 0 and (' (' .. achievementUnread .. ' '
-    .. (achievementUnread == 1 and 'nova' or 'novas') .. ')') or ''
+  local unreadHint = achievementUnread > 0 and (' (' .. achievementUnread .. ' new)') or ''
   button:setOn(collapsed)
-  button:setTooltip((collapsed and 'Expandir barra' or 'Recolher barra') .. unreadHint)
+  button:setTooltip((collapsed and 'Expand toolbar' or 'Collapse toolbar') .. unreadHint)
   button:getChildById('menuUnreadIndicator'):setVisible(achievementUnread > 0)
   resizeButtons()
 end
@@ -159,9 +158,8 @@ end
 function setAchievementsUnread(count)
   achievementUnread = math.max(0, tonumber(count) or 0)
   if achievementsButton then
-    local unreadHint = achievementUnread > 0 and (': ' .. achievementUnread
-      .. (achievementUnread == 1 and ' nova' or ' novas')) or ''
-    achievementsButton:setTooltip('Conquistas' .. unreadHint)
+    local unreadHint = achievementUnread > 0 and (': ' .. achievementUnread .. ' new') or ''
+    achievementsButton:setTooltip('Achievements' .. unreadHint)
     achievementsButton:getChildById('achievementsUnreadIndicator'):setVisible(achievementUnread > 0)
   end
   updateMenuToggle()

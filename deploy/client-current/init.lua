@@ -1,7 +1,7 @@
 -- CONFIG
 APP_NAME = "Antigas 7.4"
 g_app.setName("Antigas 7.4")
-APP_VERSION = 61        -- client release (independent of protocol 772)
+APP_VERSION = 62        -- client release (independent of protocol 772)
 SERVER_VERSION = 772
 -- Keep mount fields enabled for protocol compatibility, but hide mount UI/actions.
 MOUNTS_ENABLED = false
@@ -9,6 +9,8 @@ MOUNTS_ENABLED = false
 ADDONS_ENABLED = false
 STICK_MODULES = true
 OLD_SCHOOL = true
+-- This distribution uses English UI text, including previously saved locales.
+allowedLocales = { en = true }
 PRODUCTION_MODE = false
 REGISTRATION_KEY = "AbcDeFgH"
 -- Public compatibility marker, never an authentication secret.
