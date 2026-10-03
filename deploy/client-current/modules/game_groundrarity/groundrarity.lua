@@ -1,6 +1,7 @@
 -- Tile snapshots arrive directly after the native map update they describe.
 -- Bind immediately to actual Item objects; sprite IDs alone are not identity.
 local OPCODE, MAX_TILES, CHECK_MS = 129, 256, 150
+local MAX_BOLTS, MAX_ACTIVE_BOLTS, BOLT_PERIOD_MS, BOLT_BURST_MS = 24, 6, 4200, 600
 local fallbackTints = {'#BDD3C3', '#B9CADD', '#CCBFDA', '#DED1AB', '#DBBAB5'}
 local tiles, tileCount, sequence = {}, 0, 0
 local checkEvent, helloEvent, ready, helloAttempts, lastSnapshotRequest
@@ -48,6 +49,75 @@ local function containsItem(tile, entry, position)
   return false
 end
 
+local function clearBolt(entry)
+  local widget, tile = entry.boltWidget, entry.boltTile
+  entry.boltWidget, entry.boltTile, entry.boltItem = nil, nil, nil
+  if not widget then return end
+  if widget:isDestroyed() then
+    if tile:getWidget() == widget then tile:setWidget(nil) end
+    return
+  end
+  -- A different owner or a reconstructed map tile may now occupy this slot.
+  if tile:getWidget() == widget then tile:removeWidget()
+  else widget:destroy() end
+end
+
+local function boltMark(tile, entry)
+  -- One bolt belongs to the topmost rare item, never a loot corpse marker.
+  local things = tile:getThings()
+  -- Native ordinary items are ordered from the top of the stack downward.
+  for index = 1, #things do
+    for _, mark in ipairs(entry.items) do
+      if mark.item == things[index] and not mark.item:isLyingCorpse() then return mark end
+    end
+  end
+end
+
+local function updateBolts(candidates, now)
+  local visuals = modules.game_rarityvisuals
+  local selected, chosen = {}, {}
+  table.sort(candidates, function(a, b) return a.key < b.key end)
+  -- Rotate the bounded set once per cycle so dense scenes do not starve items.
+  local count = #candidates
+  local offset = count > MAX_BOLTS and (math.floor(now / BOLT_PERIOD_MS) * MAX_BOLTS) % count or 0
+  for index = 1, math.min(count, MAX_BOLTS) do
+    local candidate = candidates[(offset + index - 1) % count + 1]
+    selected[candidate.entry], chosen[#chosen + 1] = true, candidate
+  end
+  for _, entry in pairs(tiles) do
+    if not selected[entry] then clearBolt(entry) end
+  end
+  local active = 0
+  local activeOffset = #chosen > 0 and (math.floor(now / BOLT_PERIOD_MS) * MAX_ACTIVE_BOLTS) % #chosen or 0
+  for index = 1, #chosen do
+    local candidate = chosen[(activeOffset + index - 1) % #chosen + 1]
+    local entry, tile, mark = candidate.entry, candidate.tile, candidate.mark
+    local widget = entry.boltWidget
+    if widget and (widget:isDestroyed() or entry.boltTile ~= tile
+        or entry.boltItem ~= mark.item or tile:getWidget() ~= widget) then
+      clearBolt(entry)
+      widget = nil
+    end
+    if not widget and not tile:getWidget() then
+      widget = visuals.createGroundBolt()
+      if widget then
+        entry.boltWidget, entry.boltTile, entry.boltItem = widget, tile, mark.item
+        tile:setWidget(widget)
+      end
+    end
+    if widget then
+      local phase = (now + mark.seed) % BOLT_PERIOD_MS
+      local opacity = 0
+      if phase < BOLT_BURST_MS and active < MAX_ACTIVE_BOLTS then
+        opacity = math.sin(math.pi * phase / BOLT_BURST_MS) * 0.75
+        if opacity > 0 then active = active + 1 end
+      end
+      -- Tile draws its root directly; opacity also suppresses the quiet phase.
+      visuals.paintGroundBolt(widget, mark.tier, now, mark.seed, opacity)
+    end
+  end
+end
+
 local function clearMark(entry)
   -- Native sprite color and cursor/corpse marks are separate render layers.
   g_map.removeThingColor(entry.item)
@@ -58,6 +128,7 @@ local function removeTile(key)
   local entry = tiles[key]
   if not entry then return end
   tiles[key], tileCount = nil, tileCount - 1
+  clearBolt(entry)
   for _, item in ipairs(entry.items) do clearMark(item) end
 end
 
@@ -99,6 +170,11 @@ function updateMarks()
   if not ready or not g_game.isOnline() then return end
   local now = g_clock.millis()
   local missingNativeItem = false
+  local candidates = {}
+  local visuals = modules.game_rarityvisuals
+  local boltsEnabled = visuals and visuals.createGroundBolt and visuals.paintGroundBolt
+  local player = g_game.getLocalPlayer and g_game.getLocalPlayer()
+  local playerPosition = player and player:getPosition()
   for key, entry in pairs(tiles) do
     local tile = g_map.getTile(entry.position)
     for index = #entry.items, 1, -1 do
@@ -111,8 +187,13 @@ function updateMarks()
         colorize(mark, now)
       end
     end
-    if #entry.items == 0 then removeTile(key) end
+    if #entry.items == 0 then removeTile(key)
+    elseif boltsEnabled and (not playerPosition or playerPosition.z == entry.position.z) then
+      local mark = boltMark(tile, entry)
+      if mark then candidates[#candidates + 1] = {entry=entry, tile=tile, mark=mark, key=key} end
+    end
   end
+  updateBolts(candidates, now)
   if missingNativeItem then requestSnapshot() end
   -- One timer for the whole viewport, regardless of the number of rare items.
   if tileCount > 0 then checkEvent = scheduleEvent(updateMarks, CHECK_MS) end
