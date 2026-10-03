@@ -55,19 +55,160 @@ AchievementEntry < Panel
 MainWindow
   id: achievementWindow
   text: Achievements
-  size: 660 500
+  size: 660 580
   @onEscape: modules.game_achievements.hide()
+
+  FlatPanel
+    id: rankBanner
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 108
+    padding: 12
+    padding-top: 8
+    padding-bottom: 7
+    image-color: #b8b6a8
+    background-color: #282a27bb
+
+    Label
+      id: rankName
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: rankStars.left
+      margin-right: 12
+      height: 18
+      color: #DDD8C6
+      text: Achievement Ranks
+      text-align: left
+
+    Panel
+      id: rankStars
+      anchors.top: parent.top
+      anchors.right: parent.right
+      margin-top: 2
+      size: 76 12
+      layout:
+        type: horizontalBox
+        spacing: 4
+        fit-children: false
+
+      UIWidget
+        id: star1
+        size: 12 12
+        phantom: true
+        focusable: false
+
+      UIWidget
+        id: star2
+        size: 12 12
+        phantom: true
+        focusable: false
+
+      UIWidget
+        id: star3
+        size: 12 12
+        phantom: true
+        focusable: false
+
+      UIWidget
+        id: star4
+        size: 12 12
+        phantom: true
+        focusable: false
+
+      UIWidget
+        id: star5
+        size: 12 12
+        phantom: true
+        focusable: false
+
+    Label
+      id: rankProgress
+      anchors.top: rankName.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 2
+      height: 16
+      color: #AAA99E
+      text: Complete achievements to advance your rank.
+      text-align: left
+
+    Panel
+      id: rankTrack
+      anchors.top: rankProgress.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 5
+      height: 6
+      background-color: #20221f
+      border: 1 #181a17
+
+      UIProgressBar
+        id: rankBar
+        anchors.fill: parent
+        margin: 1
+        background-color: #BCA473
+        phantom: true
+
+    Panel
+      id: rankMilestones
+      anchors.top: rankTrack.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 9
+      height: 31
+      layout:
+        type: horizontalBox
+        spacing: 6
+        fit-children: false
+
+      Label
+        id: rank1
+        size: 95 31
+        text-align: center
+        color: #AAA99E
+
+      Label
+        id: rank2
+        size: 95 31
+        text-align: center
+        color: #AAA99E
+
+      Label
+        id: rank3
+        size: 95 31
+        text-align: center
+        color: #AAA99E
+
+      Label
+        id: rank4
+        size: 95 31
+        text-align: center
+        color: #AAA99E
+
+      Label
+        id: rank5
+        size: 95 31
+        text-align: center
+        color: #AAA99E
+
+      Label
+        id: rank6
+        size: 95 31
+        text-align: center
+        color: #AAA99E
 
   ComboBox
     id: filter
-    anchors.top: parent.top
+    anchors.top: rankBanner.bottom
     anchors.left: parent.left
+    margin-top: 10
     width: 148
     height: 22
 
   ComboBox
     id: category
-    anchors.top: parent.top
+    anchors.top: filter.top
     anchors.left: filter.right
     margin-left: 6
     width: 208
@@ -75,7 +216,7 @@ MainWindow
 
   Button
     id: refreshButton
-    anchors.top: parent.top
+    anchors.top: filter.top
     anchors.right: parent.right
     width: 76
     height: 22
@@ -84,7 +225,7 @@ MainWindow
 
   Button
     id: claimButton
-    anchors.top: parent.top
+    anchors.top: filter.top
     anchors.right: refreshButton.left
     margin-right: 6
     width: 114
@@ -116,13 +257,28 @@ MainWindow
     text: Progress and rewards are saved per character.
     text-align: left
 
+  Label
+    id: objectiveHeading
+    anchors.top: bonuses.bottom
+    anchors.left: parent.left
+    margin-top: 8
+    size: 88 14
+    color: #DDD8C6
+    text: Objectives
+
+  HorizontalSeparator
+    anchors.verticalCenter: objectiveHeading.verticalCenter
+    anchors.left: objectiveHeading.right
+    anchors.right: parent.right
+    margin-left: 6
+
   ScrollablePanel
     id: entries
-    anchors.top: bonuses.bottom
+    anchors.top: objectiveHeading.bottom
     anchors.left: parent.left
     anchors.right: entriesScroll.left
     anchors.bottom: message.top
-    margin-top: 10
+    margin-top: 6
     margin-right: 3
     margin-bottom: 8
     padding: 0
@@ -134,10 +290,10 @@ MainWindow
 
   VerticalScrollBar
     id: entriesScroll
-    anchors.top: bonuses.bottom
+    anchors.top: objectiveHeading.bottom
     anchors.right: parent.right
     anchors.bottom: message.top
-    margin-top: 10
+    margin-top: 6
     margin-bottom: 8
     step: 78
     pixels-scroll: true
