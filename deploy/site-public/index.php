@@ -6,7 +6,7 @@ require __DIR__.'/i18n.php';
 $language=siteStartI18n();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v59.zip?site=hud-impeccable-v59-20261001';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v66.zip?site=achievement-ranks-v66-20261003';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
@@ -91,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       </section>
       <nav class="side-news" aria-label="<?= siteT('Featured news') ?>">
         <h2><?= siteT('On the notice board') ?></h2>
+        <a href="#achievement-ranks-v66"><?= siteT('A star for every completed rank') ?><time datetime="2026-10-03"><?= siteT('3 Oct 2026') ?></time></a>
         <a href="#objectives-v43"><?= siteT('Your next goal') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
         <a href="#menu-v42"><?= siteT('A menu that suits you') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
         <a href="#achievement-objectives"><?= siteT('See every objective') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
@@ -116,6 +117,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="welcome-crest" aria-hidden="true"><img src="/classic-assets/crest.svg" width="126" height="142" alt=""><span>7.4 Classic</span></div>
       </section>
       <section class="page-title" id="noticias"><h2><?= siteT('Latest news') ?></h2><p><?= siteT('New systems and improvements in the world of Antigas 7.4.') ?></p></section>
+      <article id="achievement-ranks-v66" class="news-article update-article">
+        <h3 class="news-ribbon"><span><?= siteT('A star for every completed rank') ?></span><time datetime="2026-10-03"><?= siteT('3 Oct 2026 · Client v66') ?></time></h3>
+        <div class="news-body">
+          <p class="dropcap"><?= siteT('Achievements now build toward six overall ranks, from Novice to Legend. Your rank follows completed objectives across every category, and the banner keeps your total visible as you browse and filter the list.') ?></p>
+          <p><?= siteT('Earn bronze stars with each promotion: Adventurer at 6 completed, Veteran at 15, Elite at 30, Master at 45 and Legend at 60. Pending rewards do not count as completed achievements.') ?></p>
+          <p><?= siteT('Open the Achievements window in client v66 to see your rank, stars and progress to the next milestone.') ?></p>
+        </div>
+      </article>
       <article id="monster-data-20260928" class="news-article update-article">
         <h3 class="news-ribbon"><span><?= siteT('Creature data aligned with the classic reference') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · World data') ?></time></h3>
         <div class="news-body">
