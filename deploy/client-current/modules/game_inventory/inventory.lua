@@ -148,7 +148,7 @@ function AntigasItemRarity.apply(widget, tier, locked, bonusType, bonusValue, su
   local visuals = modules.game_rarityvisuals
   local decorated = hasRarity and visuals and visuals.applySlot and visuals.clearSlot
   local borderColor = hasRarity and itemRarityBorderColors[tier]
-  -- Preserve the original pixel-art sprite; rarity lives in child decorations.
+  -- Reset stale tint before the visual module styles this item's new metadata.
   widget:setColor('#FFFFFF')
   widget.rarityTier = hasRarity and tier or nil
   widget.rarityLocked = locked

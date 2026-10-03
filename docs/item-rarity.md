@@ -22,7 +22,7 @@ Percentuais de HP/mana usam os valores base e arredondam para cima; velocidade a
 
 ## Identificação no cliente
 
-O módulo `game_rarityvisuals` reúne as cores e o ritmo dos efeitos. Inventário e containers preservam a arte original do item, com cantos de um pixel e de uma a cinco pequenas marcas para identificar o tier também pela forma. As cores variam suavemente dentro da família de cada raridade; itens épicos, lendários e míticos recebem um reflexo discreto na borda superior. A borda vermelha de slots bloqueados continua indicando o bloqueio.
+O módulo `game_rarityvisuals` reúne as cores e o ritmo dos efeitos. Inventário e containers preservam o desenho do item, com cantos de um pixel e de uma a cinco pequenas marcas para identificar o tier também pela forma. O próprio sprite recebe uma variação suave de tom e luminosidade, na mesma família e fase das bordas. Itens épicos, lendários e míticos também recebem um reflexo discreto na borda superior. A borda vermelha de slots bloqueados continua indicando o bloqueio.
 
 No chão, a cor é aplicada com intensidade moderada e transições contínuas de 4,2 segundos. A fase depende da posição e da instância confirmada pelo servidor, evitando que todos os itens pulsem juntos. Corpos ainda não abertos usam uma tintura mais sutil, bronze para loot comum e a família correspondente para loot raro. Essa indicação usa a cor do sprite, separada do destaque do cursor, e termina quando o servidor confirma a abertura. Ela indica um corpo ainda não aberto, não a quantidade de itens que restam nele.
 

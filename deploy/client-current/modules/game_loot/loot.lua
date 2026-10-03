@@ -186,7 +186,7 @@ local function showLoot(data)
       or fallbackTextColors[item.tier] or neutral
     append(item.name, color)
   end
-  if data.omitted and data.omitted > 0 then append(', ... +' .. data.omitted .. ' itens', neutral) end
+  if data.omitted and data.omitted > 0 then append(', ... +' .. data.omitted .. ' items', neutral) end
   console.addTabText(table.concat(plain), {color=neutral}, tab, nil, rich)
 end
 
