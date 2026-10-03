@@ -1,0 +1,187 @@
+MainWindow
+  id: creatureWindow
+  !text: tr('Creature')
+  size: 570 330
+  color: #DDD8C6
+  @onEscape: modules.game_wiki.closeCreature()
+
+  Panel
+    id: creatureArea
+    size: 144 80
+    anchors.left: parent.left
+    anchors.top: parent.top
+    margin-left: 5
+    background-color: alpha
+
+    UICreature
+      id: creature
+      size: 64 64
+      anchors.centerIn: parent
+      old-scaling: true
+      outfit-center: true
+      animate: false
+      phantom: true
+
+  Panel
+    id: killProgressTrack
+    anchors.left: parent.left
+    anchors.top: creatureArea.bottom
+    margin-left: 5
+    margin-top: 5
+    width: 144
+    height: 9
+    background-color: #292B28
+    border: 1 #1D1E1B
+    phantom: true
+
+    UIProgressBar
+      id: killProgressBar
+      anchors.fill: parent
+      margin: 1
+      background-color: #BCA473
+      phantom: true
+
+  Label
+    id: killProgressText
+    anchors.left: parent.left
+    anchors.top: killProgressTrack.bottom
+    margin-left: 5
+    margin-top: 3
+    width: 144
+    height: 13
+    text-align: center
+    color: #C3C3BC
+    font: verdana-11px-rounded
+    phantom: true
+
+  Label
+    id:healthLabel
+    margin-top: 5
+    anchors.top: parent.top
+    anchors.left: creatureArea.right
+    size: 12 12
+    image-source: /images/ui/icons-for-wiki
+    image-clip: 0 0 12 12
+
+  Label
+    id:healthInfo
+    color: #C3C3BC
+    margin-top: 3
+    margin-left: 3
+    size: 50 20
+    anchors.top: parent.top
+    anchors.left: healthLabel.right
+
+  Label
+    id:summonLabel
+    anchors.top: healthInfo.bottom
+    anchors.left: creatureArea.right
+    size: 12 12
+    image-source: /images/ui/icons-for-wiki
+    image-clip: 0 12 12 12
+    !tooltip: tr('Mana required to summon')
+
+  Label
+    id:summonInfo
+    color: #C3C3BC
+    margin-left: 3
+    size: 50 20
+    anchors.top: healthInfo.bottom
+    anchors.left: summonLabel.right
+    !tooltip: tr('Mana required to summon')
+
+  Label
+    id:expLabel
+    anchors.top: summonInfo.bottom
+    anchors.left: creatureArea.right
+    size: 12 12
+    image-source: /images/ui/icons-for-wiki
+    image-clip: 0 24 12 12
+
+  Label
+    id:expInfo
+    color: #C3C3BC
+    margin-left: 3
+    size: 50 20
+    anchors.top: summonInfo.bottom
+    anchors.left: expLabel.right
+
+  Label
+    id: placeLabel
+    color: #DDD8C6
+    anchors.top: parent.top
+    anchors.left: summonInfo.right
+    margin-left: 12
+    !text: tr("Locations:")
+
+  MultilineTextEdit
+    id: placeDesc
+    color: #C3C3BC
+    margin-top: 5
+    anchors.left: summonInfo.right
+    margin-left: 12
+    anchors.top: placeLabel.bottom
+    anchors.right: parent.right
+    anchors.bottom: detailSeparator.top
+    margin-right: 13
+    margin-bottom: 5
+    vertical-scrollbar: locationsScrollBar
+    text-wrap: true
+    editable: false
+
+  HorizontalSeparator
+    id: detailSeparator
+    anchors.top: killProgressText.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 7
+    phantom: true
+
+  VerticalScrollBar
+    id: locationsScrollBar
+    anchors.top: placeDesc.top
+    anchors.right: parent.right
+    anchors.bottom: placeDesc.bottom
+    pixels-scroll: true
+    step: 10
+
+  Label
+    id: lootLabel
+    color: #DDD8C6
+    anchors.top: detailSeparator.bottom
+    anchors.left: parent.left
+    !text: tr("Loot:")
+    margin-left: 5
+    margin-top: 5
+
+  MultilineTextEdit
+    id: lootDesc
+    color: #C3C3BC
+    margin-top: 5
+    margin-left: 5
+    anchors.left: parent.left
+    anchors.top: lootLabel.bottom
+    anchors.right: parent.right
+    anchors.bottom: buttonCancel.top
+    margin-right: 13
+    margin-bottom: 8
+    vertical-scrollbar: wikiScrollBar
+    text-wrap: true
+    editable: false
+
+  VerticalScrollBar
+    id: wikiScrollBar
+    anchors.top: lootDesc.top
+    anchors.right: parent.right
+    anchors.bottom: lootDesc.bottom
+    pixels-scroll: true
+    step: 10
+
+  Button
+    id: buttonCancel
+    !text: tr('Close')
+    width: 64
+    color: #C3C3BC
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    @onClick: modules.game_wiki.closeCreature()
