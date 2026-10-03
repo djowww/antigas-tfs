@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 const ANTIGAS_EXTRA_TRANSLATIONS = [
     'pt' => [
+        'News index' => 'Índice de notícias',
         '3 Oct 2026' => '3 out. 2026',
         '3 Oct 2026 · Client v66' => '3 out. 2026 · Cliente v66',
         'A star for every completed rank' => 'Uma estrela a cada rank concluído',
@@ -31,6 +32,7 @@ const ANTIGAS_EXTRA_TRANSLATIONS = [
         'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins instant? No: payment is reviewed manually, then collected in the Market. Where can I find the full spell list? Search the client or open the original community wiki.' => 'Onde começam as novas personagens? Em Rookgaard. Onde baixo o cliente? Use o botão de download na página inicial. As Coins do site são entregues na hora? Não: o pagamento é conferido manualmente e depois retirado no Market. Onde encontro a lista completa de magias? Pesquise no cliente ou abra a wiki original da comunidade.',
     ],
     'es' => [
+        'News index' => 'Índice de noticias',
         '3 Oct 2026' => '3 oct. 2026',
         '3 Oct 2026 · Client v66' => '3 oct. 2026 · Cliente v66',
         'A star for every completed rank' => 'Una estrella por cada rango conseguido',
@@ -59,6 +61,7 @@ const ANTIGAS_EXTRA_TRANSLATIONS = [
         'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins instant? No: payment is reviewed manually, then collected in the Market. Where can I find the full spell list? Search the client or open the original community wiki.' => '¿Dónde empiezan los personajes nuevos? En Rookgaard. ¿Dónde descargo el cliente? Usa el botón de descarga en la página principal. ¿Las Coins del sitio llegan al instante? No: el pago se revisa manualmente y después se retira en el Market. ¿Dónde está la lista completa de hechizos? Busca en el cliente o abre la wiki original.',
     ],
     'pl' => [
+        'News index' => 'Spis aktualności',
         '3 Oct 2026' => '3 paź 2026',
         '3 Oct 2026 · Client v66' => '3 paź 2026 · Klient v66',
         'A star for every completed rank' => 'Gwiazda za każdą osiągniętą rangę',
