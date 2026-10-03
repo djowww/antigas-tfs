@@ -1,0 +1,443 @@
+OutfitPartButton < ButtonBox
+  font: cipsoftFont
+  size: 56 18
+  image-color: #deddd5
+  color: #c3c3bc
+
+  $hover !disabled:
+    image-color: #eeece2
+    color: #ddd8c6
+
+  $checked:
+    image-color: #ddd8ca
+    color: #bca473
+
+  $checked hover !disabled:
+    color: #dac6a0
+
+OutfitPartAction < Button
+  font: cipsoftFont
+  size: 56 18
+  image-color: #deddd5
+  color: #c3c3bc
+
+  $hover !disabled:
+    image-color: #eeece2
+    color: #ddd8c6
+
+OutfitColorBox < ColorBox
+  border-width: 0
+
+  $checked:
+    border-width: 1
+    border-color: #dac6a0
+
+  $!checked:
+    border-width: 0
+
+PartCheckBoxes < Panel
+  height: 18
+
+  OutfitPartButton
+    id: head
+    font: cipsoftFont
+    !text: tr('Head')
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.left: parent.left
+    checked: true
+    width: 56
+    height: 18
+
+  OutfitPartButton
+    id: primary
+    font: cipsoftFont
+    !text: tr('Primary')
+    anchors.verticalCenter: prev.verticalCenter
+    anchors.left: prev.right
+    width: 56
+    height: 18
+
+  OutfitPartButton
+    id: secondary
+    font: cipsoftFont
+    !text: tr('Secondary')
+    anchors.verticalCenter: prev.verticalCenter
+    anchors.left: prev.right
+    width: 56
+    height: 18
+
+  OutfitPartButton
+    id: detail
+    font: cipsoftFont
+    !text: tr('Detail')
+    anchors.verticalCenter: prev.verticalCenter
+    anchors.left: prev.right
+    width: 56
+    height: 18
+
+  OutfitPartAction
+    id: randomizeButton
+    font: cipsoftFont
+    !text: tr('Randomize')
+    !tooltip: tr('Randomize characters outfit')
+    anchors.verticalCenter: prev.verticalCenter
+    anchors.left: prev.right
+    width: 56
+    height: 18
+    @onClick: modules.game_outfit.randomize()
+
+AppearanceCategory < Panel
+  height: 20
+
+  $!first:
+    margin-top: 2
+
+  CheckBox
+    id: checkBox
+    image-source: /images/ui/checkbox_round
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.left: parent.left
+    margin-left: 5
+    width: 90
+    text: Outfit:
+    @onClick: modules.game_outfit.onOptionChange(self:getParent():getId(), self:isChecked(), self)
+
+  FlatLabel
+    id: description
+    anchors.verticalCenter: prev.verticalCenter
+    anchors.left: prev.right
+    anchors.right: parent.right
+    margin-right: 5
+    text-align: center
+    color: #bca473
+    text: -
+
+WindowPanel < FlatPanel
+  image-color: #d5d5cc
+  padding: 5
+  padding-top: 8
+
+OptionsCheckBox < Panel
+  image-source: /images/ui/panel_flat
+  image-border: 1
+  padding: 2
+  padding-left: 7
+  height: 22
+
+  CheckBox
+    id: check
+    anchors.centerIn: parent
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: left
+    @onCheckChange: modules.game_outfit.onOptionChange(self:getParent():getId(), self:isChecked(), self)
+
+  $!first:
+    margin-top: 3
+
+PreviewCreaturePanel < Panel
+  padding: 3
+
+  Button
+    id: rotateLeft
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    size: 20 20
+    text: <
+    tooltip: Rotate left
+    @onClick: modules.game_outfit.rotatePreview(self:getId())
+
+  Button
+    id: rotateRight
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 20 20
+    text: >
+    tooltip: Rotate right
+    @onClick: modules.game_outfit.rotatePreview(self:getId())
+
+  UICreature
+    id: creature
+    size: 64 64
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.horizontalCenter: parent.horizontalCenter
+    background-color: alpha
+    creature-fixed-size: false
+
+ConfigurePanel < WindowPanel
+  width: 140
+  padding: 3
+
+  Label
+    id: title
+    margin-top: 5
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.top: parent.top
+    font: verdana-11px-rounded
+    color: #ddd8c6
+    text: Configure
+
+  Panel
+    id: options
+    anchors.fill: parent
+    anchors.top: prev.bottom
+    margin-top: 1
+    padding: 5
+    layout: verticalBox
+
+SmallPreviewTile < UICheckBox
+  padding: 5
+  @onClick: modules.game_outfit.onElementSelect(self)
+  image-source: /images/ui/panel_flat
+  image-color: #c7c7be
+  image-border: 1
+  opacity: 1.0
+
+  $pressed:
+    image-color: #aaa99e
+
+  $hover:
+    image-color: #e5e2d7
+
+  $checked hover:
+    image-color: #e9e1ce
+
+  UICreature
+    id: creature
+    size: 60 60
+    anchors.top: parent.top
+    margin-top: 4
+    anchors.horizontalCenter: parent.horizontalCenter
+    phantom: true
+    creature-fixed-size: true
+
+  UIWidget
+    id: item
+    anchors.fill: prev
+    phantom: true
+
+  Label
+    id: title
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-bottom: 5
+    height: 14
+    text-align: center
+    font: verdana-11px-antialised
+    color: #ddd8c6
+    phantom: true
+
+  $checked:
+    border-width: 1
+    border-color: #bca473
+    image-color: #ded8c7
+
+  $!checked:
+    border-width: 0
+
+FilterPanel < WindowPanel
+  size: 218 56
+  padding-left: 10
+  padding-right: 10
+  padding-bottom: 8
+
+  Label
+    id: title
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    anchors.top: parent.top
+    font: verdana-11px-rounded
+    color: #ddd8c6
+    text: Filter outfits
+
+  Button
+    id: clear
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 20 20
+    text: X
+    tooltip: Clear search
+    @onClick: modules.game_outfit.clearFilterText()
+
+  TextEdit
+    id: filterWindow
+    anchors.right: prev.left
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    height: 20
+    margin-right: 3
+    placeholder: Type to search
+    placeholder-color: #aaa99e
+    @onTextChange: modules.game_outfit.onFilterList(self:getText())
+
+PreviewPanel < WindowPanel
+  size: 300 167
+
+  Label
+    id: title
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.top: parent.top
+    font: verdana-11px-rounded
+    text: Preview Selection
+    color: #ddd8c6
+
+  HorizontalSeparator
+    anchors.top: title.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 5
+
+  FlatPanel
+    id: options
+    visible: false
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin: 3
+    margin-top: 24
+    padding: 5
+    width: 120
+    layout: verticalBox
+
+    Label
+      font: verdana-11px-rounded
+      text-align: center
+      text: Show:
+
+  PreviewCreaturePanel
+    id: creaturePanel
+    margin: 3
+    margin-top: 24
+    anchors.fill: parent
+    anchors.left: parent.left
+
+AppearancePanel < WindowPanel
+  Label
+    id: title
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    height: 14
+    font: verdana-11px-rounded
+    color: #ddd8c6
+    text: Change Appearance
+
+  Panel
+    id: categories
+    anchors.top: title.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 7
+    layout:
+      type: verticalBox
+      fit-children: true
+
+  PartCheckBoxes
+    id: parts
+    anchors.top: categories.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    width: 280
+    margin-top: 6
+
+  Panel
+    id: colorBoxPanel
+    anchors.top: parts.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 4
+    size: 265 97
+    layout:
+      type: grid
+      cell-size: 13 13
+      cell-spacing: 1
+      num-columns: 19
+      num-lines: 7
+      fit-children: false
+
+ListBox < ScrollableFlatPanel
+  width: 218
+  padding-top: 2
+  padding-left: 6
+  padding-right: 14
+  padding-bottom: 2
+  layout:
+    type: grid
+    num-columns: 2
+    cell-size: 96 94
+    cell-spacing: 5
+    flow: true
+
+OutfitWindow < MainWindow
+  size: 560 452
+  padding-top: 35
+  !text: tr('Customize Character')
+
+  FilterPanel
+    id: search
+    anchors.top: parent.top
+    anchors.right: parent.right
+
+  ListBox
+    id: list
+    anchors.top: prev.bottom
+    margin-top: 5
+    anchors.right: parent.right
+    anchors.bottom: bottomSep.top
+    margin-bottom: 5
+    vertical-scrollbar: scrollBar
+
+  VerticalScrollBar
+    id: scrollBar
+    anchors.top: list.top
+    anchors.bottom: list.bottom
+    anchors.right: list.right
+    step: 14
+    pixels-scroll: true
+
+  PreviewPanel
+    id: preview
+    anchors.top: parent.top
+    anchors.left: parent.left
+
+  ConfigurePanel
+    id: config
+    visible: false
+    anchors.top: prev.bottom
+    margin-top: 5
+    anchors.bottom: bottomSep.top
+    margin-bottom: 5
+    anchors.left: parent.left
+
+  AppearancePanel
+    id: appearance
+    anchors.left: parent.left
+    anchors.top: preview.bottom
+    anchors.right: preview.right
+    anchors.bottom: list.bottom
+    margin-top: 8
+
+  HorizontalSeparator
+    id: bottomSep
+    anchors.right: parent.right
+    anchors.left: parent.left
+    anchors.bottom: closeButton.top
+    margin-bottom: 8
+
+  Button
+    id: closeButton
+    !text: tr('Cancel')
+    font: cipsoftFont
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 45 21
+    @onClick: modules.game_outfit.destroy()
+
+  Button
+    id: okButton
+    !text: tr('Ok')
+    font: cipsoftFont
+    anchors.right: prev.left
+    margin-right: 7
+    anchors.bottom: parent.bottom
+    size: 45 21
+    @onClick: modules.game_outfit.accept()

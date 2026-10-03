@@ -7,6 +7,34 @@ local readyCount = 0
 
 local function cancel(event) if event then removeEvent(event) end end
 
+local function fit(label, text)
+  label:setTooltip(text)
+  local lines, current = {}, ''
+  local width = math.max(40, label:getWidth() - 2)
+  for word in text:gmatch('%S+') do
+    label:setText(word)
+    if label:getTextSize().width > width then
+      if current ~= '' then lines[#lines + 1] = current; current = '' end
+      local part = ''
+      for char in word:gmatch('.') do
+        label:setText(part .. char)
+        if part ~= '' and label:getTextSize().width > width then
+          lines[#lines + 1] = part; part = char
+        else part = part .. char end
+      end
+      word = part
+    end
+    local candidate = current == '' and word or current .. ' ' .. word
+    label:setText(candidate)
+    if current ~= '' and label:getTextSize().width > width then
+      lines[#lines + 1] = current; current = word
+    else current = candidate end
+  end
+  if current ~= '' then lines[#lines + 1] = current end
+  label:setText(table.concat(lines, '\n'))
+  label:setHeight(math.max(14, #lines * 14 + 2))
+end
+
 local function syncPlayerBarSelection()
   local playerBars = modules.game_playerbars
   if playerBars and playerBars.setActionSelected then
@@ -63,16 +91,20 @@ local function render(resetScroll)
       and (categoryFilter == 'all' or categoryFilter == entry.category) then
       shown = shown + 1
       local row = g_ui.createWidget('AchievementEntry', window.entries)
-      row.title:setText((entry.completed and '[DONE] ' or (entry.ready and '[READY] ' or '')) .. entry.title)
+      fit(row.title, (entry.completed and '[DONE] ' or (entry.ready and '[READY] ' or '')) .. entry.title)
       row.title:setTooltip(entry.category .. ': ' .. entry.title)
-      row.reward:setText('Reward: ' .. entry.reward)
+      fit(row.reward, 'Reward: ' .. entry.reward)
       row.reward:setTooltip(entry.reward)
       local progress = (entry.completed or entry.ready) and entry.target or entry.progress
       local percent = math.min(100, 100 * progress / entry.target)
       local state = entry.completed and 'Completed' or (entry.ready and 'Reward pending' or 'In progress')
-      row.progress:setText(string.format('%s  |  %d / %d  (%d%%)  |  %d remaining', state, progress, entry.target, math.floor(percent), entry.target-progress))
+      fit(row.progress, string.format('%s  |  %d / %d  (%d%%)  |  %d remaining', state, progress, entry.target, math.floor(percent), entry.target-progress))
+      row.progress:setColor(entry.ready and not entry.completed and '#BCA473' or (entry.completed and '#AAA99E' or '#C3C3BC'))
       row.bar:setPercent(percent)
-      row:setBackgroundColor(entry.ready and not entry.completed and '#49402c' or (entry.completed and '#3b392f' or '#303030'))
+      row.bar:setBackgroundColor(entry.ready and not entry.completed and '#BCA473' or (entry.completed and '#847A5F' or '#8E805E'))
+      row:setBackgroundColor(entry.ready and not entry.completed and '#39362fbb' or (entry.completed and '#2e302b99' or '#28292799'))
+      row.separator:setBackgroundColor(entry.ready and not entry.completed and '#BCA47366' or '#ffffff16')
+      row:setHeight(row.title:getHeight() + row.reward:getHeight() + row.progress:getHeight() + 32)
     end
   end
   window.summary:setText(string.format('%d / %d completed  |  %d rewards pending  |  %d shown', completed, #current.entries, readyCount, shown))

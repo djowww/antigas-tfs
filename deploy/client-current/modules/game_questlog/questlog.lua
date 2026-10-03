@@ -51,7 +51,7 @@ local function clearDetail()
   detailData=nil
   fit(window.detail.title,'Unwritten pages')
   fit(window.detail.state,'A personal journal')
-  window.detail.state:setColor('#bcbcbc')
+  window.detail.state:setColor('#AAA99E')
   fit(window.detail.description,'Your next adventure is still out there. Speak with the people you meet, explore forgotten places and keep their stories in mind. New entries appear as your discoveries are recorded.')
   window.detail.reward:setText(''); window.detail.reward:hide()
   window.detail.entriesTitle:hide()
@@ -65,7 +65,7 @@ local function renderDetail()
   fit(window.detail.title,q.name)
   fit(window.detail.state,statusText[q.status]..'  |  '..q.region)
   fit(window.detail.description,q.description)
-  window.detail.state:setColor(q.status=='completed' and '#bdb08b' or '#bcbcbc')
+  window.detail.state:setColor(q.status=='completed' and '#BCA473' or '#AAA99E')
   fit(window.detail.reward,q.rewards~='' and ('Recorded find: '..q.rewards) or '')
   window.detail.reward:setVisible(q.rewards~='')
   window.detail.entriesTitle:show()
@@ -74,8 +74,8 @@ local function renderDetail()
     local row=g_ui.createWidget('QuestStep',window.detail.steps)
     fit(row.title,s.name)
     row.progress:setText(s.completed and 'Remembered' or 'Unfinished')
-    row.progress:setColor(s.completed and '#c6b785' or '#bababa')
-    row:setHeight(row.title:getHeight()+25)
+    row.progress:setColor(s.completed and '#BCA473' or '#AAA99E')
+    row:setHeight(row.title:getHeight()+29)
   end
   cancel(scrollEvent)
   scrollEvent=scheduleEvent(function()
@@ -112,8 +112,8 @@ function selectQuest(id)
   selected=id
   for _,row in ipairs(window.quests:getChildren()) do
     local active=row.questId==selected
-    row:setBorderColor(active and '#aaa28c' or '#505050')
-    row:setBackgroundColor(active and '#42423e' or '#343434')
+    row:setBorderColor(active and '#BCA47399' or '#55564f66')
+    row:setBackgroundColor(active and '#45443cbb' or '#2b2c2aaa')
   end
   selectionEvent=scheduleEvent(function()
     selectionEvent=nil
@@ -149,13 +149,14 @@ function onQuestOpcode(protocol,opcode,buffer)
       local row=g_ui.createWidget('QuestRow',window.quests)
       row.questId=q.id
       fit(row.title,q.name)
-      row:setHeight(row.title:getHeight()+27)
+      row:setHeight(row.title:getHeight()+33)
       row.status:setText(statusText[q.status]..'  |  '..q.total..(q.total==1 and ' note' or ' notes'))
+      row.status:setColor(q.status=='completed' and '#BCA473' or '#AAA99E')
       row:setTooltip(q.name..'\n'..q.region)
       row.onClick=function() selectQuest(q.id) end
       local active=q.id==selected
-      row:setBorderColor(active and '#aaa28c' or '#505050')
-      row:setBackgroundColor(active and '#42423e' or '#343434')
+      row:setBorderColor(active and '#BCA47399' or '#55564f66')
+      row:setBackgroundColor(active and '#45443cbb' or '#2b2c2aaa')
       found=found or active
     end
     window.questScroll:setValue(scroll)
@@ -244,7 +245,7 @@ function resize()
     layoutEvent=nil
     if not window then return end
     for i,row in ipairs(window.quests:getChildren()) do
-      if rows[i] then fit(row.title,rows[i].name); row:setHeight(row.title:getHeight()+27) end
+      if rows[i] then fit(row.title,rows[i].name); row:setHeight(row.title:getHeight()+33) end
     end
     if detailData then renderDetail() else clearDetail() end
   end,30)

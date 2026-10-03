@@ -10,6 +10,8 @@ Integre esses arquivos em uma base de cliente compatível e confira seus módulo
 
 A distribuição usa interface em inglês. `allowedLocales` limita a instalação dos locales ao inglês e faz uma preferência anterior por outro idioma voltar a `en`. Rótulos locais dos módulos personalizados também usam inglês; nomes, narrativas e mensagens recebidos do servidor continuam sendo conteúdo do servidor.
 
+As janelas de Quest Log, Achievements, Bestiary e outfits usam as molduras e texturas clássicas do cliente, com títulos em prata e detalhes de seleção e progresso em bronze. As listas mantêm filtros, busca e rolagem; textos longos de objetivos e recompensas recebem quebra de linha. A seleção de outfits conserva a prévia, a paleta original de 19 × 7 cores e os controles de rotação.
+
 ## Launcher Windows
 
 O [projeto do launcher](../deploy/launcher/AntigasLauncher/AntigasLauncher.csproj) usa Windows Forms, .NET 10 e runtime `win-x64`. Em Windows com o SDK .NET 10, execute na raiz do repositório:
