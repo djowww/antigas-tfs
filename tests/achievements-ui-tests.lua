@@ -1,5 +1,5 @@
 local function clientFile(relative)
-	for _, prefix in ipairs({'Cliente/', '../../Cliente/', 'deploy/client-current/', 'Servidor/TFS/deploy/client-current/'}) do
+	for _, prefix in ipairs({'deploy/client-current/', 'Servidor/TFS/deploy/client-current/', 'Cliente/', '../../Cliente/'}) do
 		local path = prefix .. relative
 		local file = io.open(path, 'r')
 		if file then file:close(); return path end
@@ -89,12 +89,42 @@ assert(dependencies>0, 'the actual UI anchor dependencies must be inspected')
 
 local callbacks, sent, children, events = {}, {}, {}, {}
 local unread, eventId, now, online, featureEnabled = 0, 0, 0, true, false
-local gameEvents = {}
-local function label()
-	local widget = {}
+local gameEvents, windowEvents = {}, {}
+AnchorLeft, AnchorTop = 1, 2
+local function label(width, height)
+	local widget = {width=width or 600,height=height or 14,children={}}
 	function widget:setText(value) self.text=value end
 	function widget:setTooltip(value) self.tooltip=value end
 	function widget:setEnabled(value) self.enabled=value end
+	function widget:setColor(value) self.color=value end
+	function widget:setBackgroundColor(value) self.background=value end
+	function widget:setPercent(value) self.percent=value end
+	function widget:getWidth() return self.width end
+	function widget:getHeight() return self.height end
+	function widget:setHeight(value) self.height=value end
+	function widget:setSize(value) self.width,self.height=value.width,value.height end
+	function widget:setPhantom(value) self.phantom=value end
+	function widget:setFocusable(value) self.focusable=value end
+	function widget:setMarginLeft(value) self.marginLeft=value end
+	function widget:setMarginTop(value) self.marginTop=value end
+	function widget:addAnchor(edge, target, targetEdge)
+		self.anchors=self.anchors or {}; self.anchors[edge]={target=target,edge=targetEdge}
+	end
+	function widget:getTextSize()
+		local longest=0
+		for line in (self.text or ''):gmatch('[^\n]+') do longest=math.max(longest,#line) end
+		return {width=longest*6,height=14}
+	end
+	function widget:getChildById(id)
+		return self.children[id]
+	end
+	function widget:recursiveGetChildById(id)
+		if self.children[id] then return self.children[id] end
+		for _,child in pairs(self.children) do
+			local found=child:recursiveGetChildById(id)
+			if found then return found end
+		end
+	end
 	return widget
 end
 local function combo()
@@ -110,6 +140,12 @@ local function combo()
 end
 local window = {visible=false,entries={},summary=label(),bonuses=label(),message=label(),claimButton=label(),
 	filter=combo(),category=combo(),entriesScroll={value=0}}
+local rankBanner=label()
+rankBanner.children={rankName=label(),rankProgress=label(),rankBar=label(),rankStars=label(),rankMilestones=label()}
+for index=1,5 do rankBanner.children.rankStars.children['star'..index]=label(12,12) end
+for index=1,6 do rankBanner.children.rankMilestones.children['rank'..index]=label(95,31) end
+function window:getChildById(id) return id=='rankBanner' and rankBanner or self[id] end
+function window:setSize(value) self.width,self.height=value.width,value.height end
 function window:hide() self.visible=false end
 function window:show() self.visible=true end
 function window:isVisible() return self.visible end
@@ -132,11 +168,16 @@ g_clock = {millis=function() return now end}
 GameExtendedOpcode = 1
 g_ui = {
 	displayUI=function() return window end,
+	getRootWidget=function() return {getSize=function() return {width=1024,height=640} end} end,
 	createWidget=function(name,parent)
+		if name=='UIWidget' then
+			local pixel=label()
+			parent.children[#parent.children+1]=pixel
+			return pixel
+		end
 		assert(name=='AchievementEntry' and parent==window.entries)
-		local row={title=label(),reward=label(),progress=label(),bar={}}
-		function row.bar:setPercent(value) self.percent=value end
-		function row:setBackgroundColor(value) self.background=value end
+		local row=label()
+		row.title,row.reward,row.progress,row.bar,row.separator=label(),label(),label(),label(),label()
 		children[#children+1]=row
 		return row
 	end
@@ -147,12 +188,14 @@ ProtocolGame = {
 }
 modules = {game_playerbars={setAchievementsUnread=function(count) unread=count end}}
 function connect(target,handlers)
-	assert(target==g_game)
-	for name,callback in pairs(handlers) do gameEvents[name]=callback end
+	assert(target==g_game or target==window)
+	local handlersByTarget=target==g_game and gameEvents or windowEvents
+	for name,callback in pairs(handlers) do handlersByTarget[name]=callback end
 end
 function disconnect(target,handlers)
-	assert(target==g_game)
-	for name,callback in pairs(handlers) do assert(gameEvents[name]==callback); gameEvents[name]=nil end
+	assert(target==g_game or target==window)
+	local handlersByTarget=target==g_game and gameEvents or windowEvents
+	for name,callback in pairs(handlers) do assert(handlersByTarget[name]==callback); handlersByTarget[name]=nil end
 end
 function scheduleEvent(callback,delay)
 	eventId=eventId+1
@@ -232,7 +275,7 @@ assert(children[1].title.text=='Objective 41' and children[2].title.text=='Objec
 window.filter:select('all')
 assert(#children==60 and children[1].title.text=='Objective 59' and children[60].title.text=='[DONE] Objective 60')
 assert(rowWithTitle('[DONE] Objective 3').bar.percent==100 and rowWithTitle('Objective 1').bar.percent==1)
-assert(rowWithTitle('[DONE] Objective 3').background=='#3b392f' and rowWithTitle('Objective 1').background=='#303030')
+assert(rowWithTitle('[DONE] Objective 3').background=='#2e302b99' and rowWithTitle('Objective 1').background=='#28292799')
 assert(rowWithTitle('Objective 1').title.tooltip=='Steps: Objective 1' and rowWithTitle('Objective 1').reward.tooltip=='+1 speed')
 assert(rowWithTitle('Objective 1').progress.text:find('1%%') and rowWithTitle('Objective 1').progress.text:find('99 remaining',1,true))
 assert(window.summary.text:find('20 / 60',1,true) and window.bonuses.text:find('Direct attack +5%',1,true)
@@ -310,7 +353,7 @@ end
 receiveAll(pendingPages(107))
 assert(children[1].title.text=='[READY] Pending 1' and children[2].title.text=='[READY] Pending 2',
 	'pending rewards sort before closer active objectives; ties preserve catalog order')
-assert(children[1].bar.percent==100 and children[1].background=='#49402c')
+assert(children[1].bar.percent==100 and children[1].background=='#39362fbb')
 assert(children[1].progress.text:find('Reward pending',1,true) and children[1].progress.text:find('100 / 100',1,true)
 	and children[1].progress.text:find('0 remaining',1,true), 'a reached item objective keeps its achieved progress after a level drop')
 assert(window.summary.text:find('2 rewards pending',1,true) and window.claimButton.enabled)
@@ -397,7 +440,7 @@ assert(#sent==beforeStartup)
 show()
 assert(next(events)~=nil, 'startup, polling and request timers are active for termination coverage')
 terminate()
-assert(window.destroyed and callbacks[126]==nil and next(events)==nil and next(gameEvents)==nil)
+assert(window.destroyed and callbacks[126]==nil and next(events)==nil and next(gameEvents)==nil and next(windowEvents)==nil)
 advance(20000)
 assert(#sent==beforeStartup+1, 'terminated timers cannot send subsequent requests')
 
