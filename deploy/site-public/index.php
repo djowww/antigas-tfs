@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   <link rel="stylesheet" href="/home-improvements.css?v=20260927-2">
   <link rel="stylesheet" href="/news-changelog.css?v=20260927-1">
   <link rel="stylesheet" href="/language.css?v=security-20260928">
-  <link rel="stylesheet" href="/classic-refinement.css?v=taste-4cddc266105f">
+  <link rel="stylesheet" href="/classic-refinement.css?v=classic-20261003-1">
 </head>
 <body class="portal-home">
   <a class="skip-link" href="#conteudo"><?= siteT('Skip to content') ?></a>
@@ -92,12 +92,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <nav class="side-news" aria-label="<?= siteT('Featured news') ?>">
         <h2><?= siteT('On the notice board') ?></h2>
         <a href="#achievement-ranks-v66"><?= siteT('A star for every completed rank') ?><time datetime="2026-10-03"><?= siteT('3 Oct 2026') ?></time></a>
+        <a href="#monster-data-20260928"><?= siteT('Creature data aligned with the classic reference') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
         <a href="#objectives-v43"><?= siteT('Your next goal') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
         <a href="#menu-v42"><?= siteT('A menu that suits you') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
         <a href="#achievement-objectives"><?= siteT('See every objective') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
         <a href="#achievements"><?= siteT('Achievements to pursue') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
         <a href="#bestiary-xp"><?= siteT('Bestiary XP bonus') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
         <a href="#questlog"><?= siteT('Quest Log in the client') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
+        <a href="#client-shop"><?= siteT('A Shop refreshed with Antigas branding') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
         <a href="#bestiary"><?= siteT('Explore the Bestiary') ?><time datetime="2026-09-26"><?= siteT('26 Sep 2026') ?></time></a>
         <a href="#hunt"><?= siteT('Hunt and online bonus') ?><time datetime="2026-09-25"><?= siteT('25 Sep 2026') ?></time></a>
         <a href="#market"><?= siteT('The Market is here') ?><time datetime="2026-09-24"><?= siteT('24 Sep 2026') ?></time></a>
@@ -117,8 +119,26 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="welcome-crest" aria-hidden="true"><img src="/classic-assets/crest.svg" width="126" height="142" alt=""><span>7.4 Classic</span></div>
       </section>
       <section class="page-title" id="noticias"><h2><?= siteT('Latest news') ?></h2><p><?= siteT('New systems and improvements in the world of Antigas 7.4.') ?></p></section>
+      <details class="classic-index news-index">
+        <summary><?= siteT('News index') ?></summary>
+        <nav aria-label="<?= siteT('News index') ?>">
+          <a href="#achievement-ranks-v66"><?= siteT('A star for every completed rank') ?><time datetime="2026-10-03"><?= siteT('3 Oct 2026') ?></time></a>
+          <a href="#monster-data-20260928"><?= siteT('Creature data aligned with the classic reference') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
+          <a href="#objectives-v43"><?= siteT('Your next goal') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
+          <a href="#menu-v42"><?= siteT('Menu, your way') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
+          <a href="#achievement-objectives"><?= siteT('Choose your next achievement') ?><time datetime="2026-09-28"><?= siteT('28 Sep 2026') ?></time></a>
+          <a href="#achievements"><?= siteT('Achievements, progress and rewards') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
+          <a href="#bestiary-xp"><?= siteT('Reward for a completed Bestiary') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
+          <a href="#questlog"><?= siteT('Your adventure log: Quest Log') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
+          <a href="#client-shop"><?= siteT('A Shop refreshed with Antigas branding') ?><time datetime="2026-09-27"><?= siteT('27 Sep 2026') ?></time></a>
+          <a href="#bestiary"><?= siteT('Meet the creatures in the Bestiary') ?><time datetime="2026-09-26"><?= siteT('26 Sep 2026') ?></time></a>
+          <a href="#hunt"><?= siteT('Hunt: track your session and progress') ?><time datetime="2026-09-25"><?= siteT('25 Sep 2026') ?></time></a>
+          <a href="#market"><?= siteT('Market: player-to-player offers') ?><time datetime="2026-09-24"><?= siteT('24 Sep 2026') ?></time></a>
+          <a href="#mundo"><?= siteT('The world is open for new adventures') ?><time datetime="2026-09-23"><?= siteT('23 Sep 2026') ?></time></a>
+        </nav>
+      </details>
       <article id="achievement-ranks-v66" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('A star for every completed rank') ?></span><time datetime="2026-10-03"><?= siteT('3 Oct 2026 · Client v66') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('A star for every completed rank') ?></h3><time datetime="2026-10-03"><?= siteT('3 Oct 2026 · Client v66') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('Achievements now build toward six overall ranks, from Novice to Legend. Your rank follows completed objectives across every category, and the banner keeps your total visible as you browse and filter the list.') ?></p>
           <p><?= siteT('Earn bronze stars with each promotion: Adventurer at 6 completed, Veteran at 15, Elite at 30, Master at 45 and Legend at 60. Pending rewards do not count as completed achievements.') ?></p>
@@ -126,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         </div>
       </article>
       <article id="monster-data-20260928" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Creature data aligned with the classic reference') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · World data') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Creature data aligned with the classic reference') ?></h3><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · World data') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('Selected monster stats and loot chances were aligned more closely with the classic reference data.') ?></p>
           <p><?= siteT('Health, experience, speed, mana cost, melee, armor and defense values, plus matching loot counts and chances, now follow the reference where the Antigas format supports a direct mapping. Antigas-specific drops were kept for existing quests.') ?></p>
@@ -137,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         </div>
       </article>
       <article id="objectives-v43" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Your next goal') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v43') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Your next goal') ?></h3><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v43') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteTHtml('The <strong>Achievements</strong> panel now highlights the next goal in each category and shows your percentage and remaining progress. <strong>All objectives</strong> still displays all 60 achievements.') ?></p>
           <p><?= siteTHtml('If you run out of space or capacity, your reward is saved as pending. Make room and click <strong>Claim rewards</strong> to collect it; you do not need to gain another level. Items are never dropped on the ground.') ?></p>
@@ -145,35 +165,35 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         </div>
       </article>
       <article id="menu-v42" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Menu, your way') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v42') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Menu, your way') ?></h3><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v42') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteTHtml('Click the <strong>Menu [-]</strong> heading to collapse the buttons or <strong>Menu [+]</strong> to expand them. The control is larger, spacing is consistent and new achievements stay highlighted even while the menu is collapsed.') ?></p>
           <p><?= siteT('Your menu choice is saved between sessions. Download client v42 for this fix.') ?></p>
         </div>
       </article>
       <article id="achievement-objectives" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Choose your next achievement') ?></span><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v41') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Choose your next achievement') ?></h3><time datetime="2026-09-28"><?= siteT('28 Sep 2026 · Client v41') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteTHtml('The <strong>Achievements</strong> panel now shows all 60 available goals, including each achievement\'s target, progress and reward. Use the category and completion filters to choose what to pursue next.') ?></p>
           <p><?= siteT('The list stays visible while it updates, and the side menu now has an easy-to-find control to collapse or expand its buttons. Download client v41 for these fixes.') ?></p>
         </div>
       </article>
       <article id="achievements" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Achievements, progress and rewards') ?></span><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v40') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Achievements, progress and rewards') ?></h3><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v40') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteTHtml('The new <strong>Achievements</strong> panel tracks steps, monsters defeated, deaths, PvP victories, levels and skills. Its button highlights new achievements until you open the panel, and the side menu can be collapsed or expanded.') ?></p>
           <p><?= siteT('Milestones grant permanent bonuses to speed, physical and magic damage, PvP damage and experience lost on death. Levels grant experience scrolls, while skills grant matching training weapons. Progress and rewards are saved per character.') ?></p>
         </div>
       </article>
       <article id="bestiary-xp" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Reward for a completed Bestiary') ?></span><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v40') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Reward for a completed Bestiary') ?></h3><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v40') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteTHtml('Complete 1,000 kills of a creature to receive <strong>+0.2% permanent experience</strong> for each completed Bestiary entry.') ?></p>
           <p><?= siteT('The bonus stacks across creatures. The Bestiary shows your current total, and previous completions are synchronized automatically when you log in.') ?></p>
         </div>
       </article>
       <article id="questlog" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Your adventure log: Quest Log') ?></span><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v35') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Your adventure log: Quest Log') ?></h3><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v35') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteTHtml('Quests are easier to follow. Open <strong>Quests</strong> on the client sidebar or press <strong>Ctrl+J</strong> to search the Quest Log, filter missions and review the steps recorded for your character.') ?></p>
           <p><?= siteT('The log combines map chest records and NPC missions. Progress is personal and refreshes while the window is open. Rewards are still earned in the game world, as usual.') ?></p>
@@ -186,24 +206,24 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <figcaption><?= siteT('New tools to trade, learn about creatures and follow your adventures.') ?></figcaption>
       </figure>
 
-      <article id="bestiary" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Meet the creatures in the Bestiary') ?></span><time datetime="2026-09-26"><?= siteT('26 Sep 2026 · Client v32') ?></time></h3>
-        <div class="news-body">
-          <p class="dropcap"><?= siteT('The creature encyclopedia has a refreshed interface in the classic Tibia style. Browse creature details and loot, search by name and move through the cards without losing your place in the list.') ?></p>
-          <p><?= siteT('Your character\'s kills feed Bestiary progress, with filters for creatures in progress and completed entries. The server\'s existing records track up to 1,000 kills per creature.') ?></p>
-        </div>
-      </article>
-
       <article id="client-shop" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('A Shop refreshed with Antigas branding') ?></span><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v34') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('A Shop refreshed with Antigas branding') ?></h3><time datetime="2026-09-27"><?= siteT('27 Sep 2026 · Client v34') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('The Shop now has an Antigas crest, better-aligned lists and original sprites. Category navigation, product details, history and confirmations are clearer.') ?></p>
           <p><?= siteT('The classic client keeps evolving through incremental releases, with its old-school look and no extra installation required.') ?></p>
         </div>
       </article>
 
+      <article id="bestiary" class="news-article update-article">
+        <header class="news-ribbon"><h3><?= siteT('Meet the creatures in the Bestiary') ?></h3><time datetime="2026-09-26"><?= siteT('26 Sep 2026 · Client v32') ?></time></header>
+        <div class="news-body">
+          <p class="dropcap"><?= siteT('The creature encyclopedia has a refreshed interface in the classic Tibia style. Browse creature details and loot, search by name and move through the cards without losing your place in the list.') ?></p>
+          <p><?= siteT('Your character\'s kills feed Bestiary progress, with filters for creatures in progress and completed entries. The server\'s existing records track up to 1,000 kills per creature.') ?></p>
+        </div>
+      </article>
+
       <article id="hunt" class="news-article update-article">
-        <h3 class="news-ribbon"><span><?= siteT('Hunt: track your session and progress') ?></span><time datetime="2026-09-25"><?= siteT('25 Sep 2026 · Client v17') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Hunt: track your session and progress') ?></h3><time datetime="2026-09-25"><?= siteT('25 Sep 2026 · Client v17') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('The Hunt panel brings together experience, session pace, loot collected and supplies used while hunting. These session counters help you follow your adventure.') ?></p>
           <p><?= siteTHtml('Time online also grants a stacking bonus: <strong>+0.2% experience and skills</strong> each hour, up to <strong>5%</strong>. Base experience, skill and loot rates are 1×.') ?></p>
@@ -212,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       </article>
 
       <article id="market" class="news-article">
-        <h3 class="news-ribbon"><span><?= siteT('Market: player-to-player offers') ?></span><time datetime="2026-09-24"><?= siteT('24 Sep 2026') ?></time></h3>
+        <header class="news-ribbon"><h3><?= siteT('Market: player-to-player offers') ?></h3><time datetime="2026-09-24"><?= siteT('24 Sep 2026') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('Find items, compare offers and trade with other players directly through the client. The catalog has search, categories and filters for buying and selling.') ?></p>
           <ul class="gold-list"><li><?= siteTHtml('<strong>Gold:</strong> payments include gold, platinum and crystal coins, as well as your bank balance.') ?></li><li><?= siteTHtml('<strong>Antigas Coin:</strong> a separate currency shown on each offer.') ?></li><li><?= siteTHtml('<strong>History and collection:</strong> follow offers and trades; use <strong>Collect</strong> to claim them. Gold goes to the bank; items and Antigas Coins go to the depot.') ?></li></ul>
@@ -221,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         </div>
       </article>
       <article id="mundo" class="news-article">
-      <h3 class="news-ribbon"><span><?= siteT('The world is open for new adventures') ?></span><time datetime="2026-09-23"><?= siteT('23 Sep 2026') ?></time></h3>
+      <header class="news-ribbon"><h3><?= siteT('The world is open for new adventures') ?></h3><time datetime="2026-09-23"><?= siteT('23 Sep 2026') ?></time></header>
       <section class="content-section" id="primeiros-passos">
         <h4><?= siteT('Begin your journey') ?></h4>
         <p><?= siteT('From the streets of Thais to the tunnels of Rookgaard, rediscover a world of exploration. No shortcuts: a rope, a torch and curiosity are a good start.') ?></p>
