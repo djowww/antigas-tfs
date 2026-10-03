@@ -23,6 +23,7 @@
 #include "loot.h"
 #include "iomap.h"
 #include "game.h"
+#include "housetile.h"
 
 extern Game g_game;
 
@@ -369,12 +370,14 @@ ReturnValue Container::queryRemove(const Thing& thing, uint32_t count, uint32_t 
 	if (!item->isMoveable() && !hasBitSet(FLAG_IGNORENOTMOVEABLE, flags)) {
 		return RETURNVALUE_NOTMOVEABLE;
 	}
+
+	if (!getHoldingPlayer()) {
+		const HouseTile* houseTile = dynamic_cast<const HouseTile*>(getTile());
+		if (houseTile) {
+			return houseTile->queryRemoveFromContainer(actor);
+		}
+	}
 	return RETURNVALUE_NOERROR;
-	 
-	const HouseTile* houseTile = dynamic_cast<const HouseTile*>(getTopParent());
-	if (houseTile) {
-		return houseTile->queryRemove(thing, count, flags, actor);
-	} 
 }
 
 Cylinder* Container::queryDestination(int32_t& index, const Thing &thing, Item** destItem,
