@@ -179,6 +179,15 @@ jobs:
       - name: Run rarity, Market inventory and economy regression tests
         run: luajit tests/rarity-economy-tests.lua
 
+      - name: Run Achievements UI regression tests
+        run: luajit tests/achievements-ui-tests.lua
+
+      - name: Run rarity visuals regression tests
+        run: luajit tests/rarity-visuals-tests.lua
+
+      - name: Run ground rarity bolt regression tests
+        run: luajit tests/ground-rarity-bolt-tests.lua
+
       - name: Run safe Python regression tests
         env:
           PYTHONPATH: tests
