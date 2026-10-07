@@ -82,7 +82,7 @@ void Monster::removeList()
 bool Monster::canSee(const Position& pos) const
 {
 	return Creature::canSee(getPosition(), pos,
-		Map::maxClientViewportX + 1, Map::maxClientViewportX + 1);
+		Map::maxMonsterSightRangeX, Map::maxMonsterSightRangeY);
 }
 
 void Monster::onAttackedCreature(Creature* creature)
@@ -359,7 +359,9 @@ void Monster::updateTargetList()
 	}
 
 	SpectatorVec list;
-	g_game.map.getSpectators(list, position, true);
+	g_game.map.getSpectators(list, position, true, false,
+	                        Map::maxMonsterSightRangeX, Map::maxMonsterSightRangeX,
+	                        Map::maxMonsterSightRangeY, Map::maxMonsterSightRangeY);
 	list.erase(this);
 	for (Creature* spectator : list) {
 		if (canSee(spectator->getPosition())) {
