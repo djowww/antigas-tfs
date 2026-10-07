@@ -176,6 +176,9 @@ class Map
 		static constexpr int32_t maxViewportY = 11; //min value: maxClientViewportY + 1
 		static constexpr int32_t maxClientViewportX = 8;
 		static constexpr int32_t maxClientViewportY = 6;
+		static constexpr int32_t monsterSightBonus = 3;
+		static constexpr int32_t maxMonsterSightRangeX = maxClientViewportX + 1 + monsterSightBonus;
+		static constexpr int32_t maxMonsterSightRangeY = maxClientViewportX + 1 + monsterSightBonus;
 		// Network observers only: do not change AI/pathfinding/combat ranges.
 		static constexpr int32_t maxPlayerViewportX = 16;
 		static constexpr int32_t maxPlayerViewportY = 11;
@@ -225,6 +228,8 @@ class Map
 		void getSpectators(SpectatorVec& list, const Position& centerPos, bool multifloor = false, bool onlyPlayers = false,
 		                   int32_t minRangeX = 0, int32_t maxRangeX = 0,
 		                   int32_t minRangeY = 0, int32_t maxRangeY = 0);
+		// Append monsters that need AI events outside the standard spectator radius.
+		void getMonsterSpectators(SpectatorVec& list, const Position& centerPos, bool multifloor = false);
 
 		void clearSpectatorCache();
 
