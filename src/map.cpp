@@ -254,6 +254,8 @@ void Map::moveCreature(Creature& creature, Tile& newTile, bool forceTeleport/* =
 	SpectatorVec list;
 	getSpectators(list, oldPos, true);
 	getSpectators(list, newPos, true);
+	getMonsterSpectators(list, oldPos, true);
+	getMonsterSpectators(list, newPos, true);
 
 	std::vector<int32_t> oldStackPosVector;
 	for (Creature* spectator : list) {
@@ -469,6 +471,19 @@ void Map::getSpectators(SpectatorVec& list, const Position& centerPos, bool mult
 			} else {
 				spectatorCache[centerPos] = list;
 			}
+		}
+	}
+}
+
+void Map::getMonsterSpectators(SpectatorVec& list, const Position& centerPos, bool multifloor /*= false*/)
+{
+	SpectatorVec extendedSpectators;
+	getSpectators(extendedSpectators, centerPos, multifloor, false,
+	              maxMonsterSightRangeX, maxMonsterSightRangeX,
+	              maxMonsterSightRangeY, maxMonsterSightRangeY);
+	for (Creature* spectator : extendedSpectators) {
+		if (spectator->getMonster()) {
+			list.insert(spectator);
 		}
 	}
 }
