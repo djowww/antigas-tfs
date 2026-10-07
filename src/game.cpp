@@ -533,6 +533,7 @@ bool Game::placeCreature(Creature* creature, const Position& pos, bool extendedP
 
 	SpectatorVec list;
 	map.getSpectators(list, creature->getPosition(), true);
+	map.getMonsterSpectators(list, creature->getPosition(), true);
 	for (Creature* spectator : list) {
 		if (Player* tmpPlayer = spectator->getPlayer()) {
 			tmpPlayer->sendCreatureAppear(creature, creature->getPosition(), true);
@@ -562,6 +563,7 @@ bool Game::removeCreature(Creature* creature, bool isLogout/* = true*/)
 
 	SpectatorVec list;
 	map.getSpectators(list, tile->getPosition(), true);
+	map.getMonsterSpectators(list, tile->getPosition(), true);
 	for (Creature* spectator : list) {
 		if (Player* player = spectator->getPlayer()) {
 			oldStackPosVector.push_back(player->canSeeCreature(creature) ? tile->getStackposOfCreature(player, creature) : -1);
