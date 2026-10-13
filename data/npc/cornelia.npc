@@ -116,22 +116,22 @@ Topic=2                                   -> "Maybe next time."
 #"addon"-> "Would you rather be interested in a knight's sword or in a warrior's sword?", Topic=22
 #Topic=22,"yes" -> "Great! Simply bring me 100 Iron Ore and one Crude Iron and I will happily forge it for you.", SetQuestValue(18507,1), SetQuestValue(17598,1)
 				 
-"addon",QuestValue(18509)=0 -> Type=5184, Amount=1, "Have you actually managed to obtain the dragon claw and spirit container I asked for?", Topic=23
-"armor",QuestValue(18509)=0 -> *
-Topic=23,"yes",Count(5184)>=1,Count(5240)>=1 -> "Finished! Since you are a man, I thought you probably wanted two. Men always want that little extra status symbol. <giggles>", Amount=1, Delete(5184), SetQuestValue(18509,3), Amount=1, Delete(5240), addaddon(166,1), addaddon(167,1), EffectOpp(13)
-Topic=23,"yes" -> "You don't have that many!"
-Topic=23 -> "Too bad."
+# 7.4 CIP-399: "addon",QuestValue(18509)=0 -> Type=5184, Amount=1, "Have you actually managed to obtain the dragon claw and spirit container I asked for?", Topic=23
+# 7.4 CIP-399: "armor",QuestValue(18509)=0 -> *
+# 7.4 CIP-399: Topic=23,"yes",Count(5184)>=1,Count(5240)>=1 -> "Finished! Since you are a man, I thought you probably wanted two. Men always want that little extra status symbol. <giggles>", Amount=1, Delete(5184), SetQuestValue(18509,3), Amount=1, Delete(5240), addaddon(166,1), addaddon(167,1), EffectOpp(13)
+# 7.4 CIP-399: Topic=23,"yes" -> "You don't have that many!"
+# 7.4 CIP-399: Topic=23 -> "Too bad."
 
-"addon",QuestValue(18509)=3 -> "Oh, you also have a nice armor just like me!"
-"armor",QuestValue(18509)=3 -> *
+# 7.4 CIP-399: "addon",QuestValue(18509)=3 -> "Oh, you also have a nice armor just like me!"
+# 7.4 CIP-399: "armor",QuestValue(18509)=3 -> *
 
-"addon","sword",QuestValue(18510)=0 -> Type=5184, Amount=1, "You need 100 iron ores and piece of royal steel, are you interested in forging the warrior sword?", Topic=24
+# 7.4 CIP-399: "addon","sword",QuestValue(18510)=0 -> Type=5184, Amount=1, "You need 100 iron ores and piece of royal steel, are you interested in forging the warrior sword?", Topic=24
 #"addon","sword",QuestValue(18510)=0 -> *
-Topic=24,"yes",Count(5183)>=100,Count(5189)>=1 -> "Alright! As a matter of fact, I have one in store. Here you go!", Amount=100, Delete(5183), SetQuestValue(18510,3), Amount=1, Delete(5189), addaddon(166,2), addaddon(167,2), EffectOpp(13)
-Topic=24,"yes" -> "You don't have that many!"
-Topic=24 -> "Too bad."
+# 7.4 CIP-399: Topic=24,"yes",Count(5183)>=100,Count(5189)>=1 -> "Alright! As a matter of fact, I have one in store. Here you go!", Amount=100, Delete(5183), SetQuestValue(18510,3), Amount=1, Delete(5189), addaddon(166,2), addaddon(167,2), EffectOpp(13)
+# 7.4 CIP-399: Topic=24,"yes" -> "You don't have that many!"
+# 7.4 CIP-399: Topic=24 -> "Too bad."
 
-"addon","sword",QuestValue(18510)=3 -> "Oh, you also have a nice sword just like me!"
+# 7.4 CIP-399: "addon","sword",QuestValue(18510)=3 -> "Oh, you also have a nice sword just like me!"
 #"armor",QuestValue(18510)=3 -> *
 
 }

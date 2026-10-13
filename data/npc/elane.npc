@@ -114,20 +114,20 @@ Topic=3,"yes"                             -> "Here you are. Look in your spellbo
 Topic=3                                   -> "Ok. Then not."
 
 #"addon",QuestValue(18504)=0,premium -> "Sorry, the backpack I wear is not for sale. It's handmade from rare minotaur leather.", Topic=4
-"backpack",QuestValue(18504)=0,premium -> *
+# 7.4 CIP-399: "backpack",QuestValue(18504)=0,premium -> *
 #"addon",QuestValue(18504)=0 -> "Ah, you noticed my new accessory? Sorry, this one is not for sale."
 #"backpack",QuestValue(18504)=0 -> *
 #"sniper","gloves" -> "You found sniper gloves?! Incredible! Listen, if you give them to me, I will grant you the right to wear the sniper gloves accessory. How about it?", Topic=6
 #Topic=5,"yes" -> "Alright then, if you bring me 100 pieces of fine minotaur leather I will see what I can do for you. You probably have to kill really many minotaurs though...",
 				 #"so good luck!", SetQuestValue(18504,1), SetQuestValue(17596,1)
 				 
-"sniper","gloves",QuestValue(18504)=0 -> Type=5174, Amount=1, "You found sniper gloves?! Incredible! Listen, if you give them to me, I will grant you the right to wear the sniper gloves accessory. How about it?", Topic=6
-"addon",QuestValue(18504)=0 -> *
-Topic=6,"yes",Count(Type)>=Amount -> "Great! I hereby grant you the right to wear the sniper gloves as accessory. Congratulations!", Delete(Type), SetQuestValue(18504,3), addaddon(165,2), addaddon(164,2), EffectOpp(13)
-Topic=6,"yes" -> "You don't have that many!"
-Topic=6 -> "Too bad."
+# 7.4 CIP-399: "sniper","gloves",QuestValue(18504)=0 -> Type=5174, Amount=1, "You found sniper gloves?! Incredible! Listen, if you give them to me, I will grant you the right to wear the sniper gloves accessory. How about it?", Topic=6
+# 7.4 CIP-399: "addon",QuestValue(18504)=0 -> *
+# 7.4 CIP-399: Topic=6,"yes",Count(Type)>=Amount -> "Great! I hereby grant you the right to wear the sniper gloves as accessory. Congratulations!", Delete(Type), SetQuestValue(18504,3), addaddon(165,2), addaddon(164,2), EffectOpp(13)
+# 7.4 CIP-399: Topic=6,"yes" -> "You don't have that many!"
+# 7.4 CIP-399: Topic=6 -> "Too bad."
 
-"addon",QuestValue(18504)=3 -> "Oh, you also have a nice sniper gloves just like me!"
-"sniper","gloves",QuestValue(18504)=3 -> *
+# 7.4 CIP-399: "addon",QuestValue(18504)=3 -> "Oh, you also have a nice sniper gloves just like me!"
+# 7.4 CIP-399: "sniper","gloves",QuestValue(18504)=3 -> *
 
 }

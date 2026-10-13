@@ -8,10 +8,10 @@
 #"do","you","sell" -> *
 #"do","you","have" -> *
 
-"flower"          -> "I offer indoor plants, flower bowls, god flowers, honey flowers and potted flowers. What do you need?"
+"flower"          -> "I offer flower bowls, god flowers, honey flowers and potted flowers. What do you need?"
 "plant"           -> *
 "god","flower"    -> Type=2981, Amount=1, Price=5,  "Do you want to buy god flowers for %P gold?", Topic=81
-"indoor","plant"  -> Type=2811, Amount=1, Price=8,  "Do you want to buy an indoor plant for %P gold?", Topic=81
+"indoor","plant"  -> "I have none in stock at the moment."
 "flower","bowl"   -> Type=2983, Amount=1, Price=6,  "Do you want to buy a flower bowl for %P gold?", Topic=81
 "honey","flower"  -> Type=2984, Amount=1, Price=5,  "Do you want to buy a honey flower for %P gold?", Topic=81
 "potted","flower" -> Type=2985, Amount=1, Price=5,  "Do you want to buy a potted flower for %P gold?", Topic=81

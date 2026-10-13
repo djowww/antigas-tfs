@@ -108,8 +108,8 @@
 	
 	<!-- main Default Actions -->
 	<!-- Furniture Parcels -->
-	<action fromid="2775" toid="2812" script="others/furniture_parcels.lua" />
-	<action fromid="5086" toid="5088" script="others/furniture_parcels.lua" />
+	<!-- Tibia 7.4 CIP-327: <action fromid="2775" toid="2812" script="others/furniture_parcels.lua" /> -->
+	<!-- Tibia 7.4 CIP-327: <action fromid="5086" toid="5088" script="others/furniture_parcels.lua" /> -->
 	
 	<!-- Instruments -->
 	<action fromid="2948" toid="2950" script="others/instruments.lua" />

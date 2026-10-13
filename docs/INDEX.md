@@ -15,6 +15,7 @@ Guias para conhecer o projeto, compilar o servidor e entender seus sistemas.
 - [Fórmulas de dano e defesa](combat-formulas.md)
 - [Estrutura e migrações do Market](../data/sql/README-market.md)
 - [Sistemas legados removidos](retired-legacy-systems.md)
+- [Compatibilidade documentada com Tibia 7.4](classic-74-compatibility.md)
 
 ## Desenvolvimento
 
