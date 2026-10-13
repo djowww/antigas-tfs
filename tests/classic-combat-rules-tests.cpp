@@ -71,6 +71,8 @@ struct LoginGateCoreTestAccess
 			player.mana = 10000;
 			player.manaMax = 10000;
 			player.soul = 100;
+			player.health = 1000000;
+			player.healthMax = 1000000;
 			player.setPremiumDays(30);
 		}
 };
@@ -80,12 +82,84 @@ struct LoginGateCoreTestAccess
 // existing Weapon/Spell to a fabricated derived instance.
 struct WeaponUseAccess : Weapon
 {
+	static void hit(const Weapon& weapon, Player* player, Item* item, Creature* target)
+	{
+		auto consumer = static_cast<void (Weapon::*)(Player*, Item*, Creature*, int32_t) const>(&WeaponUseAccess::internalUseWeapon);
+		(weapon.*consumer)(player, item, target, 100);
+	}
+
+	static void miss(const Weapon& weapon, Player* player, Item* item, Tile* destination)
+	{
+		auto consumer = static_cast<void (Weapon::*)(Player*, Item*, Tile*) const>(&WeaponUseAccess::internalUseWeapon);
+		(weapon.*consumer)(player, item, destination);
+	}
+
 	static void afterAttack(const Weapon& weapon, Player* player, Item* item, Tile* destination)
 	{
 		auto consumer = &WeaponUseAccess::onUsedWeapon;
 		(weapon.*consumer)(player, item, destination);
 	}
 };
+
+static Item* spearOn(Tile& tile)
+{
+	for (Item* item : *tile.getItemList()) {
+		if (item->getID() == 3277) return item;
+	}
+	return nullptr;
+}
+
+static void spearsFallAndRecover(Weapons& weapons, Group& group, Tile& origin, Player& target)
+{
+	// No game loop runs in this fixture. Drain deferred item releases on normal
+	// return and on assertion failure, after the local inventory owners unwind.
+	struct ItemReleaseCleanup {
+		~ItemReleaseCleanup() { g_game.cleanup(true); }
+	} itemReleaseCleanup;
+	for (uint16_t count : {1, 20}) {
+		Player player(nullptr);
+		LoginGateCoreTestAccess::eligible(player, &group, &origin, 0);
+		DynamicTile missedTile(102, 100, 7);
+		Tile& hitTile = *target.getTile();
+		Item* item = Item::CreateItem(3277, count);
+		require(item != nullptr, "spear fixture must exist");
+		static_cast<Cylinder&>(player).internalAddThing(CONST_SLOT_RIGHT, item);
+		const Weapon* weapon = weapons.getWeapon(item);
+		require(weapon != nullptr, "spear must have a registered weapon");
+
+		// Exercise both real internal attack overloads and actual item movement.
+		// A miss has its own destination; it must not fall on the target tile.
+		for (bool hit : {true, false}) {
+			Tile& destination = hit ? hitTile : missedTile;
+			require(destination.getItemTypeCount(3277) == 0, "recovered destination must start empty");
+			for (uint16_t remaining = count; remaining > 0; --remaining) {
+				Item* held = player.getInventoryItem(CONST_SLOT_RIGHT);
+				require(held && held->getParent() == &player && held->getItemCount() == remaining,
+					"each throw must use a spear still held by the player");
+				if (hit) WeaponUseAccess::hit(*weapon, &player, held, &target);
+				else WeaponUseAccess::miss(*weapon, &player, held, &destination);
+				Item* after = player.getInventoryItem(CONST_SLOT_RIGHT);
+				require(remaining == 1 ? after == nullptr : after && after->getItemCount() == remaining - 1,
+					"spear throw must remove exactly one from the originating hand");
+				require(destination.getItemTypeCount(3277) == count - remaining + 1,
+					"every unbroken spear must reach the chosen hit/miss tile");
+				require((hit ? missedTile : hitTile).getItemTypeCount(3277) == 0,
+					"throw must not add a spear to the other destination");
+				Item* fallen = spearOn(destination);
+				require(fallen && fallen->getParent() == &destination, "fallen spear must belong to the floor");
+			}
+			require(player.getInventoryItem(CONST_SLOT_RIGHT) == nullptr,
+				"exhausted hand must require recovery before further spear attacks");
+			Item* fallen = spearOn(destination);
+			require(g_game.internalMoveItem(&destination, &player, CONST_SLOT_RIGHT, fallen, count,
+				nullptr, FLAG_NOLIMIT) == RETURNVALUE_NOERROR, "real item recovery must succeed");
+			require(destination.getItemTypeCount(3277) == 0, "recovery must empty the destination");
+			Item* recovered = player.getInventoryItem(CONST_SLOT_RIGHT);
+			require(recovered && recovered->getParent() == &player && recovered->getItemCount() == count,
+				"recovery must preserve all spears without breakage");
+		}
+	}
+}
 
 struct SpellGateAccess : Spell
 {
@@ -216,7 +290,7 @@ int main(int argc, char** argv)
 		LoginGateCoreTestAccess::eligible(druid, &group, &tile, 2);
 		LoginGateCoreTestAccess::eligible(target, &group, &targetTile, 0);
 		const std::string mode = argv[1];
-		if (mode == "spear") survivesThrows(weapons, player, targetTile, 3277, "spear");
+		if (mode == "spear") spearsFallAndRecover(weapons, group, tile, target);
 		else if (mode == "throwing-star") survivesThrows(weapons, player, targetTile, 3287, "throwing star");
 		else if (mode == "stock-wands") stockWandsReject(weapons, group, tile, target);
 		else if (mode == "ice") iceRejects(spells, player, druid);
