@@ -8,7 +8,7 @@ timeToDecreaseFrags = 6 * 60 * 60 * 1000
 stairJumpExhaustion = 0
 experienceByKillingPlayers = false
 expFromPlayersLevelRange = 75
-hotkeyAimbotEnabled = true
+hotkeyAimbotEnabled = false
 
 banLength = 3 * 24 * 60 * 60
 whiteSkullTime = 15 * 60 * 1000
@@ -46,7 +46,9 @@ blockLoginText = "Server launch: COMING SOON."
 
 deathLosePercent = -1
 
-houseRentPeriod = "monthly"
+-- The later bank-backed rent path stays disabled until a documented pre-bank
+-- collection policy is available. Never remove owners to enforce a guessed rule.
+houseRentPeriod = "never"
 onlyInvitedCanMoveHouseItems = true
 
 timeBetweenActions = 200
@@ -66,7 +68,8 @@ passwordType = "sha1"
 allowChangeOutfit = true
 freePremium = true
 kickIdlePlayerAfterMinutes = 15
-maxMessageBuffer = 0
+-- Use the core's existing message limiter default; its numerical threshold is
+-- an implementation setting, not a certified value from the 7.4 manual.
 showMonsterLoot = true
 queryPlayerContainers = true
 emoteSpells = false

@@ -24,7 +24,7 @@ VANISH,!           -> "Guut bye."
 "time"     -> "Time is %T. You needing clock for your house?"
 "news"     -> "You meaning my specials, eh?"
 
-"offer"           -> "Me selling statues, tables, chairs, flowers, pillows, pottery, instruments, decoration, tapestries and containers."
+"offer"           -> "Me selling flowers, pillows, pottery, decoration, tapestries and containers."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *

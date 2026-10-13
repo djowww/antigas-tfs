@@ -22,7 +22,7 @@ VANISH,!           -> "Good bye."
 "time"     -> "It is %T. Too bad we run out of cuckoo clocks."
 "news"     -> "Sorry, no time to chat, let's trade."
 
-"offer"           -> "At this counter you can buy chairs. What do you need?"
+"offer"           -> "I have no chairs for sale at the moment."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
