@@ -59,6 +59,23 @@ void ProtocolGame::release()
 	Protocol::release();
 }
 
+void ProtocolGame::sendClientCompatibility(OperatingSystem_t operatingSystem)
+{
+	// OTCv8 features and extended opcodes.
+	if (otclientV8 || operatingSystem >= CLIENTOS_OTCLIENT_LINUX) {
+		NetworkMessage opcodeMessage;
+		opcodeMessage.addByte(0x32);
+		opcodeMessage.addByte(0x00);
+		opcodeMessage.add<uint16_t>(0x00);
+		writeToOutputBuffer(opcodeMessage);
+		// OTCv8 starts the game on its first opcode above 0x32. Enable
+		// extended requests before 0x43 can run the client login callbacks.
+		if (otclientV8) {
+			sendFeatures();
+		}
+	}
+}
+
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
 	if (g_config.getBoolean(ConfigManager::BLOCK_LOGIN)) {
@@ -66,16 +83,7 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 		return;
 	}
 
-	// OTCv8 features and extended opcodes
-	if (otclientV8 || operatingSystem >= CLIENTOS_OTCLIENT_LINUX) {
-		if(otclientV8)
-			sendFeatures();
-		NetworkMessage opcodeMessage;
-		opcodeMessage.addByte(0x32);
-		opcodeMessage.addByte(0x00);
-		opcodeMessage.add<uint16_t>(0x00);
-		writeToOutputBuffer(opcodeMessage);
-	}
+	sendClientCompatibility(operatingSystem);
 	
 	//dispatcher thread
 	Player* foundPlayer = g_game.getPlayerByName(name);

@@ -76,6 +76,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE="$build_type" \
             -DTFS_BUILD_CLASSIC_RULES_TESTS=ON \
+            -DTFS_BUILD_VIEWPORT_TESTS=ON \
             -DTFS_BUILD_RARITY_TESTS=ON \
             -DTFS_BUILD_LUA_WATCHDOG_TESTS=ON \
             -DTFS_BUILD_LUA_ENVIRONMENT_LIFECYCLE_TESTS=ON \
@@ -165,6 +166,9 @@ jobs:
       - name: Run classic item hotkey regression tests
         run: luajit tests/classic-hotkeys-tests.lua
 
+      - name: Run viewport rendering policy regression tests
+        run: luajit tests/viewport-policy.lua deploy/client-current/modules/game_interface/viewport.lua
+
       - name: Run Economy inventory regression tests
         run: luajit tests/economy-inventory-tests.lua
 
@@ -188,6 +192,9 @@ jobs:
 
       - name: Run rarity visuals regression tests
         run: luajit tests/rarity-visuals-tests.lua
+
+      - name: Run inventory rarity UI regression tests
+        run: luajit tests/rarity-ui-tests.lua
 
       - name: Run ground rarity bolt regression tests
         run: luajit tests/ground-rarity-bolt-tests.lua
