@@ -78,6 +78,7 @@ class Spawn
 		bool spawnMonster(uint32_t spawnId, MonsterType* mType, const Position& pos, Direction dir, bool startup = false);
 		void scheduleSpawnCheck(uint32_t delay, uint64_t generation);
 		void checkSpawn(uint64_t generation);
+		friend struct ViewportCoreTestAccess;
 };
 
 class Spawns
