@@ -92,4 +92,27 @@ catch (InvalidDataException)
 {
 }
 
-Console.WriteLine("Launcher bounded I/O and staging URL regression tests passed");
+var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../.."));
+var snapshotRoot = Path.Combine(repoRoot, "deploy", "client-current");
+var currentRelease = ReleaseService.ReadAndVerifyManifest(Path.Combine(repoRoot, "deploy", "site-public", "client-release.json"));
+var integratedRoot = Path.Combine(Path.GetTempPath(), "antigas-client-overlay-test-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(integratedRoot);
+try
+{
+    File.WriteAllText(Path.Combine(integratedRoot, "init.lua"), "APP_VERSION = 66\n");
+    File.WriteAllText(Path.Combine(integratedRoot, "client.version"), "66\n");
+    File.WriteAllText(Path.Combine(integratedRoot, "Antigas_gl.exe"), "INERT TEST FILE; NEVER EXECUTE");
+    File.Copy(Path.Combine(snapshotRoot, "init.lua"), Path.Combine(integratedRoot, "init.lua"), true);
+    var snapshotMarker = Path.Combine(snapshotRoot, "client.version");
+    if (File.Exists(snapshotMarker)) File.Copy(snapshotMarker, Path.Combine(integratedRoot, "client.version"), true);
+    var integratedVersion = ClientPackage.ReadInstalledVersion(integratedRoot);
+    if (integratedVersion != currentRelease.Version || !ClientPackage.HasRunnableClient(integratedRoot))
+        throw new InvalidOperationException($"Snapshot overlay was identified as v{integratedVersion} instead of published v{currentRelease.Version}.");
+}
+finally
+{
+    foreach (var file in new[] { "init.lua", "client.version", "Antigas_gl.exe" }) File.Delete(Path.Combine(integratedRoot, file));
+    Directory.Delete(integratedRoot);
+}
+
+Console.WriteLine("Launcher bounded I/O, staging URL and snapshot overlay regression tests passed");

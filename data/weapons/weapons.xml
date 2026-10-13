@@ -11,7 +11,7 @@
 	<distance id="1781" breakchance="2" />
 	<distance id="2992" action="removecount" />
 	<!-- CIP-327 (2005): breaking spears and throwing stars is later than 7.4. -->
-	<distance id="3277" breakchance="0" /> <!-- Spears -->
+	<distance id="3277" breakchance="0" action="move" /> <!-- Spears -->
 	<distance id="5290" breakchance="3" /> <!-- Enchanted spear -->
 	<distance id="3287" breakchance="0" /> <!-- Throwing star -->
 	<distance id="3298" action="removecount" />
