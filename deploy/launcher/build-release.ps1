@@ -27,8 +27,9 @@ Get-ChildItem -LiteralPath $source -Force | Copy-Item -Destination $stage -Recur
 
 $initPath = Join-Path $stage 'init.lua'
 $init = [System.IO.File]::ReadAllText($initPath)
-$updatedInit = [regex]::Replace($init, '(?m)^APP_VERSION\s*=\s*\d+', "APP_VERSION = $Version", 1)
-if ($updatedInit -eq $init) { throw 'Could not locate APP_VERSION in init.lua.' }
+$versionPattern = '(?m)^APP_VERSION\s*=\s*\d+'
+if (-not [regex]::IsMatch($init, $versionPattern)) { throw 'Could not locate APP_VERSION in init.lua.' }
+$updatedInit = [regex]::Replace($init, $versionPattern, "APP_VERSION = $Version", 1)
 [System.IO.File]::WriteAllText($initPath, $updatedInit, [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText((Join-Path $stage 'client.version'), "$Version`n", [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText((Join-Path $stage 'LEIA-ME.txt'), ([System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'CLIENT-README.txt')).Replace('{{VERSION}}', "$Version")), [System.Text.UTF8Encoding]::new($false))
