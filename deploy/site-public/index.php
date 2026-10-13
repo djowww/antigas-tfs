@@ -6,7 +6,7 @@ require __DIR__.'/i18n.php';
 $language=siteStartI18n();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v66.zip?site=achievement-ranks-v66-20261003';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v67.zip?site=classic-rules-v67-20261013';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
