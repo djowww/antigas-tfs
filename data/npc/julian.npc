@@ -24,7 +24,7 @@ VANISH,!           -> "Good bye."
 "music"       -> "Music is the food of love."
 "bard"        -> "Bards from all over the world come here to buy their instruments."
 
-"offer"           -> "Here you can buy lyres, lutes, drums, and simple fanfares. I also have a piano and a harp."
+"offer"           -> "Here you can buy lyres, lutes, drums, and simple fanfares."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *

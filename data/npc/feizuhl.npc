@@ -50,7 +50,7 @@ VANISH,!               -> "Good bye."
 "palace"       -> "The palace is located in the centre of our city, south of the arena."
 "temple"       -> "Look for the temple in the south-eastern section of Ankrahmun."
 
-"offer"           -> "I sell statues, tables, chairs, flowers, pillows, pottery, instruments, decoration, tapestries and containers."
+"offer"           -> "I sell flowers, pillows, pottery, decoration, tapestries and containers."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *
