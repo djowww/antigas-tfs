@@ -62,7 +62,6 @@ local characterName = 'UI Test'
 local globals = {
   tr = function(s) return s end,
   GameExtendedOpcode = 1,
-  CONST_SLOT_HEAD = 1, CONST_SLOT_AMMO = 10,
   InventorySlotFirst = 1, InventorySlotLast = 10,
   PlayerStates = setmetatable({}, {__index = function(t, k) t[k] = k; return k end}),
   modules = {},
@@ -157,6 +156,13 @@ inventory.onInventoryChange(nil, 1, equipment[1])
 callback(protocol, 127, 'P|I|1|3004,1,0,5,6,5,0,' .. mythicExtras)
 check(invWidgets.slot1.tooltip:find('+5% maximum health', 1, true), 'Same-packet inventory push includes extra status tooltip')
 check(invWidgets.slot1.tooltip:find('+10% speed', 1, true), 'Packed speed status scales with tier')
+check(globals.CONST_SLOT_HEAD == nil and globals.CONST_SLOT_AMMO == nil,
+  'Client rarity pushes use native inventory bounds without server-only constants')
+local validPushTooltip = invWidgets.slot1.tooltip
+callback(protocol, 127, 'P|I|0|3004,1,0,5,6,5,0,' .. mythicExtras)
+callback(protocol, 127, 'P|I|11|3004,1,0,5,6,5,0,' .. mythicExtras)
+check(invWidgets.slot1.tooltip == validPushTooltip,
+  'Out-of-range inventory push slots leave valid equipped rarity unchanged')
 online = false
 inventory.onInventoryChange(nil, 1, nil)
 online = true
