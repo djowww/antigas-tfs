@@ -61,19 +61,19 @@ ADDRESS,"bring","me","to","senja",Premium -> "I'm sorry, but we don't serve the 
 ADDRESS,"bring","me","to","folda",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
 ADDRESS,"bring","me","to","vega",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
 
-BUSY,"bring","me","to","darashia",Premium -> "I'm not sailing there. This route is afflicted by a ghostship! However I've heard that Captain Fearless from Venore sails there."
-BUSY,"bring","me","to","darama",Premium -> "I'm not sailing there. This route is afflicted by a ghostship! However I've heard that Captain Fearless from Venore sails there."
-BUSY,"bring","me","to","ice",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
-BUSY,"bring","me","to","senja",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
-BUSY,"bring","me","to","folda",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
-BUSY,"bring","me","to","vega",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
+# 7.4 CIP-399: BUSY,"bring","me","to","darashia",Premium -> "I'm not sailing there. This route is afflicted by a ghostship! However I've heard that Captain Fearless from Venore sails there."
+# 7.4 CIP-399: BUSY,"bring","me","to","darama",Premium -> "I'm not sailing there. This route is afflicted by a ghostship! However I've heard that Captain Fearless from Venore sails there."
+# 7.4 CIP-399: BUSY,"bring","me","to","ice",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
+# 7.4 CIP-399: BUSY,"bring","me","to","senja",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
+# 7.4 CIP-399: BUSY,"bring","me","to","folda",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
+# 7.4 CIP-399: BUSY,"bring","me","to","vega",Premium -> "I'm sorry, but we don't serve the routes to the Ice Islands."
 
 #AB DEBDRIEL BOAT
 ADDRESS,"bring","me","to","ab'dendriel" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
 ADDRESS,"bring","me","to","ab'dendriel",Premium -> "This is Ab'dendriel."
 
-BUSY,"bring","me","to","ab'dendriel" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
-BUSY,"bring","me","to","ab'dendriel",Premium -> "This is Ab'dendriel."
+# 7.4 CIP-399: BUSY,"bring","me","to","ab'dendriel" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
+# 7.4 CIP-399: BUSY,"bring","me","to","ab'dendriel",Premium -> "This is Ab'dendriel."
 
 #THAIS BOAT
 ADDRESS,"bring","me","to","thais" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
@@ -82,11 +82,11 @@ ADDRESS,"bring","me","to","thais" Premium,CountMoney<=130 -> Price=130, "You don
 ADDRESS,"bring","me","to","thais" Premium,QuestValue(250)>2 ,CountMoney>=120 -> Price=120, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32313,32212,7), EffectOpp(11) 
 ADDRESS,"bring","me","to","thais" Premium,QuestValue(250)>2 ,CountMoney<=120 -> Price=120, "You don't have enough money."
 
-BUSY,"bring","me","to","thais" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
-BUSY,"bring","me","to","thais" Premium,CountMoney>=130 -> Price=130, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32313,32212,7), EffectOpp(11) 
-BUSY,"bring","me","to","thais" Premium,CountMoney<=130 -> Price=130, "You don't have enough money."
-BUSY,"bring","me","to","thais" Premium,QuestValue(250)>2 ,CountMoney>=120 -> Price=120, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32313,32212,7), EffectOpp(11) 
-BUSY,"bring","me","to","thais" Premium,QuestValue(250)>2 ,CountMoney<=120 -> Price=120, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","thais" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
+# 7.4 CIP-399: BUSY,"bring","me","to","thais" Premium,CountMoney>=130 -> Price=130, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32313,32212,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","thais" Premium,CountMoney<=130 -> Price=130, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","thais" Premium,QuestValue(250)>2 ,CountMoney>=120 -> Price=120, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32313,32212,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","thais" Premium,QuestValue(250)>2 ,CountMoney<=120 -> Price=120, "You don't have enough money."
 
 #CARLIN BOAT
 ADDRESS,"bring","me","to","carlin" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
@@ -95,11 +95,11 @@ ADDRESS,"bring","me","to","carlin" Premium,CountMoney<=80 -> Price=80, "You don'
 ADDRESS,"bring","me","to","carlin" Premium,QuestValue(250)>2 ,CountMoney>=70 -> Price=70, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32390,31821,7), EffectOpp(11)
 ADDRESS,"bring","me","to","carlin" Premium,QuestValue(250)>2 ,CountMoney<=70 -> Price=70, "You don't have enough money."
 
-BUSY,"bring","me","to","carlin" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
-BUSY,"bring","me","to","carlin" Premium,CountMoney>=80 -> Price=80, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32390,31821,7), EffectOpp(11)
-BUSY,"bring","me","to","carlin" Premium,CountMoney<=80 -> Price=80, "You don't have enough money."
-BUSY,"bring","me","to","carlin" Premium,QuestValue(250)>2 ,CountMoney>=70 -> Price=70, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32390,31821,7), EffectOpp(11)
-BUSY,"bring","me","to","carlin" Premium,QuestValue(250)>2 ,CountMoney<=70 -> Price=70, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","carlin" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
+# 7.4 CIP-399: BUSY,"bring","me","to","carlin" Premium,CountMoney>=80 -> Price=80, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32390,31821,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","carlin" Premium,CountMoney<=80 -> Price=80, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","carlin" Premium,QuestValue(250)>2 ,CountMoney>=70 -> Price=70, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32390,31821,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","carlin" Premium,QuestValue(250)>2 ,CountMoney<=70 -> Price=70, "You don't have enough money."
 
 #EDRON BOAT
 ADDRESS,"bring","me","to","edron" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
@@ -108,11 +108,11 @@ ADDRESS,"bring","me","to","edron" Premium,CountMoney<=70 -> Price=70, "You don't
 ADDRESS,"bring","me","to","edron" Premium,QuestValue(250)>2 ,CountMoney>=60 -> Price=60, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(33181,31764,7), EffectOpp(11) 
 ADDRESS,"bring","me","to","edron" Premium,QuestValue(250)>2 ,CountMoney<=60 -> Price=60, "You don't have enough money."
 
-BUSY,"bring","me","to","edron" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
-BUSY,"bring","me","to","edron" Premium,CountMoney>=70 -> Price=70, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(33181,31764,7), EffectOpp(11) 
-BUSY,"bring","me","to","edron" Premium,CountMoney<=70 -> Price=70, "You don't have enough money."
-BUSY,"bring","me","to","edron" Premium,QuestValue(250)>2 ,CountMoney>=60 -> Price=60, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(33181,31764,7), EffectOpp(11) 
-BUSY,"bring","me","to","edron" Premium,QuestValue(250)>2 ,CountMoney<=60 -> Price=60, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","edron" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
+# 7.4 CIP-399: BUSY,"bring","me","to","edron" Premium,CountMoney>=70 -> Price=70, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(33181,31764,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","edron" Premium,CountMoney<=70 -> Price=70, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","edron" Premium,QuestValue(250)>2 ,CountMoney>=60 -> Price=60, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(33181,31764,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","edron" Premium,QuestValue(250)>2 ,CountMoney<=60 -> Price=60, "You don't have enough money."
 
 #VENORE BOAT
 ADDRESS,"bring","me","to","venore" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
@@ -121,11 +121,11 @@ ADDRESS,"bring","me","to","venore" Premium,CountMoney<=90 -> Price=90, "You don'
 ADDRESS,"bring","me","to","venore" Premium,QuestValue(250)>2 ,CountMoney>=80 -> Price=80, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32960,32022,7), EffectOpp(11) 
 ADDRESS,"bring","me","to","venore" Premium,QuestValue(250)>2 ,CountMoney<=80 -> Price=80, "You don't have enough money."
 
-BUSY,"bring","me","to","venore" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
-BUSY,"bring","me","to","venore" Premium,CountMoney>=90 -> Price=90, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32960,32022,7), EffectOpp(11) 
-BUSY,"bring","me","to","venore" Premium,CountMoney<=90 -> Price=90, "You don't have enough money."
-BUSY,"bring","me","to","venore" Premium,QuestValue(250)>2 ,CountMoney>=80 -> Price=80, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32960,32022,7), EffectOpp(11) 
-BUSY,"bring","me","to","venore" Premium,QuestValue(250)>2 ,CountMoney<=80 -> Price=80, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","venore" -> "I'm sorry, but you need a premium account in order to travel onboard our ships."
+# 7.4 CIP-399: BUSY,"bring","me","to","venore" Premium,CountMoney>=90 -> Price=90, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32960,32022,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","venore" Premium,CountMoney<=90 -> Price=90, "You don't have enough money."
+# 7.4 CIP-399: BUSY,"bring","me","to","venore" Premium,QuestValue(250)>2 ,CountMoney>=80 -> Price=80, "Set the sails!", DeleteMoney, EffectOpp(11), Teleport(32960,32022,7), EffectOpp(11)
+# 7.4 CIP-399: BUSY,"bring","me","to","venore" Premium,QuestValue(250)>2 ,CountMoney<=80 -> Price=80, "You don't have enough money."
 
 "thais",QuestValue(250)>2       -> Price=120, "Do you seek a passage to Thais for %P gold?", Topic=1
 "carlin",QuestValue(250)>2      -> Price=70,  "Do you seek a passage to Carlin for %P gold?", Topic=2

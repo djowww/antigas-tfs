@@ -25,7 +25,7 @@ VANISH,!           -> "Good bye."
 "allen"       -> "To think just because he is around here to watch what we do, he want to be considered one of us..."
 "richardson"  -> *
 
-"offer"           -> "We sell furniture and equipment. At this counter you can buy tables."
+"offer"           -> "I have no tables for sale at the moment."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *

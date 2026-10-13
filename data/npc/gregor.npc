@@ -83,20 +83,20 @@ Topic=3,"yes"                             -> "Here you are. Look in your spellbo
 Topic=3                                   -> "Maybe next time."
 
 #"addon",QuestValue(18506)=0,premium -> "Sorry, the backpack I wear is not for sale. It's handmade from rare minotaur leather.", Topic=4
-"backpack",QuestValue(18506)=0,premium -> *
+# 7.4 CIP-399: "backpack",QuestValue(18506)=0,premium -> *
 #"addon",QuestValue(18506)=0 -> "Ah, you noticed my new accessory? Sorry, this one is not for sale."
 #"backpack",QuestValue(18506)=0 -> *
 #"proof" -> "I cannot believe my eyes. You retrieved this hat from Ferumbras' remains? That is incredible. If you give it to me, I will grant you the right to wear this hat as addon. What do you say?", Topic=5
 #Topic=5,"yes" -> "Alright then, if you bring me 100 pieces of fine minotaur leather I will see what I can do for you. You probably have to kill really many minotaurs though...",
 				#"so good luck!", SetQuestValue(18502,1), SetQuestValue(17594,1)
 				 
-"addon",QuestValue(18508)=0 -> Type=5195, Amount=1, "Ah, have you brought the damaged steel helmet?.", Topic=6
-"adorned helmet",QuestValue(18508)=0 -> *
-Topic=6,"yes",Count(Type)>=Amount -> "Just in time, Player. Your helmet is finished, I hope you like it.", Delete(Type), SetQuestValue(18508,3), addaddon(182,2), addaddon(181,2), EffectOpp(13)
-Topic=6,"yes" -> "You don't have that many!"
-Topic=6 -> "Too bad."
+# 7.4 CIP-399: "addon",QuestValue(18508)=0 -> Type=5195, Amount=1, "Ah, have you brought the damaged steel helmet?.", Topic=6
+# 7.4 CIP-399: "adorned helmet",QuestValue(18508)=0 -> *
+# 7.4 CIP-399: Topic=6,"yes",Count(Type)>=Amount -> "Just in time, Player. Your helmet is finished, I hope you like it.", Delete(Type), SetQuestValue(18508,3), addaddon(182,2), addaddon(181,2), EffectOpp(13)
+# 7.4 CIP-399: Topic=6,"yes" -> "You don't have that many!"
+# 7.4 CIP-399: Topic=6 -> "Too bad."
 
-"addon",QuestValue(18508)=3 -> "Oh, you also have a nice helmet just like me!"
-"Adorned helmet",QuestValue(18508)=3 -> *
+# 7.4 CIP-399: "addon",QuestValue(18508)=3 -> "Oh, you also have a nice helmet just like me!"
+# 7.4 CIP-399: "Adorned helmet",QuestValue(18508)=3 -> *
 
 }

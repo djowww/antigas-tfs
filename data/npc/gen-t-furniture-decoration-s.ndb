@@ -8,14 +8,14 @@
 #"do","you","sell" -> *
 #"do","you","have" -> *
 
-"decoration"         -> "I can offer water pipes, pendulum clock, telescopes, table lamps, rocking horses, globes and birdcages. I also sell wall hangings." 
+"decoration"         -> "I can offer water pipes. I also sell wall hangings."
 "water", "pipe"      -> Type=2974, Amount=1, Price=40, "You want to buy a water pipe for %P gold?", Topic=81
-"pendulum", "clock"   -> Type=2801, Amount=1, Price=75, "You want to buy a pendulum clock for %P gold?", Topic=81
-"telescope"          -> Type=2799, Amount=1, Price=70, "You want to buy a telescope for %P gold?", Topic=81
-"table","lamp"       -> Type=2798, Amount=1, Price=35, "You want to buy a table lamp for %P gold?", Topic=81
-"rocking","horse"    -> Type=2800, Amount=1, Price=30, "You want to buy a rocking horse for %P gold?", Topic=81
-"globe"              -> Type=2797, Amount=1, Price=50, "You want to buy a globe for %P gold?", Topic=81
-"birdcage"           -> Type=2796, Amount=1, Price=50, "You want to buy a birdcage for %P gold?", Topic=81
+"pendulum", "clock"   -> "I have none in stock at the moment."
+"telescope"          -> "I have none in stock at the moment."
+"table","lamp"       -> "I have none in stock at the moment."
+"rocking","horse"    -> "I have none in stock at the moment."
+"globe"              -> "I have none in stock at the moment."
+"birdcage"           -> "I have none in stock at the moment."
 "wall","hangings"     -> "I can offer mirrors, paintings and cuckoo clocks."
 "cuckoo"              -> Type=2664, Amount=1, Price=40, "You want to buy a cuckoo clock for %P gold?", Topic=81
 "painting"           -> "Would you like a landscape, a portrait or a still life. What is your choice?"

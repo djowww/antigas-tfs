@@ -75,6 +75,7 @@ jobs:
           esac
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE="$build_type" \
+            -DTFS_BUILD_CLASSIC_RULES_TESTS=ON \
             -DTFS_BUILD_RARITY_TESTS=ON \
             -DTFS_BUILD_LUA_WATCHDOG_TESTS=ON \
             -DTFS_BUILD_LUA_ENVIRONMENT_LIFECYCLE_TESTS=ON \
@@ -160,6 +161,9 @@ jobs:
 
       - name: Run player bar UI regression tests
         run: luajit tests/playerbars-ui-tests.lua
+
+      - name: Run classic item hotkey regression tests
+        run: luajit tests/classic-hotkeys-tests.lua
 
       - name: Run Economy inventory regression tests
         run: luajit tests/economy-inventory-tests.lua
