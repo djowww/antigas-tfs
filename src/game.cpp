@@ -3160,6 +3160,12 @@ bool Game::playerSaySpell(Player* player, SpeakClasses type, const std::string& 
 		return true;
 	}
 
+	// Custom commands keep their original authorization and dispatch order.
+	// Muted speech must stop before the actual spell consumer.
+	if (player->isMuted() > 0) {
+		return false;
+	}
+
 	result = g_spells->playerSaySpell(player, words);
 	if (result == TALKACTION_BREAK) {
 		int32_t value;

@@ -9,17 +9,17 @@
 #"do","you","sell" -> *
 #"do","you","have" -> *
 
-"red", "cushioned",!   -> Type=2775, Amount=1, Price=40, "You want to buy a red cushioned chair for %P gold?", Topic=81
+"red", "cushioned",!   -> "I have none in stock at the moment."
 "red", "chair",!       -> *
-"green", "cushioned",! -> Type=2776, Amount=1, Price=40, "You want to buy a green cushioned chair for %P gold?", Topic=81
+"green", "cushioned",! -> "I have none in stock at the moment."
 "green", "chair",!     -> *
-"chair"                -> "I can offer you wooden chairs, rocking chairs, red cushioned chairs, green cushioned chairs and sofa chairs."
-"wooden", "chair"      -> Type=2777, Amount=1, Price=15, "You want to buy a wooden chair for %P gold?", Topic=81
-"rocking", "chair"       -> Type=2778, Amount=1, Price=25, "You want to buy a rocking chair for %P gold?", Topic=81
-"cushioned", "chair"   -> "I can offer you a red cushioned chair or a green cushioned chair."
-"sofa", "chair"        -> Type=2779, Amount=1, Price=55, "You want to buy a sofa chair for %P gold?", Topic=81
+"chair"                -> "I have no chairs for sale at the moment."
+"wooden", "chair"      -> "I have none in stock at the moment."
+"rocking", "chair"       -> "I have none in stock at the moment."
+"cushioned", "chair"   -> "I have no cushioned chairs for sale at the moment."
+"sofa", "chair"        -> "I have none in stock at the moment."
 
-Topic=81,"yes",Premium,CountMoney>=Price -> "Here you are.", DeleteMoney, Create(Type)
-Topic=81,"yes",CountMoney>=Price         -> "I'm sorry, but you need a premium account if you want to buy furniture."
-Topic=81,"yes"                           -> "Come back, when you have enough money."
-Topic=81                                 -> "Hmm, but I'm sure, it would fit nicely into your house."
+# 7.4 CIP-327: Topic=81,"yes",Premium,CountMoney>=Price -> "Here you are.", DeleteMoney, Create(Type)
+# 7.4 CIP-327: Topic=81,"yes",CountMoney>=Price         -> "I'm sorry, but you need a premium account if you want to buy furniture."
+# 7.4 CIP-327: Topic=81,"yes"                           -> "Come back, when you have enough money."
+# 7.4 CIP-327: Topic=81                                 -> "Hmm, but I'm sure, it would fit nicely into your house."

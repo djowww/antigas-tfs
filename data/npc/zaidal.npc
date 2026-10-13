@@ -30,7 +30,7 @@ VANISH,!           -> "Bye."
 "edron"    -> "An isle with interesting forests. With the right organisation the furniture and shipbuilding business could prosper enormously." 
 "jungle"   -> "You call it a jungle, I call it furniture in the making."
 
-"offer"           -> "I sell tables, chairs and drawers, all handmade with the material that the jungle has to offer."
+"offer"           -> "I have no tables, chairs or drawers for sale at the moment."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *

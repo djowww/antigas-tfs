@@ -4,7 +4,7 @@
 "job"                 -> "I am the local representative of the explorer society." 
 
 "explorer", "society" -> "Our noble society is dedicated to explore the unknown. No location is too remote for our members to travel there ...", "No beast is too wild to be hunted. No treasure buried too deep to be unearthed ...", "Only the most dedicated and fearless adventurers may join our ranks." 
-"base"                -> "Currently we maintain public bases in Port Hope and Northport." 
+"base"                -> "Currently we maintain public bases in Port Hope and Northport."
 "join",QuestValue(300)>0 -> "But you are already a member, %N" 
 "join",QuestValue(300)<1 -> "Do you want to join the explorer society?",topic=1 
 "no", topic=1   -> "I see. Not everyone has the guts it takes to become a professional explorer." 
@@ -67,7 +67,7 @@
 
 ######################## Missionen 
 
-"mission",QuestValue(300)>0,QuestValue(300)<4 -> "The missions available for your rank are the butterfly hunt, plant collection and ice delivery." 
+"mission",QuestValue(300)>0,QuestValue(300)<4 -> "The missions available for your rank are the butterfly hunt, plant collection and ice delivery."
 
 "butterfly", "hunt",QuestValue(300)>0,QuestValue(304)=0 -> "The mission asks you to collect some species of butterflies, are you interested?", topic=5 
 "no", topic=5 -> "Perhaps another mission suits you more." 
@@ -97,31 +97,31 @@
 
 #### topic 9 ist verwendet 
 
-"plant", "collection",QuestValue(300)>0,QuestValue(305)=0 -> "In this mission we require you to get us some plant samples from Tiquandan plants. Would you like to fulfil this mission?", topic=10 
-"no", topic=10 -> "Perhaps another mission suits you more." 
-"yes", topic=10 -> "Fine! Here take this botanist's container. Use it on a jungle bells plant to collect a sample for us. Report about your plant collection when you have been successful.", Create(4867),SetQuestValue(305,1) 
+"plant", "collection",QuestValue(300)>0,QuestValue(305)=0 -> "In this mission we require you to get us some plant samples from Tiquandan plants. Would you like to fulfil this mission?", topic=10
+"no", topic=10 -> "Perhaps another mission suits you more."
+"yes", topic=10 -> "Fine! Here take this botanist's container. Use it on a jungle bells plant to collect a sample for us. Report about your plant collection when you have been successful.", Create(4867),SetQuestValue(305,1)
 
-"plant", "collection",QuestValue(305)=1 -> "Did you acquire the sample of the jungle bells plant we are looking for?",Type=4868,Amount=1, topic=11 
-"no", topic=11                               -> "Then go and look for one." 
-"yes", topic=11,Count(Type)<Amount   -> "Sorry, you don't have a useful sample." 
-"yes", topic=11,Count(Type)>=Amount  -> "I see. It seems you've got some quite useful sample by sheer luck. Thank you! Just tell me when you are ready to continue with the plant collection.", Delete(Type),SetQuestValue(305,2) 
+"plant", "collection",QuestValue(305)=1 -> "Did you acquire the sample of the jungle bells plant we are looking for?",Type=4868,Amount=1, topic=11
+"no", topic=11                               -> "Then go and look for one."
+"yes", topic=11,Count(Type)<Amount   -> "Sorry, you don't have a useful sample."
+"yes", topic=11,Count(Type)>=Amount  -> "I see. It seems you've got some quite useful sample by sheer luck. Thank you! Just tell me when you are ready to continue with the plant collection.", Delete(Type),SetQuestValue(305,2)
 
-"plant", "collection",QuestValue(305)=2 -> "Use this botanist's container on a witches cauldron to collect a sample for us. Bring it here and report about your plant collection.", Create(4867),SetQuestValue(305,3) 
+"plant", "collection",QuestValue(305)=2 -> "Use this botanist's container on a witches cauldron to collect a sample for us. Bring it here and report about your plant collection.", Create(4867),SetQuestValue(305,3)
 
-"plant", "collection",QuestValue(305)=3 -> "Did you acquire the sample of the witches cauldron we are looking for?",Type=4870,Amount=1, topic=12 
-"no", topic=12              -> "Then go and look for one." 
-"yes", topic=12,Count(Type)<Amount    -> "Sorry, you don't have any useful sample." 
-"yes", topic=12,Count(Type)>=Amount   -> "Ah, finally. I started to wonder what took you so long. But thank you! Another fine sample, indeed. Just tell me when you are ready to continue with the plant collection.", Delete(Type),SetQuestValue(305,4) 
+"plant", "collection",QuestValue(305)=3 -> "Did you acquire the sample of the witches cauldron we are looking for?",Type=4870,Amount=1, topic=12
+"no", topic=12              -> "Then go and look for one."
+"yes", topic=12,Count(Type)<Amount    -> "Sorry, you don't have any useful sample."
+"yes", topic=12,Count(Type)>=Amount   -> "Ah, finally. I started to wonder what took you so long. But thank you! Another fine sample, indeed. Just tell me when you are ready to continue with the plant collection.", Delete(Type),SetQuestValue(305,4)
 
-"plant", "collection",QuestValue(305)=4 -> "Use this botanist's container on a giant jungle rose to obtain a sample for us. Bring it here and report about your plant collection.", Create(4867),SetQuestValue(305,5) 
+"plant", "collection",QuestValue(305)=4 -> "Use this botanist's container on a giant jungle rose to obtain a sample for us. Bring it here and report about your plant collection.", Create(4867),SetQuestValue(305,5)
 
-"plant", "collection",QuestValue(305)=5 -> "Did you acquire the sample of the giant jungle rose we are looking for?",Type=4869,Amount=1, topic=13 
-"no", topic=13           -> "Then go and look for one. Keep in mind we need samples of the giant jungle rose, not the small one." 
-"yes", topic=13,Count(Type)<Amount     -> "Sorry you don't have any useful sample. Perhaps you did not use the botanist's container on a giant jungle rose as requested, but on a small one." 
-"yes", topic=13,Count(Type)>=Amount    -> "What a lovely sample! With that you have finished your plant collection missions.", Delete(Type),SetQuestValue(305,6),SetQuestValue(300,QuestValue(300)+1) 
+"plant", "collection",QuestValue(305)=5 -> "Did you acquire the sample of the giant jungle rose we are looking for?",Type=4869,Amount=1, topic=13
+"no", topic=13           -> "Then go and look for one. Keep in mind we need samples of the giant jungle rose, not the small one."
+"yes", topic=13,Count(Type)<Amount     -> "Sorry you don't have any useful sample. Perhaps you did not use the botanist's container on a giant jungle rose as requested, but on a small one."
+"yes", topic=13,Count(Type)>=Amount    -> "What a lovely sample! With that you have finished your plant collection missions.", Delete(Type),SetQuestValue(305,6),SetQuestValue(300,QuestValue(300)+1)
 
 
-"plant", "collection",QuestValue(305)=6 -> "You have already finished the plant collection missions. Of course you can always ask me what missions are available." 
+"plant", "collection",QuestValue(305)=6 -> "You have already finished the plant collection missions. Of course you can always ask me what missions are available."
 
 "ice", "delivery",QuestValue(300)>0,QuestValue(306)=0 -> "Our finest minds came up with the theory that deep beneath the ice island of Folda ice can be found that is ancient. To prove this theory we would need a sample of the aforesaid ice ...", "Of course the ice melts away quickly so you would need to hurry to bring it here ...", "Would you like to accept this mission?",topic=14 
 
@@ -160,20 +160,20 @@
 ########################
 
 
-"mission",QuestValue(300)>3,QuestValue(300)<7 -> "The missions available for your rank are lizard urn, beholder secrets and orc powder." 
+"mission",QuestValue(300)>3,QuestValue(300)<7 -> "The missions available for your rank are lizard urn, beholder secrets and orc powder."
 
-"lizard", "urn",QuestValue(308)=0,QuestValue(300)>3 -> "The explorer society would like to acquire an ancient urn which is some sort of relic to the lizard people of Tiquanda. Would you like to accept this mission?",topic=17 
+"lizard", "urn",QuestValue(308)=0,QuestValue(300)>3 -> "The explorer society would like to acquire an ancient urn which is some sort of relic to the lizard people of Tiquanda. Would you like to accept this mission?",topic=17
 
-"no",topic=17 -> "Perhaps another mission suits you more." 
+"no",topic=17 -> "Perhaps another mission suits you more."
 "yes",topic=17 -> "You have indeed the spirit of an adventurer! In the south-east of Tiquanda is a small settlement of the lizard people ...", "Beneath the newly constructed temple there, the lizards hide the said urn. Our attempts to acquire this item were without success ...", "Perhaps you are more successful.",SetQuestValue(308,1)
 
-"lizard", "urn",QuestValue(308)=1 -> "Did you manage to get the ancient urn?",Type=4847,Amount=1,topic=18 
+"lizard", "urn",QuestValue(308)=1 -> "Did you manage to get the ancient urn?",Type=4847,Amount=1,topic=18
 
-"no",topic=18     -> "It must be somewhere beneath the newly constructed lizard temple in the south-east of Tiquanda." 
-"yes",topic=18,Count(Type)<Amount     -> "Sorry, you don't have the urn. It has to be somewhere beneath the newly constructed lizard temple in the south-east of Tiquanda." 
-"yes",topic=18,Count(Type)>=Amount    -> "Yes, that is the prized relic we have been looking for so long. You did a great job, thank you.", Delete(Type),SetQuestValue(308,2),SetQuestValue(300,QuestValue(300)+1) 
+"no",topic=18     -> "It must be somewhere beneath the newly constructed lizard temple in the south-east of Tiquanda."
+"yes",topic=18,Count(Type)<Amount     -> "Sorry, you don't have the urn. It has to be somewhere beneath the newly constructed lizard temple in the south-east of Tiquanda."
+"yes",topic=18,Count(Type)>=Amount    -> "Yes, that is the prized relic we have been looking for so long. You did a great job, thank you.", Delete(Type),SetQuestValue(308,2),SetQuestValue(300,QuestValue(300)+1)
 
-"lizard", "urn",QuestValue(308)=2 -> "You already retrieved the urn for us. Of course you can always ask me what missions are available." 
+"lizard", "urn",QuestValue(308)=2 -> "You already retrieved the urn for us. Of course you can always ask me what missions are available."
 
 ######################
 
@@ -207,7 +207,7 @@
 #  NEUE MISSIONEN (7-9)  #
 ##########################
 
-"mission",QuestValue(300)>6,QuestValue(300)<10 -> "The missions available for your rank are elven poetry, memory stone and rune writings." 
+"mission",QuestValue(300)>6,QuestValue(300)<10 -> "The missions available for your rank are elven poetry, memory stone and rune writings."
 
 "elven", "poetry",QuestValue(311)=0,QuestValue(300)>6 -> "Some high ranking members would like to study elven poetry. They want the rare book 'Songs of the Forest' ...", "For sure someone in Ab'Dendriel will own a copy. So you would just have to ask around there. Are you willing to accept this mission?",topic=22
 "no",topic=22  -> "Perhaps another mission suits you more." 
@@ -242,17 +242,17 @@
 
 #########################
 
-"rune", "writing",QuestValue(315)=0,QuestValue(300)>6 -> "We would like to study some ancient runes that were used by the lizard race. We suspect some relation of the lizards to the founders of Ankrahmun ...", "Somewhere under the ape infested city of Banuta, one can find dungeons that were once inhabited by lizards ...", "Look there for an atypical structure that would rather fit to Ankrahmun and its tombs. Copy the runes you will find on this structure ...", "Are you up to that challenge?",topic=26 
-"no",topic=26  -> "Perhaps you are interested at another time." 
-"yes",topic=26 -> "Excellent! Here, take this tracing paper and use it on the object you will find there to create a copy of the ancient runes.", Create(4842),SetQuestValue(315,1) 
+"rune", "writing",QuestValue(315)=0,QuestValue(300)>6 -> "We would like to study some ancient runes that were used by the lizard race. We suspect some relation of the lizards to the founders of Ankrahmun ...", "Somewhere under the ape infested city of Banuta, one can find dungeons that were once inhabited by lizards ...", "Look there for an atypical structure that would rather fit to Ankrahmun and its tombs. Copy the runes you will find on this structure ...", "Are you up to that challenge?",topic=26
+"no",topic=26  -> "Perhaps you are interested at another time."
+"yes",topic=26 -> "Excellent! Here, take this tracing paper and use it on the object you will find there to create a copy of the ancient runes.", Create(4842),SetQuestValue(315,1)
 
-"rune", "writing",QuestValue(315)=1 -> "Did you create a copy of the ancient runes as requested?",Type=4843,Amount=1,topic=27 
-"no",topic=27 -> "Please remember, somewhere in the dungeons beneath Banuta has to be some structure that seemingly does not belong there. Use the copy paper on it." 
-"yes",topic=27,Count(Type)<Amount -> "You don't have any copy of the runes that we need!" 
-"yes",topic=27,Count(Type)>=Amount,QuestValue(316)=0 -> "This copy is ruined by sweat and blood, sorry. Travel to Banuta and make sure to make a clean copy." 
+"rune", "writing",QuestValue(315)=1 -> "Did you create a copy of the ancient runes as requested?",Type=4843,Amount=1,topic=27
+"no",topic=27 -> "Please remember, somewhere in the dungeons beneath Banuta has to be some structure that seemingly does not belong there. Use the copy paper on it."
+"yes",topic=27,Count(Type)<Amount -> "You don't have any copy of the runes that we need!"
+"yes",topic=27,Count(Type)>=Amount,QuestValue(316)=0 -> "This copy is ruined by sweat and blood, sorry. Travel to Banuta and make sure to make a clean copy."
 "yes",topic=27,Count(Type)>=Amount,QuestValue(316)=1 -> "It's a bit wrinkled but it will do. Thanks again.", Delete(Type),SetQuestValue(315,2),SetQuestValue(300,QuestValue(300)+1)
 
-"rune", "writing",QuestValue(315)=2 -> "You already brought us a copy of those runes which gave us some interesting insights." 
+"rune", "writing",QuestValue(315)=2 -> "You already brought us a copy of those runes which gave us some interesting insights."
 
 ########################
 
@@ -291,10 +291,10 @@
 
 #####################
 
-"portals",QuestValue(320)=5 -> "Sorry, you did not charge both floor tiles as requested." 
+"portals",QuestValue(320)=5 -> "Sorry, you did not charge both floor tiles as requested."
 "mission",QuestValue(320)=5 -> *
 
-"portals",QuestValue(320)=5,QuestValue(321)=1,QuestValue(322)=1,QuestValue(323)=0 -> Amount=6, Type=5021,"Both carvings are now charged and harmonised. In theory you should be able to travel in zero time from one base to the other ...", "However, you will need to have an orichalcum pearl in your possession to use it as power source. It will be destroyed during the process. I will give you 6 of such pearls and you can buy new ones in our bases ...", "In addition, you need to be a premium explorer to use the astral travel ...", "And remember: it's a small teleport for you, but a big teleport for all Tibians.",SetQuestValue(323,1), Create(Type) 
+"portals",QuestValue(320)=5,QuestValue(321)=1,QuestValue(322)=1,QuestValue(323)=0 -> Amount=6, Type=5021,"Both carvings are now charged and harmonised. In theory you should be able to travel in zero time from one base to the other ...", "However, you will need to have an orichalcum pearl in your possession to use it as power source. It will be destroyed during the process. I will give you 6 of such pearls and you can buy new ones in our bases ...", "In addition, you need to be a premium explorer to use the astral travel ...", "And remember: it's a small teleport for you, but a big teleport for all Tibians.",SetQuestValue(323,1), Create(Type)
 "mission",QuestValue(320)=5,QuestValue(321)=1,QuestValue(322)=1,QuestValue(323)=0 -> *
 
 "portals",QuestValue(320)=5,QuestValue(321)=1,QuestValue(322)=1,QuestValue(323)=1 -> "The portals should be ready to be used now. If you have an orichalcum pearl with you, enter the portal."
