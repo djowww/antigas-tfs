@@ -40,6 +40,7 @@ hotkeysList = {}
 hotkeyConfigs = {}
 currentConfig = 1
 configValueChanged = false
+local pendingConfigs = {}
 
 local function isDisabledItemHotkey(hotkey)
   return OLD_SCHOOL and hotkey and hotkey.itemId ~= nil and not hotkey.action
@@ -181,7 +182,7 @@ function load(forceDefaults)
 
   configSelector:setCurrentIndex(currentConfig, true)
 
-  local hotkeySettings = hotkeyConfigs[currentConfig]:getNode('hotkeys')
+  local hotkeySettings = pendingConfigs[currentConfig] or hotkeyConfigs[currentConfig]:getNode('hotkeys')
   local hotkeys = {}
 
   if not table.empty(hotkeySettings) then hotkeys = hotkeySettings end
@@ -199,15 +200,17 @@ function load(forceDefaults)
     end
   end
 
-  if currentHotkeys:getChildCount() == 0 then
+  if currentHotkeys:getChildCount() == 0 and (forceDefaults or pendingConfigs[currentConfig] == nil) then
     loadDefautComboKeys()
   end
 
-  configValueChanged = false
+  configValueChanged = pendingConfigs[currentConfig] ~= nil
   hotkeysManagerLoaded = true
 end
 
-function unload()
+function unload(keepPendingConfigs)
+  hotkeysManagerLoaded = false
+  if not keepPendingConfigs then pendingConfigs = {} end
   local gameRootPanel = modules.game_interface.getRootPanel()
   for keyCombo,callback in pairs(boundCombosCallback) do
     g_keyboard.unbindKeyPress(keyCombo, callback, gameRootPanel)
@@ -217,11 +220,14 @@ function unload()
   currentHotkeyLabel = nil
   updateHotkeyForm(true)
   hotkeyList = {}
+  configValueChanged = false
 end
 
 function reset()
-  unload()
+  pendingConfigs[currentConfig] = nil
+  unload(true)
   load(true)
+  configValueChanged = true
 end
 
 function reload()
@@ -229,11 +235,7 @@ function reload()
   load()
 end
 
-function save()
-  if not configValueChanged then
-    return
-  end
-
+local function collectCurrentConfig()
   local previousSettings = hotkeyConfigs[currentConfig]:getNode('hotkeys') or {}
   local hotkeySettings = {}
 
@@ -258,6 +260,25 @@ function save()
       }
     end
   end
+  return hotkeySettings
+end
+
+local function keepCurrentDraft()
+  if configValueChanged then
+    pendingConfigs[currentConfig] = collectCurrentConfig()
+  end
+end
+
+function save()
+  keepCurrentDraft()
+  if table.empty(pendingConfigs) then return end
+
+  -- Only confirmation writes drafts; switching keeps them in memory.
+  local hotkeySettings = pendingConfigs[currentConfig] or hotkeyConfigs[currentConfig]:getNode('hotkeys') or {}
+  for configIndex, settings in pairs(pendingConfigs) do
+    hotkeyConfigs[configIndex]:setNode('hotkeys', settings)
+    hotkeyConfigs[configIndex]:save()
+  end
 
   hotkeyList = {}
   for keyCombo, setting in pairs(hotkeySettings) do
@@ -265,23 +286,24 @@ function save()
       hotkeyList[keyCombo] = setting
     end
   end
-  hotkeyConfigs[currentConfig]:setNode('hotkeys', hotkeySettings)
-  hotkeyConfigs[currentConfig]:save()
-
   local index = g_game.getCharacterName() .. "_" .. g_game.getClientVersion()
   local hotkeysNode = g_settings.getNode('hotkeys') or {}
   hotkeysNode[index] = currentConfig
   g_settings.setNode('hotkeys', hotkeysNode)
   g_settings.save()
+  pendingConfigs = {}
+  configValueChanged = false
 end
 
 function onConfigChange()
   if not configSelector then return end
+  keepCurrentDraft()
   local index = g_game.getCharacterName() .. "_" .. g_game.getClientVersion()
   local hotkeysNode = g_settings.getNode('hotkeys') or {}
   hotkeysNode[index] = configSelector.currentIndex
   g_settings.setNode('hotkeys', hotkeysNode)
-  reload()
+  unload(true)
+  load()
 end
 
 function loadDefautComboKeys()

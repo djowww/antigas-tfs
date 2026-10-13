@@ -72,7 +72,7 @@ local function newClient(oldSchool, version, presetNodes)
   env.tr = function(format, ...) return string.format(format, ...) end
   env.toboolean = function(value) return value == true or value == 'true' or value == 1 end
   env.g_clock = {millis = function() return 1000 end}
-  local effects = {network = {}, sent = {}, edited = {}, actions = {}, scheduled = 0, turns = 0}
+  local effects = {network = {}, sent = {}, edited = {}, actions = {}, scheduled = 0, turns = 0, settingsSaves = 0}
   local item = {id = 3155}
   local player = {kind = 'local-player'}
   local target = {kind = 'attacking-creature', getTile = function() return {} end}
@@ -111,7 +111,7 @@ local function newClient(oldSchool, version, presetNodes)
     getNode = function(name) assert(name == 'hotkeys'); return settings end,
     setNode = function(name, value) assert(name == 'hotkeys'); settings = value end,
     getNumber = function(name) assert(name == 'hotkeyDelay'); return 50 end,
-    save = function() end,
+    save = function() effects.settingsSaves = effects.settingsSaves + 1 end,
   }
   local bindings = {}
   env.g_keyboard = {
@@ -142,10 +142,10 @@ local function newClient(oldSchool, version, presetNodes)
   local nodes = presetNodes or {{}}
   local saved = {}
   for index, node in ipairs(nodes) do
-    local config = {node = copy(node), saves = 0}
+    local config = {node = copy(node), persisted = copy(node), saves = 0}
     function config:getNode(name) assert(name == 'hotkeys'); return self.node end
     function config:setNode(name, value) assert(name == 'hotkeys'); self.node = value end
-    function config:save() self.saves = self.saves + 1 end
+    function config:save() self.saves = self.saves + 1; self.persisted = copy(self.node) end
     env.hotkeyConfigs[index] = config
     saved[index] = config
   end
@@ -272,6 +272,246 @@ test('classic can intentionally replace a hidden item combo with text', function
     'explicit text replacement must save on the chosen combo')
   env.doKeyCombo('F1', false)
   assert(effects.sent[1] == 'exori' and #effects.network == 0, 'text replacement must execute as text')
+end)
+
+local function presetFixture(oldSchool)
+  local nodes = {}
+  for index = 1, 5 do
+    nodes[index] = {F2 = {value = 'original preset ' .. index, autoSend = true}}
+    if oldSchool then
+      nodes[index].F1 = {itemId = '3155', subType = '7', useType = '2', legacyMetadata = 'keep ' .. index}
+    end
+  end
+  local env, effects, bindings, saved = newClient(oldSchool, 772, nodes)
+  env.load()
+  return env, effects, bindings, saved
+end
+
+local function selectPreset(env, index)
+  env.configSelector.currentIndex = index
+  env.onConfigChange()
+  assert(env.currentConfig == index, 'preset switch loaded the wrong configuration')
+end
+
+local function editPresetText(env, value)
+  env.currentHotkeyLabel = env.currentHotkeys:getChildById('F2')
+  env.onHotkeyTextChange(value)
+end
+
+local function assertHiddenItem(config, index)
+  local hidden = config.node.F1
+  assert(hidden and hidden.itemId == '3155' and hidden.subType == '7' and hidden.useType == '2'
+    and hidden.legacyMetadata == 'keep ' .. index, 'hidden legacy item or metadata was discarded')
+end
+
+local function assertPresetsUnwritten(saved, effects)
+  assert(effects.settingsSaves == 0, 'settings were persisted before OK')
+  for index, config in ipairs(saved) do
+    assert(config.saves == 0 and config.node.F2.value == 'original preset ' .. index
+      and config.persisted.F2.value == 'original preset ' .. index,
+      'draft mutated the stored preset before OK')
+  end
+end
+
+for _, oldSchool in ipairs({true, false}) do
+  local mode = oldSchool and 'classic' or 'modern'
+
+  test(mode .. ' Reset followed by OK persists defaults through reload', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    env.reset()
+    assert(env.currentHotkeys:getChildById('F2').value == '', 'Reset did not load defaults')
+    env.ok()
+    env.reload()
+    assert(env.currentHotkeys:getChildById('F2').value == '', 'OK lost Reset defaults on reload')
+    assert(saved[1].persisted.F2.value == '' and saved[1].saves == 1, 'Reset defaults were not persisted')
+    if oldSchool then assertHiddenItem(saved[1], 1) end
+  end)
+
+  test(mode .. ' Reset followed by Cancel restores the stored preset', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    env.reset()
+    env.cancel()
+    assert(env.currentHotkeys:getChildById('F2').value == 'original preset 1', 'Cancel retained Reset defaults')
+    assertPresetsUnwritten(saved, effects)
+  end)
+
+  test(mode .. ' preset switching retains drafts without writing configurations', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    editPresetText(env, 'draft A')
+    selectPreset(env, 2)
+    editPresetText(env, 'draft B')
+    selectPreset(env, 1)
+    assert(env.currentHotkeys:getChildById('F2').value == 'draft A', 'A draft disappeared after A to B to A')
+    selectPreset(env, 2)
+    assert(env.currentHotkeys:getChildById('F2').value == 'draft B', 'B draft disappeared on return')
+    assertPresetsUnwritten(saved, effects)
+  end)
+
+  test(mode .. ' OK persists drafts from all five presets including Reset', function()
+    local env, effects, bindings, saved = presetFixture(oldSchool)
+    for index = 1, 5 do
+      selectPreset(env, index)
+      if index == 2 then env.reset() else editPresetText(env, 'draft preset ' .. index) end
+    end
+    assertPresetsUnwritten(saved, effects)
+    local currentBinding = bindings.F2
+    env.ok()
+    assert(bindings.F2 == currentBinding, 'saving another preset rebound the active hotkey')
+    for index, config in ipairs(saved) do
+      local expected = index == 2 and '' or 'draft preset ' .. index
+      assert(config.persisted.F2.value == expected and config.saves == 1, 'OK did not persist every draft')
+      if oldSchool then assertHiddenItem(config, index) end
+      selectPreset(env, index)
+      assert(env.currentHotkeys:getChildById('F2').value == expected, 'saved draft did not survive reload')
+      if oldSchool then assert(env.hotkeyList.F1 == nil, 'saving drafts reactivated a hidden item') end
+    end
+    assert(effects.settingsSaves == 1, 'OK must persist selection once')
+  end)
+
+  test(mode .. ' OK persists outgoing drafts when the selected preset is unchanged', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    editPresetText(env, 'draft A')
+    selectPreset(env, 2)
+    env.ok()
+    assert(saved[1].persisted.F2.value == 'draft A' and saved[1].saves == 1,
+      'OK ignored an outgoing draft while the active preset was clean')
+    assert(saved[2].saves == 0 and saved[2].persisted.F2.value == 'original preset 2',
+      'OK rewrote an unchanged destination preset')
+    assert(env.currentConfig == 2 and env.g_settings.getNode('hotkeys').Fixture_772 == 2,
+      'OK persisted the outgoing selection instead of the selected preset')
+  end)
+
+  test(mode .. ' Cancel discards every preset draft including Reset', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    editPresetText(env, 'discard A')
+    selectPreset(env, 2)
+    env.reset()
+    selectPreset(env, 3)
+    editPresetText(env, 'discard C')
+    env.cancel()
+    assert(env.currentConfig == 3, 'Cancel changed the currently selected preset')
+    for index = 1, 5 do
+      selectPreset(env, index)
+      assert(env.currentHotkeys:getChildById('F2').value == 'original preset ' .. index,
+        'Cancel left a draft in another preset')
+      if oldSchool then assertHiddenItem(saved[index], index) end
+    end
+    env.ok()
+    assertPresetsUnwritten(saved, effects)
+  end)
+
+  test(mode .. ' hiding and reopening retain drafts for later OK', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    editPresetText(env, 'draft A')
+    selectPreset(env, 2)
+    editPresetText(env, 'draft B')
+    env.toggle()
+    env.toggle()
+    selectPreset(env, 1)
+    assert(env.currentHotkeys:getChildById('F2').value == 'draft A', 'visibility toggle lost outgoing drafts')
+    assertPresetsUnwritten(saved, effects)
+    env.ok()
+    assert(saved[1].persisted.F2.value == 'draft A' and saved[2].persisted.F2.value == 'draft B',
+      'OK did not save drafts kept through a visibility toggle')
+  end)
+
+  test(mode .. ' removing the last visible hotkey retains an empty draft across presets', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    env.currentHotkeyLabel = env.currentHotkeys:getChildById('F2')
+    env.removeHotkey()
+    assert(env.currentHotkeys:getChildCount() == 0, 'last hotkey was not removed')
+    selectPreset(env, 2)
+    selectPreset(env, 1)
+    assert(env.currentHotkeys:getChildCount() == 0, 'empty draft was replaced with default hotkeys')
+    assertPresetsUnwritten(saved, effects)
+    env.ok()
+    assert(saved[1].persisted.F2 == nil and saved[1].saves == 1, 'OK did not persist the deletion')
+    if oldSchool then
+      assertHiddenItem(saved[1], 1)
+      for combo in pairs(saved[1].persisted) do
+        assert(combo == 'F1', 'defaults were persisted over an empty visible draft')
+      end
+    else
+      assert(next(saved[1].persisted) == nil, 'defaults were persisted over an empty draft')
+    end
+  end)
+
+  test(mode .. ' Cancel discards an empty draft after switching presets', function()
+    local env, effects, _, saved = presetFixture(oldSchool)
+    env.currentHotkeyLabel = env.currentHotkeys:getChildById('F2')
+    env.removeHotkey()
+    selectPreset(env, 2)
+    env.cancel()
+    selectPreset(env, 1)
+    assert(env.currentHotkeys:getChildById('F2').value == 'original preset 1', 'Cancel retained deletion draft')
+    assertPresetsUnwritten(saved, effects)
+  end)
+end
+
+test('empty stored configurations use defaults when there is no draft', function()
+  local env = newClient(false, 772, {{}})
+  env.load()
+  assert(env.currentHotkeys:getChildCount() == 16, 'empty stored preset no longer falls back to defaults')
+end)
+
+test('Reset explicitly loads defaults after deleting the last hotkey', function()
+  local env, _, _, saved = presetFixture(false)
+  env.currentHotkeyLabel = env.currentHotkeys:getChildById('F2')
+  env.removeHotkey()
+  selectPreset(env, 2)
+  selectPreset(env, 1)
+  env.reset()
+  assert(env.currentHotkeys:getChildCount() == 16, 'Reset did not replace the empty draft with defaults')
+  env.ok()
+  assert(saved[1].persisted.F2 and saved[1].persisted.F2.value == '', 'OK did not persist explicit Reset defaults')
+end)
+
+for _, lifecycle in ipairs({'reload', 'online', 'offline'}) do
+  test('classic ' .. lifecycle .. ' discards drafts without persisting them', function()
+    local env, effects, _, saved = presetFixture(true)
+    editPresetText(env, 'discard A')
+    selectPreset(env, 2)
+    editPresetText(env, 'discard B')
+    env[lifecycle]()
+    if lifecycle == 'offline' then env.online() end
+    selectPreset(env, 1)
+    assert(env.currentHotkeys:getChildById('F2').value == 'original preset 1', 'lifecycle retained A draft')
+    selectPreset(env, 2)
+    assert(env.currentHotkeys:getChildById('F2').value == 'original preset 2', 'lifecycle retained B draft')
+    env.ok()
+    assertPresetsUnwritten(saved, effects)
+  end)
+end
+
+test('classic drafts retain explicit text replacements of hidden item combos', function()
+  local env, effects, _, saved = presetFixture(true)
+  env.addKeyCombo('F1', {value = 'exori', autoSend = true})
+  selectPreset(env, 2)
+  selectPreset(env, 1)
+  local replacement = env.currentHotkeys:getChildById('F1')
+  assert(replacement and replacement.value == 'exori', 'preset switch lost the explicit item-to-text draft')
+  assertPresetsUnwritten(saved, effects)
+  env.ok()
+  assert(saved[1].persisted.F1.itemId == nil and saved[1].persisted.F1.value == 'exori',
+    'OK restored a hidden item over its explicit text replacement')
+  env.doKeyCombo('F1', false)
+  assert(effects.sent[1] == 'exori' and #effects.network == 0, 'saved replacement did not execute as text')
+end)
+
+test('classic Reset replaces the current draft while retaining other preset drafts', function()
+  local env, effects, _, saved = presetFixture(true)
+  editPresetText(env, 'draft A')
+  selectPreset(env, 2)
+  editPresetText(env, 'draft B')
+  selectPreset(env, 1)
+  env.reset()
+  selectPreset(env, 2)
+  assert(env.currentHotkeys:getChildById('F2').value == 'draft B', 'Reset discarded another preset draft')
+  env.ok()
+  assert(saved[1].persisted.F2.value == '' and saved[2].persisted.F2.value == 'draft B',
+    'OK did not save current Reset and other preset draft')
+  assertHiddenItem(saved[1], 1)
+  assertHiddenItem(saved[2], 2)
 end)
 
 -- Removing the non-classic branch would break clients that support item hotkeys.

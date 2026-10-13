@@ -15,6 +15,8 @@ O Antigas combina um recorte clássico com sistemas próprios. As alterações a
 
 ## Sistemas e progresso preservados
 
+Spears não quebram e cada arremesso transfere uma unidade da mão para o tile de destino, tanto no acerto quanto no erro; é necessário recuperá-las para continuar usando a mesma pilha. Essa regra não foi estendida às throwing stars: o destino anterior à mudança de 2005 ainda não foi confirmado em fonte primária.
+
 Shared experience e seu bônus continuam como escolhas customizadas do Antigas. Sua preservação não os classifica como recursos originais do 7.4. Permanecem também os sistemas próprios, incluindo Market, raridade, conquistas, Bestiary e trainers customizados.
 
 O saldo persistido e as APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. A retirada de um fluxo não apaga seus códigos, definições de itens, storages, outfits, itens possuídos ou progresso já salvo. Construction kits stock já possuídos permanecem como itens, mas sua abertura está desativada; os pacotes dos trainers customizados mantêm seu funcionamento.
