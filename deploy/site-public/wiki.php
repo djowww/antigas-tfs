@@ -38,7 +38,7 @@ $sections = [
       <p class="motto"><?= siteT('Wiki Antigas') ?></p>
     </header>
     <nav class="topnav" aria-label="<?= siteT('Main navigation') ?>">
-      <a href="/"><?= siteT('Home') ?></a><a href="/wiki.php" aria-current="page"><?= siteT('Wiki Antigas') ?></a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Buy coins') ?></a><a href="/Antigas-7.4-Launcher-v66.zip?site=achievement-ranks-v66-20261003"><?= siteT('Download') ?></a>
+      <a href="/"><?= siteT('Home') ?></a><a href="/wiki.php" aria-current="page"><?= siteT('Wiki Antigas') ?></a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Buy coins') ?></a><a href="/Antigas-7.4-Launcher-v67.zip?site=classic-rules-v67-20261013"><?= siteT('Download') ?></a>
     </nav>
     <?= siteLanguageSwitcher() ?>
   </div>
@@ -59,7 +59,7 @@ $sections = [
           <?php foreach ($sections as $id => [$title, $body]): ?><a href="#<?= e($id) ?>"><?= siteT($title) ?></a><?php endforeach; ?>
         </nav>
       </details>
-      <div class="wiki-callout"><p><?= siteT('The local guide follows the current website and client release.') ?></p><a class="button" href="/Antigas-7.4-Launcher-v66.zip?site=achievement-ranks-v66-20261003"><?= siteT('Download Antigas 7.4 client') ?></a></div>
+      <div class="wiki-callout"><p><?= siteT('The local guide follows the current website and client release.') ?></p><a class="button" href="/Antigas-7.4-Launcher-v67.zip?site=classic-rules-v67-20261013"><?= siteT('Download Antigas 7.4 client') ?></a></div>
       <?php foreach ($sections as $id => [$title, $body]): ?>
         <section class="wiki-entry" id="<?= e($id) ?>">
           <h2><?= siteT($title) ?></h2>
