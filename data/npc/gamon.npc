@@ -58,7 +58,7 @@ VANISH,!                  -> "Lady? Lady?? Hm. How strange..."
 "artist"          -> "Yes! Selling is a form of art! The elaborate combination of rhetoric and acting which serves to create a sublime longing for the infinite, embodied by second class furniture."
 "rug"             -> "Oh, silly me! Rugs are out of stock at the moment! But we expect a new shipment anytime. Just watch out for the next update!... Of our inventory I mean."
 
-"offer"           -> "I sell statues, tables, chairs, flowers, pillows, pottery, instruments, decoration, tapestries and containers."
+"offer"           -> "I sell flowers, pillows, pottery, decoration, tapestries and containers."
 "goods"           -> *
 "do","you","sell" -> *
 "do","you","have" -> *

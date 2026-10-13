@@ -189,17 +189,17 @@ Topic=5,"no"                             -> "What a pity."
 #"hat",QuestValue(18507)=0,premium -> *
 #"addon",QuestValue(18507)=0 -> "Ah, you noticed my new accessory? Sorry, this one is not for sale."
 #"hat",QuestValue(18507)=0 -> *
-"addon"-> "Would you rather be interested in a knight's sword or in a warrior's sword?", Topic=22
-Topic=22,"yes" -> "Great! Simply bring me 100 Iron Ore and one Crude Iron and I will happily forge it for you.", SetQuestValue(18507,1), SetQuestValue(17598,1)
+# 7.4 CIP-399: "addon"-> "Would you rather be interested in a knight's sword or in a warrior's sword?", Topic=22
+# 7.4 CIP-399: Topic=22,"yes" -> "Great! Simply bring me 100 Iron Ore and one Crude Iron and I will happily forge it for you.", SetQuestValue(18507,1), SetQuestValue(17598,1)
 				 
-"forge",QuestValue(18507)=1 -> Type=5183, Amount=100, "What would you like me to forge for you? A knight's sword or a warrior's sword?", Topic=23
-"addon",QuestValue(18507)=1 -> *
-Topic=23,"yes",Count(5183)>=100,Count(5192)>=1 -> "Alright! As a matter of fact, I have one in store. Here you go!.", Amount=100, Delete(5183), SetQuestValue(18507,3), Amount=1, Delete(5192), addaddon(181,1), addaddon(182,1), EffectOpp(13)
-Topic=23,"yes" -> "You don't have that many!"
-Topic=23 -> "Too bad."
+# 7.4 CIP-399: "forge",QuestValue(18507)=1 -> Type=5183, Amount=100, "What would you like me to forge for you? A knight's sword or a warrior's sword?", Topic=23
+# 7.4 CIP-399: "addon",QuestValue(18507)=1 -> *
+# 7.4 CIP-399: Topic=23,"yes",Count(5183)>=100,Count(5192)>=1 -> "Alright! As a matter of fact, I have one in store. Here you go!.", Amount=100, Delete(5183), SetQuestValue(18507,3), Amount=1, Delete(5192), addaddon(181,1), addaddon(182,1), EffectOpp(13)
+# 7.4 CIP-399: Topic=23,"yes" -> "You don't have that many!"
+# 7.4 CIP-399: Topic=23 -> "Too bad."
 
-"addon",QuestValue(18507)=3 -> "Oh, you also have a nice sword just like me!"
-"forge",QuestValue(18507)=3 -> *
+# 7.4 CIP-399: "addon",QuestValue(18507)=3 -> "Oh, you also have a nice sword just like me!"
+# 7.4 CIP-399: "forge",QuestValue(18507)=3 -> *
 
 
 }

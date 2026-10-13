@@ -139,16 +139,16 @@ Topic=3,"yes",CountMoney<Price            -> "Sorry, you do not have enough gold
 Topic=3,"yes"                             -> "Here you are. Look in your spellbook for the pronunciation of this spell.", DeleteMoney, EffectOpp(13), TeachSpell(String)
 Topic=3                                   -> "Maybe next time."
 
-"addon"-> "Would you like to wear bear paws like I do? No problem, just bring me 100 bear paws and 100 wolf paws and I'll fit them on.", Topic=22
-Topic=22,"yes" -> "Great! Simply bring me bring me 100 bear paws and 100 wolf paws and I will happily forge it for you.", SetQuestValue(18511,1), SetQuestValue(17599,1)
+# 7.4 CIP-399: "addon"-> "Would you like to wear bear paws like I do? No problem, just bring me 100 bear paws and 100 wolf paws and I'll fit them on.", Topic=22
+# 7.4 CIP-399: Topic=22,"yes" -> "Great! Simply bring me bring me 100 bear paws and 100 wolf paws and I will happily forge it for you.", SetQuestValue(18511,1), SetQuestValue(17599,1)
 				 
-"bear","paws",QuestValue(18511)=1 -> Type=5178, Amount=100, "Have you brought 100 bear paws and 100 wolf paws?", Topic=23
-"paws",QuestValue(18511)=1 -> *
-Topic=23,"yes",Count(5178)>=100,Count(5177)>=100 -> "Excellent! Like promised, here are your bear paws.", Amount=100, Delete(5178), SetQuestValue(18511,3), Amount=100, Delete(5177), addaddon(174,3), addaddon(175,3), EffectOpp(13)
-Topic=23,"yes" -> "You don't have that many!"
-Topic=23 -> "Too bad."
+# 7.4 CIP-399: "bear","paws",QuestValue(18511)=1 -> Type=5178, Amount=100, "Have you brought 100 bear paws and 100 wolf paws?", Topic=23
+# 7.4 CIP-399: "paws",QuestValue(18511)=1 -> *
+# 7.4 CIP-399: Topic=23,"yes",Count(5178)>=100,Count(5177)>=100 -> "Excellent! Like promised, here are your bear paws.", Amount=100, Delete(5178), SetQuestValue(18511,3), Amount=100, Delete(5177), addaddon(174,3), addaddon(175,3), EffectOpp(13)
+# 7.4 CIP-399: Topic=23,"yes" -> "You don't have that many!"
+# 7.4 CIP-399: Topic=23 -> "Too bad."
 
-"addon",QuestValue(18511)=3 -> "Oh, you also have a nice paws just like me!"
-"armor",QuestValue(18511)=3 -> *
+# 7.4 CIP-399: "addon",QuestValue(18511)=3 -> "Oh, you also have a nice paws just like me!"
+# 7.4 CIP-399: "armor",QuestValue(18511)=3 -> *
 
 }
