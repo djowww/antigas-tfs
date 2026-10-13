@@ -349,7 +349,7 @@ local function onItemRarityOpcode(protocol, opcode, buffer)
   if pushedInventorySlot then
     pushedInventorySlot = tonumber(pushedInventorySlot)
     local itemId, count, itemSubtype, tier, bonusType, bonusValue, subtype, extras = parseRarityValues(pushedInventoryValues)
-    if pushedInventorySlot and pushedInventorySlot >= CONST_SLOT_HEAD and pushedInventorySlot <= CONST_SLOT_AMMO and itemId then
+    if pushedInventorySlot and pushedInventorySlot >= InventorySlotFirst and pushedInventorySlot <= InventorySlotLast and itemId then
       inventoryRarityRequests[pushedInventorySlot] = nil
       pendingInventoryRarityPushes[pushedInventorySlot] = {
         itemId = itemId, count = count, itemSubtype = itemSubtype,

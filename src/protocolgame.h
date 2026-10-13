@@ -263,6 +263,7 @@ class ProtocolGame final : public Protocol
 		
 		//OTCv8
 		void sendFeatures();
+		void sendClientCompatibility(OperatingSystem_t operatingSystem);
 		void parseChangeMapAwareRange(NetworkMessage& msg);
 		void changeMapAwareRange(uint8_t width, uint8_t height);
 		MapViewport mapViewport;
@@ -277,6 +278,7 @@ class ProtocolGame final : public Protocol
 		friend class Player;
 		friend class ProtocolSpectator;
 		friend class GroundRarity;
+		friend struct ViewportCoreTestAccess;
 
 		// Helpers so we don't need to bind every time
 		// Packet-driven tasks are dispatched only if parsing stayed within the declared body.
