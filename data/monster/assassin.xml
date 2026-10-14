@@ -48,9 +48,9 @@
 		<item id="3292" countmax="1" chance="40" /> <!-- a combat knife -->
 		<item id="3031" countmax="40" chance="800" /> <!-- a gold coin -->
 		<item id="3031" countmax="10" chance="150" /> <!-- a gold coin -->
-		<item id="3405" countmax="1" chance="2" /> <!-- a horseman helmet -->
+		 <!-- a horseman helmet -->
 		<item id="3291" countmax="1" chance="100" /> <!-- a knife -->
-		<item id="3404" countmax="1" chance="5" /> <!-- a leopard armor -->
+		 <!-- a leopard armor -->
 		<item id="3410" countmax="1" chance="20" /> <!-- a plate shield -->
 		<item id="3028" countmax="1" chance="2" /> <!-- a small diamond -->
 		<item id="3351" countmax="1" chance="30" /> <!-- a steel helmet -->

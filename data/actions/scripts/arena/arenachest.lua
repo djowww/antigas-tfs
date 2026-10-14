@@ -33,9 +33,18 @@ function onUse(player, item, fromPosition, target, toPosition)
 			elseif pvoc == 8 then
 				pvoc = 4
 			end
+			local rewardId = itemList[arenaId] and itemList[arenaId][pvoc]
+			if not rewardId or ItemType(rewardId):isRetired() then
+				player:sendTextMessage(MESSAGE_INFO_DESCR, "This item reward is no longer available.")
+				return true
+			end
+			local itemReward = player:addItem(rewardId, 1, false)
+			if not itemReward then
+				player:sendTextMessage(MESSAGE_INFO_DESCR, "Make room and free capacity before collecting this reward.")
+				return true
+			end
 			item:getPosition():sendMagicEffect(CONST_ME_POFF)
-			local itemReward = player:addItem(itemList[arenaId][pvoc], 1)
-			local itemInfo = ItemType(itemList[arenaId][pvoc])
+			local itemInfo = ItemType(rewardId)
 			player:sendTextMessage(MESSAGE_INFO_DESCR, "You received "..itemInfo:getName())
 			itemReward:setAttribute(ITEM_ATTRIBUTE_DESCRIPTION, player:getName().." conquest this reward from arena.")
 

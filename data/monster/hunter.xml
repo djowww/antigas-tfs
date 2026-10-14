@@ -30,7 +30,7 @@
 	</voices>
 	<loot>
 		<item id="3447" countmax="10" chance="700" /> <!-- an arrow -->
-		<item id="5219" countmax="1" chance="3" /> <!-- a honda -->
+		 <!-- a honda -->
 		<item id="3447" countmax="12" chance="400" /> <!-- an arrow -->
 		<item id="3350" countmax="1" chance="300" /> <!-- a bow -->
 		<item id="3359" countmax="1" chance="50" /> <!-- a brass armor -->
@@ -41,8 +41,8 @@
 		<item id="3559" countmax="1" chance="140" /> <!-- leather legs -->
 		<item id="3586" countmax="2" chance="200" /> <!-- an orange -->
 		<item id="3601" countmax="2" chance="110" /> <!-- a roll -->
-		<!-- <item id="5123" countmax="1" chance="1" /> a quiver -->
-		<item id="5174" countmax="1" chance="1" /> <!-- a sniper globes -->
+		<!--  a quiver -->
+		 <!-- a sniper globes -->
 		<item id="3030" countmax="1" chance="2" /> <!-- a small ruby -->
 		<item id="2920" countmax="1" chance="50" /> <!-- a torch -->
 	</loot>

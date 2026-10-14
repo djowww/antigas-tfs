@@ -27,6 +27,9 @@ function Container.isTile(self)
 end
 
 function Container.createLootItem(self, item)
+	-- A retired child is deliberately absent, not an allocation failure. Continue
+	-- processing the remaining classic loot in this corpse/container.
+	if ItemType(item.itemId):isRetired() then return true end
 	if self:getEmptySlots() == 0 then
         return true
 	end

@@ -48,7 +48,7 @@
 		<voice sentence="Praise to my master Urgith!" />
 	</voices>
 	<loot>
-	    <item id="5187" countmax="1" chance="999" /> <!-- a soul stone -->
+	     <!-- a soul stone -->
 		<item id="3116" countmax="1" chance="60" /> <!-- a big bone -->
 		<item id="3115" countmax="1" chance="300" /> <!-- a bone -->
 		<item id="3337" countmax="1" chance="199" /> <!-- a bone club -->
@@ -62,12 +62,12 @@
 		<item id="3294" countmax="1" chance="86" /> <!-- a short sword -->
 		<item id="3114" countmax="1" chance="160" /> <!-- a skull -->
 		<item id="3324" countmax="1" chance="4" /> <!-- a skull staff -->
-		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
-		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
-		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
-		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
-		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
-		<item id="5125" countmax="1" chance="500" /> <!-- a mana potion -->
+		 <!-- a mana potion -->
+		 <!-- a mana potion -->
+		 <!-- a mana potion -->
+		 <!-- a mana potion -->
+		 <!-- a mana potion -->
+		 <!-- a mana potion -->
 		<item id="3070" countmax="1" chance="5" /> <!-- a conjure wand -->
 	</loot>
 </monster>

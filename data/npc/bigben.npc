@@ -65,7 +65,7 @@ Topic=1,"yes"                -> "You not have stuff me want for.", Topic=2
 Topic=2,"yes" -> Type=3381, Amount=1, "Are you sure you want to switch to a piece of royal steel?", Topic=3
 Topic=2                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=2
 Topic=3,"no"                 -> "Do not waste my time!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=3,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5189, Amount=1, Create(Type)
+Topic=3,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=3,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 "piece","of","draconian", "steel"             -> "For that I need you to bring me a dragon shield, do you have them?", Topic=21
@@ -75,7 +75,7 @@ Topic=21,"yes"                -> "Okay, remember you can't regret it, are you su
 Topic=22,"yes" -> Type=3416, Amount=1, "Are you sure you want to switch to a piece of draconian steel?", Topic=23
 Topic=22                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=22
 Topic=23,"no"                 -> "Do not waste my time!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=23,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5190, Amount=1, Create(Type)
+Topic=23,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=23,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 "piece","of","hell", "steel"             -> "For that I need you to bring me a devil helmet, do you have them?", Topic=31
@@ -85,7 +85,7 @@ Topic=31,"yes"                -> "Okay, remember you can't regret it, are you su
 Topic=32,"yes" -> Type=3356, Amount=1, "Are you sure you want to switch to a piece of devil helmet?", Topic=33
 Topic=32                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=32
 Topic=33,"no"                 -> "Do not waste my time!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=33,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5191, Amount=1, Create(Type)
+Topic=33,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=33,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 "huge","chunk","of", "crude", "iron"            -> "For that I need you to bring me a giant sword, do you have them?", Topic=41
@@ -95,7 +95,7 @@ Topic=41,"yes"                -> "Okay, remember you can't regret it, are you su
 Topic=42,"yes" -> Type=3281, Amount=1, "Are you sure you want to change the giant sword??", Topic=43
 Topic=42                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=42
 Topic=43,"no"                 -> "Do not waste my time!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=43,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5192, Amount=1, Create(Type)
+Topic=43,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=43,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 Topic=11,"yes" -> "You not have stuff me want for."

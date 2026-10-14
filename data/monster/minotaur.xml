@@ -39,7 +39,7 @@
 		<item id="3410" countmax="1" chance="200" /> <!-- a plate shield -->
 		<item id="3457" countmax="1" chance="30" /> <!-- a shovel -->
 		<item id="3264" countmax="1" chance="100" /> <!-- a sword -->
-		<item id="5166" countmax="1" chance="1" /> <!-- a orc trophy -->
-		<item id="5172" countmax="1" chance="20" /> <!-- a minotaur leather -->
+		 <!-- a orc trophy -->
+		 <!-- a minotaur leather -->
 	</loot>
 </monster>

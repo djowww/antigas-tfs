@@ -131,15 +131,15 @@ topic=4         -> "You joke with me!"
 
 topic=5,"yes"   -> "Good good. You listening: Me was stolen valuable heirloom. Brooch from my family. Good thing is criminal was caught. Bad thing is, criminal now in dwarven prison of dwacatra is and must have taken brooch with him ...","To get into dwacatra you having to get several keys. Each key opening way to other key until you get key to dwarven prison ...","Last key should be in the generals quarter near armory. Only General might have key to enter there too. But me not knowing how to enter Generals private room at barracks. You looking on your own ...","When got key, then you going down to dwarven prison and getting me that brooch. Tell me that you got brooch when having it.",SetQuestValue(325,2)
 topic=5         -> "Then you trying again in five years or so. Maybe pickaxe ready then." 
-"pickaxe",QuestValue(325)=2,QuestValue(326)=1   -> Type=4834, Amount=1,"You got me brooch?",topic=6
+"pickaxe",QuestValue(325)=2,QuestValue(326)=1 -> "This item or service is no longer available.", Topic=0
 "brooch",QuestValue(325)=2,QuestValue(326)=1   -> *
 
-topic=6,"yes",Count(Type)>=Amount   -> "Thanking you for brooch. Me guessing you now want your pickaxe?", Delete(Type),Type=4845, Amount=1,SetQuestValue(325,3), topic=7
+topic=6,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 topic=6,"yes",Count(Type)<Amount    -> "Stop make fun of old dwarf." 
 topic=6,"no"    -> "Stop make fun of old dwarf." 
 topic=6         -> "You joke with me!"
 
-"pickaxe",QuestValue(325)=3,QuestValue(326)=1   -> Type=4845, Amount=1,"You want you pickaxe?",topic=7
+"pickaxe",QuestValue(325)=3,QuestValue(326)=1 -> "This item or service is no longer available.", Topic=0
 
 
 topic=7,"yes"   -> "Here you have it.", Create(Type),SetQuestValue(325,4)

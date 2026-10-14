@@ -36,7 +36,7 @@
 		<voice sentence="Your existence will end here!" />
 	</voices>
 	<loot>
-	    <item id="5218" countmax="3" chance="3" /> <!-- leather whip -->
+	     <!-- leather whip -->
 		<item id="3447" countmax="12" chance="300" /> <!-- an arrow -->
 		<item id="3350" countmax="1" chance="40" /> <!-- a bow -->
 		<item id="3031" countmax="5" chance="300" /> <!-- a gold coin -->

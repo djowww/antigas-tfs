@@ -48,7 +48,7 @@
 		<voice sentence="Taste the sweetness of death!" />
 	</voices>
 	<loot>
-	    <item id="5217" countmax="1" chance="3" /> <!-- reins -->
+	     <!-- reins -->
 		<item id="3079" countmax="1" chance="2" /> <!-- boots of haste -->
 		<item id="3311" countmax="1" chance="10" /> <!-- a clerical mace -->
 		<item id="3031" countmax="90" chance="300" /> <!-- a gold coin -->

@@ -105,6 +105,7 @@ enum AttrTypes_t {
 	ATTR_SHOOTRANGE = 38,
 	ATTR_RARITY = 39,
 	ATTR_RARITY_EXTRAS = 40,
+	ATTR_RECOVERY_CORPSE = 41,
 };
 
 enum Attr_ReadValue {
@@ -327,7 +328,8 @@ class ItemAttributes
 
 	public:
 		inline static bool isIntAttrType(itemAttrTypes type) {
-			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY || type == ITEM_ATTRIBUTE_RARITY_EXTRAS;
+			return (type & 0xFFFFE13) != 0 || type == ITEM_ATTRIBUTE_RARITY || type == ITEM_ATTRIBUTE_RARITY_EXTRAS ||
+				type == ITEM_ATTRIBUTE_RECOVERY_CORPSE;
 		}
 		inline static bool isStrAttrType(itemAttrTypes type) {
 			return (type & 0x1EC) != 0;
@@ -788,6 +790,8 @@ class Item : virtual public Thing
 			return items[id].decayTime * 1000;
 		}
 		bool canDecay() const;
+		bool isRecoveryCorpse() const;
+		void setRecoveryCorpseDuration(uint32_t duration);
 
 		virtual bool canRemove() const {
 			return true;

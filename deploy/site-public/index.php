@@ -6,7 +6,7 @@ require __DIR__.'/i18n.php';
 $language=siteStartI18n();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v71.zip?site=sprites-v71-20261014';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v72.zip?site=classic-items-v72-20261014';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <p class="motto"><?= siteTHtml('A world of adventures.<br><span>Like the old days.</span>') ?></p>
     </header>
     <nav class="topnav" aria-label="<?= siteT('Main navigation') ?>">
-      <a href="#inicio" aria-current="page"><?= siteT('Home') ?></a><a href="#noticias"><?= siteT('News') ?></a><a href="#mundo"><?= siteT('The world') ?></a><a href="#market">Market</a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Buy coins') ?></a><a href="#criar-conta"><?= siteT('Create account') ?></a><a href="#download"><?= siteT('Download') ?></a>
+      <a href="#inicio" aria-current="page"><?= siteT('Home') ?></a><a href="#noticias"><?= siteT('News') ?></a><a href="#mundo"><?= siteT('The world') ?></a><a href="#market">Market</a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Antigas Coins') ?></a><a href="#criar-conta"><?= siteT('Create account') ?></a><a href="#download"><?= siteT('Download') ?></a>
     </nav>
     <?= siteLanguageSwitcher() ?>
   </div>
@@ -91,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       </section>
       <nav class="side-news" aria-label="<?= siteT('Featured news') ?>">
         <h2><?= siteT('On the notice board') ?></h2>
+        <a href="#client-v72"><?= siteT('Classic items only in client v72') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
         <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
         <a href="#client-v70"><?= siteT('Antigas 7.4 identity in client v70') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
         <a href="#client-v69"><?= siteT('Spears, hotkeys and client v69') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
@@ -125,7 +126,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <details class="classic-index news-index">
         <summary><?= siteT('News index') ?></summary>
         <nav aria-label="<?= siteT('News index') ?>">
-          <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
+          <a href="#client-v72"><?= siteT('Classic items only in client v72') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
+        <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
           <a href="#client-v70"><?= siteT('Antigas 7.4 identity in client v70') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
           <a href="#client-v69"><?= siteT('Spears, hotkeys and client v69') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
           <a href="#achievement-ranks-v66"><?= siteT('A star for every completed rank') ?><time datetime="2026-10-03"><?= siteT('3 Oct 2026') ?></time></a>
@@ -143,6 +145,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
           <a href="#mundo"><?= siteT('The world is open for new adventures') ?><time datetime="2026-09-23"><?= siteT('23 Sep 2026') ?></time></a>
         </nav>
       </details>
+      <article id="client-v72" class="news-article update-article">
+        <header class="news-ribbon"><h3><?= siteT('Classic items only in client v72') ?></h3><time datetime="2026-10-14"><?= siteT('14 Oct 2026 · Client v72') ?></time></header>
+        <div class="news-body">
+          <p class="dropcap"><?= siteT('Client v72 retires 284 extra or customized item definitions while keeping every item ID reserved.') ?></p>
+          <p><?= siteT('Terrains, mountains, borders and structural map graphics remain unchanged. Classic contents from retired backpacks are preserved.') ?></p>
+          <p><?= siteT('The Shop and Market no longer offer retired items or Antigas Coins. Market trades use Gold, and account Shop points remain available.') ?></p>
+          <p><?= siteT('Open your launcher to install client v72. Hotkey presets and saved preferences remain available.') ?></p>
+        </div>
+      </article>
       <article id="client-v71" class="news-article update-article">
         <header class="news-ribbon"><h3><?= siteT('Reference 7.4 sprites restored in client v71') ?></h3><time datetime="2026-10-14"><?= siteT('14 Oct 2026 · Client v71') ?></time></header>
         <div class="news-body">
@@ -265,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <header class="news-ribbon"><h3><?= siteT('Market: player-to-player offers') ?></h3><time datetime="2026-09-24"><?= siteT('24 Sep 2026') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('Find items, compare offers and trade with other players directly through the client. The catalog has search, categories and filters for buying and selling.') ?></p>
-          <ul class="gold-list"><li><?= siteTHtml('<strong>Gold:</strong> payments include gold, platinum and crystal coins, as well as your bank balance.') ?></li><li><?= siteTHtml('<strong>Antigas Coin:</strong> a separate currency shown on each offer.') ?></li><li><?= siteTHtml('<strong>History and collection:</strong> follow offers and trades; use <strong>Collect</strong> to claim them. Gold goes to the bank; items and Antigas Coins go to the depot.') ?></li></ul>
+          <ul class="gold-list"><li><?= siteTHtml('<strong>Gold:</strong> payments include gold, platinum and crystal coins, as well as your bank balance.') ?></li><li><?= siteTHtml('<strong>History and collection:</strong> follow offers and trades; use <strong>Collect</strong> to claim them. Gold goes to the bank; classic items go to the depot.') ?></li></ul>
           <p><?= siteT('Trades are recorded, and sale proceeds are reserved for the seller until collected.') ?></p>
           <p><?= siteT('Interrupted operations and simultaneous Market access are handled more carefully to protect player trades.') ?></p>
         </div>

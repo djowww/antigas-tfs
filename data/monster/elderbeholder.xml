@@ -63,7 +63,7 @@
 		<voice sentence="659978 54764!" />
 	</voices>
 	<loot>
-		<item id="3408" countmax="1" chance="1" /> <!-- a beholder helmet -->
+		 <!-- a beholder helmet -->
 		<item id="3418" countmax="1" chance="1" /> <!-- a beholder shield -->
 		<item id="3031" countmax="24" chance="900" /> <!-- a gold coin -->
 		<item id="3031" countmax="32" chance="800" /> <!-- a gold coin -->

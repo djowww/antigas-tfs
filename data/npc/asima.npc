@@ -71,7 +71,7 @@ Topic=6,"yes",Count(2874)>0 -> Amount=Count(2874), Price=Amount*5, "Here you are
 Topic=6,"yes"               -> "You don't have any empty vials."
 Topic=6                     -> "Hmm, but please keep Tibia litter free."
 
-Topic=30,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(5119,2874,10)
+Topic=30,"yes",CountMoney>=Price -> "This item or service is no longer available.", Topic=0
 Topic=30,"yes"                   -> "Sorry, you do not have enough gold."
 Topic=30                         -> "Maybe you will buy it another time."
 
@@ -83,7 +83,7 @@ Topic=50,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, Creat
 Topic=50,"yes"                   -> "Sorry, you do not have enough gold."
 Topic=50                         -> "Maybe you will buy it another time."
 
-BUSY,Topic=60,"yes",CountMoney>=Price -> "Thank you. Here it is.", DeleteMoney, CreateContainer(5119,2874,10)
+BUSY,Topic=60,"yes",CountMoney>=Price -> "This item or service is no longer available.", Topic=0
 BUSY,Topic=60,"yes"                   -> "Sorry, you do not have enough gold."
 BUSY,Topic=60                         -> "Maybe you will buy it another time."
 

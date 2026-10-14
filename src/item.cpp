@@ -166,6 +166,9 @@ Item::Item(const Item& i) :
 Item* Item::clone() const
 {
 	Item* item = Item::CreateItem(id, count);
+	if (!item) {
+		return nullptr;
+	}
 	if (attributes) {
 		item->attributes.reset(new ItemAttributes(*attributes));
 	}
@@ -229,13 +232,19 @@ void Item::onRemoved()
 
 void Item::setID(uint16_t newid)
 {
+	if (Item::items[newid].group == ITEM_GROUP_DEPRECATED) {
+		return;
+	}
 	const ItemType& prevIt = Item::items[id];
 	id = newid;
+	if (newid != 2854) {
+		removeAttribute(ITEM_ATTRIBUTE_RECOVERY_CORPSE);
+	}
 
 	const ItemType& it = Item::items[newid];
 	uint32_t newDuration = it.decayTime * 1000;
 
-	if (newDuration == 0 && !it.stopTime && it.decayTo < 0) {
+	if (newDuration == 0 && !it.stopTime && it.decayTo < 0 && !isRecoveryCorpse()) {
 		removeAttribute(ITEM_ATTRIBUTE_DECAYSTATE);
 		removeAttribute(ITEM_ATTRIBUTE_DURATION);
 	}
@@ -430,6 +439,14 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
 			break;
 		}
 
+		case ATTR_RECOVERY_CORPSE: {
+			uint8_t recovery;
+			if (!propStream.read<uint8_t>(recovery) || recovery != 1 || id != 2854) {
+				return ATTR_READ_ERROR;
+			}
+			setIntAttr(ITEM_ATTRIBUTE_RECOVERY_CORPSE, 1);
+			break;
+		}
 		case ATTR_DURATION: {
 			int32_t duration;
 			if (!propStream.read<int32_t>(duration)) {
@@ -754,6 +771,10 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
 	if (hasAttribute(ITEM_ATTRIBUTE_DURATION)) {
 		propWriteStream.write<uint8_t>(ATTR_DURATION);
 		propWriteStream.write<uint32_t>(getIntAttr(ITEM_ATTRIBUTE_DURATION));
+	}
+	if (isRecoveryCorpse()) {
+		propWriteStream.write<uint8_t>(ATTR_RECOVERY_CORPSE);
+		propWriteStream.write<uint8_t>(1);
 	}
 
 	ItemDecayState_t decayState = getDecaying();
@@ -1292,6 +1313,9 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 	} else if (it.description.length() && lookDistance <= 1) {
 		s << std::endl << it.description << ".";
 	}
+	if (item && item->isRecoveryCorpse()) {
+		s << std::endl << "Time left: " << item->getDuration() / 1000 << " seconds.";
+	}
 
 	if (item) {
 		const std::string rarityDescription = item->getRarityDescription();
@@ -1385,10 +1409,31 @@ std::string Item::getWeightDescription() const
 	return getWeightDescription(weight);
 }
 
+bool Item::isRecoveryCorpse() const
+{
+	return id == 2854 && getIntAttr(ITEM_ATTRIBUTE_RECOVERY_CORPSE) == 1;
+}
+
+void Item::setRecoveryCorpseDuration(uint32_t duration)
+{
+	if (id != 2854) {
+		return;
+	}
+	setIntAttr(ITEM_ATTRIBUTE_RECOVERY_CORPSE, 1);
+	setDuration(std::min<uint32_t>(std::max<uint32_t>(1000, duration), std::numeric_limits<int32_t>::max()));
+	setStrAttr(ITEM_ATTRIBUTE_NAME, "temporary corpse container");
+	setStrAttr(ITEM_ATTRIBUTE_ARTICLE, "a");
+	setStrAttr(ITEM_ATTRIBUTE_PLURALNAME, "temporary corpse containers");
+	setSpecialDescription("This temporary monster corpse and any items left inside disappear when it expires. Move your loot to another container.");
+}
+
 bool Item::canDecay() const
 {
 	if (isRemoved()) {
 		return false;
+	}
+	if (isRecoveryCorpse() && hasAttribute(ITEM_ATTRIBUTE_DURATION)) {
+		return true;
 	}
 
 	const ItemType& it = Item::items[id];

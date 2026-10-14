@@ -42,8 +42,8 @@
 		<voice sentence="Crush the intruders!" yell="1" />
 	</voices>
 	<loot>
-	    <!-- <item id="5207" countmax="1" chance="50" /> a behemoth claw -->
-	    <!-- <item id="5193" countmax="1" chance="50" /> a behemoth fang -->
+	    <!--  a behemoth claw -->
+	    <!--  a behemoth fang -->
 		<item id="2893" countmax="1" chance="110" /> <!-- an amphora -->
 		<item id="3116" countmax="1" chance="70" /> <!-- a big bone -->
 		<item id="3304" countmax="1" chance="150" /> <!-- a crowbar -->
@@ -51,7 +51,7 @@
 		<item id="3383" countmax="1" chance="30" /> <!-- a dark armor -->
 		<item id="3275" countmax="1" chance="100" /> <!-- a double axe -->
 		<item id="3281" countmax="1" chance="10" /> <!-- a giant sword -->
-		<item id="5160" countmax="1" chance="10" /> <!-- a behemoth trophy -->
+		 <!-- a behemoth trophy -->
 		<item id="3031" countmax="60" chance="700" /> <!-- a gold coin -->
 		<item id="3031" countmax="80" chance="500" /> <!-- a gold coin -->
 		<item id="3577" countmax="6" chance="400" /> <!-- meat -->

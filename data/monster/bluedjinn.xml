@@ -54,7 +54,7 @@
 		<voice sentence="Wishes can come true." />
 	</voices>
 	<loot>
-	    <item id="5201" countmax="1" chance="20" /> <!-- a blue piece -->
+	     <!-- a blue piece -->
 		<item id="3659" countmax="1" chance="5" /> <!-- a blue rose -->
 		<item id="2844" countmax="1" chance="25" /> <!-- a book -->
 		<item id="3595" countmax="1" chance="250" /> <!-- a carrot -->
