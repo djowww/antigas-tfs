@@ -6,7 +6,7 @@ require __DIR__.'/i18n.php';
 $language=siteStartI18n();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v70.zip?site=branding-v70-20261014';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v71.zip?site=sprites-v71-20261014';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
@@ -91,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       </section>
       <nav class="side-news" aria-label="<?= siteT('Featured news') ?>">
         <h2><?= siteT('On the notice board') ?></h2>
+        <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
         <a href="#client-v70"><?= siteT('Antigas 7.4 identity in client v70') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
         <a href="#client-v69"><?= siteT('Spears, hotkeys and client v69') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
         <a href="#achievement-ranks-v66"><?= siteT('A star for every completed rank') ?><time datetime="2026-10-03"><?= siteT('3 Oct 2026') ?></time></a>
@@ -124,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <details class="classic-index news-index">
         <summary><?= siteT('News index') ?></summary>
         <nav aria-label="<?= siteT('News index') ?>">
+          <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
           <a href="#client-v70"><?= siteT('Antigas 7.4 identity in client v70') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
           <a href="#client-v69"><?= siteT('Spears, hotkeys and client v69') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
           <a href="#achievement-ranks-v66"><?= siteT('A star for every completed rank') ?><time datetime="2026-10-03"><?= siteT('3 Oct 2026') ?></time></a>
@@ -141,6 +143,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
           <a href="#mundo"><?= siteT('The world is open for new adventures') ?><time datetime="2026-09-23"><?= siteT('23 Sep 2026') ?></time></a>
         </nav>
       </details>
+      <article id="client-v71" class="news-article update-article">
+        <header class="news-ribbon"><h3><?= siteT('Reference 7.4 sprites restored in client v71') ?></h3><time datetime="2026-10-14"><?= siteT('14 Oct 2026 · Client v71') ?></time></header>
+        <div class="news-body">
+          <p class="dropcap"><?= siteT('Client v71 restores reference 7.4 sprites in 54 definitions while keeping their existing IDs.') ?></p>
+          <p><?= siteT('Antigas custom systems and visuals remain available. This update does not change maps, characters or progress.') ?></p>
+          <p><?= siteT('Open your launcher to install client v71. Your saved preferences remain available.') ?></p>
+        </div>
+      </article>
       <article id="client-v70" class="news-article update-article">
         <header class="news-ribbon"><h3><?= siteT('Antigas 7.4 identity in client v70') ?></h3><time datetime="2026-10-13"><?= siteT('13 Oct 2026 · Client v70') ?></time></header>
         <div class="news-body">
