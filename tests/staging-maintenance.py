@@ -21,7 +21,7 @@ from staging_recovery import record_recovery, recover_staging
 from staging_safety import pin_staging_rsa_public, require_isolated_staging_service, require_staging_target
 
 ROOT = Path(__file__).resolve().parents[1]
-STAGE = Path('/opt/imperium772-staging/server')
+STAGE = Path('/opt/antigas74-staging/server')
 SAMPLES = []
 STOP = threading.Event()
 
@@ -34,13 +34,13 @@ def value(unit, prop):
 def sample():
     while not STOP.wait(1):
         try:
-            pid = int(value('imperium772-staging', 'MainPID'))
+            pid = int(value('antigas74-staging', 'MainPID'))
             if not pid:
                 continue
             stat = Path(f'/proc/{pid}/stat').read_text().split(') ', 1)[1].split()
             SAMPLES.append({'time': time.time(), 'rss_bytes': int(stat[21])*os.sysconf('SC_PAGE_SIZE'),
                             'cpu_seconds': (int(stat[11])+int(stat[12]))/os.sysconf('SC_CLK_TCK'),
-                            'memory_current': int(value('imperium772-staging', 'MemoryCurrent'))})
+                            'memory_current': int(value('antigas74-staging', 'MemoryCurrent'))})
         except (OSError, ValueError, subprocess.SubprocessError):
             pass
 
@@ -53,8 +53,8 @@ def main():
     parser.add_argument('--skip-smoke', action='store_true', help='only after a passed smoke on this exact build')
     options = parser.parse_args()
     require_staging_target()
-    assert value('imperium772', 'ActiveState') == 'active'
-    assert value('imperium772-staging', 'ActiveState') == 'inactive'
+    assert value('antigas74', 'ActiveState') == 'active'
+    assert value('antigas74-staging', 'ActiveState') == 'inactive'
     require_isolated_staging_service(value)
     assert os.environ.get('INVOCATION_ID'), 'Run under the documented systemd watchdog'
     pin_staging_rsa_public(os.environ, STAGE / 'staging-rsa-public.json')
@@ -63,15 +63,15 @@ def main():
     monitor = threading.Thread(target=sample, daemon=True)
     result = {'started': time.time(), 'status': 'failed'}
     try:
-        run('systemctl', 'stop', 'imperium772')
+        run('systemctl', 'stop', 'antigas74')
         available = int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:')))
         assert available >= 2600*1024, 'Insufficient available memory even with production stopped'
-        run('systemctl', 'set-property', '--runtime', 'imperium772-staging', 'MemoryMax=3G')
-        run('systemctl', 'start', 'imperium772-staging')
+        run('systemctl', 'set-property', '--runtime', 'antigas74-staging', 'MemoryMax=3G')
+        run('systemctl', 'start', 'antigas74-staging')
         monitor.start()
         deadline = time.monotonic() + 90
         while True:
-            assert value('imperium772-staging', 'ActiveState') == 'active', 'Staging failed during startup'
+            assert value('antigas74-staging', 'ActiveState') == 'active', 'Staging failed during startup'
             listeners = subprocess.check_output(['ss', '-ltn'], text=True)
             if '127.0.0.1:7175' in listeners and '127.0.0.1:7176' in listeners:
                 break

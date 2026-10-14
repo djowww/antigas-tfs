@@ -17,7 +17,7 @@ def require(condition, message='Deployment precondition failed'):
         raise RuntimeError(message)
 
 PREP = Path('/opt/antigas-rarity-20260928')
-SERVER = Path('/opt/imperium772/server')
+SERVER = Path('/opt/antigas74/server')
 WEB = Path('/var/www/otclient')
 OLD_BINARY = '450f2b1a8e75243afedd36c72df5ac7da44de00f7ddebe3b76440e04c48aa797'
 CLIENT = 'Antigas-7.4-Client-v44.zip'
@@ -112,9 +112,9 @@ def server():
     os.chmod(staged_config, 0o600)
     run(['/opt/antigas-stability-20260927/lua52_runner', '--syntax-only', str(staged_config)])
     note('backup_files_complete', backup=str(backup))
-    run(['systemctl', 'stop', 'imperium772.service'], timeout=300)
+    run(['systemctl', 'stop', 'antigas74.service'], timeout=300)
     require(
-        (subprocess.run(['systemctl', 'is-active', '--quiet', 'imperium772.service']).returncode != 0),
+        (subprocess.run(['systemctl', 'is-active', '--quiet', 'antigas74.service']).returncode != 0),
         ('Service must be stopped before install'),
     )
     note('service_stopped_after_shutdown', residual_termination=(PREP / 'post-shutdown-residual-termination.txt').exists())
@@ -157,10 +157,10 @@ def server():
                     atomic(temporary, target, member.uid, member.gid, member.mode)
             if (SERVER / RUNTIME[-1]).exists():
                 (SERVER / RUNTIME[-1]).unlink()
-        run(['systemctl', 'start', 'imperium772.service'], timeout=60)
+        run(['systemctl', 'start', 'antigas74.service'], timeout=60)
         note('prestart_failure_original_service_restored')
         raise
-    run(['systemctl', 'start', 'imperium772.service'], timeout=60)
+    run(['systemctl', 'start', 'antigas74.service'], timeout=60)
     note('new_service_start_requested')
     # Never revert to a binary that cannot read tag 39 after this point.
 

@@ -34,7 +34,7 @@ class StagingSafetyTests(unittest.TestCase):
             require_staging_target(env)
 
     def test_rejects_unmarked_database(self):
-        env = self.valid_env(TFS_DB_NAME="imperium")
+        env = self.valid_env(TFS_DB_NAME="production")
         with self.assertRaises(SystemExit):
             require_staging_target(env)
 
@@ -56,20 +56,20 @@ class StagingSafetyTests(unittest.TestCase):
     def test_accepts_only_the_dedicated_staging_service_user_and_environment(self):
         properties = {
             "User": "tfs74-stage",
-            "EnvironmentFiles": "/etc/imperium772-staging.env (ignore_errors=no)",
+            "EnvironmentFiles": "/etc/antigas74-staging.env (ignore_errors=no)",
         }
         require_isolated_staging_service(lambda unit, prop: properties[prop])
 
     def test_rejects_staging_service_with_production_user_or_environment(self):
         for prop, value in (
             ("User", "root"),
-            ("EnvironmentFiles", "/etc/imperium772.env (ignore_errors=no)"),
-            ("EnvironmentFiles", "/etc/imperium772-staging.env /etc/imperium772.env"),
+            ("EnvironmentFiles", "/etc/antigas74.env (ignore_errors=no)"),
+            ("EnvironmentFiles", "/etc/antigas74-staging.env /etc/antigas74.env"),
         ):
             with self.subTest(prop=prop, value=value):
                 properties = {
                     "User": "tfs74-stage",
-                    "EnvironmentFiles": "/etc/imperium772-staging.env (ignore_errors=no)",
+                    "EnvironmentFiles": "/etc/antigas74-staging.env (ignore_errors=no)",
                 }
                 properties[prop] = value
                 with self.assertRaises(SystemExit):

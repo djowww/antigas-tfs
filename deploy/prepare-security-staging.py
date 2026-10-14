@@ -13,7 +13,7 @@ import secrets
 import shutil
 import subprocess
 
-ROOT = Path('/opt/imperium772-staging/server')
+ROOT = Path('/opt/antigas74-staging/server')
 BACKUP = Path('/opt/antigas-security-validation-20260930/staging-before')
 DB = 'antigas_security_staging'
 USER = 'tfs74-stage'
@@ -35,7 +35,7 @@ def main():
     parser.parse_args()
     if os.geteuid() != 0 or ROOT.resolve() != ROOT:
         raise SystemExit('Requires root and the real staging directory')
-    state = subprocess.check_output(['systemctl', 'show', 'imperium772-staging', '-p', 'ActiveState', '--value'], text=True).strip()
+    state = subprocess.check_output(['systemctl', 'show', 'antigas74-staging', '-p', 'ActiveState', '--value'], text=True).strip()
     if state != 'inactive':
         raise SystemExit('Staging must be inactive')
     if BACKUP.exists() or sql(f"SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='{DB}'") != '0':
@@ -48,7 +48,7 @@ def main():
             raise SystemExit('Staging contains linked files; refusing shared writes')
     from cryptography.hazmat.primitives.asymmetric import rsa
     BACKUP.mkdir(mode=0o700)
-    shutil.copy2('/etc/imperium772-staging.env', BACKUP / 'staging.env')
+    shutil.copy2('/etc/antigas74-staging.env', BACKUP / 'staging.env')
     shutil.copy2(ROOT / 'config.lua', BACKUP / 'config.lua')
     try:
         account = pwd.getpwnam(USER)
@@ -62,7 +62,7 @@ def main():
     result = subprocess.run(['mariadb', DB], input=dump.stdout, capture_output=True)
     if result.returncode:
         raise RuntimeError('Staging schema import failed')
-    shutil.copytree('/opt/imperium772/server/data', ROOT / 'data', dirs_exist_ok=True,
+    shutil.copytree('/opt/antigas74/server/data', ROOT / 'data', dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('reports', 'logs', '*.log', '*.save'))
     key = rsa.generate_private_key(public_exponent=65537, key_size=1024).private_numbers()
     keyfile = ROOT / 'staging-rsa.key'
@@ -72,17 +72,17 @@ def main():
     (ROOT / 'staging-rsa-public.json').write_text(json.dumps({'modulus': str(key.public_numbers.n), 'exponent': 65537}))
     for entry in (ROOT, *ROOT.rglob('*')):
         os.chown(entry, account.pw_uid, account.pw_gid)
-    env = Path('/etc/imperium772-staging.env')
+    env = Path('/etc/antigas74-staging.env')
     env.write_text(f'TFS_DB_NAME={DB}\nTFS_DB_USER={DB}\nTFS_DB_PASSWORD={password}\nANTIGAS_RSA_KEY_FILE={keyfile}\n')
     env.chmod(0o600)
-    dropin = Path('/etc/systemd/system/imperium772-staging.service.d/security-isolation.conf')
+    dropin = Path('/etc/systemd/system/antigas74-staging.service.d/security-isolation.conf')
     dropin.parent.mkdir(exist_ok=True)
     dropin.write_text(f'''[Service]
 User={USER}
 Group={USER}
 ProtectSystem=strict
 ReadWritePaths={ROOT}
-InaccessiblePaths=/opt/imperium772/server /etc/imperium772.env /opt/antigas-security-v26 /var/www/otclient
+InaccessiblePaths=/opt/antigas74/server /etc/antigas74.env /opt/antigas-security-v26 /var/www/otclient
 KillSignal=SIGINT
 TimeoutStopSec=45
 ''')

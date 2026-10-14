@@ -1,6 +1,6 @@
 # Cliente, launcher e site
 
-O servidor apresenta as regras e a identidade Antigas 7.4, usando protocolo 772 (7.72) e extensões próprias. Os limites de versão estão em [src/definitions.h](../src/definitions.h). A compatibilidade exige os módulos, opcodes e chave pública esperados pelo servidor.
+O servidor e sua distribuição oficial usam a identidade Antigas 7.4 e extensões próprias. A compatibilidade exige os módulos, opcodes e chave pública esperados pelo servidor.
 
 ## Snapshot do cliente
 

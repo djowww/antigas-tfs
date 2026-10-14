@@ -69,11 +69,11 @@ def account_email(index):
 
 
 def assert_isolated_staging(require_production_active=True):
-    assert run(["systemctl", "is-active", "imperium772-staging"]) == "active"
-    envfiles = run(["systemctl", "show", "imperium772-staging", "-p", "EnvironmentFiles", "--value"])
-    assert "/etc/imperium772-staging.env" in envfiles and "/etc/imperium772.env" not in envfiles
+    assert run(["systemctl", "is-active", "antigas74-staging"]) == "active"
+    envfiles = run(["systemctl", "show", "antigas74-staging", "-p", "EnvironmentFiles", "--value"])
+    assert "/etc/antigas74-staging.env" in envfiles and "/etc/antigas74.env" not in envfiles
     env = {}
-    for line in Path("/etc/imperium772-staging.env").read_text().splitlines():
+    for line in Path("/etc/antigas74-staging.env").read_text().splitlines():
         if "=" in line:
             key, value = line.split("=", 1)
             env[key] = value
@@ -83,7 +83,7 @@ def assert_isolated_staging(require_production_active=True):
     assert "127.0.0.1:7175" in listeners and "127.0.0.1:7176" in listeners
     public_bindings = ("0.0.0.0:7175", "0.0.0.0:7176", "[::]:7175", "[::]:7176", "*:7175", "*:7176")
     assert not any(binding in listeners for binding in public_bindings), "staging port is not loopback-only"
-    production_state = run(["systemctl", "show", "imperium772", "-p", "ActiveState", "--value"])
+    production_state = run(["systemctl", "show", "antigas74", "-p", "ActiveState", "--value"])
     expected_production_state = "active" if require_production_active else "inactive"
     assert production_state == expected_production_state, (
         f"production must be {expected_production_state} for this test; got {production_state}"
@@ -547,8 +547,8 @@ def run_load():
     for thread in keepalive_threads:
         thread.join(timeout=1)
     if MAINTENANCE_WINDOW:
-        assert run(["systemctl", "show", "imperium772", "-p", "ActiveState", "--value"]) == "inactive"
-        subprocess.run(["systemctl", "stop", "imperium772-staging"], check=True, timeout=50)
+        assert run(["systemctl", "show", "antigas74", "-p", "ActiveState", "--value"]) == "inactive"
+        subprocess.run(["systemctl", "stop", "antigas74-staging"], check=True, timeout=50)
         print("logout_mode=graceful_staging_stop_with_connected_clients", flush=True)
     for client in clients:
         client.close()

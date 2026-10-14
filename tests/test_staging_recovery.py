@@ -91,7 +91,7 @@ class StagingRecoveryTests(unittest.TestCase):
     def test_legacy_runner_checks_staging_guard_before_stopping_production(self):
         root = Path(__file__).resolve().parents[1]
         source = (root / "tests" / "staging-maintenance.py").read_text(encoding="utf-8")
-        self.assertLess(source.index("require_staging_target()"), source.index("run('systemctl', 'stop', 'imperium772')"))
+        self.assertLess(source.index("require_staging_target()"), source.index("run('systemctl', 'stop', 'antigas74')"))
 
     def test_both_runners_validate_staging_service_isolation_before_stopping_production(self):
         root = Path(__file__).resolve().parents[1]
@@ -99,7 +99,7 @@ class StagingRecoveryTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 source = (root / "tests" / filename).read_text(encoding="utf-8")
                 self.assertLess(source.index("require_isolated_staging_service(value)"),
-                                source.index("systemctl', 'stop', 'imperium772"))
+                                source.index("systemctl', 'stop', 'antigas74"))
 
     def test_both_runners_write_recovery_report_before_nonzero_exit(self):
         root = Path(__file__).resolve().parents[1]

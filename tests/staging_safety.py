@@ -12,10 +12,10 @@ _SAFE_DATABASE = re.compile(r"[a-z0-9_]{1,64}(?:_test|_qa|_staging|_stage)(?:_v[
 _PRODUCTION_TOKEN = re.compile(r"(?:^|_)(?:prod|production|live|online|official|main)(?:_|$)", re.IGNORECASE)
 _STAGING_GAME_PORTS = frozenset((7176, 7186))
 _PRODUCTION_RSA_PUBLIC = Path("/opt/antigas-security-v26/rsa-public.json")
-_STAGING_RSA_PUBLIC = Path("/opt/imperium772-staging/server/staging-rsa-public.json")
+_STAGING_RSA_PUBLIC = Path("/opt/antigas74-staging/server/staging-rsa-public.json")
 _STAGING_SERVICE_USER = "tfs74-stage"
-_STAGING_ENV_FILE = "/etc/imperium772-staging.env"
-_PRODUCTION_ENV_FILE = "/etc/imperium772.env"
+_STAGING_ENV_FILE = "/etc/antigas74-staging.env"
+_PRODUCTION_ENV_FILE = "/etc/antigas74.env"
 
 
 def require_staging_target(environ=None):
@@ -40,10 +40,10 @@ def require_staging_target(environ=None):
 
 def require_isolated_staging_service(value):
     """Fail closed unless systemd will run staging as its isolated user/env."""
-    if value("imperium772-staging", "User") != _STAGING_SERVICE_USER:
+    if value("antigas74-staging", "User") != _STAGING_SERVICE_USER:
         raise SystemExit("Refusing maintenance: staging systemd unit must run as tfs74-stage.")
 
-    env_files = value("imperium772-staging", "EnvironmentFiles")
+    env_files = value("antigas74-staging", "EnvironmentFiles")
     if _STAGING_ENV_FILE not in env_files or _PRODUCTION_ENV_FILE in env_files:
         raise SystemExit("Refusing maintenance: staging must load only its dedicated environment file.")
 

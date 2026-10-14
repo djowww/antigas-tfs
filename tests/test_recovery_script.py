@@ -55,16 +55,16 @@ class RecoveryScriptTests(unittest.TestCase):
         result, calls = self.run_with_fake_systemctl(fail_first=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(calls, [
-            "stop imperium772-staging",
-            "set-property --runtime imperium772-staging MemoryMax=1G",
-            "start imperium772",
+            "stop antigas74-staging",
+            "set-property --runtime antigas74-staging MemoryMax=1G",
+            "start antigas74",
         ])
 
     def test_successful_recovery_runs_all_steps(self):
         result, calls = self.run_with_fake_systemctl()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(calls), 3)
-        self.assertTrue(calls[-1].startswith("start imperium772"))
+        self.assertTrue(calls[-1].startswith("start antigas74"))
 
 
 if __name__ == "__main__":

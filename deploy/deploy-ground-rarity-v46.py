@@ -21,9 +21,9 @@ def require(condition, message='Deployment precondition failed'):
         raise RuntimeError(message)
 
 PREP = Path('/opt/antigas-groundrarity-20260928')
-SERVER = Path('/opt/imperium772/server')
+SERVER = Path('/opt/antigas74/server')
 WEB = Path('/var/www/otclient')
-SERVICE = 'imperium772.service'
+SERVICE = 'antigas74.service'
 OLD_BINARY = 'e147af97d53b6867e777e5428148c337a2c9648ab0ed777e843d9c22cd8f3208'
 CLIENT = 'Antigas-7.4-Client-v46.zip'
 RUNTIME = ['data/creaturescripts/scripts/login.lua']
