@@ -4,9 +4,9 @@ import subprocess
 
 
 RECOVERY_COMMANDS = (
-    ("systemctl", "stop", "imperium772-staging"),
-    ("systemctl", "set-property", "--runtime", "imperium772-staging", "MemoryMax=1G"),
-    ("systemctl", "start", "imperium772"),
+    ("systemctl", "stop", "antigas74-staging"),
+    ("systemctl", "set-property", "--runtime", "antigas74-staging", "MemoryMax=1G"),
+    ("systemctl", "start", "antigas74"),
 )
 
 
@@ -20,7 +20,7 @@ def recover_staging(run=subprocess.run, check_output=subprocess.check_output):
             codes.append(-1)
 
     states = {}
-    for unit in ("imperium772", "imperium772-staging"):
+    for unit in ("antigas74", "antigas74-staging"):
         try:
             states[unit] = check_output(
                 ["systemctl", "show", unit, "-p", "ActiveState", "--value"],
@@ -32,12 +32,12 @@ def recover_staging(run=subprocess.run, check_output=subprocess.check_output):
 
     return {
         "recovery_codes": codes,
-        "production": states["imperium772"],
-        "staging": states["imperium772-staging"],
+        "production": states["antigas74"],
+        "staging": states["antigas74-staging"],
         "recovery_ok": (
             all(code == 0 for code in codes)
-            and states["imperium772"] == "active"
-            and states["imperium772-staging"] == "inactive"
+            and states["antigas74"] == "active"
+            and states["antigas74-staging"] == "inactive"
         ),
     }
 

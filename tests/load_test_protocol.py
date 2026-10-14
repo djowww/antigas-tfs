@@ -1,4 +1,4 @@
-"""7.72 framed XTEA transport for staging tests; no login keys or fixtures.
+"""Antigas 7.4 framed XTEA transport for staging tests; no login keys or fixtures.
 
 The caller supplies an already connected socket, a four-word session key and
 an empty bytes buffer. Login/RSA handling belongs to the staging harness.

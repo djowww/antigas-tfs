@@ -42,4 +42,4 @@ A inicialização exige que `ANTIGAS_RSA_KEY_FILE` aponte para um arquivo privad
 
 Mantenha o arquivo fora do repositório e configure a variável no ambiente que inicia o servidor. O cliente precisa usar a chave pública correspondente ao par privado escolhido. A chave pública incluída no snapshot do cliente não fornece a chave privada necessária para uma instalação independente.
 
-O servidor aceita protocolo 772 (7.72), com extensões próprias. Consulte [cliente, launcher e site](client-and-web.md) para montar uma distribuição compatível.
+O Antigas 7.4 utiliza extensões próprias de comunicação. Consulte [cliente, launcher e site](client-and-web.md) para montar uma distribuição compatível com o servidor.

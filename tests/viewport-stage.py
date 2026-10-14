@@ -26,7 +26,7 @@ def sql(query, database=None):
 assert not sql("SHOW DATABASES LIKE 'antigas_viewport_v38'")
 runtime = ROOT/'runtime'
 runtime.mkdir(exist_ok=True)
-shutil.copytree('/opt/imperium772/server/data', runtime/'data',
+shutil.copytree('/opt/antigas74/server/data', runtime/'data',
     ignore=shutil.ignore_patterns('world', 'reports'), dirs_exist_ok=True)
 world = runtime/'data/world'
 world.mkdir(exist_ok=True)
@@ -77,7 +77,7 @@ while True:
 (ROOT/'rsa.txt').chmod(0o600)
 (ROOT/'runtime.env').write_text(f'TFS_DB_USER={DB}\nTFS_DB_PASSWORD={password}\nTFS_DB_NAME={DB}\nANTIGAS_RSA_KEY_FILE={ROOT}/rsa.txt\n')
 (ROOT/'runtime.env').chmod(0o600)
-config = Path('/opt/imperium772/server/config.lua').read_text()
+config = Path('/opt/antigas74/server/config.lua').read_text()
 config += '\nip="127.0.0.1"\nbindOnlyGlobalAddress=true\nloginProtocolPort=7185\ngameProtocolPort=7186\nstatusProtocolPort=7185\nserverName="Antigas Viewport QA"\nmapName="qa"\nteleportNewbies=false\nmaxPlayers=4\n'
 (runtime/'config.lua').write_text(config)
 # Replace only this copied world's optional startup events/raids.
