@@ -30,6 +30,40 @@ static void require(bool condition, const std::string& message)
     if (!condition) throw std::runtime_error(message);
 }
 
+// Direct Lua fixtures need the same environment as production script entry points.
+class LuaFixtureScope
+{
+public:
+    explicit LuaFixtureScope(LuaScriptInterface& interface) : state(interface.getLuaState()), stackTop(lua_gettop(state))
+    {
+        require(LuaScriptInterface::reserveScriptEnv(), "Lua fixture script environment must be available");
+        LuaScriptInterface::getScriptEnv()->setScriptId(EVENT_ID_LOADING, &interface);
+    }
+
+    ~LuaFixtureScope()
+    {
+        lua_settop(state, stackTop);
+        LuaScriptInterface::resetScriptEnv();
+    }
+
+    LuaFixtureScope(const LuaFixtureScope&) = delete;
+    LuaFixtureScope& operator=(const LuaFixtureScope&) = delete;
+
+private:
+    lua_State* state;
+    int stackTop;
+};
+
+static void runLuaFixture(const char* script, const char* failureMessage)
+{
+    LuaFixtureScope scope(g_luaEnvironment);
+    lua_State* state = g_luaEnvironment.getLuaState();
+    const int result = luaL_dostring(state, script);
+    const char* error = result != 0 ? lua_tostring(state, -1) : nullptr;
+    const std::string message = error ? error : failureMessage;
+    require(result == 0, message);
+}
+
 static std::vector<uint16_t> canonicalIds()
 {
     std::ifstream manifest("data/items/retired-items.json");
@@ -136,10 +170,8 @@ static void luaTests()
         "assert(sword:transform(3157) == false, 'Lua transform must report retired rejection')\n"
         "assert(sword:getId() == 3264)\n"
         "assert(sword:transform(3294) == true and sword:getId() == 3294)\n";
-    lua_State* state = g_luaEnvironment.getLuaState();
-    const int result = luaL_dostring(state, script);
-    const char* error = result != 0 ? lua_tostring(state, -1) : nullptr;
-    require(result == 0, error ? error : "Lua retirement checks failed");
+    runLuaFixture(script, "Lua retirement checks failed");
+    g_game.cleanup(true); // resetScriptEnv queues temporary fixture items for release.
 }
 
 static void weaponTests()
@@ -229,9 +261,7 @@ static void corpseTests()
         "currentCorpse=ordinaryBag\n"
         "assert(Player.onMoveItem(fake,moved,1,Position(100,100,7),{x=CONTAINER_POSITION},source,nil))\n"
         "assert(hits==1, 'ordinary backpacks must not become corpses'); Tile=originalTile\n";
-    const int analyzerResult = luaL_dostring(lua, analyzer);
-    const char* analyzerError = analyzerResult ? lua_tostring(lua, -1) : nullptr;
-    require(analyzerResult == 0, analyzerError ? analyzerError : "Analyzer corpse checks failed");
+    runLuaFixture(analyzer, "Analyzer corpse checks failed");
     body->setParent(nullptr); // createLoot may start decay; this isolated owner does not enter the world.
     monsterType.info.lookcorpse = 4251;
     std::unique_ptr<Item> classicBody(CorpseAccess::create(monster, &owner));
