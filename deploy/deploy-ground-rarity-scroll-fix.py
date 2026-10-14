@@ -21,9 +21,9 @@ def require(condition, message='Deployment precondition failed'):
         raise RuntimeError(message)
 
 PREP = Path('/opt/antigas-groundrarity-scroll-20260928')
-SERVER = Path('/opt/imperium772/server')
+SERVER = Path('/opt/antigas74/server')
 SOURCE = Path('/opt/antigas-rarity-20260928/source')
-SERVICE = 'imperium772.service'
+SERVICE = 'antigas74.service'
 OLD_BINARY = 'eceb3937795720583a724e46ef45715faca7b9adb865bccbdd183edce5929686'
 
 

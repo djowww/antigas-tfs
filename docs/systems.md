@@ -1,6 +1,6 @@
 # Sistemas do Antigas
 
-Este guia apresenta o comportamento dos sistemas customizados presentes no código. As interfaces dependem dos módulos correspondentes do cliente Antigas; o servidor usa protocolo 7.72 com extensões próprias.
+Este guia apresenta o comportamento dos sistemas customizados do Antigas 7.4. As interfaces dependem dos módulos correspondentes do cliente oficial e das extensões de comunicação do servidor.
 
 ## Market
 

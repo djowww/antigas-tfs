@@ -166,7 +166,7 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 
 	/*if (version < CLIENT_VERSION_MIN || version > CLIENT_VERSION_MAX) {
 		//sendUpdateRequest();
-		disconnectClient("Use Tibia 7.72 to login!");
+		disconnectClient("Use the Antigas 7.4 client to log in!");
 		return;
 	}*/
 

@@ -1,5 +1,5 @@
 function onLogin(player)
-	local loginStr = "Welcome to Antigas 7.4\nOfficial client: v69 - https://tibia74.tech/Antigas-7.4-Launcher-v69.zip"
+	local loginStr = "Welcome to Antigas 7.4\nOfficial client: v70 - https://tibia74.tech/Antigas-7.4-Launcher-v70.zip"
 	if player:getLastLoginSaved() <= 0 then
 		player:sendOutfitWindow()
 	else
