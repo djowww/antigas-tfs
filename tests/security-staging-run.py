@@ -13,7 +13,7 @@ from staging_safety import pin_staging_rsa_public, require_isolated_staging_serv
 from staging_recovery import record_recovery, recover_staging
 
 ROOT = Path(__file__).resolve().parents[1]
-STAGE = Path('/opt/imperium772-staging/server')
+STAGE = Path('/opt/antigas74-staging/server')
 
 
 def value(unit, prop):
@@ -32,9 +32,9 @@ def main():
     args = parser.parse_args()
     require_staging_target()
     pin_staging_rsa_public(os.environ, STAGE / 'staging-rsa-public.json')
-    if not os.environ.get('INVOCATION_ID') or value('imperium772', 'ActiveState') != 'active':
+    if not os.environ.get('INVOCATION_ID') or value('antigas74', 'ActiveState') != 'active':
         raise SystemExit('Requires systemd watchdog and active production before maintenance')
-    if value('imperium772-staging', 'ActiveState') != 'inactive':
+    if value('antigas74-staging', 'ActiveState') != 'inactive':
         raise SystemExit('Staging must be stopped before maintenance')
     require_isolated_staging_service(value)
     if hashlib.sha256((STAGE / 'tfs').read_bytes()).hexdigest() != args.binary_sha256:
@@ -46,7 +46,7 @@ def main():
     def sample():
         while not stop.wait(2):
             try:
-                pid = int(value('imperium772-staging', 'MainPID'))
+                pid = int(value('antigas74-staging', 'MainPID'))
                 if not pid:
                     continue
                 stat = Path(f'/proc/{pid}/stat').read_text().split(') ', 1)[1].split()
@@ -59,16 +59,16 @@ def main():
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)
     try:
-        command('systemctl', 'stop', 'imperium772')
+        command('systemctl', 'stop', 'antigas74')
         available = int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:')))
         if available < 2600*1024:
             raise RuntimeError('Not enough memory for isolated full-map test')
-        command('systemctl', 'set-property', '--runtime', 'imperium772-staging', 'MemoryMax=3G')
-        command('systemctl', 'start', 'imperium772-staging')
+        command('systemctl', 'set-property', '--runtime', 'antigas74-staging', 'MemoryMax=3G')
+        command('systemctl', 'start', 'antigas74-staging')
         monitor.start()
         deadline = time.monotonic() + 90
         while time.monotonic() < deadline:
-            if value('imperium772-staging', 'ActiveState') != 'active':
+            if value('antigas74-staging', 'ActiveState') != 'active':
                 raise RuntimeError('Staging exited during startup')
             listeners = subprocess.check_output(['ss', '-ltn'], text=True)
             if '127.0.0.1:7175' in listeners and '127.0.0.1:7176' in listeners:

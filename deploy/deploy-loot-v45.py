@@ -21,9 +21,9 @@ def require(condition, message='Deployment precondition failed'):
         raise RuntimeError(message)
 
 PREP = Path('/opt/antigas-loot-20260928')
-SERVER = Path('/opt/imperium772/server')
+SERVER = Path('/opt/antigas74/server')
 WEB = Path('/var/www/otclient')
-SERVICE = 'imperium772.service'
+SERVICE = 'antigas74.service'
 OLD_BINARY = '56ebec1f1dfcd845f78af0b60ac2f1d6cb4848e4ecec0d65fdb3b19494d3bdc1'
 CLIENT = 'Antigas-7.4-Client-v45.zip'
 RUNTIME = ['data/chatchannels/chatchannels.xml', 'data/chatchannels/scripts/loot.lua',

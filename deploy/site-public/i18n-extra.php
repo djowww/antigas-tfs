@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 const ANTIGAS_EXTRA_TRANSLATIONS = [
     'pt' => [
+        '13 Oct 2026 · Client v70' => '13 out. 2026 · Cliente v70',
+        'Antigas 7.4 identity in client v70' => 'Identidade Antigas 7.4 no cliente v70',
+        'The client logo and name now use Antigas 7.4 throughout the login screen and game interface.' => 'O logo e o nome do cliente agora usam Antigas 7.4 na tela de login e na interface do jogo.',
+        'Open your launcher to install client v70. Your characters, progress and saved preferences remain available.' => 'Abra seu launcher para instalar o cliente v70. Seus personagens, progresso e preferências salvas continuam disponíveis.',
         '13 Oct 2026' => '13 out. 2026',
         '13 Oct 2026 · Client v69' => '13 out. 2026 · Cliente v69',
         'Spears, hotkeys and client v69' => 'Lanças, hotkeys e cliente v69',
@@ -38,6 +42,10 @@ const ANTIGAS_EXTRA_TRANSLATIONS = [
         'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins instant? No: payment is reviewed manually, then collected in the Market. Where can I find the full spell list? Search the client or open the original community wiki.' => 'Onde começam as novas personagens? Em Rookgaard. Onde baixo o cliente? Use o botão de download na página inicial. As Coins do site são entregues na hora? Não: o pagamento é conferido manualmente e depois retirado no Market. Onde encontro a lista completa de magias? Pesquise no cliente ou abra a wiki original da comunidade.',
     ],
     'es' => [
+        '13 Oct 2026 · Client v70' => '13 oct. 2026 · Cliente v70',
+        'Antigas 7.4 identity in client v70' => 'Identidad Antigas 7.4 en el cliente v70',
+        'The client logo and name now use Antigas 7.4 throughout the login screen and game interface.' => 'El logo y el nombre del cliente ahora usan Antigas 7.4 en la pantalla de inicio de sesión y en la interfaz del juego.',
+        'Open your launcher to install client v70. Your characters, progress and saved preferences remain available.' => 'Abre tu launcher para instalar el cliente v70. Tus personajes, progreso y preferencias guardadas siguen disponibles.',
         '13 Oct 2026' => '13 oct. 2026',
         '13 Oct 2026 · Client v69' => '13 oct. 2026 · Cliente v69',
         'Spears, hotkeys and client v69' => 'Lanzas, hotkeys y cliente v69',
@@ -73,6 +81,10 @@ const ANTIGAS_EXTRA_TRANSLATIONS = [
         'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins instant? No: payment is reviewed manually, then collected in the Market. Where can I find the full spell list? Search the client or open the original community wiki.' => '¿Dónde empiezan los personajes nuevos? En Rookgaard. ¿Dónde descargo el cliente? Usa el botón de descarga en la página principal. ¿Las Coins del sitio llegan al instante? No: el pago se revisa manualmente y después se retira en el Market. ¿Dónde está la lista completa de hechizos? Busca en el cliente o abre la wiki original.',
     ],
     'pl' => [
+        '13 Oct 2026 · Client v70' => '13 paź 2026 · Klient v70',
+        'Antigas 7.4 identity in client v70' => 'Identyfikacja Antigas 7.4 w kliencie v70',
+        'The client logo and name now use Antigas 7.4 throughout the login screen and game interface.' => 'Logo i nazwa klienta teraz używają Antigas 7.4 na ekranie logowania i w interfejsie gry.',
+        'Open your launcher to install client v70. Your characters, progress and saved preferences remain available.' => 'Otwórz launcher, aby zainstalować klienta v70. Twoje postacie, postępy i zapisane preferencje pozostają dostępne.',
         '13 Oct 2026' => '13 paź 2026',
         '13 Oct 2026 · Client v69' => '13 paź 2026 · Klient v69',
         'Spears, hotkeys and client v69' => 'Włócznie, hotkeys i klient v69',

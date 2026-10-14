@@ -2,7 +2,7 @@
 
 Código-fonte do servidor Antigas: um projeto de MMORPG com a experiência clássica de Tibia 7.4 e sistemas próprios de progressão, comércio e exploração.
 
-O núcleo utiliza C++11 e LuaJIT, com protocolo **7.72** e extensões para o cliente customizado do projeto. A identidade 7.4 descreve a proposta do jogo; a compatibilidade de rede é definida pelo protocolo e pelos módulos do cliente.
+O núcleo do Antigas 7.4 utiliza C++11 e LuaJIT, com extensões para o cliente customizado do projeto. Use a distribuição oficial do cliente para manter a compatibilidade de rede e dos módulos.
 
 [Site oficial e download do cliente](https://tibia74.tech) · [Documentação](docs/INDEX.md) · [Como contribuir](CONTRIBUTING.md)
 

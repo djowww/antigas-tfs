@@ -22,9 +22,9 @@ def require(condition, message='Deployment precondition failed'):
         raise RuntimeError(message)
 
 PREP = Path('/opt/antigas-rarity-container-v47-20260928')
-SERVER = Path('/opt/imperium772/server')
+SERVER = Path('/opt/antigas74/server')
 WEB = Path('/var/www/otclient')
-SERVICE = 'imperium772.service'
+SERVICE = 'antigas74.service'
 OLD_BINARY = '8cffd8a27e4750d8a0fa463d2e21d94bcb0306e2467eadb2035cc5518a551dd5'
 NEW_BINARY = '747d954b2ff080f8b284912552a60a09963700b8e3a7a275e2f9e36cc0728000'
 CLIENT = 'Antigas-7.4-Client-v47.zip'
