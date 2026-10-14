@@ -14,7 +14,7 @@ $sections = [
     'quests-bestiary' => ['Quests and Bestiary', 'The Quest Log records supported chest discoveries and NPC missions for your character. Bestiary entries advance as you defeat creatures; completing an entry at 1,000 kills grants +0.2% permanent XP. The client shows progress and completed entries.'],
     'market-coins' => ['Market and Coins', 'The Market trades supported classic items in Gold. Review an offer before accepting and collect completed trades through the Market. Extra items and Antigas Coins are unavailable.'],
     'client-support' => ['Client and support', 'Download the client from the home page and extract it to a folder you can write to. Antigas_gl.exe is ready to connect to this server. The Help channel is the first place to ask other players for assistance; staff commands are reserved for staff.'],
-    'faq' => ['Frequently asked questions', 'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins instant? No: payment is reviewed manually, then collected in the Market. Where can I find the full spell list? Search the client or open the original community wiki.'],
+    'faq' => ['Frequently asked questions', 'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins available? No: this item was retired from the test environment. Where can I find the full spell list? Search the client or open the original community wiki.'],
 ];
 ?>
 <!doctype html>
@@ -38,7 +38,7 @@ $sections = [
       <p class="motto"><?= siteT('Wiki Antigas') ?></p>
     </header>
     <nav class="topnav" aria-label="<?= siteT('Main navigation') ?>">
-      <a href="/"><?= siteT('Home') ?></a><a href="/wiki.php" aria-current="page"><?= siteT('Wiki Antigas') ?></a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Buy coins') ?></a><a href="/Antigas-7.4-Launcher-v72.zip?site=classic-items-v72-20261014"><?= siteT('Download') ?></a>
+      <a href="/"><?= siteT('Home') ?></a><a href="/wiki.php" aria-current="page"><?= siteT('Wiki Antigas') ?></a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Antigas Coins') ?></a><a href="/Antigas-7.4-Launcher-v72.zip?site=classic-items-v72-20261014"><?= siteT('Download') ?></a>
     </nav>
     <?= siteLanguageSwitcher() ?>
   </div>

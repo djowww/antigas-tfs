@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <p class="motto"><?= siteTHtml('A world of adventures.<br><span>Like the old days.</span>') ?></p>
     </header>
     <nav class="topnav" aria-label="<?= siteT('Main navigation') ?>">
-      <a href="#inicio" aria-current="page"><?= siteT('Home') ?></a><a href="#noticias"><?= siteT('News') ?></a><a href="#mundo"><?= siteT('The world') ?></a><a href="#market">Market</a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Buy coins') ?></a><a href="#criar-conta"><?= siteT('Create account') ?></a><a href="#download"><?= siteT('Download') ?></a>
+      <a href="#inicio" aria-current="page"><?= siteT('Home') ?></a><a href="#noticias"><?= siteT('News') ?></a><a href="#mundo"><?= siteT('The world') ?></a><a href="#market">Market</a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Antigas Coins') ?></a><a href="#criar-conta"><?= siteT('Create account') ?></a><a href="#download"><?= siteT('Download') ?></a>
     </nav>
     <?= siteLanguageSwitcher() ?>
   </div>
@@ -276,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <header class="news-ribbon"><h3><?= siteT('Market: player-to-player offers') ?></h3><time datetime="2026-09-24"><?= siteT('24 Sep 2026') ?></time></header>
         <div class="news-body">
           <p class="dropcap"><?= siteT('Find items, compare offers and trade with other players directly through the client. The catalog has search, categories and filters for buying and selling.') ?></p>
-          <ul class="gold-list"><li><?= siteTHtml('<strong>Gold:</strong> payments include gold, platinum and crystal coins, as well as your bank balance.') ?></li><li><?= siteTHtml('<strong>Antigas Coin:</strong> a separate currency shown on each offer.') ?></li><li><?= siteTHtml('<strong>History and collection:</strong> follow offers and trades; use <strong>Collect</strong> to claim them. Gold goes to the bank; items and Antigas Coins go to the depot.') ?></li></ul>
+          <ul class="gold-list"><li><?= siteTHtml('<strong>Gold:</strong> payments include gold, platinum and crystal coins, as well as your bank balance.') ?></li><li><?= siteTHtml('<strong>History and collection:</strong> follow offers and trades; use <strong>Collect</strong> to claim them. Gold goes to the bank; classic items go to the depot.') ?></li></ul>
           <p><?= siteT('Trades are recorded, and sale proceeds are reserved for the seller until collected.') ?></p>
           <p><?= siteT('Interrupted operations and simultaneous Market access are handled more carefully to protect player trades.') ?></p>
         </div>
