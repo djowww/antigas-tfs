@@ -55,7 +55,7 @@
 		<voice sentence="Good wishes are for fairytales" />
 	</voices>
 	<loot>
-	    <item id="5203" countmax="1" chance="20" /> <!-- a green piece -->
+	     <!-- a green piece -->
 		<item id="2846" countmax="1" chance="25" /> <!-- a book -->
 		<item id="3607" countmax="1" chance="250" /> <!-- cheese -->
 		<item id="3031" countmax="50" chance="700" /> <!-- a gold coin -->

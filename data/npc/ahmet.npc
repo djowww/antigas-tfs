@@ -90,7 +90,7 @@ VANISH,!           -> "May enlightenment be your path."
 
 "worm"          -> "I sell worms only in sixpacks for 5 gold each, how many sixpacks of worms do you want to buy?"
 "worms"         -> *
-%1,"worms"      -> Type=3492, Amount=%1*6, Price=5*%1,   "So you want to buy some of my sixpacks with altogether %A worms for %P gold?", Topic=1
+%1,"worms" -> "This item or service is no longer available.", Topic=0
 %1,"six","pack" -> *
 
 %1,1<%1,"torch"           -> Type=2920, Amount=%1,  Price=2*%1,    "Do you want to buy %A torches for %P gold?", Topic=1

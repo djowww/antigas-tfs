@@ -90,7 +90,7 @@ function Player:onMoveItem(item, count, fromPosition, toPosition, fromCylinder, 
 	
 	if corpse then
 		local itemType = corpse:getType()
-		if itemType:isCorpse() and toPosition.x == CONTAINER_POSITION then
+		if (itemType:isCorpse() or corpse:isRecoveryCorpse()) and toPosition.x == CONTAINER_POSITION then
 			self:checkAnalyzerLootItem(item:getId(), count)
 			
 			local dropAnalyzer = {}

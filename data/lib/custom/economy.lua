@@ -44,6 +44,7 @@ function Economy.run(player,work)
     local ctx={player=player,bank=player:getBankBalance(),removed={},added={},storage={},attributes={}}
     function ctx:take(item,count,knownEntry)
         if not Economy.owned(self.player,item) or not Economy.integer(count,1,10000) then return false end
+        if ItemType(item:getId()):isRetired() then return false end
         local entries=knownEntry and {knownEntry} or Economy.inventory(self.player)
         if not entries then return false end
         for _,e in ipairs(entries) do
@@ -74,6 +75,7 @@ function Economy.run(player,work)
     end
     function ctx:give(id,count)
         if not Economy.integer(count,1,10000) then return false end
+        if ItemType(id):isRetired() then return false end
         local stackable=ItemType(id):isStackable()
         while count>0 do
             if #self.added>=100 then return false end

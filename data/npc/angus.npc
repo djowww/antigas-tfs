@@ -34,7 +34,7 @@ VANISH,!           -> "How rude!"
 
 #####
 "no",topic=33     -> "Perhaps you are interested some other time."
-"yes",topic=33    -> "Good, just take this spectral essence and use it on the strange carving in this building as well as on the corresponding tile in our base at Northport ...", "As soon as you have charged the portal tiles that way, report about the spectral portals.", Create(4840),SetQuestValue(320,5)
+"yes",topic=33 -> "This item or service is no longer available.", Topic=0
 
 ##### topic 34 verwendet
 

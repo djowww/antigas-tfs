@@ -49,7 +49,7 @@
 		<voice sentence="Help me, boys!" />
 	</voices>
 	<loot>
-	    <item id="5208" countmax="1" chance="999" /> <!-- a nose ring -->
+	     <!-- a nose ring -->
 		<item id="3413" countmax="1" chance="20" /> <!-- a battle shield -->
 		<item id="3359" countmax="1" chance="140" /> <!-- a brass armor -->
 		<item id="3558" countmax="1" chance="150" /> <!-- chain legs -->

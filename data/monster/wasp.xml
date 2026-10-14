@@ -29,6 +29,6 @@
 		<voice sentence="Bsssssss" />
 	</voices>
 	<loot>
-		<item id="5185" countmax="1" chance="15" /> <!-- honeycomb -->
+		 <!-- honeycomb -->
 	</loot>
 </monster>

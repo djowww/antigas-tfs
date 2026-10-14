@@ -1,0 +1,2087 @@
+{
+  "version": 1,
+  "referenceItemDefinitions": 3035,
+  "referenceMappingBijectionVerified": true,
+  "preserveIds": true,
+  "excludeTerrainAndStructuralMap": true,
+  "currentClientEntries": 284,
+  "serverOnlyEntries": 62,
+  "ids": [
+    {
+      "id": 2775,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2776,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2777,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2778,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2779,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2780,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2781,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2782,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2783,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2784,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2785,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2786,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2787,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2788,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2789,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2790,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2791,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2792,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2793,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2794,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2795,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2796,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2797,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2798,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2799,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2800,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2801,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2802,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2803,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2804,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2805,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2806,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2807,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2808,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2809,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2810,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2811,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2812,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2864,
+      "name": "a bag",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2872,
+      "name": "a camouflage backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2883,
+      "name": "a cup",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2884,
+      "name": "a cup",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2951,
+      "name": "a bongo drum",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2965,
+      "name": "a didgeridoo",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 2966,
+      "name": "a war drum",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3001,
+      "name": "a bear doll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3002,
+      "name": "a voodoo doll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3044,
+      "name": "an elephant tusk",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3103,
+      "name": "a cornucopia",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3157,
+      "name": "a cranial basher",
+      "reason": "customized_or_repurposed_definition",
+      "clientEntry": true
+    },
+    {
+      "id": 3159,
+      "name": "a heroic axe",
+      "reason": "customized_or_repurposed_definition",
+      "clientEntry": true
+    },
+    {
+      "id": 3162,
+      "name": "a mystic blade",
+      "reason": "customized_or_repurposed_definition",
+      "clientEntry": true
+    },
+    {
+      "id": 3244,
+      "name": "an old and used backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3245,
+      "name": "a ring of wishes",
+      "reason": "customized_or_repurposed_definition",
+      "clientEntry": true
+    },
+    {
+      "id": 3253,
+      "name": "a backpack of holding",
+      "reason": "customized_or_repurposed_definition",
+      "clientEntry": true
+    },
+    {
+      "id": 3343,
+      "name": "a lich staff",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3344,
+      "name": "a beastslayer axe",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3345,
+      "name": "a templar scytheblade",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3346,
+      "name": "a ripper lance",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3347,
+      "name": "a hunting spear",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3348,
+      "name": "a banana staff",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3403,
+      "name": "a tribal mask",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3404,
+      "name": "a leopard armor",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3405,
+      "name": "a horseman helmet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3406,
+      "name": "a feather headdress",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3407,
+      "name": "a charmer's tiara",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3408,
+      "name": "a beholder helmet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3443,
+      "name": "a tusk shield",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3444,
+      "name": "a sentinel shield",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3445,
+      "name": "a salamander shield",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3492,
+      "name": "a worm",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3556,
+      "name": "crocodile boots",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 3560,
+      "name": "a bast skirt",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4318,
+      "name": "a dead crab",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4319,
+      "name": "a dead crab",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4320,
+      "name": "a dead crab",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4330,
+      "name": "a dead chicken",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4331,
+      "name": "a dead chicken",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4332,
+      "name": "a dead chicken",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4363,
+      "name": "a dead bat",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4364,
+      "name": "a dead bat",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4365,
+      "name": "a dead bat",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4378,
+      "name": "a dead butterfly",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4379,
+      "name": "a dead parrot",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4380,
+      "name": "a dead parrot",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4381,
+      "name": "a dead parrot",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4827,
+      "name": "whisper moss",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4828,
+      "name": "a flask of cough syrup",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4829,
+      "name": "a witches cap mushroom",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4831,
+      "name": "an old parchment",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4832,
+      "name": "a giant ape's hair",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4834,
+      "name": "a family brooch",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4835,
+      "name": "a snake destroyer",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4836,
+      "name": "a spectral dress",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4837,
+      "name": "an icicle",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4838,
+      "name": "strange powder",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4839,
+      "name": "a hydra egg",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4840,
+      "name": "a spectral stone",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4841,
+      "name": "a memory stone",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4842,
+      "name": "a sheet of tracing paper",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4843,
+      "name": "a sheet of tracing paper",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4844,
+      "name": "an elven poetry book",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4845,
+      "name": "a dwarven pickaxe",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4846,
+      "name": "a wrinkled parchment",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4847,
+      "name": "a funeral urn",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4852,
+      "name": "an ectoplasm container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4853,
+      "name": "an ectoplasm container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4863,
+      "name": "a butterfly conservation kit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4864,
+      "name": "a butterfly conservation kit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4865,
+      "name": "a butterfly conservation kit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4866,
+      "name": "a butterfly conservation kit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4867,
+      "name": "a botanist's container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4868,
+      "name": "a botanist's container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4869,
+      "name": "a botanist's container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4870,
+      "name": "a botanist's container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4871,
+      "name": "an explorer brooch",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4872,
+      "name": "an ice pick",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4991,
+      "name": "a dead butterfly",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4992,
+      "name": "a dead butterfly",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 4993,
+      "name": "a dead butterfly",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5013,
+      "name": "a dead butterfly",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5014,
+      "name": "a mandrake",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5021,
+      "name": "an orichalcum pearl",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5080,
+      "name": "a panda teddy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5086,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5087,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5088,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5090,
+      "name": "a flamming bow",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5091,
+      "name": "a blazing crossbow",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5092,
+      "name": "a dice",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5093,
+      "name": "a dice",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5094,
+      "name": "a dice",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5095,
+      "name": "a dice",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5096,
+      "name": "a dice",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5097,
+      "name": "a dice",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5098,
+      "name": "an blue djinn scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5099,
+      "name": "an green djinn scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5100,
+      "name": "an postman scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5101,
+      "name": "a soft boots",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5102,
+      "name": "an Antigas ring",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5103,
+      "name": "an Antigas ring",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5104,
+      "name": "a red hat",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5105,
+      "name": "a red robe",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5106,
+      "name": "blue legs",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5107,
+      "name": "a warmaster armor",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5108,
+      "name": "a zarec armor",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5109,
+      "name": "a paladin armor",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5110,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5111,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5112,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5113,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5114,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5115,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5116,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5117,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5118,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5119,
+      "name": "a backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5120,
+      "name": "a premium scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5121,
+      "name": "a premium scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5122,
+      "name": "a premium scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5123,
+      "name": "a quiver",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5124,
+      "name": "an Antigas shield",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5125,
+      "name": "a vial of manafluid",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5126,
+      "name": "a health potion",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5127,
+      "name": "a empty flask potion",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5128,
+      "name": "an Antigas Ticket",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5129,
+      "name": "a teleport scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5130,
+      "name": "an Antigas Coin",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5131,
+      "name": "a blessing scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5132,
+      "name": "a bless checker",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5133,
+      "name": "an Antigas backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5134,
+      "name": "a decorated carpet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5135,
+      "name": "a decorated carpet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5136,
+      "name": "a decorated carpet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5137,
+      "name": "a fish tank",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5138,
+      "name": "a elvenhair rope",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5139,
+      "name": "a light shovel",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5140,
+      "name": "a house scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5141,
+      "name": "a training sword",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5142,
+      "name": "a training axe",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5143,
+      "name": "a training club",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5144,
+      "name": "an training arrow",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5145,
+      "name": "an training rod",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5146,
+      "name": "an training wand",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5147,
+      "name": "a training monk lamp",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5148,
+      "name": "a training shield",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5149,
+      "name": "a light of change",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5150,
+      "name": "a light of change",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5151,
+      "name": "a light of change",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5152,
+      "name": "a light parquet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5153,
+      "name": "a GM doll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5154,
+      "name": "a old backpack",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5155,
+      "name": "a dustbin",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5156,
+      "name": "a lush grass",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5157,
+      "name": "a lush grass",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5158,
+      "name": "a lush grass",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5159,
+      "name": "a poplar",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5160,
+      "name": "a behemoth trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5161,
+      "name": "a cyclops trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5162,
+      "name": "a deer trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5163,
+      "name": "a demon trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5164,
+      "name": "a dragon lord trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5165,
+      "name": "a lion trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5166,
+      "name": "a minotaur trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5167,
+      "name": "a orc trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5168,
+      "name": "a war wolf trophy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5169,
+      "name": "a golden outfit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5170,
+      "name": "a demon outfit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5171,
+      "name": "an obsidian knife",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5172,
+      "name": "a minotaur leather",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5173,
+      "name": "first citizen addon",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5174,
+      "name": "sniper globes",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5175,
+      "name": "a chicken feather",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5176,
+      "name": "hat citizen addon",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5177,
+      "name": "a wolf paw",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5178,
+      "name": "a bear paw",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5179,
+      "name": "Ferumbras' hat",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5183,
+      "name": "an iron ore",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5184,
+      "name": "a dragon claw",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5185,
+      "name": "a honeycomb",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5186,
+      "name": "a holy orchid",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5187,
+      "name": "a soul stone",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5188,
+      "name": "a magic sulphur",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5189,
+      "name": "a piece of royal steel",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5190,
+      "name": "a piece of draconian steel",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5191,
+      "name": "a piece of hell steel",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5192,
+      "name": "a huge chunk of crude iron",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5193,
+      "name": "a perfect behemoth fang",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5194,
+      "name": "a flask of warrior's sweat",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5195,
+      "name": "a damaged steel helmet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5196,
+      "name": "elane's crossbow",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5197,
+      "name": "a red dragon leather",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5198,
+      "name": "a green dragon leather",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5199,
+      "name": "an enchanted chicken wing",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5200,
+      "name": "a spider silk",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5201,
+      "name": "a blue piece of cloth",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5202,
+      "name": "a brown piece of cloth",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5203,
+      "name": "a green piece of cloth",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5204,
+      "name": "a red piece of cloth",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5205,
+      "name": "a white piece of cloth",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5206,
+      "name": "a yellow piece of cloth",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5207,
+      "name": "a behemoth claw",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5208,
+      "name": "a nose ring",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5215,
+      "name": "a shard",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5216,
+      "name": "magic plate legs",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5217,
+      "name": "a reins",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5218,
+      "name": "a leather whip",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5219,
+      "name": "a slingshot",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5226,
+      "name": "an avar tar blessing",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5227,
+      "name": "a bamboo leaves",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5228,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5229,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5230,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5231,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5232,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5233,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5239,
+      "name": "a dragon slayer",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5240,
+      "name": "a spirit container",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5241,
+      "name": "a scroll of frags",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5242,
+      "name": "a dragon slayer outfit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5246,
+      "name": "a magic gold converter",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5247,
+      "name": "an antigas amulet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5248,
+      "name": "a mount",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5249,
+      "name": "a royal costumer outfit",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5257,
+      "name": "a magic plate helmet",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5258,
+      "name": "a magic plate shield",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5259,
+      "name": "a gold ingot",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5285,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5286,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5287,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5288,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5289,
+      "name": "a furniture package",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5290,
+      "name": "an enchanted spear",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5291,
+      "name": "an exp scroll",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5292,
+      "name": "a snakebite rod",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5293,
+      "name": "a moonlight rod",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5294,
+      "name": "a volcanic rod",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5295,
+      "name": "a quagmire rod",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5296,
+      "name": "a tempest rod",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5297,
+      "name": "a wand of vortex",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5298,
+      "name": "a wand of dragonbreath",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5299,
+      "name": "a wand of plague",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5300,
+      "name": "a wand of cosmic energy",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5301,
+      "name": "a wand of inferno",
+      "reason": "extra_definition_outside_complete_reference_mapping",
+      "clientEntry": true
+    },
+    {
+      "id": 5302,
+      "name": "a execowtioner axe",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5303,
+      "name": "a ice dragon shield",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5304,
+      "name": "a falcon battleaxe",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5305,
+      "name": "a new royal helmet",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5306,
+      "name": "a flame sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5307,
+      "name": "a energy rod",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5308,
+      "name": "a pixel sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5309,
+      "name": "a mistic armor",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5310,
+      "name": "a magic enchanted plate armor",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5311,
+      "name": "a energy sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5312,
+      "name": "a wand of energy",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5313,
+      "name": "a magic hat",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5314,
+      "name": "a blue energy sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5315,
+      "name": "a refine",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5316,
+      "name": "a magic sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5317,
+      "name": "a magic energy sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5318,
+      "name": "a cristal crossbow",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5319,
+      "name": "sanguine legs",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5320,
+      "name": "sanguine boots",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5321,
+      "name": "fire legs",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5322,
+      "name": "a fire armor",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5323,
+      "name": "a dark knight axe",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5324,
+      "name": "a fire crossbow",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5325,
+      "name": "a fire shield",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5326,
+      "name": "fire boots",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5327,
+      "name": "a fire helmet",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5328,
+      "name": "a skull shield",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5329,
+      "name": "skull boots",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5330,
+      "name": "a skull scale mail",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5331,
+      "name": "skull legs",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5332,
+      "name": "a skull helmet",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5333,
+      "name": "a great fire sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5334,
+      "name": "a merged sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5335,
+      "name": "a elemental sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5336,
+      "name": "a universe scale mail",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5337,
+      "name": "a wand of prisma energy",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5338,
+      "name": "a celestial helmet",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5339,
+      "name": "a celestial armor",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5340,
+      "name": "celetial legs",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5341,
+      "name": "boots of angel",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5342,
+      "name": "a golden mistic helmet",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5343,
+      "name": "a golden mistic armor",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5344,
+      "name": "golden mistic legs",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5345,
+      "name": "golden mistic boots",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5346,
+      "name": "a golden mistic shield",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5348,
+      "name": "a emerald shield",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5349,
+      "name": "emerald boots",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5350,
+      "name": "emerald legs",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5351,
+      "name": "a emerald armor",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5352,
+      "name": "a emerald helmet",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5353,
+      "name": "a ice mistic sword",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5354,
+      "name": "a ice mistic crossbow",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5355,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5356,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5357,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5358,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5359,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5360,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5361,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5362,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5363,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    },
+    {
+      "id": 5364,
+      "name": "a mount",
+      "reason": "extra_server_definition_without_client_entry",
+      "clientEntry": false
+    }
+  ]
+}

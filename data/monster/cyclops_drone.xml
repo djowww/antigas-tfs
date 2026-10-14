@@ -43,6 +43,6 @@
 		<item id="3410" countmax="1" chance="20" /> <!-- a plate shield -->
 		<item id="3294" countmax="1" chance="80" /> <!-- a short sword -->
 		<item id="3160" countmax="1" chance="50" /> <!-- a ultimate healing rune -->
-		<item id="5161" countmax="1" chance="1" /> <!-- a cyclops trophy -->
+		 <!-- a cyclops trophy -->
 	</loot>
 </monster>

@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "release": 72,
+  "reference": {
+    "versionLabel": "7.4",
+    "source": "User-provided client files",
+    "officialChecksumVerified": false,
+    "datSha256": "6ad01f7a1019d2ab882e7295679c7a2e0d5cf81bb611bda7440dd6a040cdea5c",
+    "sprSha256": "7fa61fa8455e54fb59ff5990820785ea6765a5a96ca811beb55e3c03719999ac"
+  },
+  "assets": {
+    "datSha256": "c3eac36149051224efe93728e91e9979c0ecca2ecf4b28209433be4fe22bee14",
+    "sprSha256": "5da002417fd8e2a2fbeb0a8a0ac02010655888a361a44b4ae9bfa4631628e13f"
+  },
+  "retiredClientItemDefinitions": 284,
+  "retiredServerOnlyItemDefinitions": 62,
+  "exclusiveRetiredSpriteSlotsCleared": 389,
+  "remainingPortableItemsMatchingReference": 933,
+  "preservedDefinitions": 5235,
+  "preservedActiveSpritePixels": 24680,
+  "currentThingIdsUnchanged": true,
+  "spriteIdsUnchanged": true,
+  "terrainMountainsBordersFloorsAndFixedMapGraphicsUnchanged": true,
+  "worldFilesUnchanged": true,
+  "retirementCatalog": "data/items/retired-items.json",
+  "comparisonScope": "Exact pixels across all frames, patterns, layers and geometry of the retained portable items; excluded map graphics remain unchanged from v71."
+}

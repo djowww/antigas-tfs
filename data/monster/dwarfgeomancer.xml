@@ -40,7 +40,7 @@
 		<voice sentence="Dust to dust." />
 	</voices>
 	<loot>
-	    <item id="5183" countmax="1" chance="30" /> <!-- a iron ore -->
+	     <!-- a iron ore -->
 		<item id="2853" countmax="1" chance="500" /> <!-- a bag -->
 		<item id="3147" countmax="1" chance="100" /> <!-- a blank rune -->
 		<item id="3311" countmax="1" chance="10" /> <!-- a clerical mace -->

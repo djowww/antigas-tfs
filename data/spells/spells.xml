@@ -319,10 +319,6 @@
 		<vocation name="Royal Paladin" />
 	</conjure>
 	
-	<conjure name="Enchant Spear" words="exeta con" level="10" mana="200" premium="1" needlearn="0" script="conjuring/enchant_spear.lua">
-		<vocation name="Royal Paladin" />
-	</conjure>
-
 	<conjure name="Enchant Staff" words="exeta vis" level="22" mana="80" premium="1" needlearn="0" script="spells/enchant_staff.lua">
 		<vocation name="Master Sorcerer" />
 	</conjure>

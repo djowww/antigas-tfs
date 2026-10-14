@@ -35,6 +35,6 @@
 		<item id="3378" countmax="1" chance="120" /> <!-- a studded armor -->
 		<item id="3376" countmax="1" chance="90" /> <!-- a studded helmet -->
 		<item id="3426" countmax="1" chance="100" /> <!-- a studded shield -->
-		<item id="3244" countmax="1" chance="1000" /> <!-- an old backpack -->
+		 <!-- an old backpack -->
 	</loot>
 </monster>

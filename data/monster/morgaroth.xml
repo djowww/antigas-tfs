@@ -124,7 +124,7 @@
 		<item id="2993" countmax="1" chance="145" /> <!-- a teddy bear -->
 		<item id="3309" countmax="1" chance="135" /> <!-- a thunder hammer -->
 		<item id="3265" countmax="1" chance="200" /> <!-- a two handed sword -->
-		<item id="3002" countmax="1" chance="1" /> <!-- a voodoo doll -->
+		 <!-- a voodoo doll -->
 		<item id="3069" countmax="1" chance="35" /> <!-- a volcanic rod -->
 		<item id="3026" countmax="15" chance="125" /> <!-- a white pearl -->
 	</loot>

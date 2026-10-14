@@ -70,8 +70,8 @@
 		<item id="3306" countmax="1" chance="15" /> <!-- a golden sickle -->
 		<item id="3284" countmax="1" chance="6" /> <!-- an ice rapier -->
 		<item id="3366" countmax="1" chance="1" /> <!-- a magic plate armor -->
-		<item id="5216" countmax="1" chance="1" /> <!-- a magic plate legs -->
-		<item id="5163" countmax="1" chance="1" /> <!-- a demon trophy -->
+		 <!-- a magic plate legs -->
+		 <!-- a demon trophy -->
 		<item id="3414" countmax="1" chance="5" /> <!-- a mastermind shield -->
 		<item id="3048" countmax="1" chance="2" /> <!-- a might ring -->
 		<item id="3060" countmax="1" chance="30" /> <!-- an orb -->

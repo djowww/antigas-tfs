@@ -28,9 +28,9 @@
 		<voice sentence="Troooooot!" />
 	</voices>
 	<loot>
-		<item id="3044" countmax="2" chance="10" /> <!-- an elephant tusk -->
+		 <!-- an elephant tusk -->
 		<item id="3582" countmax="3" chance="600" /> <!-- ham -->
 		<item id="3577" countmax="4" chance="900" /> <!-- meat -->
-		<item id="3443" countmax="1" chance="1" /> <!-- a tusk shield -->
+		 <!-- a tusk shield -->
 	</loot>
 </monster>

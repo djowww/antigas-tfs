@@ -43,7 +43,7 @@ Weapons::~Weapons()
 
 const Weapon* Weapons::getWeapon(const Item* item) const
 {
-	if (!item) {
+	if (!item || Item::items[item->getID()].group == ITEM_GROUP_DEPRECATED) {
 		return nullptr;
 	}
 
@@ -78,7 +78,7 @@ void Weapons::loadDefaults()
 {
 	for (size_t i = 100, size = Item::items.size(); i < size; ++i) {
 		const ItemType& it = Item::items.getItemType(i);
-		if (it.id == 0 || weapons.find(i) != weapons.end()) {
+		if (it.id == 0 || it.group == ITEM_GROUP_DEPRECATED || weapons.find(i) != weapons.end()) {
 			continue;
 		}
 

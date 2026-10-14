@@ -63,7 +63,7 @@
 		<item id="3114" countmax="3" chance="30" /> <!-- a skull -->
 		<item id="3058" countmax="1" chance="5" /> <!-- a strange symbol -->
 		<item id="2920" countmax="1" chance="55" /> <!-- a torch -->
-		<item id="3403" countmax="1" chance="5" /> <!-- a tribal mask -->
-		<item id="3002" countmax="1" chance="1" /> <!-- a voodoo doll -->
+		 <!-- a tribal mask -->
+		 <!-- a voodoo doll -->
 	</loot>
 </monster>

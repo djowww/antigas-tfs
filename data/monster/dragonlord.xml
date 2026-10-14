@@ -47,11 +47,11 @@
 		<voice sentence="YOU WILL BURN!" yell="1" />
 	</voices>
 	<loot>
-	    <item id="5197" countmax="1" chance="20" /> <!-- a red dragon leather -->
+	     <!-- a red dragon leather -->
 		<item id="2842" countmax="1" chance="90" /> <!-- a book -->
 		<item id="3583" countmax="5" chance="600" /> <!-- dragon ham -->
 		<item id="3386" countmax="1" chance="1" /> <!-- a dragon scale mail -->
-		<item id="5164" countmax="1" chance="1" /> <!-- a dragon lord trophy -->
+		 <!-- a dragon lord trophy -->
 		<item id="3051" countmax="1" chance="50" /> <!-- an energy ring -->
 		<item id="3280" countmax="1" chance="3" /> <!-- a fire sword -->
 		<item id="3031" countmax="100" chance="800" /> <!-- a gold coin -->

@@ -47,10 +47,16 @@ Container::~Container()
 Item* Container::clone() const
 {
 	Container* clone = static_cast<Container*>(Item::clone());
-	for (Item* item : itemlist) {
-		clone->addItem(item->clone());
+	if (!clone) {
+		return nullptr;
 	}
-	clone->totalWeight = totalWeight;
+	for (Item* item : itemlist) {
+		Item* child = item->clone();
+		if (child) {
+			clone->addItem(child);
+			clone->totalWeight += child->getWeight();
+		}
+	}
 	return clone;
 }
 
@@ -106,12 +112,24 @@ bool Container::unserializeItemNode(FileLoader& f, NODE node, PropStream& propSt
 			return false;
 		}
 
-		Item* item = Item::CreateItem(itemPropStream);
+		uint32_t childType;
+		const bool hasChildren = f.getChildNode(nodeItem, childType) != NO_NODE;
+		bool retired;
+		Item* item = readMapItem(itemPropStream, hasChildren, retired);
 		if (!item) {
+			if (retired) {
+				nodeItem = f.getNextNode(nodeItem, type);
+				continue;
+			}
 			return false;
 		}
 
 		if (!item->unserializeItemNode(f, nodeItem, itemPropStream)) {
+			delete item;
+			return false;
+		}
+		if (retired && !packRecoveredMapContainer(item->getContainer())) {
+			delete item;
 			return false;
 		}
 

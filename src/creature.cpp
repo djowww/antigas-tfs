@@ -742,7 +742,17 @@ bool Creature::hasBeenAttacked(uint32_t attackerId)
 
 Item* Creature::getCorpse(Creature*, Creature*)
 {
-	return Item::CreateItem(getLookCorpse());
+	const uint16_t corpseId = getLookCorpse();
+	if (getMonster() && Item::items[corpseId].group == ITEM_GROUP_DEPRECATED) {
+		// Preserve monster loot in an existing classic container when its corpse is retired.
+		Item* recovery = Item::CreateItem(2854);
+		if (recovery) {
+			const uint64_t duration = static_cast<uint64_t>(Item::items[corpseId].decayTime) * 1000;
+			recovery->setRecoveryCorpseDuration(std::min<uint64_t>(duration, std::numeric_limits<int32_t>::max()));
+		}
+		return recovery;
+	}
+	return Item::CreateItem(corpseId);
 }
 
 void Creature::changeHealth(int32_t healthChange, bool sendHealthChange/* = true*/)

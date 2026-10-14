@@ -32,11 +32,11 @@
 		<item id="3031" countmax="20" chance="800" /> <!-- a gold coin -->
 		<item id="3282" countmax="1" chance="7" /> <!-- a morning star -->
 		<item id="3357" countmax="1" chance="10" /> <!-- a plate armor -->
-		<item id="3445" countmax="1" chance="1" /> <!-- a salamander shield -->
+		 <!-- a salamander shield -->
 		<item id="3294" countmax="1" chance="100" /> <!-- a short sword -->
 		<item id="3032" countmax="1" chance="3" /> <!-- a small emerald -->
 		<item id="3351" countmax="1" chance="20" /> <!-- a steel helmet -->
 		<item id="3264" countmax="1" chance="50" /> <!-- a sword -->
-		<item id="3345" countmax="1" chance="5" /> <!-- a templar scytheblade -->
+		 <!-- a templar scytheblade -->
 	</loot>
 </monster>

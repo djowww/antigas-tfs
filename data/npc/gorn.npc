@@ -93,16 +93,16 @@ VANISH,!           -> "Good bye."
 "shovel"        -> Type=3457, Amount=1,  Price=50,   "Do you want to buy a shovel for %P gold?", Topic=1
 "rod"           -> Type=3483, Amount=1,  Price=150,  "Do you want to buy a fishing rod for %P gold?", Topic=1
 
-"bp","mana"  -> Type=5119, Amount=1,  Price=50,   "Do you want to buy a bp mana for %P gold?", Topic=1
-"bp","ih"  -> Type=5118, Amount=1,  Price=50,   "Do you want to buy a bp ih for %P gold?", Topic=1
-"bp","hmm"  -> Type=5117, Amount=1,  Price=50,   "Do you want to buy a bp hmm for %P gold?", Topic=1
-"bp","lmm"  -> Type=5116, Amount=1,  Price=50,   "Do you want to buy a bp lmm for %P gold?", Topic=1
-"bp","mw"  -> Type=5115, Amount=1,  Price=50,   "Do you want to buy a bp mw for %P gold?", Topic=1
-"bp","explo"  -> Type=5114, Amount=1,  Price=50,   "Do you want to buy a bp explo for %P gold?", Topic=1
-"bp","bomb"  -> Type=5113, Amount=1,  Price=50,   "Do you want to buy a bp bomb for %P gold?", Topic=1
-"bp","gfb"  -> Type=5112, Amount=1,  Price=50,   "Do you want to buy a bp gfb for %P gold?", Topic=1
-"bp","uh"  -> Type=5111, Amount=1,  Price=50,   "Do you want to buy a bp uh for %P gold?", Topic=1
-"bp","sd"  -> Type=5110, Amount=1,  Price=50,   "Do you want to buy a bp sd for %P gold?", Topic=1
+"bp","mana" -> "This item or service is no longer available.", Topic=0
+"bp","ih" -> "This item or service is no longer available.", Topic=0
+"bp","hmm" -> "This item or service is no longer available.", Topic=0
+"bp","lmm" -> "This item or service is no longer available.", Topic=0
+"bp","mw" -> "This item or service is no longer available.", Topic=0
+"bp","explo" -> "This item or service is no longer available.", Topic=0
+"bp","bomb" -> "This item or service is no longer available.", Topic=0
+"bp","gfb" -> "This item or service is no longer available.", Topic=0
+"bp","uh" -> "This item or service is no longer available.", Topic=0
+"bp","sd" -> "This item or service is no longer available.", Topic=0
 
 %1,1<%1,"torch"         -> Type=2920, Amount=%1,  Price=2*%1,    "Do you want to buy %A torches for %P gold?", Topic=1
 %1,1<%1,"bag"           -> Type=2853, Amount=%1,  Price=5*%1,    "Do you want to buy %A bags for %P gold?", Topic=1
@@ -131,7 +131,7 @@ VANISH,!           -> "Good bye."
 
 "worm"          -> "I sell worms only in sixpacks for 5 gold each, how many sixpacks of worms do you want to buy?"
 "worms"         -> *
-%1,"worms"      -> Type=3492, Amount=%1*6, Price=5*%1,   "So you want to buy some of my sixpacks with altogether %A worms for %P gold?", Topic=1
+%1,"worms" -> "This item or service is no longer available.", Topic=0
 %1,"six","pack" -> *
 
 

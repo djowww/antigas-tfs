@@ -43,7 +43,7 @@
 		<voice sentence="FCHHHHH" yell="1" />
 	</voices>
 	<loot>
-	    <item id="5198" countmax="1" chance="20" /> <!-- a green dragon leather -->
+	     <!-- a green dragon leather -->
 		<item id="3301" countmax="1" chance="20" /> <!-- a broadsword -->
 		<item id="3449" countmax="10" chance="80" /> <!-- a burst arrow -->
 		<item id="3349" countmax="1" chance="100" /> <!-- a crossbow -->
