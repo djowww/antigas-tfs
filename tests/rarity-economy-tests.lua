@@ -19,6 +19,7 @@ local definitions = {
 function ItemType(id)
     local d = assert(definitions[id], 'Unknown fixture item')
     return {
+        isRetired = function() return false end,
         getName = function() return d.name end,
         isStackable = function() return d.stackable or false end,
         isContainer = function() return d.container or false end,

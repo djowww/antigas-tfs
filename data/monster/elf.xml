@@ -36,7 +36,7 @@
 		<voice sentence="Death to the defilers!" />
 	</voices>
 	<loot>
-	    <item id="5218" countmax="3" chance="3" /> <!-- leather whip -->
+	     <!-- leather whip -->
 		<item id="3447" countmax="3" chance="70" /> <!-- an arrow -->
 		<item id="3411" countmax="1" chance="130" /> <!-- a brass shield -->
 		<item id="3552" countmax="1" chance="110" /> <!-- leather boots -->

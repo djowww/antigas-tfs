@@ -104,7 +104,7 @@ VANISH,!                   -> "Bye, bye."
 
 "worm"          -> "I sell worms only in sixpacks for 5 gold each, how many sixpacks of worms do you want to buy?"
 "worms"         -> *
-%1,"worms"      -> Type=3492, Amount=%1*6, Price=5*%1,   "So you want to buy some of my sixpacks with altogether %A worms for %P gold?", Topic=1
+%1,"worms" -> "This item or service is no longer available.", Topic=0
 %1,"six","pack" -> *
 
 "sell","club"             -> "I don't buy this garbage!"

@@ -1816,6 +1816,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Item", "getTopParent", LuaScriptInterface::luaItemGetTopParent);
 
 	registerMethod("Item", "getId", LuaScriptInterface::luaItemGetId);
+	registerMethod("Item", "isRecoveryCorpse", LuaScriptInterface::luaItemIsRecoveryCorpse);
 
 	registerMethod("Item", "clone", LuaScriptInterface::luaItemClone);
 	registerMethod("Item", "split", LuaScriptInterface::luaItemSplit);
@@ -2238,6 +2239,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMetaMethod("ItemType", "__eq", LuaScriptInterface::luaUserdataCompare);
 
 	registerMethod("ItemType", "isCorpse", LuaScriptInterface::luaItemTypeIsCorpse);
+	registerMethod("ItemType", "isRetired", LuaScriptInterface::luaItemTypeIsRetired);
 	registerMethod("ItemType", "isDoor", LuaScriptInterface::luaItemTypeIsDoor);
 	registerMethod("ItemType", "isContainer", LuaScriptInterface::luaItemTypeIsContainer);
 	registerMethod("ItemType", "isChest", LuaScriptInterface::luaItemTypeIsChest);
@@ -5818,6 +5820,18 @@ int LuaScriptInterface::luaItemGetId(lua_State* L)
 	return 1;
 }
 
+int LuaScriptInterface::luaItemIsRecoveryCorpse(lua_State* L)
+{
+	// item:isRecoveryCorpse()
+	const Item* item = getUserdata<Item>(L, 1);
+	if (item) {
+		pushBoolean(L, item->isRecoveryCorpse());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
 int LuaScriptInterface::luaItemClone(lua_State* L)
 {
 	// item:clone()
@@ -6312,6 +6326,10 @@ int LuaScriptInterface::luaItemTransform(lua_State* L)
 		}
 	}
 
+	if (Item::items[itemId].group == ITEM_GROUP_DEPRECATED) {
+		pushBoolean(L, false);
+		return 1;
+	}
 	int32_t subType = getNumber<int32_t>(L, 3, -1);
 	if (item->getID() == itemId && (subType == -1 || subType == item->getSubType())) {
 		pushBoolean(L, true);
@@ -10484,6 +10502,18 @@ int LuaScriptInterface::luaItemTypeIsCorpse(lua_State* L)
 	const ItemType* itemType = getUserdata<const ItemType>(L, 1);
 	if (itemType) {
 		pushBoolean(L, itemType->corpse);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaItemTypeIsRetired(lua_State* L)
+{
+	// itemType:isRetired()
+	const ItemType* itemType = getUserdata<const ItemType>(L, 1);
+	if (itemType) {
+		pushBoolean(L, itemType->group == ITEM_GROUP_DEPRECATED);
 	} else {
 		lua_pushnil(L);
 	}

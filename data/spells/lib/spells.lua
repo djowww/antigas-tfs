@@ -208,6 +208,10 @@ AREADIAGONAL_WALLFIELD = {
 }
 
 function Player:conjureItem(reagentId, conjureId, conjureCount, effect)
+	if ItemType(conjureId):isRetired() then
+		self:sendCancelMessage(RETURNVALUE_NOTPOSSIBLE)
+		return false
+	end
 	if not conjureCount and conjureId ~= 0 then
 		local itemType = ItemType(conjureId)
 		if itemType:getId() == 0 then

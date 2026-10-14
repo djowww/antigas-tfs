@@ -39,7 +39,7 @@
 		<voice sentence="Flesssh to dussst!" />
 	</voices>
 	<loot>
-	    <item id="5206" countmax="1" chance="20" /> <!-- a yellow piece -->
+	     <!-- a yellow piece -->
 		<item id="3027" countmax="1" chance="10" /> <!-- a black pearl -->
 		<item id="3429" countmax="1" chance="2" /> <!-- a black shield -->
 		<item id="3007" countmax="1" chance="15" /> <!-- a crystal ring -->

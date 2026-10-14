@@ -1532,7 +1532,7 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
 	}
 
 	const ItemType& newType = Item::items[newId];
-	if (newType.id == 0) {
+	if (newType.id == 0 || newType.group == ITEM_GROUP_DEPRECATED) {
 		return item;
 	}
 
@@ -3954,10 +3954,11 @@ void Game::internalDecayItem(Item* item)
 	// Only equipped timed items belong to a player's hunt (rings, lit torches).
 	Player* owner = dynamic_cast<Player*>(item->getParent());
 	const ItemType& it = Item::items[item->getID()];
-	const bool exhausted = it.decayTo <= 0 || Item::items[it.decayTo].decayTime == 0;
+	const int32_t decayTo = item->isRecoveryCorpse() ? 0 : it.decayTo;
+	const bool exhausted = decayTo <= 0 || Item::items[decayTo].decayTime == 0;
 	HuntSupplyUse supply(exhausted ? owner : nullptr, item, false, true);
-	if (it.decayTo != 0) {
-		Item* newItem = transformItem(item, it.decayTo);
+	if (decayTo != 0) {
+		Item* newItem = transformItem(item, decayTo);
 		startDecay(newItem);
 	} else {
 		ReturnValue ret = internalRemoveItem(item);

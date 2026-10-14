@@ -38,7 +38,7 @@
 		<item id="3269" countmax="1" chance="5" /> <!-- a halberd -->
 		<item id="3313" countmax="1" chance="12" /> <!-- an obsidian lance -->
 		<item id="3377" countmax="1" chance="80" /> <!-- a scale armor -->
-		<item id="3444" countmax="1" chance="3" /> <!-- a sentinel shield -->
+		 <!-- a sentinel shield -->
 		<item id="3028" countmax="1" chance="1" /> <!-- a small diamond -->
 		<item id="3277" countmax="3" chance="100" /> <!-- a spear -->
 	</loot>

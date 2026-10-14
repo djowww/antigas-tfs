@@ -65,7 +65,7 @@ topic=2       -> "Uh?"
 "mission",QuestValue(293)=1, QuestValue(294)=0 -> "Please hurry. Bring me whisper moss from dworc lair. Make sure it is from dworc lair! Take it yourself only! If you need to hear background of all again, ask Hairycles for background."
 "background",QuestValue(293)=1                    -> "So listen, little ape was struck by plague. Hairycles not does know what plague it is. That is strange. Hairycles should know. But Hairycles learnt lots and lots ...", "Me sure to make cure so strong to drive away all plague. But to create great cure me need powerful components ...", "Me need whisper moss. Whisper moss growing south of human settlement is. Problem is, evil little dworcs harvest all whisper moss immediately ...", "Me know they hoard some in their underground lair. My people raided dworcs often before humans came. So we know the moss is hidden in east of upper level of dworc lair ...", "You go there and take good moss from evil dworcs. Talk with me about mission when having moss."
 
-"mission",QuestValue(293)=1, QuestValue(294)=1 -> Type=4827,Amount=1,"Oh, you brought me whisper moss? Good hairless ape you are! Can me take it?",topic=3
+"mission",QuestValue(293)=1, QuestValue(294)=1 -> "This item or service is no longer available.", Topic=0
 
 "no", topic=3                                  -> "Strange being you are! Our people need help!", idle
 "yes", topic=3,Count(Type)<Amount     -> "Stupid, you no have the moss me need. Go get it. It's somewhere in dworc lair. If you lost it, they might restocked it meanwhile. If you need to hear background of all again, ask Hairycles for background.",SetQuestValue(294,0)
@@ -75,7 +75,7 @@ topic=2       -> "Uh?"
 "mission",QuestValue(293)=2                    -> "Whisper moss strong is, but me need liquid that humans have to make it work ...", "Our raiders brought it from human settlement, it's called cough syrup. Go ask healer there for it.",SetQuestValue(293,3)
 
 
-"mission",QuestValue(293)=3 -> Type=4828,Amount=1,"You brought me that cough syrup from human healer me asked for?", topic=4
+"mission",QuestValue(293)=3 -> "This item or service is no longer available.", Topic=0
 
 "no", topic=4 -> "Please hurry, urgent it is!"
 "yes", topic=4,Count(Type)<Amount -> "No no, not right syrup you have. Go get other, get right health syrup."
@@ -87,7 +87,7 @@ topic=2       -> "Uh?"
 "yes", topic=5 -> "So listen, please. Plague was not ordinary plague. That's why Hairycles could not heal at first. It is new curse of evil lizard people ...", "I think curse on little one was only a try. We have to be prepared for big strike ...", "Me need papers of lizard magician! For sure you find it in his hut in their dwelling. It's south east of jungle. Go look there please! Are you willing to go?", topic=6
 "no", topic=6                -> "Me sad. Me expected better from you!", idle
 "yes", topic=6               -> "Good thing that is! Report about your mission when have scroll.",SetQuestValue(293,5)
-"mission",QuestValue(293)=5  -> Type=4831,Amount=1,"You got scroll from lizard village in south east?", topic=7
+"mission",QuestValue(293)=5 -> "This item or service is no longer available.", Topic=0
 
 "no", topic= 7               -> "That's bad news. If you lost it, only way to get other is to kill holy serpents. But you can't go there so you must ask adventurers who can."
 
@@ -115,7 +115,7 @@ topic=2       -> "Uh?"
 "no", topic=10                -> "Me sad. Me expected better from you!", idle
 "yes", topic=10               -> "You brave hairless ape! Get me hydra egg. If you lose egg, you probably have to fight many, many hydras to get another.",SetQuestValue(293,9)
 
-"mission",QuestValue(293)=9 -> Type=4839,Amount=1,"You bring Hairycles egg of hydra?", topic=11
+"mission",QuestValue(293)=9 -> "This item or service is no longer available.", Topic=0
 "no", topic=11 -> "Please hurry. Hairycles not knows when evil lizards strike again."
 "yes", topic=11,Count(Type)<Amount  -> "You not have egg of hydra. Please get one!"
 "yes", topic=11,Count(Type)>=Amount  -> "Ah, the egg! Mighty warrior you be! Thank you. Hairycles will put it at safe place immediately.",Delete(Type),SetQuestValue(293,10), idle
@@ -125,7 +125,7 @@ topic=2       -> "Uh?"
 "no", topic=12                -> "Me sad. Me expected better from you!", idle
 "yes", topic=12               -> "Long journey it will take, good luck to you.",SetQuestValue(293,11)
 
-"mission",QuestValue(293)=11  -> Type=4829,Amount=1,"You brought Hairycles witches' cap from Fibula?", topic=18
+"mission",QuestValue(293)=11 -> "This item or service is no longer available.", Topic=0
 "no", topic=18 -> "Please try to find me a witches' cap on Fibula."
 "yes", topic=18,Count(Type)<Amount   -> "Not right mushroom you have. Find me a witches' cap on Fibula!"
 "Yes", topic=18,Count(Type)>=Amount  -> "Incredible, you brought a witches' cap! Now me can prepare mighty charm of life. Yet still other missions will await you, friend.",SetQuestValue(293,12),Delete(Type)
@@ -146,7 +146,7 @@ topic=2       -> "Uh?"
 "yes", topic=14               -> "Hairycles proud of you. Go and find holy hair. Good luck, friend.", SetQuestValue(293,15)
 
 "mission",QuestValue(293)=15,QuestValue(298)=0 -> "Get a hair of holy ape from forbidden land in east. Speak with blind prophet in cave."
-"mission",QuestValue(293)=15,QuestValue(298)=1 ->  Type=4832,Amount=1,"You brought hair of holy ape?", topic=15
+"mission",QuestValue(293)=15,QuestValue(298)=1 -> "This item or service is no longer available.", Topic=0
 
 "no", topic=15                ->  "Go to forbidden land in east to find hair."
 "yes", topic=15,Count(Type)<Amount   -> "You no have hair. You lost it? Go and look again.", SetQuestValue(298,0)
@@ -155,7 +155,7 @@ topic=2       -> "Uh?"
 "mission",QuestValue(293)=16 -> "You have proven yourself a friend, me will grant you permission to enter the deepest catacombs under Banuta which we have sealed in the past ...", "Me still can sense the evil presence there. We did not dare to go deeper and fight creatures of evil there ...", "You may go there, fight the evil and find the monument of the serpent god and destroy it with hammer me give to you ...", "Only then my people will be safe. Please tell Hairycles, will you go there?", topic=16
 
 "no", topic=16                -> "Me sad. Please reconsider."
-"yes", topic=16               -> "Hairycles sure you will make it. Just use hammer on all that looks like snake or lizard. Tell Hairycles if you succeed with mission.", Create(4835), SetQuestValue(293,17)
+"yes", topic=16 -> "This item or service is no longer available.", Topic=0
 
 "mission",QuestValue(293)=17,QuestValue(299)=0 -> "Me know its much me asked for but go into the deepest catacombs under Banuta and destroy the monument of the serpent god."
 "mission",QuestValue(293)=17,QuestValue(299)=1 -> "Finally my people are safe! You have done incredible good for ape people and one day even me brethren will recognise that ...", "I wish I could speak for all when me call you true friend but my people need time to get accustomed to change ...", "Let us hope one day whole Banuta will greet you as a friend. Perhaps you want to check me offers for special friends.",SetQuestValue(293,18)

@@ -55,7 +55,7 @@ VANISH,!           -> "Good bye."
 
 "worm"          -> "I sell worms only in sixpacks for 5 gold each, how many sixpacks of worms do you want to buy?"
 "worms"         -> *
-%1,"worms"      -> Type=3492, Amount=%1*6, Price=5*%1,   "So you want to buy some of my sixpacks with altogether %A worms for %P gold?", Topic=1
+%1,"worms" -> "This item or service is no longer available.", Topic=0
 %1,"six","pack" -> *
 
 # 7.4 CIP-399: "addon",QuestValue(18502)=0,premium -> "Sorry, the backpack I wear is not for sale. It's handmade from rare minotaur leather.", Topic=4

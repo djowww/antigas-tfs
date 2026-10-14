@@ -504,7 +504,11 @@ int main()
 		const uint16_t boots = findType([](const ItemType& t) { return (t.slotPosition & SLOTP_FEET) && !t.isContainer(); });
 		const uint16_t ring = findType([](const ItemType& t) { return (t.slotPosition & SLOTP_RING) && !t.isContainer(); });
 		const uint16_t necklace = findType([](const ItemType& t) { return (t.slotPosition & SLOTP_NECKLACE) && !t.isContainer(); });
-		const uint16_t wandId = findType([](const ItemType& t) { return t.weaponType == WEAPON_WAND; });
+		// Keep native wand-rarity coverage in an isolated fixture after extra wands are retired.
+		const uint16_t wandId = 3046;
+		require(Item::items[wandId].id == wandId && Item::items[wandId].group != ITEM_GROUP_DEPRECATED,
+			"classic magic light wand fixture must remain available");
+		Item::items.getItemType(wandId).weaponType = WEAPON_WAND;
 		const uint16_t bowId = findType([](const ItemType& t) { return t.weaponType == WEAPON_DISTANCE && t.ammoType != AMMO_NONE; });
 		const uint16_t ammoId = findType([bowId](const ItemType& t) { return t.weaponType == WEAPON_AMMO && t.ammoType == Item::items[bowId].ammoType; });
 		const uint16_t backpack = findType([](const ItemType& t) { return t.isContainer() && (t.slotPosition & SLOTP_BACKPACK); });

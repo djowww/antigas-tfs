@@ -24,6 +24,6 @@
 	</defenses>
 	<loot>
 		<item id="3577" countmax="2" chance="500" /> <!-- meat -->
-		<item id="5177" countmax="1" chance="20" /> <!-- wolf paw -->
+		 <!-- wolf paw -->
 	</loot>
 </monster>

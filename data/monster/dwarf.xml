@@ -29,7 +29,7 @@
 		<voice sentence="Hail Durin!" />
 	</voices>
 	<loot>
-	    <item id="5183" countmax="1" chance="20" /> <!-- a iron ore -->
+	     <!-- a iron ore -->
 		<item id="3274" countmax="1" chance="150" /> <!-- an axe -->
 		<item id="3430" countmax="1" chance="100" /> <!-- a copper shield -->
 		<item id="3097" countmax="1" chance="1" /> <!-- a dwarven ring -->

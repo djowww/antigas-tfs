@@ -155,7 +155,7 @@ Topic=1,"yes"                -> "Okay, remember you can't regret it, are you sur
 Topic=2,"yes" -> Type=3079, Amount=1, "Are you sure you want to switch to an enchanted chicken wing?", Topic=3
 Topic=2                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=2
 Topic=3,"no"                 -> "Traitor!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=3,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5199, Amount=1, Create(Type)
+Topic=3,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=3,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 "magic","sulphur"              -> "For that I need you to bring me a fire sword, do you have them?", Topic=21
@@ -165,7 +165,7 @@ Topic=21,"yes"                -> "Okay, remember you can't regret it, are you su
 Topic=22,"yes" -> Type=3280, Amount=1, "Are you sure you want to switch to a magic sulphur?", Topic=23
 Topic=22                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=22
 Topic=23,"no"                 -> "Traitor!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=23,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5188, Amount=1, Create(Type)
+Topic=23,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=23,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 "flask","of", "warrior's","sweat"             -> "For that I need you to bring me a 4 warrior helmets, do you have them?", Topic=31
@@ -175,7 +175,7 @@ Topic=31,"yes"                -> "Okay, remember you can't regret it, are you su
 Topic=32,"yes" -> Type=3369, Amount=4, "Are you sure you want to change 4 warrior helmets?", Topic=33
 Topic=32                      -> "Tell me precisely what he asked you to do! What, if you want the change or not", Topic=32
 Topic=33,"no"                 -> "Traitor!", Burning(25,25), EffectOpp(6), EffectMe(14), Delete(Type), Idle
-Topic=33,"yes",Count(Type)>=Amount -> "Thank you! Take this.", Delete(Type), Type=5194, Amount=1, Create(Type)
+Topic=33,"yes",Count(Type)>=Amount -> "This item or service is no longer available.", Topic=0
 Topic=33,"yes",Count(Type)<Amount  -> "Sorry, you have none."
 
 Topic=10,QuestValue(283)<3,!     -> "I'm sorry, human. But you need Gabel's permission to trade with me."

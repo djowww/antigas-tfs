@@ -1,6 +1,8 @@
 MESSAGE_EVENT_ADVANCE = 19
 SKILL_FIST, SKILL_CLUB, SKILL_SWORD, SKILL_AXE = 0, 1, 2, 3
 SKILL_DISTANCE, SKILL_SHIELD, SKILL_MAGLEVEL, SKILL_LEVEL = 4, 5, 7, 8
+-- Existing milestone behavior for active item types remains unchanged.
+ItemType = function() return {isRetired=function() return false end} end
 dofile('data/lib/core/json.lua')
 
 local realTime, now = os.time, 1000

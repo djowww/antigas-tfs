@@ -30,7 +30,7 @@
 		<voice sentence="Hail Durin!" />
 	</voices>
 	<loot>
-	    <item id="5183" countmax="1" chance="20" /> <!-- a iron ore -->
+	     <!-- a iron ore -->
 		<item id="3092" countmax="1" chance="2" /> <!-- an axe ring -->
 		<item id="3305" countmax="1" chance="40" /> <!-- a battle hammer -->
 		<item id="3413" countmax="1" chance="75" /> <!-- a battle shield -->

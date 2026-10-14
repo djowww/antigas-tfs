@@ -34,7 +34,7 @@
 		<voice sentence="Prek tars, dekklep zurk." />
 	</voices>
 	<loot>
-		<item id="3560" countmax="1" chance="1" /> <!-- a bast skirt -->
+		 <!-- a bast skirt -->
 		<item id="3056" countmax="1" chance="1" /> <!-- a bronze amulet -->
 		<item id="3031" countmax="10" chance="800" /> <!-- a gold coin -->
 		<item id="3361" countmax="1" chance="100" /> <!-- a leather armor -->
@@ -43,6 +43,6 @@
 		<item id="3114" countmax="2" chance="10" /> <!-- a skull -->
 		<item id="3298" countmax="2" chance="80" /> <!-- a throwing knife -->
 		<item id="2920" countmax="1" chance="55" /> <!-- a torch -->
-		<item id="3403" countmax="1" chance="5" /> <!-- a tribal mask -->
+		 <!-- a tribal mask -->
 	</loot>
 </monster>

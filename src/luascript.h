@@ -688,6 +688,7 @@ class LuaScriptInterface
 		static int luaItemGetTopParent(lua_State* L);
 
 		static int luaItemGetId(lua_State* L);
+		static int luaItemIsRecoveryCorpse(lua_State* L);
 
 		static int luaItemClone(lua_State* L);
 		static int luaItemSplit(lua_State* L);
@@ -1101,6 +1102,7 @@ class LuaScriptInterface
 		static int luaItemTypeCreate(lua_State* L);
 
 		static int luaItemTypeIsCorpse(lua_State* L);
+		static int luaItemTypeIsRetired(lua_State* L);
 		static int luaItemTypeIsDoor(lua_State* L);
 		static int luaItemTypeIsContainer(lua_State* L);
 		static int luaItemTypeIsChest(lua_State* L);

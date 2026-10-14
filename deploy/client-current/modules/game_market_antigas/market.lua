@@ -12,6 +12,7 @@ local pendingRequest
 local requestSequence = 0
 local page = 1
 local serverVersion = 0
+local retiredPendingStatusSupported = false
 local formSide = 'sell'
 local sideChosen = false
 local mutations = {create=true,fill=true,cancel=true,collect=true}
@@ -41,6 +42,22 @@ local function savePending(raw)
  g_settings.save()
 end
 
+local function archiveRetiredPending(payload)
+ local history = g_settings.getNode('AntigasMarketRetiredPending') or {}
+ local character = g_game.getCharacterName()
+ if type(history[character]) ~= 'table' then history[character] = {} end
+ local key, suffix = pendingRequest.id, 0
+ while history[character][key] and (type(history[character][key])~='table' or history[character][key].raw ~= pendingRequest.raw) do
+  suffix = suffix + 1
+  key = pendingRequest.id .. '-' .. suffix
+ end
+ history[character][key] = history[character][key] or {
+  raw=pendingRequest.raw, requestId=pendingRequest.id, previouslyCommitted=payload.previouslyCommitted
+ }
+ g_settings.setNode('AntigasMarketRetiredPending', history)
+ g_settings.save()
+end
+
 local function syncPlayerBarSelection()
  local playerBars = modules.game_playerbars
  if playerBars and playerBars.setActionSelected then
@@ -50,12 +67,22 @@ end
 
 local function transmitPending()
  local protocol = g_game.getProtocolGame()
+ if pendingRequest and pendingRequest.retiredCurrency then
+  if retiredPendingStatusSupported and protocol and g_game.isOnline() then
+   protocol:sendExtendedJSONOpcode(MARKET_OPCODE, {action='requestStatus',data={requestId=pendingRequest.id}})
+   return
+  end
+  return displayInfoBox('Market', 'This saved transaction uses a retired currency. Its original request is preserved and will not be resubmitted.')
+ end
  if protocol and g_game.isOnline() and pendingRequest then
   protocol:sendExtendedOpcode(MARKET_OPCODE, pendingRequest.raw)
  end
 end
 
 local function sendAction(action, data)
+	if action == 'create' and (type(data) ~= 'table' or data.currency ~= 3031) then
+		return displayInfoBox('Market', 'Only Gold is available for new Market offers.')
+	end
 	local protocol = g_game.getProtocolGame()
 	if not g_game.isOnline() or not protocol or not g_game.getFeature(GameExtendedOpcode) then return end
 	if mutations[action] then
@@ -146,11 +173,11 @@ invalidateBalances = function()
  balanceData=nil
  if not window then return end
  window.balanceLabel.goldBalance:setText('Bank: -- | Carried gold: --')
- window.balanceLabel.antigasBalance:setText('Antigas Coins: --')
+ window.balanceLabel.antigasCoin:hide()
+ window.balanceLabel.antigasBalance:hide()
  window.balanceLabel.goldBalance:setTooltip('Balances unavailable. Refresh to request current values.')
- window.balanceLabel.antigasBalance:setTooltip('Balance unavailable. Refresh to request current values.')
  getWindowChild('collect'):setText('Collect (--)')
- getWindowChild('collect'):setTooltip('Refresh to check pending deliveries. Gold goes to your bank; items and Antigas Coins go to your town depot.')
+ getWindowChild('collect'):setTooltip('Refresh to check pending deliveries. Gold goes to your bank; items go to your town depot.')
  getWindowChild('collect'):setEnabled(false)
 end
 
@@ -304,17 +331,16 @@ local function finishRead(view,payload)
 end
 
 local function currencyLabel(id)
-	if id == 5130 then return "Antigas Coin" end
 	return "gold"
 end
 
 local function paymentSource(currency)
- return currency == 5130 and 'Antigas Coins from your inventory.' or 'Gold: bank first, then gold/platinum/crystal coins.'
+ return 'Gold: bank first, then gold/platinum/crystal coins.'
 end
 
 local function deliveryDestination(selling, currency)
  if not selling then return 'Bought items: Collect to your town depot.' end
- return currency == 5130 and 'Payment: Collect Antigas Coins to your town depot.' or 'Payment: Collect gold to your bank.'
+ return 'Payment: Collect gold to your bank.'
 end
 
 local function goldBreakdown(total)
@@ -329,13 +355,11 @@ local function goldBreakdown(total)
 end
 
 local function getCurrencyFilter()
-	local option = window.currencyFilter:getCurrentOption()
-	return option and tonumber(option.data) or 0
+	return 3031
 end
 
 local function getFormCurrency()
-	local option = getWindowChild("currency"):getCurrentOption()
-	return option and tonumber(option.data) or 3031
+	return 3031
 end
 
 local function setCoin(widget, currency)
@@ -346,12 +370,10 @@ local function setCoin(widget, currency)
 end
 
 local function updateCurrencyCombo(combo)
- local option = combo:getCurrentOption()
- local currency = option and tonumber(option.data) or 0
- setCoin(combo.coin, currency == 0 and 3031 or currency)
- setCoin(combo.secondCoin, 5130)
- combo.secondCoin:setVisible(currency == 0)
- combo:setTextOffset({x=currency == 0 and 41 or 25,y=0})
+ setCoin(combo.coin,3031)
+ combo.secondCoin:setItemId(0)
+ combo.secondCoin:hide()
+ combo:setTextOffset({x=25,y=0})
 end
 
 local function currencyMenu(combo)
@@ -362,19 +384,12 @@ local function currencyMenu(combo)
   local text, currency = option.text, tonumber(option.data)
   menu:addOption(text, function() combo:setCurrentOption(text) end)
   local button = menu:getLastChild()
-  button:setTextOffset({x=currency == 0 and 41 or 25,y=0})
+  button:setTextOffset({x=25,y=0})
   local icon = g_ui.createWidget('AntigasMarketCoin',button)
   icon:addAnchor(AnchorLeft,'parent',AnchorLeft)
   icon:addAnchor(AnchorVerticalCenter,'parent',AnchorVerticalCenter)
   icon:setMarginLeft(4)
-  setCoin(icon,currency == 0 and 3031 or currency)
-  if currency == 0 then
-   local second = g_ui.createWidget('AntigasMarketCoin',button)
-   second:addAnchor(AnchorLeft,'parent',AnchorLeft)
-   second:addAnchor(AnchorVerticalCenter,'parent',AnchorVerticalCenter)
-   second:setMarginLeft(20)
-   setCoin(second,5130)
-  end
+  setCoin(icon,3031)
  end
  menu:setWidth(math.max(combo:getWidth(),169))
  menu:display({x=combo:getX(),y=combo:getY()+combo:getHeight()})
@@ -405,6 +420,7 @@ local function selectedAmount(row)
 end
 
 local function renderOffer(offer, mine)
+ if offer.currency ~= 3031 then return false end
  if not mine and not hasSprite(offer.itemId) then return false end
 	local row = g_ui.createWidget("AntigasMarketOfferRow", window.offerList)
 	row:setWidth(math.max(180, window.offerList:getWidth() - 18))
@@ -456,7 +472,8 @@ local function showCatalog(data)
 		row.itemData = item
 		row.icon:setItemId(item.id)
   setCoin(row.goldCoin,3031)
-  setCoin(row.antigasCoin,5130)
+  row.antigasCoin:hide()
+  row.antigasPrice:hide()
   row.itemName.onGeometryChange=function() fitText(row.itemName,item.name) end
   fitText(row.itemName,item.name)
   row.owned:setText('Own: '..shortNumber(item.owned or 0))
@@ -471,13 +488,10 @@ local function showCatalog(data)
     ' / sell '..(hasBuyer and shortNumber(p.buy) or '--'),tip,true
   end
   local gold,goldTip,goldAvailable=prices(3031,'Gold')
-  local antigas,antigasTip,antigasAvailable=prices(5130,'Antigas')
   row.goldPrice:setText(gold)
-  row.antigasPrice:setText(antigas)
   row.goldPrice:setColor(goldAvailable and '#d0d0d0' or '#ababab')
-  row.antigasPrice:setColor(antigasAvailable and '#d0d0d0' or '#ababab')
   row:setTooltip(item.name..' | '..(item.category or '')..'\nYou own: '..numberText(item.owned or 0)..
-   ' tradable items in equipment/backpacks.\n'..goldTip..'\n'..antigasTip..
+   ' tradable items in equipment/backpacks.\n'..goldTip..
    '\nBuy: cheapest seller. Sell: highest buyer. Per item; availability may change.\n-- means no matching offers, not zero price.')
   if selectedItem and selectedItem.id == item.id and selectedItem.subtype == item.subtype then
    selectedItem = item
@@ -521,10 +535,8 @@ local function createWindow()
 	window:hide()
  connect(window,{onVisibilityChange=syncPlayerBarSelection})
  syncPlayerBarSelection()
-	window.currencyFilter:addOption("All currencies", "0")
 	window.currencyFilter:addOption("Gold Coin", "3031")
-	window.currencyFilter:addOption("Antigas Coin", "5130")
-	window.currencyFilter:setCurrentOptionByData("0")
+	window.currencyFilter:setCurrentOptionByData("3031")
 	window.currencyFilter.onOptionChange = function()
   updateCurrencyCombo(window.currencyFilter)
   if not resetting and currentView == 'offers' then modules.game_market_antigas.browse() end
@@ -537,7 +549,6 @@ local function createWindow()
  window.sideFilter.onOptionChange = function() if not resetting and currentView == 'offers' then modules.game_market_antigas.browse() end end
 	local currency = getWindowChild("currency")
 	currency:addOption("Gold Coin", "3031")
-	currency:addOption("Antigas Coin", "5130")
 	currency:setCurrentOptionByData("3031")
 	getWindowChild("quantity"):setText("1")
  getWindowChild("price"):setText("")
@@ -579,6 +590,7 @@ function onGameStart()
  rightMode='overview'
  selectedFresh=false
  serverVersion = 0
+ retiredPendingStatusSupported = false
  selectedItem = nil
  formSide = 'sell'
  sideChosen = false
@@ -589,12 +601,11 @@ function onGameStart()
  visibleItems = nil
  updateCurrencyCombo(window.currencyFilter)
  setCoin(window.balanceLabel.goldCoin,3031)
- setCoin(window.balanceLabel.antigasCoin,5130)
  invalidateBalances()
  window.search:setText('')
  if searchEvent then removeEvent(searchEvent);searchEvent=nil end
  window.sideFilter:setCurrentOptionByData('-1')
- window.currencyFilter:setCurrentOptionByData('0')
+ window.currencyFilter:setCurrentOptionByData('3031')
  clearList()
  page = 1
  pendingRequest = nil
@@ -602,7 +613,10 @@ function onGameStart()
  local raw = saved[g_game.getCharacterName()]
  if type(raw)=='string' then
   local ok,request=pcall(json.decode,raw)
-  if ok and type(request)=='table' and request.requestId then pendingRequest={raw=raw,id=request.requestId} end
+  if ok and type(request)=='table' and request.requestId then
+   pendingRequest={raw=raw,id=request.requestId,
+    retiredCurrency=type(request.data)=='table' and request.data.currency~=nil and request.data.currency~=3031}
+  end
  end
  transactionRetry=pendingRequest~=nil
  updateRetry()
@@ -730,21 +744,20 @@ function onFormChange()
  getWindowChild('sellMode'):setOn(selling)
  getWindowChild('buyMode'):setOn(not selling)
  getWindowChild('unitPriceLabel'):setTooltip('Price of ONE item in '..currencyLabel(currency)..'.')
- local currencyTip=currency == 5130 and 'Antigas Coin is separate from gold. Uses physical coins in your inventory.' or
-  '100 gold = 1 platinum; 10,000 gold = 1 crystal. Gold uses bank first, then carried coins.'
+ local currencyTip='100 gold = 1 platinum; 10,000 gold = 1 crystal. Gold uses bank first, then carried coins.'
  getWindowChild('currencyHelp'):setTooltip(currencyTip)
  getWindowChild('currency'):setTooltip(currencyTip)
  local reason
- if pendingRequest then reason = transactionRetry and 'No response yet. Retry checks the same transaction safely.' or 'Waiting for transaction confirmation...'
+ if pendingRequest then reason = pendingRequest.retiredCurrency and 'Saved transaction uses a retired currency; its original request is preserved.' or transactionRetry and 'No response yet. Retry checks the same transaction safely.' or 'Waiting for transaction confirmation...'
  elseif not selectedItem then reason = 'Select an item in the catalog to begin.'
  elseif not selectedFresh then reason = 'Refresh the catalog and select this item again.'
  elseif listState=='error' then reason = 'Resolve the query error before creating an offer.'
  elseif not balanceData or serverVersion<2 then reason = 'Refresh to load current balances and Market status.'
  elseif not amount or amount < 1 or amount > 10000 or amount ~= math.floor(amount) then reason = 'Quantity: enter a whole number from 1 to 10,000.'
  elseif not price or price < 1 or price > 100000000 or price ~= math.floor(price) then reason = 'Enter a whole unit price, starting at 1.'
- elseif amount*price > (currency == 5130 and 10000 or 100000000) then reason = 'Total exceeds the limit: '..numberText(currency == 5130 and 10000 or 100000000)..' '..currencyLabel(currency)..'.'
+ elseif amount*price > 100000000 then reason = 'Total exceeds the limit: '..numberText(100000000)..' gold.'
  elseif selling and amount>(selectedItem.owned or 0) then reason = 'You own only '..numberText(selectedItem.owned or 0)..' tradable items. Refresh if this changed.'
- elseif not selling and amount*price>(currency==5130 and balanceData.antigas or balanceData.bank+balanceData.wallet) then
+ elseif not selling and amount*price>balanceData.bank+balanceData.wallet then
   reason='Not enough '..currencyLabel(currency)..' for this offer. Refresh if your balance changed.'
  end
  getWindowChild('createOffer'):setEnabled(reason == nil and rightMode=='create')
@@ -907,7 +920,7 @@ local function validResponse(data)
  if data.action=='init' then
   return integer(p.version,2,1000) and list(p.categories,32,function(v) return text(v.id,32) and text(v.name,80) end)
  elseif data.action=='balances' then
-  if not amount(p.bank) or not amount(p.wallet) or not amount(p.antigas) then return false end
+  if not amount(p.bank) or not amount(p.wallet) then return false end
   if p.pending==nil then return true end
   if type(p.pending)~='table' then return false end
   for _,key in ipairs({'count','gold','antigas','items'}) do if not optional(p.pending[key],amount) then return false end end
@@ -928,17 +941,20 @@ local function validResponse(data)
  elseif data.action=='offers' or data.action=='myOffers' then
   return list(p.offers,100,function(v)
    return integer(v.id,1,9007199254740991) and integer(v.itemId,1,65535) and text(v.name,96) and
-    integer(v.side,0,1) and (v.currency==3031 or v.currency==5130) and
+    integer(v.side,0,1) and v.currency==3031 and
     integer(v.amount,1,10000) and integer(v.price,1,100000000) and optional(v.ownerName,function(x) return text(x,96) end)
   end)
  elseif data.action=='history' then
   return list(p.entries,100,function(v)
    return integer(v.itemId,0,65535) and text(v.name,96) and text(v.event,80) and text(v.destination,256) and
     text(v.date,80) and amount(v.quantity) and amount(v.total) and optional(v.pending,amount) and
-    (v.currency==3031 or v.currency==5130)
+    v.currency==3031
   end)
  elseif data.action=='message' then
   return type(p.ok)=='boolean' and text(p.text,2048) and optional(p.requestId,function(v) return text(v,96) end)
+   and optional(p.retiredPendingStatus,function(v) return type(v)=='boolean' end)
+   and optional(p.previouslyCommitted,function(v) return type(v)=='boolean' end)
+   and (p.retiredPendingStatus~=true or type(p.previouslyCommitted)=='boolean')
  end
  return false
 end
@@ -958,21 +974,25 @@ function onExtendedJSONOpcode(protocol, code, data)
  end
 	if action == "init" then
   serverVersion=payload.version or 0
+  retiredPendingStatusSupported=payload.retiredPendingStatus==true
+
+  if pendingRequest and pendingRequest.retiredCurrency then transmitPending() end
 		populateCategories(payload.categories)
   setView(currentView)
   onFormChange()
  elseif action == 'balances' then
-  balanceData={bank=tonumber(payload.bank) or 0,wallet=tonumber(payload.wallet) or 0,antigas=tonumber(payload.antigas) or 0}
+  balanceData={bank=tonumber(payload.bank) or 0,wallet=tonumber(payload.wallet) or 0}
   local pending=payload.pending or {}
   local button=getWindowChild('collect')
   button:setText('Collect ('..numberText(pending.count)..')')
   button:setColor((pending.count or 0)>0 and '#dfcf9f' or '#c5c5c5')
   button:setEnabled(not pendingRequest and (pending.count or 0)>0)
-  button:setTooltip('Pending: '..numberText(pending.gold)..' gold to bank; '..numberText(pending.antigas)..' Antigas Coins and '..numberText(pending.items)..' items to your town depot. Refresh to check for new deliveries.')
+  button:setTooltip('Pending: '..numberText(pending.gold)..' gold to bank; '..numberText(pending.items)..' items to your town depot. Refresh to check for new deliveries.')
   local goldText='Bank: '..numberText(payload.bank)..' | Carried gold: '..numberText(payload.wallet)
   fitText(window.balanceLabel.goldBalance,goldText)
   window.balanceLabel.goldBalance:setTooltip(goldText..'\nGold uses bank first, then carried gold/platinum/crystal coins.')
-  fitText(window.balanceLabel.antigasBalance,'Antigas Coins: '..numberText(payload.antigas))
+  window.balanceLabel.antigasCoin:hide()
+  window.balanceLabel.antigasBalance:hide()
   onFormChange()
 	elseif action == "offers" then
 		setView('offers')
@@ -994,7 +1014,9 @@ function onExtendedJSONOpcode(protocol, code, data)
   renderHistory(payload)
   onFormChange()
 	elseif action == "message" then
-  if pendingRequest and payload.requestId==pendingRequest.id then
+  if pendingRequest and payload.requestId==pendingRequest.id and
+     (not pendingRequest.retiredCurrency or (payload.retiredPendingStatus==true and payload.ok)) then
+   if pendingRequest.retiredCurrency then archiveRetiredPending(payload) end
    if transactionTimer then removeEvent(transactionTimer);transactionTimer=nil end
    transactionRetry=false
    pendingRequest=nil
@@ -1024,7 +1046,7 @@ end
 
 function onOfferAction(row)
 	local offer = row.offerData
-	if not offer then return end
+	if not offer or offer.currency ~= 3031 then return end
 	local amount = selectedAmount(row)
  if not amount then return end
  local buying = offer.side == 0
