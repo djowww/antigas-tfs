@@ -189,17 +189,10 @@ static void survivesThrows(Weapons& weapons, Player& player, Tile& destination,
 static void stockWandsReject(Weapons& weapons, Group& group, Tile& tile, Player& target)
 {
 	for (uint16_t id : {5292, 5293, 5294, 5295, 5296, 5297, 5298, 5299, 5300, 5301}) {
-		Player player(nullptr);
-		LoginGateCoreTestAccess::eligible(player, &group, &tile, id < 5297 ? 2 : 1);
-		std::unique_ptr<Item> item(Item::CreateItem(id));
-		require(item != nullptr, "existing stock wand/rod item must remain creatable");
-		const Weapon* weapon = weapons.getWeapon(item.get());
-		require(weapon != nullptr, "disabled stock wand/rod definition must remain registered");
-		const int32_t manaBefore = player.getMana();
-		require(weapon->playerWeaponCheck(&player, &target, item->getShootRange()) == 0,
-			"ordinary eligible player must be rejected by stock wand/rod " + std::to_string(id));
-		require(!weapon->useWeapon(&player, item.get(), &target), "stock wand/rod attack must fail");
-		require(player.getMana() == manaBefore, "rejected wand/rod attack must not spend mana");
+		require(Item::items[id].group == ITEM_GROUP_DEPRECATED, "extra stock wand/rod must be retired");
+		require(Item::CreateItem(id) == nullptr, "retired stock wand/rod must not be creatable");
+		Item legacy(id);
+		require(weapons.getWeapon(&legacy) == nullptr, "retired stock wand/rod must not remain usable in weapon catalog");
 	}
 }
 
@@ -234,14 +227,10 @@ static void iceRejects(Spells& spells, Player& none, Player& druid)
 static void preservedCustoms(Weapons& weapons, Spells& spells, Group& group, Tile& tile, Player& target)
 {
 	for (uint16_t id : {5307, 5312, 5337, 5141, 5142, 5143, 5144, 5148}) {
-		Player player(nullptr);
-		LoginGateCoreTestAccess::eligible(player, &group, &tile, id == 5307 ? 2 : 1);
-		std::unique_ptr<Item> item(Item::CreateItem(id));
-		require(item != nullptr, "custom/training item must remain creatable");
-		const Weapon* weapon = weapons.getWeapon(item.get());
-		require(weapon != nullptr, "custom/training weapon must remain registered");
-		require(weapon->playerWeaponCheck(&player, &target, item->getShootRange()) == 100,
-			"custom/training weapon must still pass the ordinary weapon gate: " + std::to_string(id));
+		require(Item::items[id].group == ITEM_GROUP_DEPRECATED, "extra custom/training item must be retired");
+		require(Item::CreateItem(id) == nullptr, "retired custom/training item must not be creatable");
+		Item legacy(id);
+		require(weapons.getWeapon(&legacy) == nullptr, "retired custom/training weapon must not remain usable");
 	}
 	Player druid(nullptr);
 	LoginGateCoreTestAccess::eligible(druid, &group, &tile, 2);

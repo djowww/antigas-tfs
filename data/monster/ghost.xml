@@ -35,7 +35,7 @@
 		<voice sentence="Buuuuuh" />
 	</voices>
 	<loot>
-	    <!-- <item id="5205" countmax="1" chance="30" /> withe piece -->
+	    <!--  withe piece -->
 		<item id="3432" countmax="1" chance="8" /> <!-- an ancient shield -->
 		<item id="2843" countmax="1" chance="15" /> <!-- a book -->
 		<item id="3565" countmax="1" chance="90" /> <!-- a cape -->

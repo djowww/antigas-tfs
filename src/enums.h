@@ -59,6 +59,7 @@ enum itemAttrTypes : uint32_t {
 	ITEM_ATTRIBUTE_CHESTQUESTNUMBER = 1 << 27,
 	ITEM_ATTRIBUTE_RARITY = 1u << 28,
 	ITEM_ATTRIBUTE_RARITY_EXTRAS = 1u << 29,
+	ITEM_ATTRIBUTE_RECOVERY_CORPSE = 1u << 30,
 };
 
 enum ItemRarity_t : uint8_t {

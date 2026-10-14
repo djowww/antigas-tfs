@@ -93,7 +93,7 @@ local function checkAdvanceRewards(player, skill, newLevel)
 	local milestones = skill == SKILL_LEVEL and A.LEVEL_MILESTONES or A.SKILL_MILESTONES
 	local base = skill == SKILL_LEVEL and A.STORAGE.LEVEL_REWARD_BASE or A.STORAGE.SKILL_REWARD_BASE + skill * 8
 	local reward = skill == SKILL_LEVEL and {item = 5291, name = 'Experience'} or skillRewards[skill]
-	if not reward then return false end
+	if not reward or ItemType(reward.item):isRetired() then return false end
 	local changed = false
 	for index, threshold in ipairs(milestones) do
 		local key = base + index
@@ -151,21 +151,23 @@ function A.sendProgress(player)
 	end
 	for index, target in ipairs(A.LEVEL_MILESTONES) do
 		local state = storage(player, A.STORAGE.LEVEL_REWARD_BASE + index)
-		local completed, ready = state == 1, state == 2
+		local retired = ItemType(5291):isRetired()
+		local completed, ready = state == 1, state == 2 and not retired
 		milestones[#milestones + 1] = {id='level_' .. index, category='Character level',
 			title=string.format('Reach level %d', target), progress=(completed or ready) and target or math.min(player:getLevel(), target), target=target,
-			completed=completed, ready=ready, reward='25% XP scroll (1 hour)'}
+			completed=completed, ready=ready, reward=retired and 'Item reward retired' or '25% XP scroll (1 hour)'}
 	end
 	for _, skill in ipairs(skillOrder) do
 		local reward = skillRewards[skill]
+		local retired = ItemType(reward.item):isRetired()
 		local current = skill == SKILL_MAGLEVEL and player:getMagicLevel() or player:getSkillLevel(skill)
 		for index, target in ipairs(A.SKILL_MILESTONES) do
 			local key = A.STORAGE.SKILL_REWARD_BASE + skill * 8 + index
 			local state = storage(player, key)
-			local completed, ready = state == 1, state == 2
+			local completed, ready = state == 1, state == 2 and not retired
 			milestones[#milestones + 1] = {id='skill_' .. skill .. '_' .. index, category=reward.name .. ' skill',
 				title=string.format('Reach %s skill %d', reward.name:lower(), target), progress=(completed or ready) and target or math.min(current, target), target=target,
-				completed=completed, ready=ready, reward=reward.item == 5291 and '25% XP scroll (1 hour)' or string.format('One %s training weapon', reward.name:lower())}
+				completed=completed, ready=ready, reward=retired and 'Item reward retired' or reward.item == 5291 and '25% XP scroll (1 hour)' or string.format('One %s training weapon', reward.name:lower())}
 		end
 	end
 	-- NetworkMessage.addString rejects strings above 8192 bytes. A complete

@@ -48,7 +48,7 @@
 		<item id="3031" countmax="100" chance="600" /> <!-- a gold coin -->
 		<item id="3031" countmax="50" chance="400" /> <!-- a gold coin -->
 		<item id="3582" countmax="3" chance="600" /> <!-- ham -->
-		<item id="4839" countmax="1" chance="9" /> <!-- a hydra egg -->
+		 <!-- a hydra egg -->
 		<item id="3370" countmax="1" chance="10" /> <!-- a knight armor -->
 		<item id="3061" countmax="1" chance="6" /> <!-- a life crystal -->
 		<item id="3577" countmax="4" chance="900" /> <!-- meat -->

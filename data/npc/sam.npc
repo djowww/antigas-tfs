@@ -176,7 +176,7 @@ Topic=4,"yes"                             -> "Argl! You do not have one! Trying 
 Topic=4                                   -> "Maybe my offer is too low? Unfortunately I can not bring up more money, I am just a smith."
 
 "backpack",QuestValue(289)>0               -> "Yes, you brought back my old backpack. Thank you again."
-"backpack",QuestValue(289)<1    -> Type=3244, Amount=1, "What? Are you telling me you found my old adventurer's backpack that I lost years ago??",Topic=5
+"backpack",QuestValue(289)<1 -> "This item or service is no longer available.", Topic=0
 
 Topic=5,"yes",Count(Type)>=Amount -> "Thank you verry much! This brings back good old memories! Please, as a reward, travel to kazordoon and ask my old friend Kroox to provide you a special dwarven armor. ...",
                                              "I will mail him about you immediately. Just tell him, his old buddy sam is sending you.", Delete(Type),SetQuestValue(289,1)

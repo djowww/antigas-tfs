@@ -50,12 +50,12 @@
 		<voice sentence="Vihil Ealuel!" />
 	</voices>
 	<loot>
-	    <item id="5186" countmax="1" chance="10" /> <!-- a holy orchid -->
+	     <!-- a holy orchid -->
 		<item id="3447" countmax="3" chance="60" /> <!-- an arrow -->
 		<item id="3147" countmax="1" chance="180" /> <!-- a blank rune -->
 		<item id="2902" countmax="1" chance="55" /> <!-- a bowl -->
 		<item id="3600" countmax="1" chance="140" /> <!-- a bread -->
-		<item id="5218" countmax="3" chance="3" /> <!-- leather whip -->
+		 <!-- leather whip -->
 		<item id="2917" countmax="1" chance="220" /> <!-- a candlestick -->
 		<item id="3082" countmax="1" chance="20" /> <!-- an elven amulet -->
 		<item id="3661" countmax="1" chance="70" /> <!-- a grave flower -->

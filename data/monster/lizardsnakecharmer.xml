@@ -46,7 +46,7 @@
 	</voices>
 	<loot>
 		<item id="3565" countmax="1" chance="90" /> <!-- a cape -->
-		<item id="3407" countmax="1" chance="1" /> <!-- a charmer's tiara -->
+		 <!-- a charmer's tiara -->
 		<item id="3998" countmax="1" chance="700" /> <!-- a dead snake -->
 		<item id="3122" countmax="1" chance="199" /> <!-- a dirty cape -->
 		<item id="3031" countmax="25" chance="800" /> <!-- a gold coin -->

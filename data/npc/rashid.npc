@@ -46,31 +46,31 @@ VANISH,!                 -> "Leave me, I am used to it anyways..."
 "spiked","squelcher"           -> Type=6408, Amount=1, Price=5000, "Do you want to sell an spiked squelcher for %P gold?", Topic=1
 "crystal","ring"               -> Type=3007, Amount=1, Price=250, "Do you want to sell an crystal ring for %P gold?", Topic=1
 "ruby","necklace"              -> Type=3016, Amount=1, Price=2000, "Do you want to sell an ruby necklace for %P gold?", Topic=1
-"behemoth","trophy"            -> Type=5160, Amount=1, Price=15000, "Do you want to sell a behemoth trophy for %P gold?", Topic=1
+"behemoth","trophy" -> "This item or service is no longer available.", Topic=0
 
-"kings","helmet"            -> Type=5129, Amount=1, Price=5000, "Do you want to sell a kings helmet for %P gold?", Topic=1
-"mistic","legs"             -> Type=5128, Amount=1, Price=10000, "Do you want to sell a mistic plate legs for %P gold?", Topic=1
-"mistic","armor"            -> Type=5126, Amount=1, Price=13000, "Do you want to sell a mistic plate armor for %P gold?", Topic=1
-"mistic","helmet"           -> Type=5125, Amount=1, Price=8000, "Do you want to sell a mistic plate helmet for %P gold?", Topic=1
-"assassin","dagger"         -> Type=5124, Amount=1, Price=3000, "Do you want to sell a assassin dagger for %P gold?", Topic=1
-"skull","helmet"            -> Type=5123, Amount=1, Price=40000, "Do you want to sell a skull helmet for %P gold?", Topic=1
-"golden","shield"           -> Type=5122, Amount=1, Price=9000, "Do you want to sell a golden shield for %P gold?", Topic=1
-"arming","sword"            -> Type=5120, Amount=1, Price=10000, "Do you want to sell a arming sword for %P gold?", Topic=1
-"hellforged","armor"        -> Type=5162, Amount=1, Price=20000, "Do you want to sell a hellforged armor for %P gold?", Topic=1
-"hellforged","legs"         -> Type=5161, Amount=1, Price=9000, "Do you want to sell a hellforged legs for %P gold?", Topic=1
-"ancient","helmet"          -> Type=5146, Amount=1, Price=6000, "Do you want to sell a ancient helmet for %P gold?", Topic=1
-"ancient","armor"           -> Type=5144, Amount=1, Price=11000, "Do you want to sell a ancient armor for %P gold?", Topic=1
-"ancient","legs"            -> Type=5148, Amount=1, Price=7000, "Do you want to sell a ancient legs for %P gold?", Topic=1
-"crown","boots"             -> Type=5143, Amount=1, Price=4000, "Do you want to sell a crown boots for %P gold?", Topic=1
-"white","boots"             -> Type=5142, Amount=1, Price=4000, "Do you want to sell a white boots for %P gold?", Topic=1
-"spartan","legs"            -> Type=5141, Amount=1, Price=11000, "Do you want to sell a spartan legs for %P gold?", Topic=1
-"dragon","slayer"           -> Type=5239, Amount=1, Price=15000, "Do you want to sell a dragon slayer for %P gold?", Topic=1
+"kings","helmet" -> "This item or service is no longer available.", Topic=0
+"mistic","legs" -> "This item or service is no longer available.", Topic=0
+"mistic","armor" -> "This item or service is no longer available.", Topic=0
+"mistic","helmet" -> "This item or service is no longer available.", Topic=0
+"assassin","dagger" -> "This item or service is no longer available.", Topic=0
+"skull","helmet" -> "This item or service is no longer available.", Topic=0
+"golden","shield" -> "This item or service is no longer available.", Topic=0
+"arming","sword" -> "This item or service is no longer available.", Topic=0
+"hellforged","armor" -> "This item or service is no longer available.", Topic=0
+"hellforged","legs" -> "This item or service is no longer available.", Topic=0
+"ancient","helmet" -> "This item or service is no longer available.", Topic=0
+"ancient","armor" -> "This item or service is no longer available.", Topic=0
+"ancient","legs" -> "This item or service is no longer available.", Topic=0
+"crown","boots" -> "This item or service is no longer available.", Topic=0
+"white","boots" -> "This item or service is no longer available.", Topic=0
+"spartan","legs" -> "This item or service is no longer available.", Topic=0
+"dragon","slayer" -> "This item or service is no longer available.", Topic=0
 "sulphira","mail"           -> Type=5377, Amount=1, Price=35000, "Do you want to sell a selphira scale mail for %P gold?", Topic=1
-"light","sword"             -> Type=5104, Amount=1, Price=4000, "Do you want to sell a light sword for %P gold?", Topic=1
-"thaian","armor"            -> Type=5167, Amount=1, Price=8000, "Do you want to sell a thaian soldier armor for %P gold?", Topic=1
-"thaian","shield"            -> Type=5164, Amount=1, Price=6000, "Do you want to sell a thaian soldier shield for %P gold?", Topic=1
-"thaian","legs"                -> Type=5166, Amount=1, Price=5000, "Do you want to sell a thaian soldier legs for %P gold?", Topic=1
-"shield","heroes"              -> Type=5163, Amount=1, Price=11000, "Do you want to sell a shield of the heroes for %P gold?", Topic=1
+"light","sword" -> "This item or service is no longer available.", Topic=0
+"thaian","armor" -> "This item or service is no longer available.", Topic=0
+"thaian","shield" -> "This item or service is no longer available.", Topic=0
+"thaian","legs" -> "This item or service is no longer available.", Topic=0
+"shield","heroes" -> "This item or service is no longer available.", Topic=0
 "swinging","demolisher"        -> Type=5397, Amount=1, Price=16000, "Do you want to sell a swinging demolisher for %P gold?", Topic=1
 "silver","mace"                -> Type=3312, Amount=1, Price=6000, "Do you want to sell a silver mace for %P gold?", Topic=1
 "demonbone","armor"            -> Type=5383, Amount=1, Price=40000, "Do you want to sell a demonbone armor for %P gold?", Topic=1
@@ -78,15 +78,15 @@ VANISH,!                 -> "Leave me, I am used to it anyways..."
 "demonbone","legs"             -> Type=5385, Amount=1, Price=20000, "Do you want to sell a demonbone legs for %P gold?", Topic=1
 "demonbone","boots"            -> Type=5386, Amount=1, Price=8000, "Do you want to sell a demonbone boots for %P gold?", Topic=1
 "flaming","bow"                -> Type=5374, Amount=1, Price=9000, "Do you want to sell a flaming bow for %P gold?", Topic=1
-"daraman","bow"            	   -> Type=5172, Amount=1, Price=8000, "Do you want to sell a daraman bow for %P gold?", Topic=1
+"daraman","bow" -> "This item or service is no longer available.", Topic=0
 "elven","crossbow"             -> Type=5375, Amount=1, Price=15000, "Do you want to sell a elven crossbow for %P gold?", Topic=1
-"blazing","crossbow"           -> Type=5154, Amount=1, Price=25000, "Do you want to sell a blazing crossbow for %P gold?", Topic=1
+"blazing","crossbow" -> "This item or service is no longer available.", Topic=0
 "envenomed","crossbow"         -> Type=5381, Amount=1, Price=35000, "Do you want to sell a envenomed crossbow for %P gold?", Topic=1
 "emerald","bangle"             -> Type=3010, Amount=1, Price=800, "Do you want to sell an emerald bangle for %P gold?", Topic=1
 "daramanian","waraxe"          -> Type=3328, Amount=1, Price=1000, "Do you want to sell a daramanian waraxe for %P gold?", Topic=1
 "skullcracker","armor"         -> Type=6113, Amount=1, Price=18000, "Do you want to sell a skullcracker armor for %P gold?", Topic=1
 "flaming","crossbow"           -> Type=6406, Amount=1, Price=70000, "Do you want to sell a flaming crossbow for %P gold?", Topic=1
-"sunfire","robe"               -> Type=5170, Amount=1, Price=15000, "Do you want to sell a sunfire robe for %P gold?", Topic=1
+"sunfire","robe" -> "This item or service is no longer available.", Topic=0
 
 "sell",%1,1<%1,"war","axe"             			-> Type=3342, Amount=%1, Price=12000*%1, "Do you want to sell %A war axes for %P gold?", Topic=1
 "sell",%1,1<%1,"dragon","scale","mail"        	-> Type=3386, Amount=%1, Price=40000*%1, "Do you want to sell %A dragon scale mail for %P gold?", Topic=1
@@ -116,29 +116,29 @@ VANISH,!                 -> "Leave me, I am used to it anyways..."
 "sell",%1,1<%1,"crystal","ring"            	    -> Type=3007, Amount=%1, Price=250*%1, "Do you want to sell %A crystal ring for %P gold?", Topic=1
 "sell",%1,1<%1,"ruby","necklace"            	-> Type=3016, Amount=%1, Price=2000*%1, "Do you want to sell %A ruby necklace for %P gold?", Topic=1
 
-"sell",%1,1<%1,"kings","helmet"            -> Type=5129, Amount=%1, Price=5000*%1, "Do you want to sell %A kings helmet for %P gold?", Topic=1
-"sell",%1,1<%1,"mistic","legs"             -> Type=5128, Amount=%1, Price=10000*%1, "Do you want to sell %A mistic legs for %P gold?", Topic=1
-"sell",%1,1<%1,"mistic","armor"            -> Type=5126, Amount=%1, Price=13000*%1, "Do you want to sell %A mistic armor for %P gold?", Topic=1
-"sell",%1,1<%1,"mistic","helmet"           -> Type=5125, Amount=%1, Price=8000*%1, "Do you want to sell %A mistic helmet for %P gold?", Topic=1
-"sell",%1,1<%1,"assassin","dagger"         -> Type=5124, Amount=%1, Price=3000*%1, "Do you want to sell %A assassin dagger for %P gold?", Topic=1
-"sell",%1,1<%1,"skull","helmet"            -> Type=5123, Amount=%1, Price=40000*%1, "Do you want to sell %A skull helmet for %P gold?", Topic=1
-"sell",%1,1<%1,"golden","shield"           -> Type=5122, Amount=%1, Price=9000*%1, "Do you want to sell %A golden shield for %P gold?", Topic=1
-"sell",%1,1<%1,"arming","sword"            -> Type=5120, Amount=%1, Price=10000*%1, "Do you want to sell %A arming sword for %P gold?", Topic=1
-"sell",%1,1<%1,"hellforged","armor"        -> Type=5162, Amount=%1, Price=20000*%1, "Do you want to sell %A hellforged armor for %P gold?", Topic=1
-"sell",%1,1<%1,"hellforged","legs"         -> Type=5161, Amount=%1, Price=9000*%1, "Do you want to sell %A hellforged legs for %P gold?", Topic=1
-"sell",%1,1<%1,"ancient","helmet"          -> Type=5146, Amount=%1, Price=6000*%1, "Do you want to sell %A ancient helmet for %P gold?", Topic=1
-"sell",%1,1<%1,"ancient","armor"           -> Type=5144, Amount=%1, Price=11000*%1, "Do you want to sell %A ancient armor for %P gold?", Topic=1
-"sell",%1,1<%1,"ancient","legs"            -> Type=5148, Amount=%1, Price=7000*%1, "Do you want to sell %A ancient legs for %P gold?", Topic=1
-"sell",%1,1<%1,"crown","boots"             -> Type=5143, Amount=%1, Price=4000*%1, "Do you want to sell %A crown boots for %P gold?", Topic=1
-"sell",%1,1<%1,"white","boots"             -> Type=5142, Amount=%1, Price=4000*%1, "Do you want to sell %A white boots for %P gold?", Topic=1
-"sell",%1,1<%1,"spartan","legs"            -> Type=5141, Amount=%1, Price=11000*%1, "Do you want to sell %A spartan legs for %P gold?", Topic=1
-"sell",%1,1<%1,"dragon","slayer"           -> Type=5239, Amount=%1, Price=15000*%1, "Do you want to sell %A dragon slayer for %P gold?", Topic=1
+"sell",%1,1<%1,"kings","helmet" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"mistic","legs" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"mistic","armor" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"mistic","helmet" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"assassin","dagger" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"skull","helmet" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"golden","shield" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"arming","sword" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"hellforged","armor" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"hellforged","legs" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"ancient","helmet" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"ancient","armor" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"ancient","legs" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"crown","boots" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"white","boots" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"spartan","legs" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"dragon","slayer" -> "This item or service is no longer available.", Topic=0
 "sell",%1,1<%1,"selphira","scale"          -> Type=5377, Amount=%1, Price=35000*%1, "Do you want to sell %A sulphira scale mail for %P gold?", Topic=1
-"sell",%1,1<%1,"light","sword"             -> Type=5104, Amount=%1, Price=4000*%1, "Do you want to sell %A light sword for %P gold?", Topic=1
-"sell",%1,1<%1,"thaian","armor"           -> Type=5167, Amount=%1, Price=8000*%1, "Do you want to sell %A thaian soldier armor for %P gold?", Topic=1
-"sell",%1,1<%1,"thaian","legs"            -> Type=5166, Amount=%1, Price=5000*%1, "Do you want to sell %A thaian soldier legs for %P gold?", Topic=1
-"sell",%1,1<%1,"thaian","shield"          -> Type=5164, Amount=%1, Price=6000*%1, "Do you want to sell %A thaian soldier shield for %P gold?", Topic=1
-"sell",%1,1<%1,"shield","heroes"          -> Type=5163, Amount=%1, Price=11000*%1, "Do you want to sell %A shield of the heroes for %P gold?", Topic=1
+"sell",%1,1<%1,"light","sword" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"thaian","armor" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"thaian","legs" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"thaian","shield" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"shield","heroes" -> "This item or service is no longer available.", Topic=0
 "sell",%1,1<%1,"swinging","demolisher"   -> Type=5397, Amount=%1, Price=16000*%1, "Do you want to sell %A swinging demolisher for %P gold?", Topic=1
 "sell",%1,1<%1,"silver","mace"           -> Type=3312, Amount=%1, Price=6000*%1, "Do you want to sell %A silver mace for %P gold?", Topic=1
 "sell",%1,1<%1,"demonbone","armor"              -> Type=5383, Amount=%1, Price=40000*%1, "Do you want to sell %A demonbone armor for %P gold?", Topic=1
@@ -146,15 +146,15 @@ VANISH,!                 -> "Leave me, I am used to it anyways..."
 "sell",%1,1<%1,"demonbone","legs"               -> Type=5385, Amount=%1, Price=20000*%1, "Do you want to sell %A demonbone legs for %P gold?", Topic=1
 "sell",%1,1<%1,"demonbone","boots"              -> Type=5386, Amount=%1, Price=8000*%1, "Do you want to sell %A demonbone boots for %P gold?", Topic=1
 "sell",%1,1<%1,"flaming","bow"           		-> Type=5374, Amount=%1, Price=9000*%1, "Do you want to sell %A flaming bow for %P gold?", Topic=1
-"sell",%1,1<%1,"daraman","bow"           		-> Type=5172, Amount=%1, Price=8000*%1, "Do you want to sell %A daraman bow for %P gold?", Topic=1
+"sell",%1,1<%1,"daraman","bow" -> "This item or service is no longer available.", Topic=0
 "sell",%1,1<%1,"elven","crossbow"          		-> Type=5375, Amount=%1, Price=15000*%1, "Do you want to sell %A elven crossbow for %P gold?", Topic=1
-"sell",%1,1<%1,"blazing","crossbow"             -> Type=5154, Amount=%1, Price=25000*%1, "Do you want to sell %A blazing crossbow for %P gold?", Topic=1
+"sell",%1,1<%1,"blazing","crossbow" -> "This item or service is no longer available.", Topic=0
 "sell",%1,1<%1,"envenomed","crossbow"           -> Type=5381, Amount=%1, Price=35000*%1, "Do you want to sell %A envenomed crossbow for %P gold?", Topic=1
 "sell",%1,1<%1,"emerald","bangle"           	-> Type=3010, Amount=%1, Price=800*%1, "Do you want to sell %A emerald bangle for %P gold?", Topic=1
 "sell",%1,1<%1,"daramanian","waraxe"           	-> Type=3328, Amount=%1, Price=1000*%1, "Do you want to sell %A daramanian waraxe for %P gold?", Topic=1
 "sell",%1,1<%1,"skullcracker","armor"           -> Type=6113, Amount=%1, Price=18000*%1, "Do you want to sell %A skullcracker armor for %P gold?", Topic=1
 "sell",%1,1<%1,"flaming","crossbow"             -> Type=6406, Amount=%1, Price=70000*%1, "Do you want to sell %A flaming crossbow for %P gold?", Topic=1
-"sell",%1,1<%1,"sunfire","robe"                 -> Type=5170, Amount=%1, Price=15000*%1, "Do you want to sell %A sunfire robe for %P gold?", Topic=1
+"sell",%1,1<%1,"sunfire","robe" -> "This item or service is no longer available.", Topic=0
 
 Topic=1,"yes",Count(Type)>=Amount -> "Here is your money.", Delete(Type), CreateMoney
 Topic=1,Amount>1 				-> "You don't have that many."

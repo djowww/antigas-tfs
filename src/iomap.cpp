@@ -66,6 +66,53 @@ Tile* IOMap::createTile(Item*& ground, Item* item, uint16_t x, uint16_t y, uint8
 	return tile;
 }
 
+Item* readMapItem(PropStream& stream, bool hasChildren, bool& retired)
+{
+	retired = false;
+	PropStream peek = stream;
+	uint16_t id;
+	if (!peek.read<uint16_t>(id)) {
+		return nullptr;
+	}
+	retired = Item::items[id].group == ITEM_GROUP_DEPRECATED;
+	if (!retired) {
+		return Item::CreateItem(stream);
+	}
+	stream = peek;
+	if (!hasChildren) {
+		return nullptr;
+	}
+	// Recover the child graph only. Retired carrier attributes do not describe the new wrapper.
+	stream.skip(stream.size());
+	return Item::CreateItem(2854);
+}
+
+bool packRecoveredMapContainer(Container* container)
+{
+	if (!container || container->capacity() < 2) {
+		return false;
+	}
+	while (container->size() > container->capacity()) {
+		Item* overflowItem = Item::CreateItem(2854);
+		Container* overflow = overflowItem ? overflowItem->getContainer() : nullptr;
+		if (!overflow) {
+			delete overflowItem;
+			return false;
+		}
+		while (container->size() >= container->capacity()) {
+			Item* child = container->getItemByIndex(container->capacity() - 1);
+			container->removeThing(child, child->getItemCount());
+			overflow->addItemBack(child);
+		}
+		if (!packRecoveredMapContainer(overflow)) {
+			delete overflow;
+			return false;
+		}
+		container->addItemBack(overflow);
+	}
+	return true;
+}
+
 bool IOMap::loadMap(Map* map, const std::string& identifier)
 {
 	int64_t start = OTSYS_TIME();
@@ -269,8 +316,12 @@ bool IOMap::loadMap(Map* map, const std::string& identifier)
 						}
 
 						case OTBM_ATTR_ITEM: {
-							Item* item = Item::CreateItem(propStream);
+							bool retired;
+							Item* item = readMapItem(propStream, false, retired);
 							if (!item) {
+								if (retired) {
+									break;
+								}
 								std::ostringstream ss;
 								ss << "[x:" << x << ", y:" << y << ", z:" << z << "] Failed to create item.";
 								setLastErrorString(ss.str());
@@ -325,8 +376,15 @@ bool IOMap::loadMap(Map* map, const std::string& identifier)
 						return false;
 					}
 
-					Item* item = Item::CreateItem(stream);
+					uint32_t childType;
+					const bool hasChildren = f.getChildNode(nodeItem, childType) != NO_NODE;
+					bool retired;
+					Item* item = readMapItem(stream, hasChildren, retired);
 					if (!item) {
+						if (retired) {
+							nodeItem = f.getNextNode(nodeItem, type);
+							continue;
+						}
 						std::ostringstream ss;
 						ss << "[x:" << x << ", y:" << y << ", z:" << z << "] Failed to create item.";
 						setLastErrorString(ss.str());
@@ -338,6 +396,11 @@ bool IOMap::loadMap(Map* map, const std::string& identifier)
 						ss << "[x:" << x << ", y:" << y << ", z:" << z << "] Failed to load item " << item->getID() << '.';
 						setLastErrorString(ss.str());
 						delete item;
+						return false;
+					}
+					if (retired && !packRecoveredMapContainer(item->getContainer())) {
+						delete item;
+						setLastErrorString("Failed to recover retired container descendants.");
 						return false;
 					}
 

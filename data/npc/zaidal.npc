@@ -55,8 +55,8 @@ VANISH,!           -> "Bye."
 "lizard"    -> "I did not see much of the lizzards yet."
 "dworcs"     -> "If we could get rid of them, a whole new area which is rich in bamboo would be ours." 
 
-"sell","tusk"            -> Type=3044, Amount=1, Price=100, "Do you want to sell a tusk for %P gold?", Topic=2
-"sell",%1,1<%1,"tusk"    -> Type=3044, Amount=%1, Price=100*%1, "Do you want to sell %A tusks for %P gold?", Topic=2
+"sell","tusk" -> "This item or service is no longer available.", Topic=0
+"sell",%1,1<%1,"tusk" -> "This item or service is no longer available.", Topic=0
 
 Topic=2,"yes",Count(Type)>=Amount -> "Ok. Here is your money.", Delete(Type), CreateMoney
 Topic=2,"yes"                             -> "Sorry, you do not have one."

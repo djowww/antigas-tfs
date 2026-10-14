@@ -70,7 +70,17 @@ function init()
 	toolsCategory.addItem(5, 3725, 100, "100 X Brown Mushroom", "So as not to be hungry.")
 	toolsCategory.addItem(5, 5097, 1, "Dice", "Often used as a way of gambling, usually called casinos.")
 	toolsCategory.addItem(40, 5336, 1, "universe scale mail", "armor defence.")
-	
+	-- Keep original offers and callback indexes together; retired-only categories
+	-- have no products and must not advertise a blank custom icon.
+	for index = #SHOP_CATEGORIES, 1, -1 do
+		local category = SHOP_CATEGORIES[index]
+		if #category.offers == 0 then
+			table.remove(SHOP_CATEGORIES, index)
+			table.remove(SHOP_CALLBACKS, index)
+		elseif category.type == 'item' and ItemType(category.item):isRetired() then
+			category.item = category.offers[1].item or ItemType(3460):getId()
+		end
+	end
 end
 
 function addCategory(data)
@@ -80,6 +90,7 @@ function addCategory(data)
   local index = #SHOP_CATEGORIES
   return {
     addItem = function(cost, itemId, count, title, description, callback)      
+      if ItemType(itemId):isRetired() then return false end
       if not callback then
         callback = defaultItemBuyAction
       end
@@ -222,6 +233,9 @@ function processBuy(player, data)
     sendJSON(player, "categories", SHOP_CATEGORIES) -- refresh categories, maybe invalid
     return sendMessage(player, "Error!", "Invalid offer")      
   end
+  if offer.type == 'item' and ItemType(offer.itemId):isRetired() then
+    return sendMessage(player, "Error!", "This offer is unavailable.")
+  end
   local points = getPoints(player)
   if not offer['cost'] or offer['cost'] > points or points < 1 then
     return sendMessage(player, "Error!", "You don't have enough points to buy " .. offer['title'] .."!", true)    
@@ -273,6 +287,7 @@ end
 -- May be useful: print(json.encode(offer))
 
 function defaultItemBuyAction(player, offer)
+  if ItemType(offer.itemId):isRetired() then return "This offer is unavailable." end
   -- todo: check if has capacity
   if player:addItem(offer["itemId"], offer["count"], false) then
     return true

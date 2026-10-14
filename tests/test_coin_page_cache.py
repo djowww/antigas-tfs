@@ -6,7 +6,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class CoinPageCacheTests(unittest.TestCase):
-    def test_authenticated_order_and_pix_responses_are_not_cacheable(self):
+    def test_retired_get_post_and_qr_routes_are_not_cacheable(self):
         source = (ROOT / "deploy" / "site-public" / "coins.php").read_text(encoding="utf-8")
 
         web_start = source.index("webStart();")
@@ -19,6 +19,9 @@ class CoinPageCacheTests(unittest.TestCase):
         for header in cache_headers:
             self.assertIn(header, source[web_start:i18n_start])
 
-        qr_route = source.split("if(isset($_GET['qr']))", 1)[1].split("\n            }", 1)[0]
-        self.assertIn("$png=pixQr($selected['payload'])", qr_route)
-        self.assertIn("echo $png", qr_route)
+        self.assertIn("http_response_code(410);", source[web_start:i18n_start])
+        for producer in ("webDb(", "pixOrder(", "pixQr(", "pixQuote("):
+            self.assertNotIn(producer, source, "Retired page must not invoke a payment producer")
+        for payment_control in ('<form', 'pix-code', 'pix-qr', 'PIX_KEY'):
+            self.assertNotIn(payment_control, source)
+        self.assertIn('Antigas Coins are unavailable. This item was retired from the test environment.', source)

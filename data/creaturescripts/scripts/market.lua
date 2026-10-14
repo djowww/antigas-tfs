@@ -46,6 +46,7 @@ end
 local function marketType(id)
  id=integer(id,100,6000)
  if not id or id==GOLD or id==PLATINUM or id==CRYSTAL or id==ANTIGAS then return nil end
+ if ItemType(id):isRetired() then types[id]=false;return nil end
  if types[id]~=nil then return types[id] or nil end
  local t=ItemType(id)
  local name=t:getName()
@@ -57,7 +58,15 @@ local function marketType(id)
 end
 
 -- Keep marketType available for legacy refunds; new trading uses this allowlist.
-local blockedIds, duplicateNameIds, duplicateNamesReady
+local blockedIds, retiredIds, duplicateNameIds, duplicateNamesReady
+local function retiredList()
+ if not retiredIds then
+  local ids={}
+  for id=100,6000 do if ItemType(id):isRetired() then ids[#ids+1]=id end end
+  retiredIds=#ids>0 and table.concat(ids,',') or '0'
+ end
+ return retiredIds
+end
 local writingTerms={'books?','letters?','parchment','papers?','scrolls?','documents?',
  'notes?','diaries','journals?','writings?','manuscripts?'}
 local furnitureTerms={'furniture','chairs?','tables?','beds?','benches?','stools?','thrones?',
@@ -120,6 +129,7 @@ local function clean(item)
  if item:getRarityInfo() then return false end
  if item:getActionId()~=0 or item:getMovementId()~=0 then return false end
  local id,t=item:getId(),ItemType(item:getId())
+ if t:isRetired() then return false end
  if t:isContainer() then return false end
  local count=t:isStackable() and item:getCount() or (t:getCharges()>0 and t:getCharges() or 1)
  if t:getCharges()>0 and item:getCharges()~=t:getCharges() then return false end
@@ -180,7 +190,7 @@ local function sendBalances(player)
  local _,summary=inventory(player)
  if not summary then error("Market inventory scan limit exceeded") end
  local data=balances(player,summary)
- local r=checkedQuery('SELECT COUNT(*) AS n,COALESCE(SUM(IF(kind=0,item_count,0)),0) AS items,COALESCE(SUM(IF(kind=1 AND currency_id=3031,currency_amount,0)),0) AS gold,COALESCE(SUM(IF(kind=1 AND currency_id=5130,currency_amount,0)),0) AS antigas FROM market_claims WHERE player_guid='..player:getGuid())
+ local r=checkedQuery('SELECT COUNT(*) AS n,COALESCE(SUM(IF(kind=0,item_count,0)),0) AS items,COALESCE(SUM(IF(kind=1 AND currency_id=3031,currency_amount,0)),0) AS gold,COALESCE(SUM(IF(kind=1 AND currency_id=5130,currency_amount,0)),0) AS antigas FROM market_claims WHERE player_guid='..player:getGuid()..' AND ((kind=0 AND item_id NOT IN ('..retiredList()..')) OR (kind=1 AND currency_id NOT IN ('..retiredList()..')))')
  if r then
   data.pending={count=result.getDataInt(r,'n'),items=result.getDataInt(r,'items'),gold=result.getDataInt(r,'gold'),antigas=result.getDataInt(r,'antigas')}
   result.free(r)
@@ -229,14 +239,14 @@ local function sendCatalog(player,data)
  if #items>0 then
   local ids,byId={},{}
   for _,item in ipairs(items) do ids[#ids+1]=item.id;byId[item.id]=item;item.prices={} end
-  local prices=rows('SELECT item_id AS id,currency_id AS currency,MIN(IF(side=0,unit_price,NULL)) AS sell,MAX(IF(side=1,unit_price,NULL)) AS buy FROM market_offers WHERE status=1 AND remaining>0 AND item_id IN ('..table.concat(ids,',')..') GROUP BY item_id,currency_id',{id='n',currency='n',sell='n',buy='n'})
+  local prices=rows('SELECT item_id AS id,currency_id AS currency,MIN(IF(side=0,unit_price,NULL)) AS sell,MAX(IF(side=1,unit_price,NULL)) AS buy FROM market_offers WHERE status=1 AND remaining>0 AND item_id IN ('..table.concat(ids,',')..') AND currency_id NOT IN ('..retiredList()..') GROUP BY item_id,currency_id',{id='n',currency='n',sell='n',buy='n'})
   for _,p in ipairs(prices) do byId[p.id].prices[tostring(p.currency)]={sell=p.sell,buy=p.buy} end
  end
  send(player,"catalog",{items=items,page=page,hasNext=matched>page*PAGE_SIZE,total=matched})
 end
 local offerFields={id="n",owner="n",ownerName="s",side="n",itemId="n",subtype="n",name="s",category="s",amount="n",price="n",currency="n"}
 local function sendOffers(player,data,mine)
- local clauses={"o.status=1"}
+ local clauses={"o.status=1",'o.item_id NOT IN ('..retiredList()..')','o.currency_id NOT IN ('..retiredList()..')'}
  if mine then clauses[#clauses+1]="o.owner_guid="..player:getGuid() end
  if not mine then clauses[#clauses+1]='o.item_id NOT IN ('..blockedList()..')' end
  local cat=validCategories[data.category] and data.category or "all"
@@ -256,7 +266,7 @@ end
 
 local function sendHistory(player,data)
  local page=pageOf(data)
- local entries=rows('SELECT h.id,h.event_type AS event,h.item_id AS itemId,h.item_name AS name,h.quantity,h.unit_price AS price,h.currency_id AS currency,h.total,h.destination,DATE_FORMAT(h.created_at,\'%Y-%m-%d %H:%i UTC\') AS date,COALESCE(c.item_count+c.currency_amount,0) AS pending FROM market_history h LEFT JOIN market_claims c ON c.id=h.claim_id AND c.player_guid=h.player_guid WHERE h.player_guid='..player:getGuid()..' ORDER BY h.id DESC LIMIT '..(PAGE_SIZE+1)..' OFFSET '..((page-1)*PAGE_SIZE),{id='n',event='s',itemId='n',name='s',quantity='n',price='n',currency='n',total='n',destination='s',date='s',pending='n'})
+ local entries=rows('SELECT h.id,h.event_type AS event,h.item_id AS itemId,h.item_name AS name,h.quantity,h.unit_price AS price,h.currency_id AS currency,h.total,h.destination,DATE_FORMAT(h.created_at,\'%Y-%m-%d %H:%i UTC\') AS date,COALESCE(c.item_count+c.currency_amount,0) AS pending FROM market_history h LEFT JOIN market_claims c ON c.id=h.claim_id AND c.player_guid=h.player_guid WHERE h.player_guid='..player:getGuid()..' AND h.item_id NOT IN ('..retiredList()..') AND h.currency_id NOT IN ('..retiredList()..') ORDER BY h.id DESC LIMIT '..(PAGE_SIZE+1)..' OFFSET '..((page-1)*PAGE_SIZE),{id='n',event='s',itemId='n',name='s',quantity='n',price='n',currency='n',total='n',destination='s',date='s',pending='n'})
  local hasNext=#entries>PAGE_SIZE
  if hasNext then table.remove(entries) end
  send(player,'history',{entries=entries,page=page,hasNext=hasNext})
@@ -310,6 +320,7 @@ local function context(player)
   return remaining<=0
  end
  function ctx:deliver(id,subtype,count)
+  if ItemType(id):isRetired() then return 0 end
   if id==GOLD then
    local bank=self.player:getBankBalance()
    if not integer(bank,0,MAX_SAFE-count) then return 0 end
@@ -368,7 +379,7 @@ local function getOffer(id)
 end
 local function validOffer(o)
  return o and marketType(o.itemId) and marketType(o.itemId).subtype==o.subtype and (o.side==0 or o.side==1)
-  and (o.currency==GOLD or o.currency==ANTIGAS) and integer(o.amount,1,MAX_AMOUNT)
+  and (o.currency==GOLD or o.currency==ANTIGAS) and not ItemType(o.currency):isRetired() and integer(o.amount,1,MAX_AMOUNT)
   and integer(o.price,1,MAX_TOTAL) and o.amount*o.price<=(o.currency==ANTIGAS and 10000 or MAX_TOTAL)
 end
 local actions={}
@@ -378,6 +389,7 @@ function actions.create(ctx,data)
  local amount,price=integer(data.amount,1,MAX_AMOUNT),integer(data.price,1,MAX_TOTAL)
  local currency=integer(data.currency,1,6000)
  if not side or not permitted(item) or not amount or not price or (currency~=GOLD and currency~=ANTIGAS)
+  or ItemType(currency):isRetired()
   or data.subtype~=item.subtype or (not item.stackable and amount>1000)
   or amount*price>(currency==ANTIGAS and 10000 or MAX_TOTAL) then return ctx:fail("Invalid offer quantity, item or price.") end
  local counts=rows("SELECT COUNT(*) AS n FROM market_offers WHERE owner_guid="..ctx.player:getGuid().." AND status=1",{n="n"})
@@ -434,18 +446,22 @@ function actions.collect(ctx)
  for _,c in ipairs(claims) do
   local id=c.kind==1 and c.currency or c.itemId
   local count=c.kind==1 and c.currencyAmount or c.itemCount
-  local t=marketType(id)
-  if not integer(count,1,MAX_TOTAL) or (c.kind~=0 and c.kind~=1)
-   or (c.kind==0 and (not t or t.subtype~=c.subtype))
-   or (c.kind==1 and id~=GOLD and id~=ANTIGAS) then return ctx:fail("Invalid delivery detected. Contact support; no assets were transferred.") end
-  local n=ctx:deliver(id,c.subtype,count)
-  if n>0 then
-   local sql
-   if n==count then sql="DELETE FROM market_claims WHERE id="..c.id.." AND player_guid="..ctx.player:getGuid()
-   else sql="UPDATE market_claims SET "..(c.kind==1 and "currency_amount" or "item_count").."="..(count-n).." WHERE id="..c.id.." AND player_guid="..ctx.player:getGuid() end
-   if not changed(sql) then return false end
-   received=received+n
-   if c.kind==0 then items=items+n elseif id==GOLD then gold=gold+n else coins=coins+n end
+  -- Legacy retired deliveries are handled by the canonical data migration.
+  -- They must not prevent ordinary claims in the same batch from being paid.
+  if not ItemType(id):isRetired() then
+   local t=marketType(id)
+   if not integer(count,1,MAX_TOTAL) or (c.kind~=0 and c.kind~=1)
+    or (c.kind==0 and (not t or t.subtype~=c.subtype))
+    or (c.kind==1 and id~=GOLD and id~=ANTIGAS) then return ctx:fail("Invalid delivery detected. Contact support; no assets were transferred.") end
+   local n=ctx:deliver(id,c.subtype,count)
+   if n>0 then
+    local sql
+    if n==count then sql="DELETE FROM market_claims WHERE id="..c.id.." AND player_guid="..ctx.player:getGuid()
+    else sql="UPDATE market_claims SET "..(c.kind==1 and "currency_amount" or "item_count").."="..(count-n).." WHERE id="..c.id.." AND player_guid="..ctx.player:getGuid() end
+    if not changed(sql) then return false end
+    received=received+n
+    if c.kind==0 then items=items+n elseif id==GOLD then gold=gold+n else coins=coins+n end
+   end
   end
  end
  if received==0 then return ctx:fail("Your depot is full or your bank cannot receive more gold. Your deliveries remain reserved.") end
@@ -497,7 +513,16 @@ function onExtendedOpcode(player,opcode,buffer)
  local handled,err=pcall(function()
  if actions[request.action] then mutate(player,request,buffer)
  elseif request.action=="init" then
-  send(player,"init",{categories=CATEGORIES,version=2,goldCoin=GOLD,antigasCoin=ANTIGAS})
+  send(player,"init",{categories=CATEGORIES,version=2,goldCoin=GOLD,antigasCoin=not ItemType(ANTIGAS):isRetired() and ANTIGAS or nil,retiredPendingStatus=true})
+  sendBalances(player)
+ elseif request.action=='requestStatus' then
+  -- Reconcile a saved retired-currency request without replaying any mutation.
+  local id=request.data.requestId
+  if type(id)~='string' or #id<8 or #id>64 or not id:match('^[%w%-]+$') then return end
+  local previous=rows('SELECT response FROM market_requests WHERE player_guid='..player:getGuid()..' AND request_id='..db.escapeString(id),{response='s'})[1]
+  send(player,'message',{ok=true,requestId=id,retiredPendingStatus=true,previouslyCommitted=previous~=nil,
+   text=previous and 'Saved transaction already committed. Its original request was archived; refresh to view current offers and balances.'
+    or 'Saved transaction was not committed. Its original request was archived; new Gold trades are available.'})
   sendBalances(player)
  elseif request.action=="browse" then sendOffers(player,request.data,false)
  elseif request.action=="mine" then sendOffers(player,request.data,true)

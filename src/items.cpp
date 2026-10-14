@@ -20,6 +20,7 @@
 #include "otpch.h"
 
 #include "items.h"
+#include "retired_item_ids.h"
 #include "spells.h"
 #include "movement.h"
 #include "weapons.h"
@@ -524,11 +525,22 @@ bool Items::loadItems()
 
 	script.close();
 	items.shrink_to_fit();
+	for (uint16_t retiredId : RetiredItems::ids) {
+		if (retiredId >= items.size() || items[retiredId].id != retiredId ||
+			!items[retiredId].pickupable || !items[retiredId].moveable ||
+			items[retiredId].group == ITEM_GROUP_GROUND || items[retiredId].alwaysOnTop) {
+			std::cerr << "[Error - Items::loadItems] Invalid retired portable item ID: " << retiredId << std::endl;
+			return false;
+		}
+		items[retiredId].group = ITEM_GROUP_DEPRECATED;
+	}
 
 	for (ItemType& type : items) {
 		std::string& name = type.name;
 		extractArticleAndName(name, type.article, type.name);
-		nameToItems.insert({ asLowerCaseString(type.name), type.id });
+		if (type.group != ITEM_GROUP_DEPRECATED) {
+			nameToItems.insert({ asLowerCaseString(type.name), type.id });
+		}
 		if (!name.empty()) {
 			if (type.stackable) {
 				type.showCount = true;

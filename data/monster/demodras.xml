@@ -51,7 +51,7 @@
 		<voice sentence="I WILL PROTECT MY BROOD!" yell="1" />
 	</voices>
 	<loot>
-	    <item id="5184" countmax="1" chance="900" /> <!-- a dragon claw -->
+	     <!-- a dragon claw -->
 		<item id="2842" countmax="1" chance="90" /> <!-- a book -->
 		<item id="3583" countmax="10" chance="750" /> <!-- dragon ham -->
 		<item id="3386" countmax="1" chance="3" /> <!-- a dragon scale mail -->

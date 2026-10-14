@@ -48,7 +48,7 @@
 	<loot>
 		<item id="3587" countmax="2" chance="300" /> <!-- a banana -->
 		<item id="3587" countmax="10" chance="50" /> <!-- a banana -->
-		<item id="3348" countmax="1" chance="1" /> <!-- a banana staff -->
+		 <!-- a banana staff -->
 		<item id="3031" countmax="25" chance="800" /> <!-- a gold coin -->
 		<item id="3046" countmax="1" chance="50" /> <!-- a magic light wand -->
 		<item id="3586" countmax="5" chance="10" /> <!-- an orange -->

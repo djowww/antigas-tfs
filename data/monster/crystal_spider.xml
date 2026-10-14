@@ -58,7 +58,7 @@
 		<item id="3369" countmax="1" chance="2" /> <!-- a warrior helmet -->
 		<item id="3371" countmax="1" chance="3" /> <!-- knight legs -->
 		<item id="3357" countmax="1" chance="100" /> <!-- a plate armor -->
-		<!-- <item id="5215" countmax="1" chance="1" /> a shard -->
+		<!--  a shard -->
 		<item id="3055" countmax="1" chance="1" /> <!-- a platinum amulet -->
 		<item id="3351" countmax="1" chance="50" /> <!-- a steel helmet -->
 		<item id="3053" countmax="1" chance="7" /> <!-- a time ring -->
