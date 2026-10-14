@@ -1,0 +1,571 @@
+{
+  "schema": 1,
+  "release": 71,
+  "reference": {
+    "versionLabel": "7.4",
+    "source": "User-provided client files",
+    "officialChecksumVerified": false,
+    "datSha256": "6ad01f7a1019d2ab882e7295679c7a2e0d5cf81bb611bda7440dd6a040cdea5c",
+    "sprSha256": "7fa61fa8455e54fb59ff5990820785ea6765a5a96ca811beb55e3c03719999ac"
+  },
+  "assets": {
+    "datSha256": "94016df3bd8c6f8872bbeb2e248fa5b36653aa05b7ea451af6bf56a991d946d4",
+    "sprSha256": "522b9b2dd71157670621e7c2d9aca321d875ee8cb853d672b1b9f33ac4d2adff"
+  },
+  "restoredDefinitions": 54,
+  "preservedDefinitions": 5465,
+  "preservedSpriteIds": 26455,
+  "addedSprites": 32,
+  "currentThingIdsUnchanged": true,
+  "preservedCustomIds": [
+    3157,
+    3159,
+    3162,
+    3163,
+    3167,
+    3245,
+    3253
+  ],
+  "replacementMappings": [
+    {
+      "category": "item",
+      "currentId": 600,
+      "referenceId": 476,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 601,
+      "referenceId": 475,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 602,
+      "referenceId": 477,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 603,
+      "referenceId": 478,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 611,
+      "referenceId": 486,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 612,
+      "referenceId": 487,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 613,
+      "referenceId": 488,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2134,
+      "referenceId": 1503,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2136,
+      "referenceId": 1505,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2335,
+      "referenceId": 1635,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2337,
+      "referenceId": 1637,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2339,
+      "referenceId": 1639,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2341,
+      "referenceId": 1641,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2354,
+      "referenceId": 1646,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2355,
+      "referenceId": 1647,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2356,
+      "referenceId": 1648,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2357,
+      "referenceId": 1649,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2362,
+      "referenceId": 1654,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2363,
+      "referenceId": 1655,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2364,
+      "referenceId": 1656,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2365,
+      "referenceId": 1657,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2366,
+      "referenceId": 1658,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2367,
+      "referenceId": 1659,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2368,
+      "referenceId": 1660,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2369,
+      "referenceId": 1661,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2660,
+      "referenceId": 1873,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2661,
+      "referenceId": 1874,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2664,
+      "referenceId": 1877,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2668,
+      "referenceId": 1881,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2905,
+      "referenceId": 2035,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2974,
+      "referenceId": 2093,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2980,
+      "referenceId": 2099,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 2990,
+      "referenceId": 2109,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 3368,
+      "referenceId": 2474,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 3593,
+      "referenceId": 2682,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 3662,
+      "referenceId": 2748,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 3692,
+      "referenceId": 2778,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "item",
+      "currentId": 3693,
+      "referenceId": 2779,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 10,
+      "referenceId": 10,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 19,
+      "referenceId": 19,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 128,
+      "referenceId": 128,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 129,
+      "referenceId": 129,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 130,
+      "referenceId": 130,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 131,
+      "referenceId": 131,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 132,
+      "referenceId": 132,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 133,
+      "referenceId": 133,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 134,
+      "referenceId": 134,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 136,
+      "referenceId": 136,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 137,
+      "referenceId": 137,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 138,
+      "referenceId": 138,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 139,
+      "referenceId": 139,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 140,
+      "referenceId": 140,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 141,
+      "referenceId": 141,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    },
+    {
+      "category": "creature",
+      "currentId": 142,
+      "referenceId": 142,
+      "visualAttributes": [
+        24,
+        25,
+        27
+      ]
+    }
+  ]
+}
