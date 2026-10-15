@@ -62,4 +62,6 @@ Referências: [`loot.cpp`](../src/loot.cpp) e [`loot.lua`](../data/chatchannels/
 
 As [fórmulas de combate](combat-formulas.md) descrevem os cálculos do núcleo e seus pontos de integração. Scripts de magias e definições de monstros podem estabelecer valores específicos.
 
-Os antigos sistemas Tusker, bounty hunter, coleta customizada de frascos vazios e chance legada de crítico foram retirados. O [resumo dos sistemas removidos](retired-legacy-systems.md) explica o escopo dessas remoções.
+Os sistemas Tusker (NPCs, tarefas e comando `!tasks`), bounty hunter (`!hunt`), coleta automática customizada de frascos vazios (`!vial`) e chance legada de dano crítico foram retirados. O uso normal de frascos e os diálogos dos NPCs para comprar, usar ou vender vials permanecem disponíveis.
+
+[`src/tasks.cpp`](../src/tasks.cpp) implementa a infraestrutura interna de filas do servidor e não depende do sistema de tarefas dos NPCs.

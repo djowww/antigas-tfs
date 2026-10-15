@@ -1,5 +1,8 @@
 # Antigas 7.4
 
+[![Compilação e testes](https://github.com/djowww/antigas-tfs/actions/workflows/security-build.yml/badge.svg?branch=main)](https://github.com/djowww/antigas-tfs/actions/workflows/security-build.yml)
+[![CodeQL](https://github.com/djowww/antigas-tfs/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/djowww/antigas-tfs/actions/workflows/codeql.yml)
+
 Código-fonte do servidor Antigas: um projeto de MMORPG com a experiência clássica de Tibia 7.4 e sistemas próprios de progressão, comércio e exploração.
 
 O núcleo do Antigas 7.4 utiliza C++11 e LuaJIT, com extensões para o cliente customizado do projeto. Use a distribuição oficial do cliente para manter a compatibilidade de rede e dos módulos.

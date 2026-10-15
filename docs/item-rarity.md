@@ -2,7 +2,7 @@
 
 ## Regras
 
-Cada equipamento elegível criado pelo loot de monstros pode receber uma raridade. A quantidade de status adicionais corresponde ao tier: verde 1, azul 2, roxo 3, lendário 4 e mítico 5. Cada item recebe status distintos, sem repetição no mesmo item. A configuração `itemRarityLootChance` usa escala de 0 a 10000; o padrão 1000 representa 10% dos equipamentos elegíveis. As chances originais de cada item no loot continuam valendo.
+Cada equipamento elegível criado pelo loot de monstros pode receber uma raridade. A quantidade de status por item corresponde ao tier: incomum 1, raro 2, épico 3, lendário 4 e mítico 5. Cada item recebe status distintos, sem repetição no mesmo item. A configuração `itemRarityLootChance` usa escala de 0 a 10000; o padrão 1000 representa 10% dos equipamentos elegíveis. As chances originais de cada item no loot continuam valendo.
 
 | Raridade | Identidade visual | Peso entre os itens com raridade | Status por item |
 |---|---|---:|---:|
@@ -14,19 +14,17 @@ Cada equipamento elegível criado pelo loot de monstros pode receber uma raridad
 
 - A primeira linha preserva o status principal do tipo do equipamento: armas recebem ataque, escudos defesa, botas velocidade, joias uma skill, e torso/pernas vida, mana ou resistência.
 - Os status adicionais são sorteados sem repetição entre vida máxima, mana máxima, velocidade, resistências (físico, energia, terra, fogo e gelo) e skills (fist, club, sword, axe, distance, shielding, fishing e magic level). Eles também funcionam em outros equipamentos elegíveis.
-- Bônus de vida, mana e resistência usam o percentual do tier; velocidade adicional usa 2% por tier; skills usam +1 por tier. O bônus principal de botas mantém sua faixa anterior de 1–2%, 3–4%, 5–6%, 7–8% ou 9–10%.
+- Bônus de vida, mana e resistência usam o percentual do tier; velocidade adicional usa 2% por tier; skills usam +1 por tier. O bônus principal de botas varia entre 1–2%, 3–4%, 5–6%, 7–8% ou 9–10%, conforme o tier.
 - O total de resistência continua limitado a 100%. Refino e raridade de ataque/defesa são somados uma única vez.
-- Capacetes, mochilas, munição e outros itens empilháveis ficam fora do sorteio desta versão.
+- Capacetes, mochilas, munição e outros itens empilháveis ficam fora do sorteio.
 
 Percentuais de HP/mana usam os valores base e arredondam para cima; velocidade arredonda para o inteiro mais próximo. Bônus acompanham mudanças de nível e alterações dos máximos via Lua. Duas resistências do mesmo tipo se somam e são aplicadas ao dano restante após os efeitos nativos. Carregar armadura na mão não concede o bônus do slot de torso/pernas.
 
 ## Identificação no cliente
 
-O módulo `game_rarityvisuals` reúne as cores e o ritmo dos efeitos. Inventário e containers preservam o desenho do item, com cantos de um pixel e de uma a cinco pequenas marcas para identificar o tier também pela forma. Um pequeno raio no canto do slot acompanha a cor da raridade e varia lentamente de intensidade. O próprio sprite recebe uma variação suave de tom e luminosidade, na mesma família e fase das bordas. Itens épicos, lendários e míticos também recebem um reflexo discreto na borda superior. A borda vermelha de slots bloqueados continua indicando o bloqueio.
+O módulo `game_rarityvisuals` identifica os tiers por cores e marcas nos slots do inventário e dos containers, além de efeitos nos itens no chão. Tooltips apresentam os atributos completos. Os efeitos visuais não alteram as chances ou os atributos dos itens.
 
-No chão, a cor é aplicada com intensidade moderada e transições contínuas de 4,2 segundos. Um raio da mesma família aparece em pulsos breves junto ao primeiro item raro da pilha, com limite de seis raios simultâneos. A fase depende da posição e da instância confirmada pelo servidor, evitando que todos os itens pulsem juntos. Corpos ainda não abertos usam uma tintura mais sutil, bronze para loot comum e a família correspondente para loot raro. Essa indicação usa a cor do sprite, separada do destaque do cursor, e termina quando o servidor confirma a abertura. Ela indica um corpo ainda não aberto, não a quantidade de itens que restam nele.
-
-Esses efeitos não alteram as chances, os atributos ou o protocolo de raridade. O efeito nativo emitido uma vez na morte do monstro continua sendo enviado pelo servidor.
+Corpos ainda não abertos recebem uma indicação visual até o servidor confirmar a abertura. Essa indicação não representa a quantidade de itens restantes no corpo.
 
 ## Persistência e integração
 

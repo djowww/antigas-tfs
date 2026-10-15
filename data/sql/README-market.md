@@ -21,14 +21,14 @@ CREATE INDEX market_catalog_prices
   ON market_offers(status,item_id,currency_id,side,unit_price);
 ```
 
-The Market uses extended opcode `202` and the Gold Coin item ID `3031` plus Antigas Coin item ID `5130` from this server's `items.srv`. Listings reserve their item or full currency amount. Partial fills are supported. Cancellation and trade proceeds create claims which are collected into the character's depot with the Market's **Collect depot** button.
+The Market uses extended opcode `202` and the Gold Coin item ID `3031` plus Antigas Coin item ID `5130` from this server's `items.srv`. Listings reserve their item or full currency amount. Partial fills are supported. Cancellation and trade proceeds create claims collected with the Market's **Collect** button: Gold goes to the character's bank balance, while items and Antigas Coins go to the character's town depot.
 
-The server intentionally rejects containers, fluid containers, doors, fields, splashes, and inventory instances carrying a unique/action ID. Such objects cannot safely be recreated from only an item ID and quantity. Buy and sell offers are limited to 15 active offers per character; an order's reserved total is capped at 100,000,000 Gold or 10,000 Antigas Coins to bound coin stack creation during depot delivery.
+The server intentionally rejects containers, fluid containers, doors, fields, splashes, and inventory instances carrying a unique/action ID. Such objects cannot safely be recreated from only an item ID and quantity. Buy and sell offers are limited to 15 active offers per character; an order's reserved total is capped at 100,000,000 Gold or 10,000 Antigas Coins.
 
-## Rollout checklist
+## Integration checklist
 
 1. Apply the appropriate migration sequence above to the game database before deploying the updated Market Lua files.
 2. Deploy `data/creaturescripts/scripts/market.lua`, `data/creaturescripts/creaturescripts.xml`, and `data/creaturescripts/scripts/login.lua`.
-3. Deploy the `Cliente/modules/game_market_antigas` module. The original `game_market` files remain untouched (the stock client module speaks the native Tibia Market protocol, which this server base does not implement).
+3. Integrate the [custom Market module](../../deploy/client-current/modules/game_market_antigas/) from `deploy/client-current/modules/game_market_antigas` into a compatible client. The stock `game_market` module uses the native Tibia Market protocol, which this server base does not implement.
 4. Restart the game server and distribute the updated client.
-5. Verify listing creation, partial fills, cancellation, both currencies, offline claims, and depot collection with two test characters before enabling for players.
+5. Verify listing creation, partial fills, cancellation, both currencies, offline claims, Gold collection into the bank, and item/Antigas Coin collection into the town depot with two test characters before enabling for players.
