@@ -17,7 +17,6 @@
 	<event type="extendedopcode" name="Shop" script="shop.lua" />
 	<event type="extendedopcode" name="Market" script="market.lua" />
 	<event type="advance" name="Spell" script="spell.lua" />
-	<event type="death" name="arena" script="arena/arena.lua" />
 	
 	<event type="login" name="OfflineTraining" script="others/offlinetraining.lua" />
 	
