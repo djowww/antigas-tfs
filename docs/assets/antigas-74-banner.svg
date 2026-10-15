@@ -45,16 +45,13 @@
     <text x="660" y="157" fill="#eee5d1" font-size="70" font-weight="700" letter-spacing="9">ANTIGAS</text>
     <path d="M425 179H895" stroke="#aa9465" stroke-width="2"/>
     <path d="M630 179l30-7 30 7-30 7z" fill="#c8b37e"/>
-    <text x="660" y="220" fill="#c8b37e" font-size="26" letter-spacing="5">UM MUNDO CLÁSSICO PARA EXPLORAR</text>
-    <text x="660" y="260" fill="#b9bdba" font-size="19" letter-spacing="2">TIBIA 7.4 · AVENTURA, COMÉRCIO E DESCOBERTAS</text>
+    <text x="660" y="222" fill="#c8b37e" font-size="36" letter-spacing="2">SUA AVENTURA CLÁSSICA</text>
   </g>
 
   <g transform="translate(1010 180)" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif">
     <path d="M-75-90h150v180h-150z" fill="#202528" stroke="#a79366" stroke-width="3"/>
     <path d="M-67-82h134v164h-134z" fill="none" stroke="#596166" stroke-width="2"/>
     <path d="M-52-47H52M-52 48H52" stroke="#8a7a59" stroke-width="2"/>
-    <text y="-13" fill="#d8c795" font-size="20" letter-spacing="2">CLÁSSICO</text>
-    <text y="20" fill="#e8e4d9" font-size="32" font-weight="700">7.4</text>
-    <text y="67" fill="#9fb9c6" font-size="13" letter-spacing="2">MUNDO RETRÔ</text>
+    <text y="20" fill="#e8e4d9" font-size="42" font-weight="700">7.4</text>
   </g>
 </svg>

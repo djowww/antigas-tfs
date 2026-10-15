@@ -13,6 +13,13 @@ class PublicReadmeTests(unittest.TestCase):
         self.assertTrue(banner.is_file())
         root = ET.parse(banner).getroot()
         self.assertTrue(root.attrib.get("viewBox"))
+        svg_ns = "{http://www.w3.org/2000/svg}"
+        tagline = next(
+            (node for node in root.iter(f"{svg_ns}text") if (node.text or "").strip() == "SUA AVENTURA CLÁSSICA"),
+            None,
+        )
+        self.assertIsNotNone(tagline)
+        self.assertGreaterEqual(float(tagline.attrib["font-size"]), 32)
         self.assertRegex(
             readme,
             r"!\[([^\]]*Antigas 7\.4[^\]]*)\]\(docs/assets/antigas-74-banner\.svg\)",
