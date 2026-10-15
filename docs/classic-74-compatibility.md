@@ -18,15 +18,15 @@ O Antigas combina um recorte clássico com sistemas próprios. As alterações a
 
 Spears não quebram e cada arremesso transfere uma unidade da mão para o tile de destino, tanto no acerto quanto no erro; é necessário recuperá-las para continuar usando a mesma pilha. Essa regra não foi estendida às throwing stars: o destino anterior à mudança de 2005 ainda não foi confirmado em fonte primária.
 
-Shared experience e seu bônus continuam como escolhas customizadas do Antigas. Sua preservação não os classifica como recursos originais do 7.4. Permanecem também os sistemas próprios, incluindo Market, raridade, conquistas, Bestiary e trainers customizados.
+Shared experience e seu bônus continuam como escolhas customizadas do Antigas. Sua preservação não os classifica como recursos originais do 7.4. Permanecem também os sistemas próprios, incluindo Market, raridade, conquistas e Bestiary.
 
-As APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. Os pacotes dos trainers customizados mantêm seu funcionamento. As arenas e seu NPC de ingressos foram desativados.
+As APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. As arenas, seu NPC de ingressos e todos os trainers customizados foram desativados para acompanhar a referência do mapa selecionada.
 
 ## Referência do mapa e estado inicial
 
 A estrutura de 7.849.464 tiles segue a referência legada selecionada, incluindo terrenos, montanhas, bordas e decoração fixa. A origem dessa referência não foi autenticada como mapa original do Tibia 7.4. Nenhum item solto ou inventário antigo de casa foi importado; estados de camas ocupadas foram normalizados. Os IDs dos itens e os 861 IDs de casas foram mantidos.
 
-Foram preservados 221 templates de recompensa atuais compatíveis com os baús da referência. Seis baús cujo conteúdo usava itens já retirados permanecem como decoração sem recompensa. Registros de monstros cujo chão desapareceu com a substituição da geometria foram removidos, sem inventar novas coordenadas. A localização dos spawns restantes e dos itens de respawn não foi certificada por fontes oficiais de 7.4; candidatos soltos sem essa prova não foram importados.
+Foram preservados 221 templates de recompensa atuais compatíveis com os baús da referência. Seis baús cujo conteúdo usava itens já retirados permanecem como decoração sem recompensa. Registros de monstros sem posição válida na nova geometria foram removidos, sem inventar novas coordenadas. A localização dos spawns restantes e dos itens de respawn não foi certificada por fontes oficiais de 7.4; candidatos soltos sem essa prova não foram importados.
 
 O reset autorizado do ambiente de teste reinicia os personagens no nível 1 em Rookgaard. Contas, personagens, nomes e permissões permanecem; inventário, depot, quests, habilidades e economia dos personagens recomeçam. O servidor entrega o kit inicial no primeiro login. Preferências e presets do cliente são preservados.
 
