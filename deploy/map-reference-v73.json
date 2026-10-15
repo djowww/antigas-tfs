@@ -12,8 +12,8 @@
   "importedLooseGroundItems": 0,
   "removedOfficiallyLaterMonsterBindings": 90,
   "removedMonsterBindingsOutsideSelectedGeometry": 485,
-  "remainingMonsterBindings": 24058,
-  "preservedTrainingMonkBindings": 552,
+  "remainingMonsterBindings": 23398,
+  "preservedTrainingMonkBindings": 0,
   "remainingNpcBindings": 335,
   "removedArenaTicketNpcBindings": 1,
   "houseMovableDecorationTiles": 2447,
@@ -23,12 +23,12 @@
   "sharedExperienceChanged": false,
   "files": {
     "data/world/map.otbm": {
-      "bytes": 86076941,
-      "sha256": "374712cb6be74149f9c8030451354b04bbadf502c8caf02d5ceb8a4fcb0bdda1"
+      "bytes": 86076920,
+      "sha256": "3a4ef7b7956dd6177caf50c41cf489f6ec2d58de694c785701de4bf85cf820fc"
     },
     "data/world/spawns.xml": {
-      "bytes": 2386011,
-      "sha256": "715b0eac65e35172a801b6b28032513c202b63e5e444136ed7831cccc10fc86c"
+      "bytes": 2341471,
+      "sha256": "cce91f1bc7423eef8eb889553282172015355356b27929c5095c0b041e6b9065"
     },
     "deploy/map-reference-house-decoration.ahb": {
       "bytes": 49191,
@@ -43,5 +43,11 @@
     "Remaining spawn locations are preserved existing definitions, not individually certified by official7.4 sources",
     "Portable refresh candidates are not imported without official placement evidence",
     "Tibia7.4 artwork is preserved; the reference map is a later legacy dataset"
-  ]
+  ],
+  "removedTrainingMonkBindings": 552,
+  "removedMonsterBindingsWithoutNativeStartupPosition": 108,
+  "removedUnboundTownIds": [
+    14
+  ],
+  "remainingTowns": 11
 }

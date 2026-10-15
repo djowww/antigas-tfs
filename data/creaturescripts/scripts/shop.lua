@@ -44,16 +44,6 @@ function init()
 	scrollsCategory.addItem(25, 5131, 1, "Blessing Scroll", "Use this item to receive all regular blessings.")
 	scrollsCategory.addItem(10, 5129, 1, "Teleport Scroll", "Using it will take you to your city of origin.")
 	
-	local trainingoffline = addCategory({
-		type="item",
-		item=ItemType(5282):getId(),
-		name="Training Offline"
-	})
-	trainingoffline.addItem(50, 5285, 1, "Training Club", "ATTENTION: Place the furniture package in the position you want before using it, otherwise you will not be able to move it later.")
-	trainingoffline.addItem(50, 5287, 1, "Training Sword", "ATTENTION: Place the furniture package in the position you want before using it, otherwise you will not be able to move it later.")
-	trainingoffline.addItem(50, 5286, 1, "Training Axe", "ATTENTION: Place the furniture package in the position you want before using it, otherwise you will not be able to move it later.")
-	trainingoffline.addItem(50, 5288, 1, "Training Distance", "ATTENTION: Place the furniture package in the position you want before using it, otherwise you will not be able to move it later.")
-	trainingoffline.addItem(50, 5289, 1, "Training Magic", "ATTENTION: Place the furniture package in the position you want before using it, otherwise you will not be able to move it later.")
 	
 	local toolsCategory = addCategory({
 		type="item",
