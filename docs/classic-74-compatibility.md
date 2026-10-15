@@ -20,15 +20,17 @@ Spears não quebram e cada arremesso transfere uma unidade da mão para o tile d
 
 Shared experience e seu bônus continuam como escolhas customizadas do Antigas. Sua preservação não os classifica como recursos originais do 7.4. Permanecem também os sistemas próprios, incluindo Market, raridade, conquistas e Bestiary.
 
-As APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. As arenas, seu NPC de ingressos e todos os trainers customizados foram desativados para acompanhar a referência do mapa selecionada.
+As APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. As arenas, seu NPC de ingressos e todos os trainers customizados permanecem desativados por solicitação do administrador.
 
 ## Referência do mapa e estado inicial
 
-A estrutura de 7.849.464 tiles segue a referência legada selecionada, incluindo terrenos, montanhas, bordas e decoração fixa. A origem dessa referência não foi autenticada como mapa original do Tibia 7.4. Nenhum item solto ou inventário antigo de casa foi importado; estados de camas ocupadas foram normalizados. Os IDs dos itens e os 861 IDs de casas foram mantidos.
+A versão 74 restaura o mapa do Antigas anterior à comparação com os setores legados. Livros, textos de bibliotecas, objetos de chão e baús voltam aos registros dessa cópia. Retiram-se somente 3.010 tiles das salas e recompensas das arenas e três objetos de entrada; todos os demais bytes do mapa anterior permanecem iguais. São 9.163.095 tiles e os mesmos 861 IDs de casas, sem renumeração de itens.
 
-Foram preservados 221 templates de recompensa atuais compatíveis com os baús da referência. Seis baús cujo conteúdo usava itens já retirados permanecem como decoração sem recompensa. Registros de monstros sem posição válida na nova geometria foram removidos, sem inventar novas coordenadas. A localização dos spawns restantes e dos itens de respawn não foi certificada por fontes oficiais de 7.4; candidatos soltos sem essa prova não foram importados.
+Os 593 registros de monstros retirados apenas por incompatibilidade com a geometria importada voltam às suas posições anteriores. Os 552 trainers e os 90 registros das espécies com introdução posterior comprovada continuam retirados, assim como o NPC de ingressos das arenas. Permanecem 23.991 monstros e 335 NPCs. A restauração não autentica historicamente todas essas posições nem todos os respawns de chão como originais do Tibia 7.4.
 
-O reset autorizado do ambiente de teste reinicia os personagens no nível 1 em Rookgaard. Contas, personagens, nomes e permissões permanecem; inventário, depot, quests, habilidades e economia dos personagens recomeçam. O servidor entrega o kit inicial no primeiro login. Preferências e presets do cliente são preservados.
+As 13 definições físicas de água e pântano do servidor e do cliente voltam ao estado anterior; os pixels e IDs permanecem iguais. O mobiliário importado para as casas na versão 73 é retirado somente após comparação integral com a persistência produzida pelo serializador nativo. Objetos inesperados bloqueiam a limpeza. Não se restaura inventário antigo de jogadores ou casas.
+
+O reset autorizado na versão 73 é uma operação anterior e separada. Esta restauração não realiza outro reset: contas, personagens e todo o progresso atual são preservados. Preferências e presets do cliente também são mantidos.
 
 ## Limites para administradores
 
