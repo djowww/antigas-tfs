@@ -317,8 +317,8 @@ static void inspectWorld(const std::string& path, const std::string& houseBlobs,
     for (const auto& entry : map.houses.getHouses()) houseTiles += entry.second->getTiles().size();
     require(houseTiles == 39127, "full candidate must contain all39127 source house tiles");
     const Town* rook = map.towns.getTown(uint32_t(11));
-    require(rook && rook->getName() == "Rookgaard" && rook->getTemplePosition() == Position(32097, 32213, 7),
-        "town11 must retain the proven Rookgaard temple32097,32213,7");
+    require(rook && rook->getName() == "Rookgaard" && rook->getTemplePosition() == Position(32097, 32219, 7),
+        "town11 must retain Rookgaard temple32097,32219,7 from the saved native metadata");
     Tile* temple = map.getTile(rook->getTemplePosition());
     require(temple && temple->getGround() && !temple->hasProperty(CONST_PROP_BLOCKSOLID),
         "reset position must have an existing passable temple tile");
