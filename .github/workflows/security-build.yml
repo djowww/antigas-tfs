@@ -147,6 +147,9 @@ jobs:
       - name: Test safe translated HTML
         run: php tests/site-html-safety-tests.php
 
+      - name: Test Antigas Coin checkout without external services
+        run: php tests/coin-page-tests.php
+
       - name: Parse tracked Lua scripts and persisted data
         shell: bash
         run: |
