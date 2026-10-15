@@ -28,14 +28,17 @@ class PublicReadmeTests(unittest.TestCase):
             "docs/building.md",
             "CONTRIBUTING.md",
             "SECURITY.md",
-            "cliente completo assinado",
+            "cliente completo",
             "serviços privados",
+            "pacotes de atualização",
+            "SHA-256",
         )
         for link_or_phrase in required:
             with self.subTest(link_or_phrase=link_or_phrase):
                 self.assertIn(link_or_phrase, readme)
         self.assertRegex(readme, r"\[!\[Compilação e testes\].*security-build\.yml")
         self.assertRegex(readme, r"\[!\[CodeQL\].*codeql\.yml")
+        self.assertNotIn("cliente oficial assinado", readme)
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ O núcleo do Antigas 7.4 utiliza C++11 e LuaJIT, com extensões para o cliente c
 
 - [Conheça e jogue Antigas](https://tibia74.tech/)
 - [Crie sua conta](https://tibia74.tech/#criar-conta)
-- [Baixe o cliente oficial assinado](https://tibia74.tech/#download)
+- [Baixe o cliente oficial](https://tibia74.tech/#download)
 - [Leia o guia do jogador](https://tibia74.tech/wiki.php)
 
 Para explorar o projeto, veja a [documentação](docs/INDEX.md), o [guia de compilação](docs/building.md), [como contribuir](CONTRIBUTING.md) e a [política de segurança](SECURITY.md).
@@ -41,7 +41,7 @@ Consulte o [guia dos sistemas](docs/systems.md) para conhecer as regras e integr
 | `docs/` | Guias de compilação, sistemas e componentes complementares. |
 | `config.example.lua` | Modelo de configuração para uma instalação própria. |
 
-O servidor usa MySQL/MariaDB para persistência. Este repositório reúne o código-fonte do servidor e fontes selecionadas do cliente e do site. O cliente completo assinado e os serviços privados são distribuídos separadamente; este checkout não é um pacote autossuficiente para executar o jogo. O schema base do banco também precisa ser obtido separadamente; os SQL versionados aqui são do Market. Veja [compilação e configuração](docs/building.md) e [cliente, launcher e site](docs/client-and-web.md).
+O servidor usa MySQL/MariaDB para persistência. Este repositório reúne o código-fonte do servidor e fontes selecionadas do cliente e do site. O cliente completo e os serviços privados são distribuídos separadamente; o launcher verifica a assinatura ECDSA e o SHA-256 dos pacotes de atualização. Este checkout não é um pacote autossuficiente para executar o jogo. O schema base do banco também precisa ser obtido separadamente; os SQL versionados aqui são do Market. Veja [compilação e configuração](docs/building.md) e [cliente, launcher e site](docs/client-and-web.md).
 
 ## Compilar o servidor
 
