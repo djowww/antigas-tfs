@@ -189,6 +189,9 @@ jobs:
       - name: Run rarity, Market inventory and economy regression tests
         run: luajit tests/rarity-economy-tests.lua
 
+      - name: Run retired item provider regression tests
+        run: luajit tests/retired-provider-tests.lua
+
       - name: Run Achievements UI regression tests
         run: luajit tests/achievements-ui-tests.lua
 
