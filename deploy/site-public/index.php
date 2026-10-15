@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="news-body">
           <p class="dropcap"><?= siteT('Client v72 retires 284 extra or customized item definitions while keeping every item ID reserved.') ?></p>
           <p><?= siteT('Terrains, mountains, borders and structural map graphics remain unchanged. Classic contents from retired backpacks are preserved.') ?></p>
-          <p><?= siteT('The Shop and Market no longer offer retired items or Antigas Coins. Market trades use Gold, and account Shop points remain available.') ?></p>
+          <p><?= siteT('At the v72 release, retired items and Antigas Coins were unavailable in the Shop and Market. Antigas Coins are now available through website orders; after manual payment approval, collect them through the Market with the selected character.') ?></p>
           <p><?= siteT('Open your launcher to install client v72. Hotkey presets and saved preferences remain available.') ?></p>
         </div>
       </article>
