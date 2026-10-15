@@ -1,8 +1,1 @@
-{
-  "version": 73,
-  "name": "Antigas 7.4 v73",
-  "sha256": "c3531e8a8845929c4a5b94a3efe4e5eec11ae7c1165cc9894080ecf1c716368e",
-  "package": "Antigas-7.4-Update-v73.zip",
-  "signatureAlgorithm": "ECDSA-P256-SHA256-P1363",
-  "signature": "f5F0dcy4j2IHPjYtvWQxHGNcQrQqVuDmPJ2M19exMleUacqyJNCBL2aMwQpLrlkNyTOBff9OC/6XbdRhYqAHuQ=="
-}
+{"version":74,"name":"Antigas 7.4 v74","sha256":"6e372dc11575310e6f55f1d622ba8c87dcc47624c25e3942d0da52652f810041","package":"Antigas-7.4-Update-v74.zip","signatureAlgorithm":"ECDSA-P256-SHA256-P1363","signature":"GowWEVK2p35Pe4irMXIZUFc4UUhOzwBrOl20glWwNHaVIc5/fJh0ORWhJSzbdwJpfVoWvTXTWyk5ynQEt1diBA=="}
