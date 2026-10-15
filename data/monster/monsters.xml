@@ -179,7 +179,6 @@
 	<monster name="swamp troll" file="swamptroll.xml" />
 	<monster name="tarantula" file="tarantula.xml" />
 	<monster name="terror bird" file="terrorbird.xml" />
-	<monster name="training monk" file="training_monk.xml" />
 	<monster name="tiger" file="tiger.xml" />
 	<monster name="troll" file="troll.xml" />
 	<monster name="valkyrie" file="valkyrie.xml" />
