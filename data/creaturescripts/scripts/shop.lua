@@ -14,7 +14,7 @@ function init()
 	
 	local premiumCategory = addCategory({
 		type="item",
-		item=ItemType(5128):getId(),
+		item=ItemType(5130):getId(),
 		name="Premium Points"
 	})
    --premiumCategory.addItem(10, 3043, 100, "Crystal Coins", "Enoy Test Server!.")
