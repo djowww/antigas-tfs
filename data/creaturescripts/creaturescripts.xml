@@ -18,7 +18,6 @@
 	<event type="extendedopcode" name="Market" script="market.lua" />
 	<event type="advance" name="Spell" script="spell.lua" />
 	
-	<event type="login" name="OfflineTraining" script="others/offlinetraining.lua" />
 	
 	<event type="modalwindow" name="ModalWindowHelper" script="others/modalwindowhelper.lua" />
 	
