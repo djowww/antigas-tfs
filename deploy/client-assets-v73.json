@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "release": 73,
+  "reference": {
+    "versionLabel": "7.4",
+    "source": "User-provided client files",
+    "officialChecksumVerified": false,
+    "datSha256": "6ad01f7a1019d2ab882e7295679c7a2e0d5cf81bb611bda7440dd6a040cdea5c",
+    "sprSha256": "7fa61fa8455e54fb59ff5990820785ea6765a5a96ca811beb55e3c03719999ac"
+  },
+  "assets": {
+    "datSha256": "90dce142249c0c34c4f2d63e4f3867a21e75eb3e6487ac5765b24de163d6b063",
+    "sprSha256": "5da002417fd8e2a2fbeb0a8a0ac02010655888a361a44b4ae9bfa4631628e13f"
+  },
+  "retiredClientItemDefinitions": 284,
+  "retiredServerOnlyItemDefinitions": 62,
+  "exclusiveRetiredSpriteSlotsCleared": 389,
+  "remainingPortableItemsMatchingReference": 933,
+  "preservedDefinitions": 5235,
+  "preservedActiveSpritePixels": 24680,
+  "currentThingIdsUnchanged": true,
+  "spriteIdsUnchanged": true,
+  "terrainMountainsBordersFloorsAndFixedMapGraphicsUnchanged": true,
+  "worldFilesUnchanged": false,
+  "retirementCatalog": "data/items/retired-items.json",
+  "comparisonScope": "All client pixels, sprite geometry, item IDs and sprite IDs are unchanged from v72. Only 13 water/swamp physical DAT properties changed for the user-selected reference map. The retained 933 portable items still match the user-provided 7.4 client pixels.",
+  "previousRelease": 72,
+  "terrainPropertyDefinitionsChanged": 13,
+  "terrainPropertyIds": [
+    4809,
+    4810,
+    4811,
+    4812,
+    4813,
+    4814,
+    4874,
+    4875,
+    4876,
+    4877,
+    4878,
+    4879,
+    4880
+  ],
+  "allClientSpritePixelsUnchanged": true
+}
