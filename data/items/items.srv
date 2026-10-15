@@ -10291,11 +10291,6 @@ Name        = "a thick trunk"
 Flags       = {Destroy,Height}
 Attributes  = {DestroyTarget=3136}
 
-TypeID      = 2353
-Name        = "a rent horse"
-Description = "Use it to rent a horse for 24 hours"
-Flags       = {Height,Unmove}
-
 TypeID      = 2354
 Name        = "a throne"
 Flags       = {Unmove,Avoid,Height}

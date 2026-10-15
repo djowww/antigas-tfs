@@ -2574,7 +2574,7 @@
 		<monster name="elf scout" x="-2" y="-2" z="6" spawntime="90" />
 		<monster name="elf scout" x="0" y="0" z="6" spawntime="90" />
 	</spawn>
-	<spawn centerx="32104" centery="32190" centerz="6" radius="1">
+	<spawn centerx="32104" centery="32190" centerz="6" radius="0">
 		<npc name="oracle" x="0" y="0" z="6" spawntime="60" direction="2" />
 	</spawn>
 	<spawn centerx="32855" centery="32190" centerz="6" radius="3">
@@ -7369,9 +7369,6 @@
 	</spawn>
 	<spawn centerx="32441" centery="32235" centerz="7" radius="1">
 		<monster name="Horse" x="0" y="0" z="7" spawntime="150" />
-	</spawn>
-	<spawn centerx="32445" centery="32235" centerz="7" radius="1">
-		<monster name="Wild Horse" x="0" y="0" z="7" spawntime="150" />
 	</spawn>
 	<spawn centerx="32008" centery="32236" centerz="7" radius="1">
 		<monster name="chicken" x="0" y="0" z="7" spawntime="90" />

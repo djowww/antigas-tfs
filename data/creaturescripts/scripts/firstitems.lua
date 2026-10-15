@@ -3,8 +3,8 @@ function onLogin(player)
 		player:setStorageValue(30017, 0) -- reset storage for first items
 		
 		-- Starter equipment; avoid duplicates if saving fails during logout.
-		if player:getItemCount(2863) == 0 then
-			player:addItem(2863, 1, true, -1, CONST_SLOT_BACKPACK)
+		if player:getItemCount(2853) == 0 and player:getItemCount(2863) == 0 then
+			player:addItem(2853, 1, true, -1, CONST_SLOT_BACKPACK)
 		end
 		if player:getItemCount(3559) == 0 then
 			player:addItem(3559, 1, true, -1, CONST_SLOT_LEGS)
