@@ -18,6 +18,10 @@ def ids_for_element(element):
     return ids
 
 class RetiredProviderDefinitions(unittest.TestCase):
+    def test_antigas_coin_is_active_while_ticket_stays_retired(self):
+        self.assertNotIn(5130, RETIRED, 'Antigas Coin must be available to the Store and Market')
+        self.assertIn(5128, RETIRED, 'Antigas Ticket must remain retired')
+
     def test_retired_loot_is_not_offered_by_monster_definitions(self):
         found = []
         for file in (ROOT / 'data/monster').rglob('*.xml'):

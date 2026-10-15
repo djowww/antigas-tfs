@@ -12,9 +12,9 @@ $sections = [
     'combat-pvp' => ['Combat and PvP', 'Attack, Balanced and Defense fighting modes change your physical weapon damage and protection trade-off. Use !frags to check kill counts and !pz to check your protection-zone lock. Follow the server rules when fighting other players.'],
     'spells-runes' => ['Spells and runes', 'Use the client spell list to search by name, vocation and required level. Instant spells consume mana; runes are created by casting a rune spell while carrying the required blank rune. Check your vocation and level before hunting for a spell.'],
     'quests-bestiary' => ['Quests and Bestiary', 'The Quest Log records supported chest discoveries and NPC missions for your character. Bestiary entries advance as you defeat creatures; completing an entry at 1,000 kills grants +0.2% permanent XP. The client shows progress and completed entries.'],
-    'market-coins' => ['Market and Coins', 'The Market trades supported classic items in Gold. Review an offer before accepting and collect completed trades through the Market. Extra items and Antigas Coins are unavailable.'],
+    'market-coins' => ['Market and Coins', 'The Market supports player offers for items and coins. Review an offer before accepting, and collect completed trades through the Market. After manual payment approval, Antigas Coins bought on the website are available for the selected character to collect through the Market in their hometown depot.'],
     'client-support' => ['Client and support', 'Download the client from the home page and extract it to a folder you can write to. Antigas_gl.exe is ready to connect to this server. The Help channel is the first place to ask other players for assistance; staff commands are reserved for staff.'],
-    'faq' => ['Frequently asked questions', 'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins available? No: this item was retired from the test environment. Where can I find the full spell list? Search the client or read the Spells and runes section on this page.'],
+    'faq' => ['Frequently asked questions', 'Where do new characters start? In Rookgaard. Where do I download the client? Use the download button on the home page. Are website Coins available? Yes. Choose a package and character on the website; payment is reviewed manually, then the selected character can collect the Coins through the Market in their hometown depot. Where can I find the full spell list? Search the client or read the Spells and runes section on this page.'],
 ];
 ?>
 <!doctype html>
@@ -38,7 +38,7 @@ $sections = [
       <p class="motto"><?= siteT('Wiki Antigas') ?></p>
     </header>
     <nav class="topnav" aria-label="<?= siteT('Main navigation') ?>">
-      <a href="/"><?= siteT('Home') ?></a><a href="/wiki.php" aria-current="page"><?= siteT('Wiki Antigas') ?></a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Antigas Coins') ?></a><a href="/Antigas-7.4-Launcher-v74.zip?site=map-restored-v74-20261014"><?= siteT('Download') ?></a>
+      <a href="/"><?= siteT('Home') ?></a><a href="/wiki.php" aria-current="page"><?= siteT('Wiki Antigas') ?></a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Antigas Coins') ?></a><a href="/Antigas-7.4-Launcher-v75.zip?site=coins-restored-v75-20261015"><?= siteT('Download') ?></a>
     </nav>
     <?= siteLanguageSwitcher() ?>
   </div>
@@ -58,12 +58,12 @@ $sections = [
           <?php foreach ($sections as $id => [$title, $body]): ?><a href="#<?= e($id) ?>"><?= siteT($title) ?></a><?php endforeach; ?>
         </nav>
       </details>
-      <div class="wiki-callout"><p><?= siteT('The local guide follows the current website and client release.') ?></p><a class="button" href="/Antigas-7.4-Launcher-v74.zip?site=map-restored-v74-20261014"><?= siteT('Download Antigas 7.4 client') ?></a></div>
+      <div class="wiki-callout"><p><?= siteT('The local guide follows the current website and client release.') ?></p><a class="button" href="/Antigas-7.4-Launcher-v75.zip?site=coins-restored-v75-20261015"><?= siteT('Download Antigas 7.4 client') ?></a></div>
       <?php foreach ($sections as $id => [$title, $body]): ?>
         <section class="wiki-entry" id="<?= e($id) ?>">
           <h2><?= siteT($title) ?></h2>
           <p><?= siteT($body) ?></p>
-          <?php if ($id === 'market-coins'): ?><p><?= siteT('Antigas Coin sales are unavailable.') ?> <a href="/coins.php"><?= siteT('Antigas Coins') ?></a></p><?php endif; ?>
+          <?php if ($id === 'market-coins'): ?><p><a href="/coins.php"><?= siteT('See coin prices and create an order on the website.') ?></a></p><?php endif; ?>
         </section>
       <?php endforeach; ?>
       <footer><?= siteT('Wiki last checked: 28 September 2026') ?> · Antigas 7.4</footer>

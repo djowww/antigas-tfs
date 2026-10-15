@@ -74,7 +74,7 @@ static std::vector<uint16_t> canonicalIds()
     for (auto it = std::sregex_iterator(json.begin(), json.end(), idPattern); it != std::sregex_iterator(); ++it) {
         ids.push_back(static_cast<uint16_t>(std::stoul((*it)[1])));
     }
-    require(ids.size() == 346, "frozen retirement scope must contain 346 IDs");
+    require(ids.size() == 345, "frozen retirement scope must contain 345 IDs");
     return ids;
 }
 
@@ -89,6 +89,9 @@ static void creationTests()
         std::unique_ptr<Item> item(Item::CreateItem(id));
         require(item && item->getID() == id, "classic/map item creation must remain available");
     }
+    std::unique_ptr<Item> coin(Item::CreateItem(5130));
+    require(coin && coin->getID() == 5130, "Antigas Coin creation must remain available");
+    require(Item::CreateItem(5128) == nullptr, "retired Antigas Ticket creation must remain rejected");
 }
 
 static void transformTests(bool direct)

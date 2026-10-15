@@ -1,7 +1,7 @@
 -- CONFIG
 APP_NAME = "Antigas 7.4"
 g_app.setName("Antigas 7.4")
-APP_VERSION = 74        -- Antigas 7.4 client release
+APP_VERSION = 75        -- Antigas 7.4 client release
 SERVER_VERSION = 772
 -- Keep mount fields enabled for protocol compatibility, but hide mount UI/actions.
 MOUNTS_ENABLED = false
