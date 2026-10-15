@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "clientVersion": 74,
+  "scope": "Restore pre-comparison Antigas map; retain arena/trainer retirement and current character progression",
+  "baselineMapSha256": "47abff45182fd7b9b15b20bc95bfac52145b4d352eb31586093fb14cb94996e0",
+  "baselineTiles": 9166105,
+  "remainingTiles": 9163095,
+  "removedArenaTiles": 3010,
+  "removedArenaEntranceObjects": 3,
+  "houseIdsRetained": 861,
+  "houseTiles": 43419,
+  "remainingMonsterBindings": 23991,
+  "remainingNpcBindings": 335,
+  "restoredPreviousMonsterBindings": 593,
+  "removedTrainingMonkBindings": 552,
+  "removedOfficiallyLaterMonsterBindings": 90,
+  "baselineBookObjectsPreserved": 872,
+  "itemIdsRenumbered": false,
+  "spritePixelsChanged": false,
+  "terrainPropertyDefinitionsRestored": 13,
+  "newCharacterReset": false,
+  "sharedExperienceChanged": false,
+  "houseCleanupScope": "Only canonical imported map/seed persistence, compared byte-for-byte after saved stop; all other database tables protected",
+  "historicalCertification": false,
+  "files": {
+    "data/world/map.otbm": {
+      "bytes": 86392106,
+      "sha256": "be3f2cfd496e32bf919bce540a27c5d6822138dac96a164ddcfeb742fabc68ca"
+    },
+    "data/world/spawns.xml": {
+      "bytes": 2379441,
+      "sha256": "2f20be46ac2287065050b87655e116de38e782d45e6cf585e8fafa55819f59b8"
+    },
+    "data/items/items.srv": {
+      "bytes": 607032,
+      "sha256": "7b8258ef1e6919fdb297e20be7d75fb328aa3191de1d5615d6b70e25ec1e05e6"
+    }
+  }
+}

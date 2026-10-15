@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "release": 74,
+  "reference": {
+    "versionLabel": "7.4",
+    "source": "User-provided client files",
+    "officialChecksumVerified": false,
+    "datSha256": "6ad01f7a1019d2ab882e7295679c7a2e0d5cf81bb611bda7440dd6a040cdea5c",
+    "sprSha256": "7fa61fa8455e54fb59ff5990820785ea6765a5a96ca811beb55e3c03719999ac"
+  },
+  "assets": {
+    "datSha256": "c3eac36149051224efe93728e91e9979c0ecca2ecf4b28209433be4fe22bee14",
+    "sprSha256": "5da002417fd8e2a2fbeb0a8a0ac02010655888a361a44b4ae9bfa4631628e13f"
+  },
+  "retiredClientItemDefinitions": 284,
+  "retiredServerOnlyItemDefinitions": 62,
+  "exclusiveRetiredSpriteSlotsCleared": 389,
+  "remainingPortableItemsMatchingReference": 933,
+  "preservedDefinitions": 5235,
+  "preservedActiveSpritePixels": 24680,
+  "currentThingIdsUnchanged": true,
+  "spriteIdsUnchanged": true,
+  "terrainMountainsBordersFloorsAndFixedMapGraphicsUnchanged": true,
+  "worldFilesUnchanged": false,
+  "retirementCatalog": "data/items/retired-items.json",
+  "comparisonScope": "Exact v72 terrain DAT restored for the precomparison map. All item IDs, sprite IDs, geometry and pixels remain unchanged from v73, including the 933 retained portable items matching the user-provided 7.4 client.",
+  "previousRelease": 73,
+  "terrainPropertyBaselineRelease": 72,
+  "terrainPropertyDefinitionsRestored": 13,
+  "terrainPropertyIds": [
+    4809,
+    4810,
+    4811,
+    4812,
+    4813,
+    4814,
+    4874,
+    4875,
+    4876,
+    4877,
+    4878,
+    4879,
+    4880
+  ],
+  "allClientSpritePixelsUnchanged": true
+}

@@ -18,6 +18,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <set>
+#include <sstream>
+#include <tuple>
 
 // Same isolated globals as retired-map-tests: no services, DB connection or players.
 DatabaseTasks g_databaseTasks;
@@ -43,6 +45,7 @@ class FixtureHouseLoader : public IOMapSerialize
 {
     public:
         using IOMapSerialize::loadItem;
+        using IOMapSerialize::saveTile;
 };
 
 static void require(bool condition, const std::string& message)
@@ -119,6 +122,157 @@ static void inspectDefinitions()
     std::unique_ptr<Item> created(Item::CreateItem(5022));
     require(created && created->getID() == 5022 && created->getTeleport(),
         "real Item::CreateItem5022 must select the native Teleport class");
+}
+
+static void inspectRollbackDefinitions()
+{
+    for (uint16_t id = 4809; id <= 4814; ++id) {
+        const ItemType& type = Item::items.getItemType(id);
+        require(type.id == id && type.isGroundTile() && type.blockSolid && type.speed == 1,
+            "rollback shallow water must restore blocked ground and speed1: " + std::to_string(id));
+        require(!type.moveable && type.collisionEvent && type.fluidSource == FLUID_WATER,
+            "rollback shallow water must retain the original fixed water callbacks: " + std::to_string(id));
+    }
+    for (uint16_t id = 4874; id <= 4880; ++id) {
+        const ItemType& type = Item::items.getItemType(id);
+        require(type.id == id && type.isGroundTile() && type.blockSolid && !type.alwaysOnTop,
+            "rollback swamp must restore the original blocked Bank classification: " + std::to_string(id));
+        require(!type.moveable && type.collisionEvent,
+            "rollback swamp must retain the original fixed collision callbacks: " + std::to_string(id));
+    }
+    const ItemType& forcefield = Item::items.getItemType(5022);
+    require(forcefield.id == 5022 && !forcefield.isTeleport() && forcefield.group != ITEM_GROUP_TELEPORT,
+        "rollback5022 must restore its original generic item class");
+    require(forcefield.alwaysOnTop && forcefield.alwaysOnTopOrder == 2 && !forcefield.moveable && forcefield.blockPathFind,
+        "rollback5022 must preserve Bottom, Unmove and Avoid");
+    require(forcefield.magicEffect == CONST_ME_NONE && !Item::items.getItemType(5023).isTeleport(),
+        "rollback must preserve both forcefields' original effects and relative5023 type");
+    std::unique_ptr<Item> created(Item::CreateItem(5022));
+    require(created && created->getID() == 5022 && !created->getTeleport(),
+        "real Item::CreateItem5022 must restore the original generic Item");
+}
+
+struct WorldOptions
+{
+    std::string path, houses, spawns, profile, houseExport;
+    uint64_t expectedTiles = 0;
+    uint32_t minX = 0, minY = 0, maxX = 0, maxY = 0;
+    bool hasBounds = false;
+};
+
+static uint64_t positiveNumber(const std::string& value)
+{
+    require(!value.empty() && value.find_first_not_of("0123456789") == std::string::npos,
+        "numeric complete-world options must contain unsigned decimal digits");
+    const uint64_t result = std::stoull(value);
+    require(result > 0, "numeric complete-world options must be positive");
+    return result;
+}
+
+static WorldOptions readOptions(int argc, char** argv)
+{
+    require(argc % 2 == 1,
+        "usage: map-reference-compat-tests [--profile reference-v73|rollback-v74] [--map world.otbm [--houses templates.ahb] [--spawns spawns.xml] [--expected-tiles N --bounds minX,minY,maxX,maxY]]");
+    WorldOptions result;
+    std::set<std::string> seen;
+    for (int index = 1; index < argc; index += 2) {
+        const std::string option = argv[index], value = argv[index + 1];
+        require(seen.insert(option).second && !value.empty(), "unknown, empty or duplicate complete-world option");
+        if (option == "--profile") {
+            require(value == "reference-v73" || value == "rollback-v74", "unknown item/world compatibility profile");
+            result.profile = value;
+        } else if (option == "--map") result.path = value;
+        else if (option == "--houses") result.houses = value;
+        else if (option == "--spawns") result.spawns = value;
+        else if (option == "--export-house-state") result.houseExport = value;
+        else if (option == "--expected-tiles") result.expectedTiles = positiveNumber(value);
+        else if (option == "--bounds") {
+            std::vector<uint32_t> coordinates;
+            std::istringstream stream(value);
+            std::string field;
+            while (std::getline(stream, field, ',')) {
+                const uint64_t coordinate = positiveNumber(field);
+                require(coordinate <= 65535, "complete-world bounds must fit native uint16 coordinates");
+                coordinates.push_back(uint32_t(coordinate));
+            }
+            require(coordinates.size() == 4 && coordinates[0] <= coordinates[2] && coordinates[1] <= coordinates[3],
+                "complete-world bounds require minX,minY,maxX,maxY");
+            result.minX = coordinates[0]; result.minY = coordinates[1];
+            result.maxX = coordinates[2]; result.maxY = coordinates[3]; result.hasBounds = true;
+        } else require(false, "unknown complete-world option: " + option);
+    }
+    require(!result.path.empty() || (result.houses.empty() && result.spawns.empty() && result.houseExport.empty() && !result.expectedTiles && !result.hasBounds),
+        "complete-world options require --map");
+    return result;
+}
+
+static void exportHouseState(const FixtureMap& map, const std::string& path)
+{
+    require(!boost::filesystem::exists(path), "house-state export must use a new path");
+    std::ofstream file(path, std::ios::binary);
+    require(bool(file), "house-state export must open");
+    file.write("AHB1", 4);
+    const uint32_t placeholder = 0;
+    file.write(reinterpret_cast<const char*>(&placeholder), sizeof(placeholder));
+    std::map<uint32_t, std::vector<const HouseTile*>> houses;
+    for (const auto& entry : map.houses.getHouses()) {
+        auto& tiles = houses[entry.second->getId()];
+        for (const HouseTile* tile : entry.second->getTiles()) tiles.push_back(tile);
+        std::sort(tiles.begin(), tiles.end(), [](const HouseTile* left, const HouseTile* right) {
+            const Position& a = left->getPosition(); const Position& b = right->getPosition();
+            return std::tie(a.x, a.y, a.z) < std::tie(b.x, b.y, b.z);
+        });
+    }
+    uint32_t rows = 0;
+    uint64_t objects = 0;
+    for (const auto& house : houses) for (const HouseTile* tile : house.second) {
+        PropWriteStream stream;
+        FixtureHouseLoader::saveTile(stream, tile);
+        size_t size;
+        const char* data = stream.getStream(size);
+        if (!size) continue;
+        require(size >= 12 && size <= 1024 * 1024, "exported native house blob must be bounded");
+        const uint32_t houseId = house.first, blobSize = uint32_t(size);
+        PropStream header; header.init(data, size);
+        uint16_t x, y; uint8_t z; uint32_t count;
+        require(header.read(x) && header.read(y) && header.read(z) && header.read(count)
+            && Position(x, y, z) == tile->getPosition() && count > 0,
+            "native saveTile must write its exact tile position and object count");
+        file.write(reinterpret_cast<const char*>(&houseId), sizeof(houseId));
+        file.write(reinterpret_cast<const char*>(&blobSize), sizeof(blobSize));
+        file.write(data, size);
+        ++rows; objects += count;
+    }
+    require(rows > 0, "complete native house-state export must contain saved items");
+    file.seekp(4);
+    file.write(reinterpret_cast<const char*>(&rows), sizeof(rows));
+    file.flush();
+    require(bool(file), "native house-state export must be fully written");
+    std::cout << "HOUSE_STATE_EXPORT rows=" << rows << " objects=" << objects
+        << " houses=" << houses.size() << " format=AHB1 order=houseId,x,y,z database_calls=0\n";
+}
+
+static void inspectNativeTileSaveRoundTrip(FixtureMap& map, const Position& sourcePosition, const Position& targetPosition)
+{
+    Tile* source = map.getTile(sourcePosition); Tile* target = map.getTile(targetPosition);
+    require(source && target, "native tile-save fixture must contain both tiles");
+    PropWriteStream before;
+    FixtureHouseLoader::saveTile(before, source);
+    size_t beforeSize; const char* beforeData = before.getStream(beforeSize);
+    require(beforeSize > 9, "native saveTile fixture must persist its portable objects");
+    PropStream reader; reader.init(beforeData, beforeSize);
+    uint16_t x, y; uint8_t z; uint32_t count;
+    require(reader.read(x) && reader.read(y) && reader.read(z) && reader.read(count)
+        && Position(x, y, z) == sourcePosition && count == 21,
+        "native saveTile fixture must retain all21 portable objects");
+    for (uint32_t index = 0; index < count; ++index)
+        require(FixtureHouseLoader::loadItem(reader, target), "native tile-save bytes must reload through IOMapSerialize");
+    require(reader.size() == 0, "native tile-save round trip must consume the complete blob");
+    PropWriteStream after;
+    FixtureHouseLoader::saveTile(after, target);
+    size_t afterSize; const char* afterData = after.getStream(afterSize);
+    require(beforeSize == afterSize && std::string(beforeData + 5, beforeSize - 5) == std::string(afterData + 5, afterSize - 5),
+        "native tile-save round trip must preserve every object and serialized attribute byte");
 }
 
 template<typename T> static T readNumber(std::ifstream& file, const std::string& field)
@@ -305,28 +459,87 @@ static void inspectSpawnBindings(FixtureMap& map, const std::string& path)
         "all retained monster/NPC entries must bind to the selected map through native placement rules");
 }
 
-static void inspectWorld(const std::string& path, const std::string& houseBlobs, const std::string& spawns)
+static uint64_t countLibraryTextBooks(const Item* object, uint32_t depth = 0)
+{
+    require(object && depth <= 32, "rollback library item graph must remain within depth32");
+    const uint16_t id = object->getID();
+    // Classic book TypeIDs, independently checked against the source catalog.
+    // A readable bookcase or sign alone cannot satisfy the library regression.
+    const bool book = id == 2816 || id == 2821 || (id >= 2824 && id <= 2832);
+    uint64_t count = book && !object->getText().empty() ? 1 : 0;
+    if (const Container* container = object->getContainer()) {
+        for (const Item* child : container->getItemList())
+            count += countLibraryTextBooks(child, depth + 1);
+    }
+    return count;
+}
+
+static void inspectRollbackLibraries(const FixtureMap& map)
+{
+    struct LibraryRegion {
+        const char* label;
+        uint16_t minX, minY, maxX, maxY;
+        uint8_t z;
+    };
+    // Half-open rectangles proved by the read-only precomparison OTBM census.
+    // Every region contains nested, nonempty text books; v73 emptied them.
+    static const LibraryRegion libraries[] = {
+        {"rookgaard", 32096, 32176, 32112, 32200, 7},
+        {"wrinkled_beholder", 32764, 31672, 32804, 31708, 13},
+        {"monastery", 32160, 31920, 32192, 31952, 6},
+        {"desert", 32624, 32080, 32640, 32096, 10}
+    };
+    for (const auto& library : libraries) {
+        uint64_t books = 0;
+        for (uint32_t x = library.minX; x < library.maxX; ++x) {
+            for (uint32_t y = library.minY; y < library.maxY; ++y) {
+                const Tile* tile = map.getTile(x, y, library.z);
+                if (!tile || !tile->getItemList()) continue;
+                for (const Item* object : *tile->getItemList())
+                    books += countLibraryTextBooks(object);
+            }
+        }
+        require(books > 0, "rollback library must restore real books with nonempty text: " + std::string(library.label));
+        std::cout << "LIBRARY_RESTORED label=" << library.label << " text_books=" << books << '\n';
+    }
+}
+
+static void inspectWorld(const WorldOptions& options, bool rollback)
 {
     FixtureMap map;
     IOMap reader;
-    require(reader.loadMap(&map, path), "native IOMap must load the complete candidate: " + reader.getLastErrorString());
+    require(reader.loadMap(&map, options.path), "native IOMap must load the complete candidate: " + reader.getLastErrorString());
     require(map.loadedWidth() == 65000 && map.loadedHeight() == 65000,
         "full candidate must preserve the current source header dimensions65000");
     require(map.houses.getHouses().size() == 861, "full candidate must preserve all861 current house IDs");
     uint64_t houseTiles = 0;
     for (const auto& entry : map.houses.getHouses()) houseTiles += entry.second->getTiles().size();
-    require(houseTiles == 39127, "full candidate must contain all39127 source house tiles");
+    require(houseTiles == (rollback ? 43419 : 39127), "full candidate must preserve all proven source house tiles");
     const Town* rook = map.towns.getTown(uint32_t(11));
     require(rook && rook->getName() == "Rookgaard" && rook->getTemplePosition() == Position(32097, 32219, 7),
         "town11 must retain Rookgaard temple32097,32219,7 from the saved native metadata");
     Tile* temple = map.getTile(rook->getTemplePosition());
     require(temple && temple->getGround() && !temple->hasProperty(CONST_PROP_BLOCKSOLID),
         "reset position must have an existing passable temple tile");
-    Tile* source = map.getTile(33328, 32184, 5);
-    require(source && source->getTeleportItem() && source->getTeleportItem()->getID() == 5022
-        && source->getTeleportItem()->getDestPos() == Position(33290, 32481, 6),
-        "full candidate must load the exact proven TeleportAbsolute5022 destination33290,32481,6");
-    require(map.getTile(33290, 32481, 6) != nullptr, "full candidate must contain the teleport destination");
+    if (rollback) {
+        Tile* swamp = map.getTile(32865, 32217, 7);
+        require(swamp && swamp->getGround() && swamp->getGround()->getID() == 4877
+            && swamp->hasProperty(CONST_PROP_BLOCKSOLID),
+            "rollback must preserve the sole swamp4877 ground at32865,32217,7");
+        Tile* portal = map.getTile(33326, 32166, 5);
+        bool originalPortal = false;
+        if (portal && portal->getItemList()) for (const Item* object : *portal->getItemList())
+            if (object->getID() == 5022 && object->getMovementId() == 236 && !object->getTeleport()) originalPortal = true;
+        require(originalPortal && !portal->getTeleportItem(),
+            "rollback must preserve generic forcefield5022 and Lua MovementID236 at33326,32166,5");
+        inspectRollbackLibraries(map);
+    } else {
+        Tile* source = map.getTile(33328, 32184, 5);
+        require(source && source->getTeleportItem() && source->getTeleportItem()->getID() == 5022
+            && source->getTeleportItem()->getDestPos() == Position(33290, 32481, 6),
+            "full candidate must load the exact proven TeleportAbsolute5022 destination33290,32481,6");
+        require(map.getTile(33290, 32481, 6) != nullptr, "full candidate must contain the teleport destination");
+    }
     for (const Position arena : {Position(31922, 31435, 7), Position(31922, 31451, 7), Position(31922, 31466, 7)})
         require(map.getTile(arena) == nullptr, "retired custom arena destinations must be absent");
 
@@ -334,8 +547,11 @@ static void inspectWorld(const std::string& path, const std::string& houseBlobs,
     uint32_t maximumStack = 0;
     // Bounds and count are proved by the independent full SEC/OTBM census.
     // Leaf traversal avoids running services or allocating another world.
-    for (uint32_t x = 31872; x <= 33407; x += FLOOR_SIZE) {
-        for (uint32_t y = 31488; y <= 33023; y += FLOOR_SIZE) {
+    const uint32_t minX = rollback ? options.minX - options.minX % FLOOR_SIZE : 31872;
+    const uint32_t minY = rollback ? options.minY - options.minY % FLOOR_SIZE : 31488;
+    const uint32_t maxX = rollback ? options.maxX : 33407, maxY = rollback ? options.maxY : 33023;
+    for (uint32_t x = minX; x <= maxX; x += FLOOR_SIZE) {
+        for (uint32_t y = minY; y <= maxY; y += FLOOR_SIZE) {
             const QTreeLeafNode* leaf = map.getQTNode(x, y);
             if (!leaf) continue;
             for (uint8_t z = 0; z < MAP_MAX_LAYERS; ++z) {
@@ -354,10 +570,13 @@ static void inspectWorld(const std::string& path, const std::string& houseBlobs,
             }
         }
     }
-    require(tiles == 7849464, "native complete world must retain all7849464 source tiles");
+    const uint64_t expectedTiles = rollback ? options.expectedTiles : 7849464;
+    require(tiles == expectedTiles, "native complete world tile count must match independent census: expected "
+        + std::to_string(expectedTiles) + ", got " + std::to_string(tiles));
     uint64_t houseRestored = 0;
-    if (!houseBlobs.empty()) houseRestored = inspectHouseBlobs(map, houseBlobs);
-    if (!spawns.empty()) inspectSpawnBindings(map, spawns);
+    if (!options.houses.empty()) houseRestored = inspectHouseBlobs(map, options.houses);
+    if (!options.houseExport.empty()) exportHouseState(map, options.houseExport);
+    if (!options.spawns.empty()) inspectSpawnBindings(map, options.spawns);
     std::cout << "WORLD_NATIVE tiles=" << tiles << " ground_tiles=" << grounds << " objects_before_house_restore=" << objects
         << " maximum_stack_before_house_restore=" << maximumStack << " houses=" << map.houses.getHouses().size()
         << " house_tiles=" << houseTiles << " towns=" << map.towns.getTowns().size()
@@ -365,12 +584,67 @@ static void inspectWorld(const std::string& path, const std::string& houseBlobs,
     std::cout << "PASS: complete native world loaded without DB, NPCs, players or network services\n";
 }
 
+static void inspectRollbackFixture(boost::filesystem::path& scratch)
+{
+    std::string highStack = item(4690);
+    for (unsigned i = 1; i < 22; ++i) highStack += item(2358);
+    const std::string tiles = tile(0, 0, item(4809)) + tile(1, 0, item(4877))
+        + tile(2, 0, item(486) + item(5022, 236)) + tile(3, 0, highStack) + tile(4, 0, item(4690));
+    std::string header;
+    number(header, uint32_t(2)); number(header, uint16_t(65535)); number(header, uint16_t(65535));
+    number(header, uint32_t(3)); number(header, uint32_t(3));
+    const std::string fixture = "OTBM" + node(OTBM_ROOTV1, header,
+        node(OTBM_MAP_DATA, "", area(100, 100, 7, tiles)));
+    scratch = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("map-rollback-%%%%-%%%%.otbm");
+    {
+        std::ofstream file(scratch.string(), std::ios::binary);
+        require(bool(file), "temporary rollback fixture must open");
+        file.write(fixture.data(), fixture.size());
+        require(bool(file), "temporary rollback fixture must be fully written");
+    }
+    FixtureMap map;
+    IOMap reader;
+    require(reader.loadMap(&map, scratch.string()), "native IOMap must load the rollback fixture: " + reader.getLastErrorString());
+    require(map.loadedWidth() == 65535 && map.loadedHeight() == 65535, "rollback fixture must preserve native header dimensions");
+    Tile* water = map.getTile(100, 100, 7);
+    require(water && water->getGround() && water->getGround()->getID() == 4809 && water->hasProperty(CONST_PROP_BLOCKSOLID),
+        "native rollback must retain the original blocked shallow-water ground");
+    Tile* swamp = map.getTile(101, 100, 7);
+    require(swamp && swamp->getGround() && swamp->getGround()->getID() == 4877 && swamp->hasProperty(CONST_PROP_BLOCKSOLID),
+        "native rollback must retain a sole blocked swamp4877 ground");
+    Tile* portal = map.getTile(102, 100, 7);
+    require(portal && !portal->getTeleportItem() && portal->getItemList() && portal->getItemList()->size() == 1,
+        "native rollback must not activate the old Lua forcefield as a native teleport");
+    const Item* forcefield = portal->getItemList()->at(0);
+    require(forcefield->getID() == 5022 && forcefield->getMovementId() == 236 && !forcefield->getTeleport(),
+        "native rollback must preserve forcefield5022 Lua MovementID236");
+    const Tile* stack = map.getTile(103, 100, 7);
+    require(stack && stack->getThingCount() == 22 && stack->getItemList() && stack->getItemList()->size() == 21,
+        "rollback fixture must preserve the full22-object stack");
+    inspectNativeTileSaveRoundTrip(map, Position(103, 100, 7), Position(104, 100, 7));
+    boost::filesystem::remove(scratch);
+    scratch.clear();
+    std::cout << "PASS: native rollback definitions, blocked water, sole swamp ground, generic5022 MovementID236 and stack22\n";
+}
+
 int main(int argc, char** argv)
 {
     boost::filesystem::path scratch;
     try {
-        require(Item::items.loadItems(), "native definitions must load, including the proven TeleportAbsolute5022 flag");
-        inspectDefinitions();
+        const WorldOptions options = readOptions(argc, argv);
+        require(Item::items.loadItems(), "native item definitions must load");
+        const bool rollback = options.profile == "rollback-v74"
+            || (options.profile.empty() && Item::items.getItemType(4809).blockSolid);
+        if (rollback) inspectRollbackDefinitions();
+        else inspectDefinitions();
+        if (!options.path.empty() && rollback) {
+            require(options.expectedTiles > 0 && options.expectedTiles <= 9166105 && options.hasBounds,
+                "rollback complete-world gate requires independently proved --expected-tiles and --bounds");
+            require(options.minX == 31833 && options.minY == 31027 && options.maxX == 33588 && options.maxY == 33023,
+                "rollback bounds must match the exact precomparison map census");
+            require(options.houses.empty(), "rollback must not import reference-map house decoration");
+        } else require(!options.expectedTiles && !options.hasBounds,
+            "reference profile keeps its original complete-world count and bounds");
         lua_State* lua = luaL_newstate();
         require(lua != nullptr, "isolated Lua state must open");
         luaL_openlibs(lua);
@@ -379,17 +653,12 @@ int main(int argc, char** argv)
         const std::string luaError = luaResult == 0 ? "" : lua_tostring(lua, -1);
         lua_close(lua);
         require(luaResult == 0, "decorative/quest chest behavior: " + luaError);
-        if (argc > 1) {
-            require(argc >= 3 && argc % 2 == 1 && std::string(argv[1]) == "--map",
-                "usage: map-reference-compat-tests [--map candidate.otbm [--houses templates.ahb] [--spawns spawns.xml]]");
-            std::string houses, spawns;
-            for (int index = 3; index < argc; index += 2) {
-                const std::string option = argv[index];
-                if (option == "--houses" && houses.empty()) houses = argv[index + 1];
-                else if (option == "--spawns" && spawns.empty()) spawns = argv[index + 1];
-                else require(false, "unknown or duplicate complete-world option");
-            }
-            inspectWorld(argv[2], houses, spawns);
+        if (!options.path.empty()) {
+            inspectWorld(options, rollback);
+            return 0;
+        }
+        if (rollback) {
+            inspectRollbackFixture(scratch);
             return 0;
         }
 
@@ -412,6 +681,7 @@ int main(int argc, char** argv)
         std::string highStack = item(4690);
         for (unsigned i = 1; i < 22; ++i) highStack += item(2358);
         syntheticTiles += tile(1, 0, highStack);
+        syntheticTiles += tile(2, 0, item(4690));
 
         std::string mapData = area(100, 100, 7, syntheticTiles);
         mapData += area(33328, 32184, 5, tile(0, 0, item(486) + node(OTBM_ITEM, teleportProps)));
@@ -448,6 +718,7 @@ int main(int argc, char** argv)
         Tile* stack = map.getTile(101, 100, 7);
         require(stack && stack->getThingCount() == 22 && stack->getItemList() && stack->getItemList()->size() == 21,
             "native IOMap must preserve all22 source objects without truncating the stack");
+        inspectNativeTileSaveRoundTrip(map, Position(101, 100, 7), Position(102, 100, 7));
 
         Tile* source = map.getTile(33328, 32184, 5);
         require(source && source->getTeleportItem(), "source tile must retain a native teleporter5022");
