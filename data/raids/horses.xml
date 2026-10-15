@@ -24,7 +24,4 @@
 	<areaspawn delay="3000" lifetime="7200000" radius="4" centerx="32454" centery="32259" centerz="7">
 		<monster name="Horse1" minamount="1" maxamount="1"/>
 	</areaspawn>
-	<areaspawn delay="3000" lifetime="7200000" radius="4" centerx="32453" centery="32266" centerz="7">
-		<monster name="Horse2" minamount="1" maxamount="1"/>
-	</areaspawn>
 </raid>

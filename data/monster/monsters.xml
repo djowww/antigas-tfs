@@ -96,8 +96,6 @@
 	<monster name="hero" file="hero.xml" />
 	<monster name="horse" file="horse.xml" />
 	<monster name="horse1" file="horse(gray).xml" />
-	<monster name="horse2" file="horse(black).xml" />
-	<monster name="wild horse" file="horse(wild).xml" />
 	<monster name="the horned fox" file="hornedfox.xml" />
 	<monster name="hunter" file="hunter.xml" />
 	<monster name="hyaena" file="hyaena.xml" />
