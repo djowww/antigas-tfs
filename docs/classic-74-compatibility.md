@@ -20,23 +20,13 @@ Spears não quebram e cada arremesso transfere uma unidade da mão para o tile d
 
 Shared experience e seu bônus continuam como escolhas customizadas do Antigas. Sua preservação não os classifica como recursos originais do 7.4. Permanecem também os sistemas próprios, incluindo Market, raridade, conquistas e Bestiary.
 
-As APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. As arenas, seu NPC de ingressos e todos os trainers customizados permanecem desativados por solicitação do administrador.
+As APIs internas de banco continuam disponíveis para as integrações customizadas, mesmo com o atendimento bancário retirado dos NPCs. As arenas, seu NPC de ingressos e todos os trainers customizados permanecem desativados.
 
-## Referência do mapa e estado inicial
+## Limites de compatibilidade
 
-A versão 74 restaura o mapa do Antigas anterior à comparação com os setores legados. Livros, textos de bibliotecas, objetos de chão e baús voltam aos registros dessa cópia. Retiram-se somente 3.010 tiles das salas e recompensas das arenas e três objetos de entrada; todos os demais bytes do mapa anterior permanecem iguais. São 9.163.095 tiles e os mesmos 861 IDs de casas, sem renumeração de itens.
-
-Os 593 registros de monstros retirados apenas por incompatibilidade com a geometria importada voltam às suas posições anteriores. Os 552 trainers e os 90 registros das espécies com introdução posterior comprovada continuam retirados, assim como o NPC de ingressos das arenas. Permanecem 23.991 monstros e 335 NPCs. A restauração não autentica historicamente todas essas posições nem todos os respawns de chão como originais do Tibia 7.4.
-
-As 13 definições físicas de água e pântano do servidor e do cliente voltam ao estado anterior; os pixels e IDs permanecem iguais. O mobiliário importado para as casas na versão 73 é retirado somente após comparação integral com a persistência produzida pelo serializador nativo. Objetos inesperados bloqueiam a limpeza. Não se restaura inventário antigo de jogadores ou casas.
-
-O reset autorizado na versão 73 é uma operação anterior e separada. Esta restauração não realiza outro reset: contas, personagens e todo o progresso atual são preservados. Preferências e presets do cliente também são mantidos.
-
-## Limites para administradores
-
-- A referência de geometria selecionada é distinta de uma autenticação histórica do mapa. As correções oficiais listadas não certificam um mapa ou todos os spawns originais do Tibia 7.4.
-- O aluguel fica temporariamente desativado na configuração de referência, com `houseRentPeriod = "never"`. O anúncio do [banco no 7.9](https://www.tibia.com/news/?id=437&subtopic=newsarchive) comprova a posterioridade do débito bancário, mas não certifica a regra anterior de cobrança. Não foi criado um método substituto.
-- As missões e os requisitos da Explorer Society foram preservados. Não houve retirada de Plant Collection, outras missões de área ou mudança de storages/ranks.
+- As correções oficiais listadas não certificam a origem histórica do mapa, dos spawns ou dos objetos de chão.
+- O aluguel está desativado na configuração de referência, com `houseRentPeriod = "never"`. O anúncio do [banco no 7.9](https://www.tibia.com/news/?id=437&subtopic=newsarchive) comprova a posterioridade do débito bancário, mas não certifica a regra anterior de cobrança. Não foi criado um método substituto.
+- A Explorer Society mantém suas missões, requisitos, storages e ranks, incluindo Plant Collection e outras missões de área.
 - Throwing knife e small stone mantêm o comportamento existente porque não foi documentado um algoritmo anterior suficiente para reconstruí-lo. Fórmulas e valores não comprovados também não são apresentados como números oficiais do 7.4.
 - A compatibilidade integral do cliente e do protocolo com o 7.4 não foi certificada. Os atalhos `ADDRESS` para destinos mantidos e os IDs/preços do mobiliário direto também não receberam certificação histórica por estas fontes.
 
