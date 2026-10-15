@@ -132,6 +132,9 @@ bool Items::loadItems()
 						items[id].group = ITEM_GROUP_KEY;
 					} else if (identifier == "door") {
 						items[id].type = ITEM_TYPE_DOOR;
+					} else if (identifier == "teleportabsolute") {
+						items[id].type = ITEM_TYPE_TELEPORT;
+						items[id].group = ITEM_GROUP_TELEPORT;
 					} else if (identifier == "bed") {
 						items[id].type = ITEM_TYPE_BED;
 					} else if (identifier == "rune") {

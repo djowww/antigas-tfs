@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "clientVersion": 73,
+  "geometrySource": "Selected legacy sector reference, not authenticated as an original Tibia7.4 map",
+  "sourceTiles": 7849464,
+  "sourceHouseTiles": 39127,
+  "currentHouseIdsRetained": 861,
+  "geometrySha256": "96dc184fffa68689d006173a31909582735badd49d6b20cc12f0977c9f3bf5a5",
+  "normalizedHistoricalBedStates": 440,
+  "retainedCurrentQuestRewardTemplates": 221,
+  "retiredSourceQuestTemplatesDisabled": 6,
+  "importedLooseGroundItems": 0,
+  "removedOfficiallyLaterMonsterBindings": 90,
+  "removedMonsterBindingsOutsideSelectedGeometry": 485,
+  "remainingMonsterBindings": 24058,
+  "preservedTrainingMonkBindings": 552,
+  "remainingNpcBindings": 335,
+  "removedArenaTicketNpcBindings": 1,
+  "houseMovableDecorationTiles": 2447,
+  "houseMovableDecorationItems": 2523,
+  "itemIdsRenumbered": false,
+  "spritesChanged": false,
+  "sharedExperienceChanged": false,
+  "files": {
+    "data/world/map.otbm": {
+      "bytes": 86076941,
+      "sha256": "374712cb6be74149f9c8030451354b04bbadf502c8caf02d5ceb8a4fcb0bdda1"
+    },
+    "data/world/spawns.xml": {
+      "bytes": 2386011,
+      "sha256": "715b0eac65e35172a801b6b28032513c202b63e5e444136ed7831cccc10fc86c"
+    },
+    "deploy/map-reference-house-decoration.ahb": {
+      "bytes": 49191,
+      "sha256": "ea8b7624c34df29e4398eddb940b59bb169ac1bdd98b128b538eb2ea41cdce9f"
+    }
+  },
+  "officialRemovalSources": [
+    "https://www.tibia.com/news/?id=623&subtopic=newsarchive",
+    "https://www.tibia.com/news/?id=521&subtopic=newsarchive"
+  ],
+  "limitations": [
+    "Remaining spawn locations are preserved existing definitions, not individually certified by official7.4 sources",
+    "Portable refresh candidates are not imported without official placement evidence",
+    "Tibia7.4 artwork is preserved; the reference map is a later legacy dataset"
+  ]
+}
