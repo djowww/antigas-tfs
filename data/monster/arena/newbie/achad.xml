@@ -4,9 +4,6 @@
 	<look type="172" head="93" body="93" legs="57" feet="97" corpse="2118" />
 	<targetchange interval="1000" chance="5" />
 	<targetstrategy nearest="70" weakest="20" mostdamage="10" random="0" />
-	<script>
-        <event name="arena"/>
-	</script>
 	<flags>
 		<flag summonable="0" />
 		<flag attackable="1" />

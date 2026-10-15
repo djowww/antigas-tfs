@@ -76,6 +76,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE="$build_type" \
             -DTFS_BUILD_CLASSIC_RULES_TESTS=ON \
+            -DTFS_BUILD_MAP_REFERENCE_TESTS=ON \
             -DTFS_BUILD_RETIRED_ITEM_TESTS=ON \
             -DTFS_BUILD_VIEWPORT_TESTS=ON \
             -DTFS_BUILD_RARITY_TESTS=ON \
