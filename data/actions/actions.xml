@@ -454,7 +454,6 @@
 
 	<action itemid="5250" script="others/spider_eggs.lua" />
 
-	<action actionid="5555" script="arena/arenachest.lua" />
 
 	<!-- Offline Training -->
 	<action fromid="5280" toid="5284" script="others/offlinetraining.lua" />

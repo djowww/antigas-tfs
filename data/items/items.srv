@@ -21861,38 +21861,38 @@ Flags       = {Clip,Unmove}
 TypeID      = 4809
 Name        = "shallow water"
 Description = "You see the silvery movement of fish"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
-Attributes  = {Waypoints=1,FluidSource=WATER}
+Flags       = {Bank,CollisionEvent,Unmove}
+Attributes  = {Waypoints=170,FluidSource=WATER}
 
 TypeID      = 4810
 Name        = "shallow water"
 Description = "You see the silvery movement of fish"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
-Attributes  = {Waypoints=1,FluidSource=WATER}
+Flags       = {Bank,CollisionEvent,Unmove}
+Attributes  = {Waypoints=170,FluidSource=WATER}
 
 TypeID      = 4811
 Name        = "shallow water"
 Description = "You see the silvery movement of fish"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
-Attributes  = {Waypoints=1,FluidSource=WATER}
+Flags       = {Bank,CollisionEvent,Unmove}
+Attributes  = {Waypoints=170,FluidSource=WATER}
 
 TypeID      = 4812
 Name        = "shallow water"
 Description = "You see the silvery movement of fish"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
-Attributes  = {Waypoints=1,FluidSource=WATER}
+Flags       = {Bank,CollisionEvent,Unmove}
+Attributes  = {Waypoints=170,FluidSource=WATER}
 
 TypeID      = 4813
 Name        = "shallow water"
 Description = "You see the silvery movement of fish"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
-Attributes  = {Waypoints=1,FluidSource=WATER}
+Flags       = {Bank,CollisionEvent,Unmove}
+Attributes  = {Waypoints=170,FluidSource=WATER}
 
 TypeID      = 4814
 Name        = "shallow water"
 Description = "You see the silvery movement of fish"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
-Attributes  = {Waypoints=1,FluidSource=WATER}
+Flags       = {Bank,CollisionEvent,Unmove}
+Attributes  = {Waypoints=170,FluidSource=WATER}
 
 TypeID      = 4815
 Name        = "a mountain"
@@ -22202,31 +22202,31 @@ Flags       = {Bottom,Chest,Unpass,Unmove,Unlay}
 
 TypeID      = 4874
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4875
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4876
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4877
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4878
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4879
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4880
 Name        = "swamp"
-Flags       = {Bank,CollisionEvent,Unpass,Unmove}
+Flags       = {Clip,CollisionEvent,Unmove}
 
 TypeID      = 4881
 Name        = "a ship"
@@ -22819,7 +22819,7 @@ Attributes  = {Weight=30}
 TypeID      = 5022
 Name        = "a magic forcefield"
 Description = "You can see the other side through it"
-Flags       = {Bottom,Unmove,Avoid}
+Flags       = {Bottom,TeleportAbsolute,Unmove,Avoid}
 Attributes  = {Brightness=2,LightColor=29}
 
 TypeID      = 5023
