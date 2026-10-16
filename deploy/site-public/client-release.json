@@ -1,8 +1,8 @@
 {
   "version": 75,
   "name": "Antigas 7.4 v75",
-  "sha256": "9a32db5cdad3c235c118261fe51f61e6b330bfc383acef0c89c53a16804f3e34",
+  "sha256": "13bb51670609d8f2dcd2816c892d4c062971e6fb3cff505b1fbfee3982a9380d",
   "package": "Antigas-7.4-Update-v75.zip",
   "signatureAlgorithm": "ECDSA-P256-SHA256-P1363",
-  "signature": "JB1v2tz9R9nep5kEpRx9oslvprcmhUKRaEiu7K4CfSTJixeB4EfGMAlTx\u002BCcV5CRcJUFmHPJvtBkBcvYD8jzfA=="
+  "signature": "aIQ84RvaWojeOE1PZx2RanZaKEF6gXYlwjboQIwYiHYMa8fHwwW3lgIn\u002BmYKKIexL5l53\u002BrWn26PQ9KmTE5qCQ=="
 }
