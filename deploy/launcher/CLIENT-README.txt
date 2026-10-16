@@ -19,3 +19,8 @@ SEGURANÇA E DADOS
 CLIENTE
 - Se houver incompatibilidade com o driver gráfico, feche o launcher e abra Antigas_dx.exe ou Antigas_gl.exe.
 - Raridades, conquistas, interface e os demais recursos do cliente permanecem disponíveis.
+
+ITENS E COMPATIBILIDADE 7.4
+- 284 definições de itens extras ou personalizados foram retiradas; seus IDs permanecem reservados.
+- As propriedades de água rasa e pântanos voltaram às definições do cliente v72; IDs, pixels e demais recursos permanecem preservados.
+- As configurações pessoais, presets de hotkeys e recursos do launcher continuam preservados.
