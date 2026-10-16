@@ -91,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       </section>
       <nav class="side-news" aria-label="<?= siteT('Featured news') ?>">
         <h2><?= siteT('On the notice board') ?></h2>
+        <a href="#coins-v75"><?= siteT('Antigas Coins return in client v75') ?><time datetime="2026-10-15"><?= siteT('15 Oct 2026 · Client v75') ?></time></a>
         <a href="#client-v72"><?= siteT('Classic items only in client v72') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
         <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
         <a href="#client-v70"><?= siteT('Antigas 7.4 identity in client v70') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
@@ -126,6 +127,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <details class="classic-index news-index">
         <summary><?= siteT('News index') ?></summary>
         <nav aria-label="<?= siteT('News index') ?>">
+          <a href="#coins-v75"><?= siteT('Antigas Coins return in client v75') ?><time datetime="2026-10-15"><?= siteT('15 Oct 2026 · Client v75') ?></time></a>
           <a href="#client-v72"><?= siteT('Classic items only in client v72') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
         <a href="#client-v71"><?= siteT('Reference 7.4 sprites restored in client v71') ?><time datetime="2026-10-14"><?= siteT('14 Oct 2026') ?></time></a>
           <a href="#client-v70"><?= siteT('Antigas 7.4 identity in client v70') ?><time datetime="2026-10-13"><?= siteT('13 Oct 2026') ?></time></a>
@@ -145,6 +147,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
           <a href="#mundo"><?= siteT('The world is open for new adventures') ?><time datetime="2026-09-23"><?= siteT('23 Sep 2026') ?></time></a>
         </nav>
       </details>
+      <article id="coins-v75" class="news-article update-article">
+        <header class="news-ribbon"><h3><?= siteT('Antigas Coins return in client v75') ?></h3><time datetime="2026-10-15"><?= siteT('15 Oct 2026 · Client v75') ?></time></header>
+        <div class="news-body">
+          <p class="dropcap"><?= siteT('Client v75 restores the classic Antigas Coin item and its artwork, keeping its ID.') ?></p>
+          <p><?= siteT('Antigas Coins are back in the Store and Market for in-game trades.') ?></p>
+          <p><?= siteT('After manual payment approval, collect website Coins through the Market.') ?></p>
+          <p><?= siteT('Open your launcher to install client v75. Your characters, progress and saved preferences remain available.') ?></p>
+        </div>
+      </article>
       <article id="client-v72" class="news-article update-article">
         <header class="news-ribbon"><h3><?= siteT('Classic items only in client v72') ?></h3><time datetime="2026-10-14"><?= siteT('14 Oct 2026 · Client v72') ?></time></header>
         <div class="news-body">

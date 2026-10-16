@@ -33,6 +33,31 @@ class CoinPublicReleaseTests(unittest.TestCase):
         self.assertEqual(marker, str(RELEASE_VERSION))
         self.assertIn(f"CLIENTE v{RELEASE_VERSION}", readme)
 
+    def test_homepage_leads_with_coin_restoration_release_news(self):
+        home = (ROOT / "deploy/site-public/index.php").read_text(encoding="utf-8")
+        title = "Antigas Coins return in client v75"
+
+        self.assertIn('href="#coins-v75"', home)
+        self.assertIn('id="coins-v75"', home)
+        self.assertLess(home.index('href="#coins-v75"'), home.index('href="#client-v72"'))
+        self.assertIn(title, home)
+        self.assertIn("Client v75 restores the classic Antigas Coin item and its artwork, keeping its ID.", home)
+        self.assertIn("Antigas Coins are back in the Store and Market for in-game trades.", home)
+        self.assertIn("After manual payment approval, collect website Coins through the Market.", home)
+
+    def test_coin_restoration_release_news_is_translated(self):
+        translations = (ROOT / "deploy/site-public/i18n-extra.php").read_text(encoding="utf-8")
+        for translation in (
+            "Antigas Coins retornam no cliente v75",
+            "Las Antigas Coins vuelven en el cliente v75",
+            "Antigas Coins wracają w kliencie v75",
+            "O cliente v75 restaura o item clássico Antigas Coin e sua arte, preservando seu ID.",
+            "El cliente v75 restaura el objeto clásico Antigas Coin y su arte, conservando su ID.",
+            "Klient v75 przywraca klasyczny przedmiot Antigas Coin i jego grafikę, zachowując jego ID.",
+        ):
+            with self.subTest(translation=translation):
+                self.assertIn(translation, translations)
+
 
 if __name__ == "__main__":
     unittest.main()
