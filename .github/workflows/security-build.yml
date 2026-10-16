@@ -294,6 +294,9 @@ jobs:
       - name: Test client release packaging without signing
         run: ./tests/launcher-release-tests.ps1
 
+      - name: Check official client login endpoint
+        run: ./tests/client-official-login-tests.ps1
+
       - name: Test updater window lifecycle
         run: dotnet run --project tests/LauncherFormLifecycle/LauncherFormLifecycle.csproj --configuration Release
 

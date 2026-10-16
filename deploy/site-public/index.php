@@ -6,7 +6,7 @@ require __DIR__.'/i18n.php';
 $language=siteStartI18n();
 function e(string $v): string { return htmlspecialchars($v,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 $message='';$messageType='info';$accountName='';$email='';$characterName='';$sex='1';
-$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v75.zip?site=coins-restored-v75-20261015';
+$downloadUrl='https://tibia74.tech/Antigas-7.4-Launcher-v76.zip?site=login-fix-v76-20261016';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $accountName=trim(webField('account_name',9));
     $email=trim(webField('email',255));
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
           <p class="dropcap"><?= siteT('Client v75 restores the classic Antigas Coin item and its artwork, keeping its ID.') ?></p>
           <p><?= siteT('Antigas Coins are back in the Store and Market for in-game trades.') ?></p>
           <p><?= siteT('After manual payment approval, collect website Coins through the Market.') ?></p>
-          <p><?= siteT('Open your launcher to install client v75. Your characters, progress and saved preferences remain available.') ?></p>
+          <p><?= siteT('Open your launcher to install the latest client. Your characters, progress and saved preferences remain available.') ?></p>
         </div>
       </article>
       <article id="client-v72" class="news-article update-article">
