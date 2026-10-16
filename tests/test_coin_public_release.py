@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE_VERSION = 75
+RELEASE_VERSION = 76
 
 
 class CoinPublicReleaseTests(unittest.TestCase):
