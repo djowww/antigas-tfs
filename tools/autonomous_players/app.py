@@ -32,6 +32,14 @@ def admission_available(active,occupied,target):
     return active < target and occupied < target
 
 
+def choose_actions(agent,progression,now):
+    progression.authorization,progression.floor_authorization=None,None
+    if agent.priority(now):
+        return agent.step(now)
+    actions=progression.step(now)
+    return actions if actions or progression.busy else agent.step(now)
+
+
 def occupancy_ids(active_tasks,disconnected,rows,sql_at):
     occupied=set(active_tasks)
     online={row[0] for row in rows if row[-1]==1}
@@ -113,12 +121,13 @@ class PlayerRunner:
                         if not (w.icons & 128) or now-drain_started >= 90:
                             break
                     else:
-                        actions=progression.step(now) if w.stats.health>=w.stats.max_health*.45 else []
+                        actions=choose_actions(agent,progression,now)
                         if progression.authorization:
                             s.gate.authorize_speech(*progression.authorization)
                         s.gate.floor_token=progression.floor_authorization
-                        if not actions and (not progression.busy or w.stats.health<w.stats.max_health*.45):
-                            actions=agent.step(now)
+                        self.status.update(strategy=agent.strategy,npc_busy=progression.busy,
+                            purchase=progression.purchase.state if progression.purchase else None,
+                            food_available=next(agent.food(),None) is not None)
                         for action in actions:
                             await s.send(action)
                         reply=conversation.step(now,self.conversation_budget) if not progression.busy else None

@@ -167,5 +167,30 @@ class BehaviourTests(unittest.TestCase):
             self.assertIn((Position(101,100,7),3994),a.allowed_corpses)
 
 
+    def test_food_in_inventory_slot_is_consumed(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.inventory[5]=Thing(3600)
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertEqual(a.step(1)[0][0],0x82)
+
+
+    def test_nearby_human_hunt_is_not_competed_for(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.creatures[0x40000001]=Creature(0x40000001,'Rat',Position(101,100,7))
+            w.creatures[0x10000002]=Creature(0x10000002,'Human',Position(102,100,7))
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertTrue(all(packet[0]!=0xa1 for packet in a.step(1)))
+
+
+    def test_human_approaching_current_target_cancels_server_attack(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.creatures[0x40000001]=Creature(0x40000001,'Rat',Position(101,100,7))
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertTrue(any(packet[0]==0xa1 for packet in a.step(1)))
+            w.creatures[0x10000002]=Creature(0x10000002,'Human',Position(102,100,7))
+            self.assertTrue(a.priority(2))
+            self.assertEqual(a.step(2),[b'\xbe'])
+
+
 if __name__ == '__main__':
     unittest.main()

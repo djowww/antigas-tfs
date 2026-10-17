@@ -23,6 +23,41 @@ class Agent:
         self.pending_loot = None
         self.attack_evidence = None
 
+    def food(self):
+        for slot,item in self.world.inventory.items():
+            if self.items[item.id].attributes.get('nutrition',0)>0:
+                yield Position(65535,slot,0),item.id,0
+        for cid,container in self.world.containers.items():
+            for slot,item in enumerate(container.items):
+                if self.items[item.id].attributes.get('nutrition',0)>0:
+                    yield Position(65535,64+cid,slot),item.id,slot
+
+    def prey(self):
+        w=self.world
+        humans=[c for c in w.creatures.values() if c.kind=='player' and c.id!=w.self_id and
+                c.name not in self.own_names and c.position]
+        return [c for c in w.creatures.values() if c.kind=='monster' and c.position and c.health>0 and
+                c.position.distance(w.position)<=7 and
+                c.name.lower() in ('rat','cave rat','rabbit','deer','sheep','pig','chicken') and
+                not any(h.position.distance(c.position)<=3 for h in humans)]
+
+    def priority(self,now):
+        w=self.world
+        if not w.valid or not w.position or not w.stats.level:
+            return False
+        return (w.stats.health<w.stats.max_health*.45 or
+                self.withdraw_target() or
+                (3 in w.inventory and 0 not in w.containers) or
+                (now>=self.next_food and next(self.food(),None) is not None) or
+                any(expiry>now and location.distance(w.position)<=7
+                    for (location,_),expiry in self.allowed_corpses.items()) or
+                any(c.position.distance(w.position)<=3 for c in self.prey()))
+
+    def withdraw_target(self):
+        current=self.world.creatures.get(self.target)
+        return bool(current and current.position and current.health>0 and
+                    all(c.id!=self.target for c in self.prey()))
+
     def observe(self, events, now):
         w = self.world
         target = w.creatures.get(self.target)
@@ -62,13 +97,15 @@ class Agent:
         health = w.stats.health / max(1,w.stats.max_health)
         monsters = [c for c in w.creatures.values() if c.kind == 'monster' and c.position and c.health > 0 and c.position.distance(p) <= 7]
         # Only weak known Rook prey; stronger targets require explicit progression rules.
-        prey = [c for c in monsters if c.name.lower() in ('rat','cave rat','rabbit','deer','sheep','pig','chicken')]
+        prey = self.prey()
+        if self.withdraw_target():
+            self.target=0
+            return [b'\xbe']
         if now >= self.next_food:
-            for cid,c in w.containers.items():
-                for slot,item in enumerate(c.items):
-                    if self.items[item.id].attributes.get('nutrition',0) > 0:
-                        self.next_food = now+90
-                        return [use_item(Position(65535,64+cid,slot),item.id,slot)]
+            food=next(self.food(),None)
+            if food:
+                self.next_food = now+90
+                return [use_item(*food)]
         if health < .45:
             self.strategy = 'retreat'
             if self.target:
@@ -103,7 +140,7 @@ class Agent:
                             self.loot_retry = now+5
                             return [use_item(location,item_id,stack,1)]
         state = f'l{min(w.stats.level,30)//3}:h{int(health*3)}:m{min(len(prey),3)}'
-        reactive = any(p.distance(c.position) <= 2 or c.id == self.target for c in prey)
+        reactive = any(p.distance(c.position) <= 3 or c.id == self.target for c in prey)
         allowed = ['hunt'] if reactive else ['explore'] + (['hunt'] if prey else [])
         if now >= self.next_strategy or self.strategy not in allowed:
             if self.transition:

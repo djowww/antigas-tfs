@@ -51,3 +51,13 @@ class ProgressionTests(unittest.TestCase):
         self.assertEqual(p.floor_authorization,(b,1947))
         w.tiles[b]=[Thing(410),Thing(2130)]
         self.assertEqual(p.step(2),[])
+
+    def test_supply_trip_expires_without_position_progress(self):
+        from unittest.mock import patch
+        w=World(position=Position(32097,32219,7),stats=Stats(150,150,400,0,1));w.inventory[10]=Thing(3031,7)
+        p=Progression(dict(character='Sim One',city='thais',vocation='knight'),w,ITEMS)
+        with patch.object(p,'_toward',return_value=[b'\x66']):
+            self.assertEqual(p.step(1),[b'\x66'])
+            self.assertEqual(p.step(25),[])
+            self.assertEqual(p.step(30),[])
+        self.assertGreaterEqual(p.next_purchase,115)

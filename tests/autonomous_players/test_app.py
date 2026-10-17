@@ -32,3 +32,12 @@ class AppTests(unittest.TestCase):
         self.assertEqual(occupancy_ids(set(),{1:101},[[1,0]],100),{1})
         self.assertEqual(occupancy_ids(set(),{1:101},[[1,0]],102),set())
         self.assertEqual(occupancy_ids({2},{1:101},[[1,1],[2,1]],102),{1,2})
+
+    def test_combat_priority_does_not_advance_npc_dialogue(self):
+        from tools.autonomous_players.app import choose_actions
+        class Agent:
+            def priority(self,now):return True
+            def step(self,now):return [b'\xa1']
+        class Progression:
+            def step(self,now):raise AssertionError('urgent combat must precede NPC state transition')
+        self.assertEqual(choose_actions(Agent(),Progression(),1),[b'\xa1'])

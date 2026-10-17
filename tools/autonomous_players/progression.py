@@ -15,6 +15,7 @@ class Progression:
         self.last_speech,self.dialogue_started,self.next_purchase = -10,0,0
         self.purchase = None
         self.halted = False
+        self.travel_started,self.travel_position,self.travel_progress=None,None,None
 
     @property
     def busy(self):
@@ -129,9 +130,11 @@ class Progression:
         elif gold>=50 and not any(i.id==3003 for i in possessions):
             target=('Dixi','rope',50,Position(32105,32208,6))
         if not target:
+            self.travel_started=None
             return []
         name,item,price,goal=target
         if self._npc(name):
+            self.travel_started=None
             if self.purchase is None:
                 self.purchase=Purchase(name,item,price)
                 response=self.purchase.start(gold)
@@ -140,5 +143,13 @@ class Progression:
             if self.purchase.state=='confirmed' or now-self.dialogue_started>30:
                 self.purchase=None
                 self.next_purchase=now+90
+            return []
+        if self.travel_started is None:
+            self.travel_started,self.travel_position,self.travel_progress=now,w.position,now
+        elif w.position!=self.travel_position:
+            self.travel_position,self.travel_progress=w.position,now
+        if now-self.travel_started>=120 or now-self.travel_progress>=20:
+            self.next_purchase=now+90
+            self.travel_started=None
             return []
         return self._toward(goal)
