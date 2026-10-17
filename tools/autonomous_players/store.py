@@ -8,8 +8,9 @@ VERSION = 1
 
 
 class Store:
-    def __init__(self, path):
+    def __init__(self, path, max_agents=24, max_states=4096):
         self.path = Path(path)
+        self.max_agents,self.max_states = max_agents,max_states
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(self.path)
         version = self.db.execute('PRAGMA user_version').fetchone()[0]
@@ -28,6 +29,17 @@ class Store:
                 id INTEGER PRIMARY KEY, at REAL NOT NULL, agent TEXT, kind TEXT, payload TEXT);
             PRAGMA user_version=1;
         ''')
+        # Main DB <=128 MiB; WAL checkpoints prevent an unbounded sidecar.
+        self.db.execute('PRAGMA max_page_count=32768')
+        self.db.execute('PRAGMA wal_autocheckpoint=64')
+        self.db.execute('PRAGMA journal_size_limit=1048576')
+
+    def _agent(self, agent):
+        if not isinstance(agent,str) or not 1 <= len(agent) <= 64:
+            raise ValueError('invalid agent key')
+        agents = {row[0] for row in self.db.execute('SELECT agent FROM checkpoints UNION SELECT agent FROM qvalues')}
+        if agent not in agents and len(agents) >= self.max_agents:
+            raise ValueError('agent budget exhausted')
 
     def __enter__(self):
         return self
@@ -36,6 +48,7 @@ class Store:
         self.db.close()
 
     def checkpoint(self, agent, state):
+        self._agent(agent)
         payload = json.dumps(state, allow_nan=False, separators=(',', ':'))
         if len(payload.encode()) > 1048576:
             raise ValueError('checkpoint too large')
@@ -54,6 +67,13 @@ class Store:
         return dict(self.db.execute('SELECT action,value FROM qvalues WHERE agent=? AND state=?', (agent, state)))
 
     def set_value(self, agent, state, action, value):
+        self._agent(agent)
+        if not isinstance(state,str) or not 1 <= len(state) <= 256 or not isinstance(action,str) or not 1 <= len(action) <= 32:
+            raise ValueError('invalid policy key')
+        count = self.db.execute('SELECT count(*) FROM qvalues WHERE agent=?',(agent,)).fetchone()[0]
+        exists = self.db.execute('SELECT 1 FROM qvalues WHERE agent=? AND state=? AND action=?',(agent,state,action)).fetchone()
+        if not exists and count >= self.max_states:
+            raise ValueError('policy state budget exhausted')
         if not math.isfinite(value):
             raise ValueError('nonfinite learned value')
         with self.db:
@@ -62,6 +82,8 @@ class Store:
                 (agent, state, action, value))
 
     def event(self, at, agent, kind, payload):
+        if agent != '_supervisor':
+            self._agent(agent)
         encoded = json.dumps(payload, allow_nan=False, separators=(',', ':'))
         if len(encoded.encode()) > 8192:
             raise ValueError('event too large')

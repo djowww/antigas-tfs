@@ -29,12 +29,41 @@ class Decision:
 
 
 class Supervisor:
-    TIERS = (0, 1, 5, 10, 25, 50)
+    TIERS = (0, 1, 5, 10, 20)
+
+    @classmethod
+    def from_preflight(cls,samples,current):
+        """First installation only: a complete recent independent baseline.
+
+        The <=120s handoff is checked with a new current healthy observation.
+        This never restores existing state or clears a suspension/restart latch.
+        All subsequent tier/recovery coverage still requires <=15s sample gaps.
+        """
+        if len(samples)<61 or not 0<=current.now-samples[-1].now<=120:
+            raise ValueError('preflight coverage missing or stale')
+        guard=cls()
+        for sample in samples:
+            decision=guard.observe(sample)
+            if decision.suspended or sample.memory_mib<768 or sample.cpu_percent>85:
+                raise ValueError('preflight not continuously healthy')
+        check=cls()
+        decision=check.observe(current)
+        if (decision.suspended or current.memory_mib<768 or current.cpu_percent>85 or
+            current.latency_ms>250 or current.server_pid!=guard.state['pid'] or guard.state['target']!=1):
+            raise ValueError('current preflight handoff unhealthy')
+        guard.state.update(last=current.now,tier_at=current.now,healthy_at=current.now,
+                           reason='recent independent preflight verified')
+        return guard
 
     def __init__(self, state=None):
         self.state = dict(state) if state else dict(target=0, suspended=False, reason='baseline',
             started=None, tier_at=None, healthy_at=None, pid=None, last=None,
             violations={}, recoveries=[], baseline=[])
+        if state:
+            required = {'target','suspended','started','tier_at','healthy_at','pid','last','violations','recoveries','baseline','reason'}
+            if not required.issubset(state) or state['target'] not in self.TIERS:
+                raise ValueError('invalid supervisor checkpoint')
+            self.state.update(target=0,suspended=True,healthy_at=None,reason='controller restart verification')
 
     def snapshot(self):
         import copy
@@ -49,8 +78,15 @@ class Supervisor:
         if any(not math.isfinite(v) for v in values.values() if isinstance(v, (int, float))):
             self._suspend('invalid metrics')
             return Decision(s['target'], s['suspended'], s['reason'])
+        if (not 0 <= sample.cpu_percent <= 100 or sample.sql_age_seconds < 0 or
+            sample.dispatcher_queued < 0 or sample.now < 0 or sample.measured_at < 0 or
+            not isinstance(sample.server_pid,int)):
+            self._suspend('invalid metrics')
+            return Decision(0,True,s['reason'])
         if s['last'] is not None and t < s['last']:
             self._suspend('clock regression')
+        if s['last'] is not None and t-s['last'] > 15:
+            self._suspend('observation gap')
         s['last'] = t
         if s['started'] is None:
             s.update(started=t, tier_at=t, pid=sample.server_pid)
@@ -92,6 +128,10 @@ class Supervisor:
                 s['violations'].pop(name, None)
         healthy = (sample.memory_mib >= 768 and sample.cpu_percent <= 85 and
                    sample.latency_ms <= max(250, 3*p95) and sample.dispatcher_queued <= 200)
+        if not healthy:
+            s['healthy_at'] = None
+        elif s['healthy_at'] is None:
+            s['healthy_at'] = t
         s['recoveries'] = [r for r in s['recoveries'] if t-r < 3600]
         if s['suspended']:
             if healthy:
@@ -103,8 +143,8 @@ class Supervisor:
             else:
                 s['healthy_at'] = None
         elif healthy:
-            wait = 300 if s['target'] == 0 else (1200 if s['target'] == 25 else 600)
-            if t-s['tier_at'] >= wait and (s['target'] == 0 or functional):
+            wait = 300 if s['target'] == 0 else 600
+            if t-max(s['tier_at'],s['healthy_at']) >= wait and (s['target'] == 0 or functional):
                 index = self.TIERS.index(s['target'])
                 s.update(target=self.TIERS[min(index+1, len(self.TIERS)-1)], tier_at=t, reason='healthy tier')
         return Decision(s['target'], s['suspended'], s['reason'])

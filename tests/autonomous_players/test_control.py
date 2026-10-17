@@ -38,6 +38,21 @@ class LearningTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 store.restore('x')
 
+    def test_store_budgets_keys_and_agents(self):
+        with tempfile.TemporaryDirectory() as directory, Store(Path(directory)/'s.db',max_agents=2,max_states=3) as store:
+            store.set_value('a','s1','hunt',1)
+            store.set_value('a','s2','hunt',2)
+            store.set_value('a','s3','hunt',3)
+            with self.assertRaises(ValueError):
+                store.set_value('a','s4','hunt',4)
+            with self.assertRaises(ValueError):
+                store.set_value('a','x'*257,'hunt',4)
+            store.checkpoint('a',{'level':1})
+            store.checkpoint('b',{'level':1})
+            with self.assertRaises(ValueError):
+                store.checkpoint('c',{'level':1})
+            self.assertEqual(store.restore('a'),{'level':1})
+
 
 def sample(now, **kwargs):
     return HealthSample(now=now, measured_at=now, memory_mib=1024, cpu_percent=20,
@@ -45,24 +60,50 @@ def sample(now, **kwargs):
 
 
 class SupervisorTests(unittest.TestCase):
+    def test_recent_complete_preflight_can_start_one_but_sparse_or_old_cannot(self):
+        samples=[sample(t) for t in range(0,301,5)]
+        guard=Supervisor.from_preflight(samples,sample(334))
+        self.assertEqual(guard.state['target'],1)
+        with self.assertRaises(ValueError):
+            Supervisor.from_preflight([sample(0),sample(300)],sample(334))
+        with self.assertRaises(ValueError):
+            Supervisor.from_preflight(samples,sample(500))
+
+    def advance(self, guard, start, end, functional=False):
+        result = None
+        for t in range(start, end+1, 5):
+            result = guard.observe(sample(t),functional=functional)
+        return result
+
     def test_baseline_ramp_and_no_unmeasured_admission(self):
         guard = Supervisor()
         self.assertEqual(guard.observe(sample(0)).target, 0)
-        self.assertEqual(guard.observe(sample(299)).target, 0)
-        self.assertEqual(guard.observe(sample(300)).target, 1)
-        self.assertEqual(guard.observe(sample(900), functional=True).target, 5)
-        self.assertEqual(guard.observe(sample(1500), functional=False).target, 5)
-        self.assertEqual(guard.observe(sample(1501), functional=True).target, 10)
-        self.assertEqual(guard.observe(sample(2101), functional=True).target, 25)
-        self.assertEqual(guard.observe(sample(2701), functional=True).target, 25)
-        self.assertEqual(guard.observe(sample(3301), functional=True).target, 50)
+        self.assertEqual(self.advance(guard,5,295).target,0)
+        self.assertEqual(guard.observe(sample(300)).target,1)
+        self.assertEqual(self.advance(guard,305,900,True).target,5)
+        self.assertEqual(self.advance(guard,905,1500).target,5)
+        self.assertEqual(guard.observe(sample(1505),functional=True).target,10)
+        self.assertEqual(self.advance(guard,1510,2105,True).target,20)
+        self.assertEqual(self.advance(guard,2110,3305,True).target,20)
+
+    def test_sparse_observations_never_establish_health(self):
+        guard = Supervisor()
+        guard.observe(sample(0))
+        self.assertEqual(guard.observe(sample(300)).target,0)
+        restored = Supervisor(guard.snapshot())
+        self.assertEqual(restored.observe(sample(2000),functional=True).target,0)
+
+    def test_negative_metrics_rejected(self):
+        for key,value in [('cpu_percent',-1),('cpu_percent',101),('sql_age_seconds',-1),('dispatcher_queued',-1)]:
+            params = dict(now=0,measured_at=0,memory_mib=1024,cpu_percent=20,latency_ms=50,server_pid=123)
+            params[key] = value
+            self.assertTrue(Supervisor().observe(HealthSample(**params)).suspended)
 
     def test_stale_critical_restart_and_persisted_latch(self):
         for changes in ({'memory_mib': 383}, {'measured_at': -121}, {'sql_age_seconds': 2.01},
                         {'oom': True}, {'latency_ms': 1001}, {'server_pid': 124}, {'counter_anomaly': True}):
             guard = Supervisor()
-            guard.observe(sample(0))
-            guard.observe(sample(300))
+            self.advance(guard,0,300)
             params = dict(now=301, measured_at=301, memory_mib=1024, cpu_percent=20,
                           latency_ms=50, server_pid=123)
             params.update(changes)
@@ -75,25 +116,27 @@ class SupervisorTests(unittest.TestCase):
     def test_memory_and_cpu_duration_and_admission_boundary(self):
         for metric, value, seconds in [('memory_mib', 511, 30), ('cpu_percent', 86, 60)]:
             guard = Supervisor()
-            guard.observe(sample(0))
-            guard.observe(sample(300))
+            self.advance(guard,0,300)
             params = dict(now=301, measured_at=301, memory_mib=1024, cpu_percent=20,
                           latency_ms=50, server_pid=123)
             params[metric] = value
             self.assertEqual(guard.observe(HealthSample(**params)).target, 1)
-            params.update(now=301+seconds, measured_at=301+seconds)
-            self.assertEqual(guard.observe(HealthSample(**params)).target, 0)
+            for t in range(306,302+seconds,5):
+                params.update(now=t,measured_at=t)
+                result = guard.observe(HealthSample(**params))
+            self.assertEqual(result.target,0)
         guard = Supervisor()
-        guard.observe(sample(0))
+        self.advance(guard,0,295)
         self.assertEqual(guard.observe(HealthSample(300, 300, 767, 20, 50, 123)).target, 0)
-        self.assertEqual(guard.observe(HealthSample(301, 301, 768, 20, 50, 123)).target, 1)
+        self.assertEqual(guard.observe(HealthSample(301, 301, 768, 20, 50, 123)).target, 0)
+        self.assertEqual(self.advance(guard,306,601).target,1)
 
     def test_recovery_requires_continuous_health(self):
         guard = Supervisor()
         guard.observe(sample(0))
         guard.observe(HealthSample(1, 1, 300, 20, 50, 123))
         self.assertEqual(guard.observe(sample(2)).target, 0)
-        self.assertEqual(guard.observe(sample(301)).target, 0)
+        self.assertEqual(self.advance(guard,7,297).target, 0)
         self.assertEqual(guard.observe(sample(302)).target, 1)
 
 
