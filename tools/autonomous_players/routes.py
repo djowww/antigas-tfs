@@ -8,6 +8,7 @@ import json
 import re
 import struct
 from itertools import count
+from collections import OrderedDict
 from pathlib import Path
 from .world import Position
 
@@ -17,6 +18,7 @@ class RouteGraph:
         if len(tiles) > 150000:
             raise ValueError('regional graph too large')
         self.tiles = tiles
+        self.cache=OrderedDict()
 
     @classmethod
     def load(cls,path):
@@ -46,14 +48,23 @@ class RouteGraph:
     def next_step(self,start,goal,max_nodes=40000):
         if start not in self.tiles or goal not in self.tiles or start == goal:
             return None
+        key=(start,goal)
+        if key in self.cache:
+            self.cache.move_to_end(key)
+            return self.cache[key]
         serial = count()
         queue,costs,parent = [(0,next(serial),start)],{start:0},{}
         while queue and len(costs) <= max_nodes:
             _,_,p = heapq.heappop(queue)
             if p == goal:
-                while parent[p][0] != start:
-                    p = parent[p][0]
-                return parent[p][1]
+                while p!=start:
+                    previous,step=parent[p]
+                    self.cache[(previous,goal)]=step
+                    p=previous
+                result=self.cache[key]
+                while len(self.cache)>8192:
+                    self.cache.popitem(last=False)
+                return result
             for dx,dy in ((0,1),(1,0),(0,-1),(-1,0)):
                 step = p.shift(dx,dy)
                 if step not in self.tiles:

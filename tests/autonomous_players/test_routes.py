@@ -43,3 +43,11 @@ class RouteTests(unittest.TestCase):
             self.assertIn(Position(503,250,7),graph.tiles)
             self.assertNotIn(Position(251,250,7),graph.tiles)
             self.assertNotIn(Position(252,250,7),graph.tiles)
+
+    def test_following_cached_route_does_not_search_graph_again(self):
+        from unittest.mock import patch
+        a,b,c=Position(10,10,7),Position(11,10,7),Position(12,10,7)
+        g=RouteGraph({a:None,b:None,c:None})
+        self.assertEqual(g.next_step(a,c),b)
+        with patch('tools.autonomous_players.routes.heapq.heappop',side_effect=AssertionError('duplicate graph search')):
+            self.assertEqual(g.next_step(b,c),c)

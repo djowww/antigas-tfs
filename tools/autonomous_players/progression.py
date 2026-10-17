@@ -7,7 +7,7 @@ from .navigation import find_path,walk_packet,walkable
 
 class Progression:
     def __init__(self,profile,world,items,routes=None,oracle_position=Position(32104,32190,6),
-                 rook_bounds=(32000,32000,32200,32350)):
+                 rook_bounds=(32000,32000,32200,32350),hunting_points=()):
         self.profile,self.world,self.items,self.routes = profile,world,items,routes
         self.oracle_position,self.rook_bounds = oracle_position,rook_bounds
         self.oracle = Oracle(profile['character'],profile['city'],profile['vocation'])
@@ -16,6 +16,26 @@ class Progression:
         self.purchase = None
         self.halted = False
         self.travel_started,self.travel_position,self.travel_progress=None,None,None
+        if len(hunting_points)>64:
+            raise ValueError('hunting route budget exceeded')
+        self.hunting_points=tuple(Position(*p) for p in hunting_points)
+        self.hunting_index=profile.get('account',0)%len(self.hunting_points) if self.hunting_points else 0
+        self.hunting_started,self.hunting_position,self.hunting_progress=None,None,None
+
+    def _patrol(self,now):
+        if not self.routes or not self.hunting_points:
+            return []
+        p=self.world.position
+        goal=self.hunting_points[self.hunting_index]
+        if self.hunting_started is None:
+            self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
+        elif p!=self.hunting_position:
+            self.hunting_position,self.hunting_progress=p,now
+        if p.distance(goal)<=1 or now-self.hunting_started>180 or now-self.hunting_progress>20:
+            self.hunting_index=(self.hunting_index+1)%len(self.hunting_points)
+            self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
+            goal=self.hunting_points[self.hunting_index]
+        return self._toward(goal)
 
     @property
     def busy(self):
@@ -116,7 +136,7 @@ class Progression:
             goal=self.oracle_position.shift(y=1)
             return self._toward(goal)
         if now<self.next_purchase:
-            return []
+            return self._patrol(now)
         if now-self.last_speech<2:
             return []
         possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
@@ -131,7 +151,7 @@ class Progression:
             target=('Dixi','rope',50,Position(32105,32208,6))
         if not target:
             self.travel_started=None
-            return []
+            return self._patrol(now)
         name,item,price,goal=target
         if self._npc(name):
             self.travel_started=None
@@ -151,5 +171,5 @@ class Progression:
         if now-self.travel_started>=120 or now-self.travel_progress>=20:
             self.next_purchase=now+90
             self.travel_started=None
-            return []
+            return self._patrol(now)
         return self._toward(goal)

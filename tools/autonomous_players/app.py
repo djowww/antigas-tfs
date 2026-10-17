@@ -86,7 +86,8 @@ class PlayerRunner:
                 from .world import Position
                 progression=Progression(p,s.world,self.items,self.routes,
                     Position(*self.config.get('oracle_position',[32104,32190,6])),
-                    tuple(self.config.get('rook_bounds',[32000,32000,32200,32350])))
+                    tuple(self.config.get('rook_bounds',[32000,32000,32200,32350])),
+                    self.config.get('hunting_points',[]))
                 initial_exp,last_social,last_ping,last_saved = None,0,0,0
                 async def observed(events):
                     agent.observe(events,time.monotonic())

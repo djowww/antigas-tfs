@@ -61,3 +61,12 @@ class ProgressionTests(unittest.TestCase):
             self.assertEqual(p.step(25),[])
             self.assertEqual(p.step(30),[])
         self.assertGreaterEqual(p.next_purchase,115)
+
+    def test_individual_hunting_route_rotates_and_still_validates_steps(self):
+        a,b,c=Position(100,100,7),Position(101,100,7),Position(102,100,7)
+        w=World(position=a,stats=Stats(150,150,400,0,1));w.tiles[b]=[Thing(102)]
+        profile=dict(account=10,character='Sim One',city='thais',vocation='knight')
+        p=Progression(profile,w,ITEMS,RouteGraph({a:None,b:None,c:None}),rook_bounds=(99,99,105,105),hunting_points=[(102,100,7)])
+        self.assertEqual(p.step(1),[b'\x66'])
+        w.tiles[b]=[Thing(102),Thing(0,creature_id=0x10000002)]
+        self.assertEqual(p.step(2),[])
