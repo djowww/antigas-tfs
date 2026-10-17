@@ -52,6 +52,8 @@ def main():
         while True:
             started = time.monotonic()
             result = collect_once(collector)
+            if result.get('error'):
+                print(json.dumps(result),flush=True)
             atomic_json(config['health_file'],result)
             time.sleep(max(.1,5-(time.monotonic()-started)))
     elif args.command == 'run':

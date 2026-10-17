@@ -75,7 +75,14 @@ def collect_once(collector):
         return collector.sample()
     except (OSError,ValueError,KeyError,TimeoutError,subprocess.SubprocessError) as exc:
         # Command arguments may contain private operational details.
-        return dict(at=time.time(),error=type(exc).__name__)
+        safe_details={'invalid CPU sample','queue metrics missing','queue metrics stale',
+                      'invalid game status response','oversized status response','available memory missing',
+                      'queue metric missing','incomplete queue metrics'}
+        stage=getattr(collector,'stage','unknown')
+        if stage not in ('cpu','identity','journal','sql','status','memory'):
+            stage='unknown'
+        return dict(at=time.time(),error=type(exc).__name__,stage=stage,
+                    detail=str(exc) if str(exc) in safe_details else 'measurement failed')
 
 
 def status_latency(host, port):
@@ -107,6 +114,7 @@ class Collector:
         self.service,self.database,self.ids,self.port = service,database,player_ids,status_port
         self.mysql_defaults = mysql_defaults
         self.previous_cpu = self._cpu()
+        self.previous_cpu_at = time.monotonic()
         self.last_sql = 0
         self.population = {}
         self.oom_count = self._oom()
@@ -121,16 +129,30 @@ class Collector:
             return 0
         return int(dict(line.split() for line in path.read_text().splitlines()).get('oom_kill',0))
 
+    def _cpu_percent(self):
+        # Startup previously compared two reads in the same kernel tick. That
+        # produced either an invalid all-zero delta or a meaningless 100% spike.
+        elapsed=time.monotonic()-self.previous_cpu_at
+        if elapsed<1:
+            time.sleep(1-elapsed)
+        current=self._cpu()
+        measured=time.monotonic()
+        previous=self.previous_cpu
+        self.previous_cpu,self.previous_cpu_at=current,measured
+        return cpu_usage(previous,current)
+
     def sample(self):
         now = time.time()
-        current_cpu = self._cpu()
-        cpu = cpu_usage(self.previous_cpu,current_cpu)
-        self.previous_cpu = current_cpu
+        self.stage='cpu'
+        cpu = self._cpu_percent()
+        self.stage='identity'
         pid = int(command(['systemctl','show','--value','--property=MainPID',self.service]))
+        self.stage='journal'
         raw = command(['journalctl','-u',self.service,'-n','128','-o','json','--no-pager'])
-        entry = latest_queue_entry(raw,now)
+        entry = latest_queue_entry(raw,time.time())
         queue = parse_queue(entry['MESSAGE'])
         if now-self.last_sql >= 30:
+            self.stage='sql'
             ids = ','.join(map(str,self.ids))
             query = ('SELECT p.id,p.level,p.experience,p.health,p.vocation,p.posx,p.posy,p.posz,'
                      'EXISTS(SELECT 1 FROM players_online o WHERE o.player_id=p.id) FROM players p '
@@ -140,8 +162,12 @@ class Collector:
             self.population = dict(players=[list(map(int,line.split('\t'))) for line in rows[:-1]],humans_online=int(rows[-1]))
             self.last_sql = now
         oom = self._oom()
-        sample = HealthSample(now,now,parse_meminfo(Path('/proc/meminfo').read_text()),cpu,
-                              status_latency('127.0.0.1',self.port),pid,oom=oom>self.oom_count,**queue)
+        self.stage='memory'
+        memory=parse_meminfo(Path('/proc/meminfo').read_text())
+        self.stage='status'
+        latency=status_latency('127.0.0.1',self.port)
+        completed=time.time()
+        sample = HealthSample(completed,completed,memory,cpu,latency,pid,oom=oom>self.oom_count,**queue)
         self.oom_count = oom
         from dataclasses import asdict
         return dict(sample=asdict(sample),population=self.population,sql_measured_at=self.last_sql)
