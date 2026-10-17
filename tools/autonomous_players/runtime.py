@@ -38,9 +38,13 @@ class ActionGate:
         self.own_names = set()
         self.speech_token = None
         self.floor_token = None
+        self.reply_token = None
 
     def authorize_speech(self,npc_id,text,expires):
         self.speech_token=(npc_id,text,expires)
+
+    def authorize_reply(self,player_id,text,expires):
+        self.reply_token=(player_id,text,expires)
 
     def _item_at(self, position, item_id, stack):
         w = self.world
@@ -108,6 +112,13 @@ class ActionGate:
             if op == 0x40:
                 r.take(8)
                 return not r.remaining
+            if op == 0x96 and self.reply_token:
+                cid,text,expires=self.reply_token
+                self.reply_token=None
+                c=w.creatures.get(cid)
+                return (r.u8()==1 and r.string(255)==text and not r.remaining and now<=expires and
+                        c is not None and c.id!=w.self_id and c.kind=='player' and c.position is not None and
+                        w.position.distance(c.position)<=7)
             if op == 0x96 and self.speech_token:
                 npc,text,expires=self.speech_token
                 c=w.creatures.get(npc)

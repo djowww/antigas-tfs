@@ -43,6 +43,19 @@ def parse_queue(text):
                 counter_anomaly=any(value(section,'counter_anomaly') != 0 for section in sections))
 
 
+def latest_queue_entry(raw, now):
+    # Read a bounded journal window before filtering: on the deployed journalctl,
+    # -n 1 combined with --grep can return nothing after an ordinary login.
+    entries = [json.loads(line) for line in raw.splitlines() if line.strip()]
+    matches = [entry for entry in entries if entry.get('MESSAGE','').startswith('[QueueMetrics]')]
+    if not matches:
+        raise ValueError('queue metrics missing')
+    entry = max(matches,key=lambda item:int(item['__REALTIME_TIMESTAMP']))
+    if not 0 <= now-int(entry['__REALTIME_TIMESTAMP'])/1000000 <= 120:
+        raise ValueError('queue metrics stale')
+    return entry
+
+
 def atomic_json(path, data, mode=0o640):
     path = Path(path)
     tmp = path.with_name(path.name+'.tmp')
@@ -55,6 +68,14 @@ def atomic_json(path, data, mode=0o640):
 
 def command(args):
     return subprocess.check_output(args,text=True,timeout=4).strip()
+
+
+def collect_once(collector):
+    try:
+        return collector.sample()
+    except (OSError,ValueError,KeyError,TimeoutError,subprocess.SubprocessError) as exc:
+        # Command arguments may contain private operational details.
+        return dict(at=time.time(),error=type(exc).__name__)
 
 
 def status_latency(host, port):
@@ -106,10 +127,8 @@ class Collector:
         cpu = cpu_usage(self.previous_cpu,current_cpu)
         self.previous_cpu = current_cpu
         pid = int(command(['systemctl','show','--value','--property=MainPID',self.service]))
-        raw = command(['journalctl','-u',self.service,'-n','1','--grep=QueueMetrics','-o','json','--no-pager'])
-        entry = json.loads(raw)
-        if now-int(entry['__REALTIME_TIMESTAMP'])/1000000 > 120:
-            raise ValueError('queue metrics stale')
+        raw = command(['journalctl','-u',self.service,'-n','128','-o','json','--no-pager'])
+        entry = latest_queue_entry(raw,now)
         queue = parse_queue(entry['MESSAGE'])
         if now-self.last_sql >= 30:
             ids = ','.join(map(str,self.ids))

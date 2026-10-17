@@ -6,6 +6,7 @@ import signal
 import time
 from pathlib import Path
 from .behaviour import Agent
+from .conversation import Conversation,ReplyBudget
 from .definitions import load_items
 from .health import atomic_json
 from .learning import Policy
@@ -51,12 +52,13 @@ def functional_population(status,population,target,now=None):
 
 
 class PlayerRunner:
-    def __init__(self,profile,config,items,store,names,routes=None,budget=None):
+    def __init__(self,profile,config,items,store,names,routes=None,budget=None,conversation_budget=None):
         self.profile,self.config,self.items,self.store,self.names = profile,config,items,store,names
         self.draining = asyncio.Event()
         self.session = None
         self.routes=routes
         self.budget=budget
+        self.conversation_budget=conversation_budget or ReplyBudget()
         self.status = dict(online=False,moves=0,xp_gain=0,failures=0)
 
     async def run(self):
@@ -72,6 +74,7 @@ class PlayerRunner:
                 policy = Policy(self.store,p['character'],random.Random(p['account']+failures))
                 agent = Agent(p['character'],s.world,self.items,policy)
                 agent.own_names = self.names
+                conversation=Conversation(p['character'],s.world,p,self.names)
                 from .world import Position
                 progression=Progression(p,s.world,self.items,self.routes,
                     Position(*self.config.get('oracle_position',[32104,32190,6])),
@@ -80,6 +83,7 @@ class PlayerRunner:
                 async def observed(events):
                     agent.observe(events,time.monotonic())
                     progression.observe(events,time.monotonic())
+                    conversation.observe(events,time.monotonic(),agent.strategy)
                     s.gate.allowed_corpses = set(agent.allowed_corpses)
                     for e in events:
                         if e.kind == 'move' and e.data[0] == s.world.self_id:
@@ -117,6 +121,12 @@ class PlayerRunner:
                             actions=agent.step(now)
                         for action in actions:
                             await s.send(action)
+                        reply=conversation.step(now,self.conversation_budget) if not progression.busy else None
+                        if reply:
+                            from .protocol import say
+                            s.gate.authorize_reply(reply[0],reply[1],time.monotonic()+5)
+                            await s.send(say(reply[1]))
+                            self.status['replies']=conversation.replies
                         if now-last_social >= 15:
                             last_social = now
                             for c in w.creatures.values():
@@ -189,6 +199,7 @@ async def run(config):
         names = {p['character'] for p in profiles}
         last_admission,last_measurement = 0,None
         budget=RateLimit(40,40)
+        conversation_budget=ReplyBudget()
         paused = False
         try:
             while not stop.is_set():
@@ -238,7 +249,7 @@ async def run(config):
                         key = p['player_id']
                         if key in runners and (not tasks[key].done() or runners[key].status.get('halted')):
                             continue
-                        runner = PlayerRunner(p,config,items,store,names,routes,budget)
+                        runner = PlayerRunner(p,config,items,store,names,routes,budget,conversation_budget)
                         runners[key],tasks[key] = runner,asyncio.create_task(runner.run())
                         last_admission = now
                         break

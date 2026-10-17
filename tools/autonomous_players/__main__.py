@@ -4,7 +4,7 @@ import asyncio
 import json
 import time
 from pathlib import Path
-from .health import atomic_json,Collector
+from .health import atomic_json,Collector,collect_once
 
 
 def main():
@@ -51,10 +51,7 @@ def main():
                               config['status_port'],config.get('mysql_defaults'))
         while True:
             started = time.monotonic()
-            try:
-                result = collector.sample()
-            except (OSError,ValueError,KeyError,TimeoutError) as exc:
-                result = dict(at=time.time(),error=type(exc).__name__)
+            result = collect_once(collector)
             atomic_json(config['health_file'],result)
             time.sleep(max(.1,5-(time.monotonic()-started)))
     elif args.command == 'run':
