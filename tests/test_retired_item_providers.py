@@ -18,6 +18,12 @@ def ids_for_element(element):
     return ids
 
 class RetiredProviderDefinitions(unittest.TestCase):
+    def test_antigas_coin_has_one_registered_redemption_action(self):
+        actions = ET.parse(ROOT / 'data/actions/actions.xml').getroot()
+        matches = [a for a in actions if 5130 in ids_for_element(a)]
+        self.assertEqual(len(matches), 1, 'Physical Antigas Coins must have exactly one use action')
+        self.assertEqual(matches[0].get('script'), 'others/olderac.lua')
+
     def test_antigas_coin_is_active_while_ticket_stays_retired(self):
         self.assertNotIn(5130, RETIRED, 'Antigas Coin must be available to the Store and Market')
         self.assertIn(5128, RETIRED, 'Antigas Ticket must remain retired')

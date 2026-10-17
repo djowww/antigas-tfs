@@ -177,6 +177,11 @@ jobs:
       - name: Run Economy inventory regression tests
         run: luajit tests/economy-inventory-tests.lua
 
+      - name: Run Coin redemption and database heartbeat regression tests
+        run: |
+          luajit tests/coin-redemption-tests.lua
+          luajit tests/database-keepalive-tests.lua
+
       - name: Run persisted lamp-state parser regression tests
         run: luajit tests/lamp-state-parser-tests.lua
 

@@ -431,6 +431,7 @@
 
 
 
+    <action itemid="5130" script="others/olderac.lua"/>
     <action itemid="3031" script="others/money.lua"/>
 	<action itemid="3035" script="others/money.lua"/>
 	<action itemid="3043" script="others/money.lua"/>
