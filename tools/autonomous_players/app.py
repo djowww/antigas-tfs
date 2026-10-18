@@ -145,6 +145,7 @@ class PlayerRunner:
                 initial_exp,last_social,last_ping,last_saved,last_learning = None,0,0,0,0
                 last_executed_action = 'wait'
                 pending_transition_id = None
+                pending_transition_source = None
                 last_learning_floor = None
                 async def observed(events):
                     agent.observe(events,time.monotonic())
@@ -179,10 +180,18 @@ class PlayerRunner:
                             executed_action=last_executed_action,
                             food_available=next(agent.food(), None) is not None,
                             retreat_available=progression.in_rook())
+                        if (pending_transition_id is not None and pending_transition_source is not None and
+                                last_learning_floor is not None and w.position.z != last_learning_floor):
+                            self.learned_graph.record_stair_observation(
+                                p['character'], pending_transition_source, pending_transition_id, w.position)
+                            self.learned_graph.observe_transition(
+                                p['character'], pending_transition_source, w.position,
+                                pending_transition_id, time.time())
                         await self.learning.publish_async(observation)
                         learned_intent = self.learning.poll_intent(time.time())
                         if pending_transition_id is not None and last_learning_floor is not None and w.position.z != last_learning_floor:
                             pending_transition_id = None
+                            pending_transition_source = None
                         last_learning_floor = w.position.z
                         last_learning = now
                     if (not self.draining.is_set() and self.status['online'] and
@@ -210,6 +219,7 @@ class PlayerRunner:
                             last_executed_action = 'wait'
                         if progression.floor_authorization and actions:
                             pending_transition_id = progression.floor_authorization[1]
+                            pending_transition_source = w.position
                         if progression.authorization:
                             s.gate.authorize_speech(*progression.authorization)
                         s.gate.floor_token=progression.floor_authorization
