@@ -30,6 +30,7 @@ class Agent:
         self.escape = None
         self.forage = None
         self.passive_attack = None
+        self.passive_corpse_claims = 0
 
     def food(self):
         for slot,item in self.world.inventory.items():
@@ -102,6 +103,7 @@ class Agent:
                   sum(t.id==corpse_id and not t.creature_id for t in w.tiles[location])>baseline and
                   not any(c.position.distance(location)<=7 for c in humans)):
                 self.allowed_corpses[(location,corpse_id)]=now+120
+                self.passive_corpse_claims += 1
                 self.passive_attack=None
             if now-at>10:
                 self.passive_attack=None

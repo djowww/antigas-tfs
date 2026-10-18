@@ -22,12 +22,23 @@ class ProgressionTests(unittest.TestCase):
             self.assertEqual(toward.call_args.args[0],FOOD_POINTS[3])
 
     def test_red_health_at_temple_says_hi_then_heal(self):
-        w=World(position=Position(32097,32219,7),stats=Stats(30,150,400,0,1))
+        w=World(position=Position(32097,32218,7),stats=Stats(30,150,400,0,1))
         npc=Creature(0x80000001,'Cipfried',Position(32097,32217,7))
         w.creatures[npc.id]=npc
         p=Progression(dict(character='Sim One',city='thais',vocation='knight'),w,ITEMS)
         self.assertTrue(p.recover(1)[0].endswith(b'hi'))
         self.assertTrue(p.recover(4)[0].endswith(b'heal'))
+
+    def test_red_health_walks_into_cipfried_actual_speaking_range(self):
+        from unittest.mock import patch
+        w=World(position=Position(32094,32216,7),stats=Stats(17,150,400,0,1))
+        npc=Creature(0x80000001,'Cipfried',Position(32097,32217,7))
+        w.creatures[npc.id]=npc
+        p=Progression(dict(character='Sim One',city='thais',vocation='knight'),w,ITEMS)
+        with patch.object(p,'_toward',return_value=[b'\x66']) as toward:
+            self.assertEqual(p.recover(1),[b'\x66'])
+            self.assertEqual(toward.call_args.args[0],Position(32097,32218,7))
+        self.assertIsNone(p.authorization)
 
     def test_real_rook_sewer_grate_428_can_be_descended(self):
         from tools.autonomous_players.runtime import ActionGate

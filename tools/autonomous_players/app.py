@@ -271,6 +271,18 @@ class PlayerRunner:
                             'oldest_ping_age': round(now-min(s.pings.values()),1) if s.pings else 0,
                             'receive_age': round(now-s.last_received,1),
                         }
+                        victim=w.creatures.get(agent.target)
+                        self.status['combat']={
+                            'victim':(victim.name,victim.health,
+                                      [victim.position.x,victim.position.y,victim.position.z])
+                                      if victim and victim.position else None,
+                            'passive_corpse_claims':agent.passive_corpse_claims,
+                            'owned_corpses':len(agent.allowed_corpses),
+                            'loot_pending':bool(agent.loot_pending),
+                            'corpse_food':sum(max(1,item.count) for item in w.containers[1].items
+                                               if self.items[item.id].attributes.get('nutrition',0)>0)
+                                               if agent.loot_pending and 1 in w.containers else 0,
+                        }
                         sent = False
                         for action in actions:
                             sent = bool(await s.send(action)) or sent

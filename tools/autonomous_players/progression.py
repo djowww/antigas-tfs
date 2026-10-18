@@ -57,16 +57,25 @@ class Progression:
         if not self.in_rook():
             return []
         w=self.world
-        temple=Position(32097,32219,7)
+        temple=Position(32097,32218,7)
         possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
         gold=sum(i.count for i in possessions if i.id==3031)
         food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
         if w.stats.health>=65 and not self.healer_greeted and not food and gold>=3:
             self.next_purchase=0
             return self.step(now)
-        if w.position.distance(temple)>3:
+        healer=self._npc('Cipfried')
+        if healer and w.position.distance(healer.position)>1:
+            goal=temple
+            if goal.distance(healer.position)>1:
+                candidates=[healer.position.shift(dx,dy) for dx,dy in
+                            ((0,1),(1,0),(0,-1),(-1,0),(1,1),(-1,1),(1,-1),(-1,-1))]
+                goals=[p for p in candidates if walkable(w,p,self.items)]
+                if goals: goal=min(goals,key=lambda p:w.position.distance(p))
+            return self._toward(goal)
+        if not healer and w.position.distance(temple)>1:
             return self._toward(temple)
-        if self._npc('Cipfried'):
+        if healer:
             if w.stats.health<65:
                 result=self._speak('Cipfried','heal' if self.healer_greeted else 'hi',now)
                 if result:self.healer_greeted=True

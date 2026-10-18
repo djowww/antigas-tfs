@@ -15,7 +15,7 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(p.recover(1),[b'\x68'])
 
     def test_wounded_rook_player_requests_real_npc_healing_not_hunting(self):
-        w=World(self_id=0x10000001,position=Position(32097,32219,7),stats=Stats(20,150,400,0,1))
+        w=World(self_id=0x10000001,position=Position(32097,32218,7),stats=Stats(20,150,400,0,1))
         c=Creature(0x80000001,'Cipfried',Position(32097,32217,7));w.creatures[c.id]=c
         p=Progression(dict(character='Sim Test',vocation='knight',city='thais'),w,{})
         self.assertEqual(p.recover(1),[say('hi')])

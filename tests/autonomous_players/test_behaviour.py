@@ -51,6 +51,7 @@ class BehaviourTests(unittest.TestCase):
             w.tiles[Position(101,100,7)].append(Thing(4173))
             a.observe([Event('tile',Position(101,100,7))],2)
             self.assertIn((Position(101,100,7),4173),a.allowed_corpses)
+            self.assertEqual(a.passive_corpse_claims,1)
 
     def test_passive_food_loot_rejects_existing_corpse_and_human_competition(self):
         for existing,human in ((True,False),(False,True)):
