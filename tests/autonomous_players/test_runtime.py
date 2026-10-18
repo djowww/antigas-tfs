@@ -38,6 +38,19 @@ class GateTests(unittest.TestCase):
 
 
 class SessionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_lost_ping_acks_do_not_disconnect_a_session_with_live_receive_loop(self):
+        class Writer:
+            def __init__(self):self.sent=[]
+            def write(self,data):self.sent.append(data)
+            async def drain(self):pass
+        writer=Writer()
+        session=Session(None,writer,(1,2,3,4),World(position=Position(100,100,7)),object())
+        session.local_budget=RateLimit(100,10)
+        for _ in range(4):
+            await session.ping()
+        self.assertEqual(len(writer.sent),4)
+        self.assertEqual(len(session.pings),3)
+
     async def test_shared_connection_budget_spaces_reconnecting_clients(self):
         state=[0.0]
         async def sleep(delay):state[0]+=delay

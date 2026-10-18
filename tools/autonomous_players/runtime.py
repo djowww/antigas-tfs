@@ -219,7 +219,11 @@ class Session:
     async def ping(self):
         from .wire import Writer
         if len(self.pings) >= 3:
-            raise SessionTimeout('ping_ack')
+            # A missed ping reply does not mean the game socket is dead: map,
+            # movement and combat packets may still be flowing. Keep only a
+            # bounded window; receive() owns liveness via its read deadline.
+            oldest = min(self.pings, key=self.pings.__getitem__)
+            del self.pings[oldest]
         identifier = secrets.randbits(32)
         self.pings[identifier] = time.monotonic()
         return await self.send(Writer().u8(0x40).u32(identifier).u16(0).u16(0).data)
