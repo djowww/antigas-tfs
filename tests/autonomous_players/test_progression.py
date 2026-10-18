@@ -9,6 +9,41 @@ ITEMS=load_items(Path(__file__).resolve().parents[2]/'data/items/items.srv')
 
 
 class ProgressionTests(unittest.TestCase):
+    def test_red_health_at_temple_says_hi_then_heal(self):
+        w=World(position=Position(32097,32219,7),stats=Stats(30,150,400,0,1))
+        npc=Creature(0x80000001,'Cipfried',Position(32097,32217,7))
+        w.creatures[npc.id]=npc
+        p=Progression(dict(character='Sim One',city='thais',vocation='knight'),w,ITEMS)
+        self.assertTrue(p.recover(1)[0].endswith(b'hi'))
+        self.assertTrue(p.recover(4)[0].endswith(b'heal'))
+
+    def test_real_rook_sewer_grate_428_can_be_descended(self):
+        from tools.autonomous_players.runtime import ActionGate
+        start=Position(32109,32245,7)
+        grate=Position(32110,32245,7)
+        below=Position(32110,32246,8)
+        w=World(position=start,stats=Stats(150,150,400,0,1))
+        w.tiles[grate]=[Thing(428)]
+        routes=RouteGraph({start:None,grate:below,below:None})
+        p=Progression(dict(character='Sim One',city='thais',vocation='knight'),w,ITEMS,routes)
+        packets=p._toward(below)
+        self.assertEqual(packets,[b'\x66'])
+        self.assertEqual(p.floor_authorization,(grate,428))
+        gate=ActionGate(w,ITEMS)
+        gate.floor_token=p.floor_authorization
+        self.assertTrue(gate.permit(packets[0]))
+        w.position=below
+        self.assertEqual(w.position.z,8)
+
+    def test_real_rook_sewer_grate_still_rejects_wrong_destination(self):
+        start=Position(32109,32245,7);grate=Position(32110,32245,7)
+        wrong=Position(32110,32245,8)
+        w=World(position=start,stats=Stats(150,150,400,0,1))
+        w.tiles[grate]=[Thing(428)]
+        p=Progression(dict(character='Sim One',city='thais',vocation='knight'),w,ITEMS,
+                      RouteGraph({start:None,grate:wrong,wrong:None}))
+        self.assertEqual(p._toward(wrong),[])
+
     def test_finished_purchase_does_not_leave_player_permanently_busy(self):
         w=World(position=Position(32047,32205,7),stats=Stats(150,150,400,0,1))
         w.inventory[10]=Thing(3031,3)

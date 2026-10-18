@@ -15,6 +15,48 @@ ITEMS = load_items(Path(__file__).resolve().parents[2] / 'data/items/items.srv')
 
 
 class BehaviourTests(unittest.TestCase):
+    def test_wounded_bot_hunts_food_animal_instead_of_idling(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.stats.health=70
+            rabbit=Creature(0x40000001,'Rabbit',Position(101,100,7))
+            rat=Creature(0x40000002,'Rat',Position(104,104,7))
+            w.creatures.update({rabbit.id:rabbit,rat.id:rat})
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertEqual([c.name for c in a.prey()],['Rabbit'])
+            self.assertTrue(any(p[0]==0xa1 for p in a.step(1)))
+
+    def test_red_health_prioritizes_temple_over_passive_animal(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.stats.health=30
+            w.creatures[0x40000001]=Creature(0x40000001,'Rabbit',Position(101,100,7))
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            a.escape=lambda now:[b'\x65']
+            self.assertEqual(a.step(1),[b'\x65'])
+
+    def test_zero_xp_passive_kill_allows_only_new_matching_owned_corpse(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.stats.health=70
+            rabbit=Creature(0x40000001,'Rabbit',Position(101,100,7))
+            w.creatures[rabbit.id]=rabbit
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            a.step(1);rabbit.position=None
+            w.tiles[Position(101,100,7)].append(Thing(4173))
+            a.observe([Event('tile',Position(101,100,7))],2)
+            self.assertIn((Position(101,100,7),4173),a.allowed_corpses)
+
+    def test_passive_food_loot_rejects_existing_corpse_and_human_competition(self):
+        for existing,human in ((True,False),(False,True)):
+            with self.subTest(existing=existing,human=human), tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+                w=self.world();w.stats.health=70;tile=Position(101,100,7)
+                rabbit=Creature(0x40000001,'Rabbit',tile);w.creatures[rabbit.id]=rabbit
+                if existing:w.tiles[tile].append(Thing(4173))
+                a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+                a.step(1);rabbit.position=None
+                if not existing:w.tiles[tile].append(Thing(4173))
+                if human:w.creatures[0x10000002]=Creature(0x10000002,'Human',Position(102,100,7))
+                a.observe([Event('tile',tile)],2)
+                self.assertNotIn((tile,4173),a.allowed_corpses)
+
     def test_retreat_uses_observed_escape_route_instead_of_wandering(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
             w=self.world();w.stats.health=50

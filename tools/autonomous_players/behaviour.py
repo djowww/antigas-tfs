@@ -5,6 +5,9 @@ from .world import Position
 from .navigation import find_path, walkable, walk_packet
 from .protocol import attack, use_item, move_item
 
+# Passive food sources and their authoritative monster corpse IDs.
+PASSIVE_CORPSES = {'rabbit':4173, 'deer':4016, 'chicken':4330, 'sheep':4086, 'pig':4116}
+
 
 class Agent:
     def __init__(self, name, world, items, policy):
@@ -25,6 +28,7 @@ class Agent:
         self.attack_evidence = None
         self.unreachable_prey = {}
         self.escape = None
+        self.passive_attack = None
 
     def food(self):
         for slot,item in self.world.inventory.items():
@@ -46,6 +50,7 @@ class Agent:
                 c.id not in self.unreachable_prey and
                 c.position.distance(w.position)<=7 and
                 c.name.lower() in ('rat','cave rat','rabbit','deer','sheep','pig','chicken') and
+                (w.stats.health >= w.stats.max_health*.65 or c.name.lower() in PASSIVE_CORPSES) and
                 not any(h.position.distance(c.position)<=3 for h in humans)]
 
     def retreat_needed(self):
@@ -54,13 +59,15 @@ class Agent:
         near=[c for c in w.creatures.values() if c.kind=='monster' and c.position and
               c.health>0 and c.position.distance(w.position)<=3]
         aggressive=[c for c in near if c.name.lower() not in ('rabbit','deer','sheep','pig','chicken')]
-        return w.stats.health<w.stats.max_health*.65 or len(aggressive)>=2
+        wounded=w.stats.health<w.stats.max_health*.65
+        return (w.stats.health<w.stats.max_health*.35 or len(aggressive)>=2 or
+                (wounded and (bool(aggressive) or w.position.z>7)))
 
     def priority(self,now):
         w=self.world
         if not w.valid or not w.position or not w.stats.level:
             return False
-        return (self.retreat_needed() or
+        return (self.retreat_needed() or w.stats.health<w.stats.max_health*.65 or
                 self.withdraw_target() or
                 (3 in w.inventory and 0 not in w.containers) or
                 (now>=self.next_food and next(self.food(),None) is not None) or
@@ -81,6 +88,22 @@ class Agent:
             if self.attack_evidence:
                 self.attack_evidence=(target.id,target.position,now)
         humans = [c for c in w.creatures.values() if c.kind == 'player' and c.name not in self.own_names and c.position]
+        if self.passive_attack:
+            cid,location,corpse_id,baseline,at=self.passive_attack
+            victim=w.creatures.get(cid)
+            if victim and victim.position and victim.health>0:
+                location=victim.position
+                # A moving target cannot inherit a corpse from a previous tile.
+                if location != self.passive_attack[1]:
+                    baseline=sum(t.id==corpse_id and not t.creature_id for t in w.tiles.get(location,[]))
+                self.passive_attack=(cid,location,corpse_id,baseline,at)
+            elif (now-at<=10 and location in w.tiles and
+                  sum(t.id==corpse_id and not t.creature_id for t in w.tiles[location])>baseline and
+                  not any(c.position.distance(location)<=7 for c in humans)):
+                self.allowed_corpses[(location,corpse_id)]=now+120
+                self.passive_attack=None
+            if now-at>10:
+                self.passive_attack=None
         if (w.stats.experience > self.last_experience and self.attack_evidence and
             now-self.attack_evidence[2]<=10 and
             not any(c.position.distance(self.attack_evidence[1]) <= 7 for c in humans)):
@@ -160,6 +183,8 @@ class Agent:
                             return [use_item(location,item_id,stack,1)]
         state = f'l{min(w.stats.level,30)//3}:h{int(health*3)}:m{min(len(prey),3)}'
         reactive = any(p.distance(c.position) <= 3 or c.id == self.target for c in prey)
+        if health < .65 and prey:
+            reactive = True  # Food gathering is the wounded character's current goal.
         allowed = ['hunt'] if reactive else ['explore'] + (['hunt'] if prey else [])
         if now >= self.next_strategy or self.strategy not in allowed:
             if self.transition:
@@ -176,6 +201,10 @@ class Agent:
                 self.target = creature.id
                 self.next_attack = now+3
                 self.attack_evidence=(creature.id,creature.position,now)
+                corpse_id=PASSIVE_CORPSES.get(creature.name.lower())
+                if corpse_id and not (self.passive_attack and self.passive_attack[0]==creature.id):
+                    baseline=sum(t.id==corpse_id and not t.creature_id for t in w.tiles.get(creature.position,[]))
+                    self.passive_attack=(creature.id,creature.position,corpse_id,baseline,now)
                 # Stand mode; manual movement respects observed occupancy.
                 return [b'\xa0\x01\x00\x00',attack(creature)]
             if p.distance(creature.position) > 1:

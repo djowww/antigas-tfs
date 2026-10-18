@@ -135,7 +135,7 @@ class Progression:
                     # Full mapping can be supplied by the route compiler later;
                     # these are the normal Rook library stair orientations.
                     offsets={1947:(0,-1,-1),1950:(1,0,-1),1952:(-1,0,-1),1954:(0,1,-1),
-                             413:(0,1,1),414:(0,1,1),369:(0,0,1),370:(0,0,1),385:(0,0,1)}
+                             413:(0,1,1),414:(0,1,1),428:(0,1,1),369:(0,0,1),370:(0,0,1),385:(0,0,1)}
                     for thing in w.tiles.get(step,[]):
                         delta=offsets.get(thing.id)
                         if delta and step.shift(*delta)==expected and walkable(w,step,self.items,True):
