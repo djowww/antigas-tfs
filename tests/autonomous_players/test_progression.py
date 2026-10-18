@@ -2,13 +2,25 @@ import unittest
 from pathlib import Path
 from tools.autonomous_players.world import World,Position,Creature,Thing,Stats,Event
 from tools.autonomous_players.definitions import load_items
-from tools.autonomous_players.progression import Progression
+from tools.autonomous_players.progression import Progression,FOOD_POINTS
 from tools.autonomous_players.routes import RouteGraph
 
 ITEMS=load_items(Path(__file__).resolve().parents[2]/'data/items/items.srv')
 
 
 class ProgressionTests(unittest.TestCase):
+    def test_foraging_uses_distinct_spawn_destinations_and_rotates_after_stall(self):
+        from unittest.mock import patch
+        start=Position(32097,32219,7)
+        w=World(position=start,stats=Stats(65,150,400,0,1))
+        p=Progression(dict(account=2,character='Sim One',city='thais',vocation='knight'),
+                      w,ITEMS,RouteGraph({start:None}))
+        with patch.object(p,'_toward',return_value=[b'\x66']) as toward:
+            self.assertEqual(p.forage(1),[b'\x66'])
+            self.assertEqual(toward.call_args.args[0],FOOD_POINTS[2])
+            self.assertEqual(p.forage(25),[b'\x66'])
+            self.assertEqual(toward.call_args.args[0],FOOD_POINTS[3])
+
     def test_red_health_at_temple_says_hi_then_heal(self):
         w=World(position=Position(32097,32219,7),stats=Stats(30,150,400,0,1))
         npc=Creature(0x80000001,'Cipfried',Position(32097,32217,7))

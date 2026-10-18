@@ -28,6 +28,7 @@ class Agent:
         self.attack_evidence = None
         self.unreachable_prey = {}
         self.escape = None
+        self.forage = None
         self.passive_attack = None
 
     def food(self):
@@ -181,6 +182,11 @@ class Agent:
                             self.loot_pending = (location,item_id)
                             self.loot_retry = now+5
                             return [use_item(location,item_id,stack,1)]
+        if health < .65 and not prey and self.forage and next(self.food(),None) is None:
+            route=self.forage(now)
+            if route:
+                self.strategy='forage'
+                return route
         state = f'l{min(w.stats.level,30)//3}:h{int(health*3)}:m{min(len(prey),3)}'
         reactive = any(p.distance(c.position) <= 3 or c.id == self.target for c in prey)
         if health < .65 and prey:
@@ -195,8 +201,26 @@ class Agent:
             self.transition = state,self.strategy,w.stats.experience,w.stats.health
             self.next_strategy = now+15
         if prey and self.strategy == 'hunt':
-            creature = min(prey,key=lambda c:p.distance(c.position))
+            creature = next((c for c in prey if c.id==self.target),None) or min(prey,key=lambda c:p.distance(c.position))
             self.target_position = creature.position
+            if p.distance(creature.position) > 1:
+                if self.target==creature.id and creature.name.lower() in PASSIVE_CORPSES:
+                    return []  # The normal follow mode continues after a fleeing animal.
+                adjacent = [creature.position.shift(dx,dy) for dx,dy in ((0,1),(1,0),(0,-1),(-1,0))]
+                paths = [path for goal in adjacent if (path:=find_path(w,p,goal,self.items))]
+                if paths:
+                    packets = [b'\xbe'] if self.target else []
+                    self.target = 0
+                    self.passive_attack = None
+                    self.attack_evidence = None
+                    return packets + [walk_packet(p,min(paths,key=len)[0])]
+                if len(self.unreachable_prey)>=128:
+                    self.unreachable_prey.pop(next(iter(self.unreachable_prey)))
+                self.unreachable_prey[creature.id]=(creature.position,time.monotonic()+15)
+                self.target=0
+                self.passive_attack=None
+                self.attack_evidence=None
+                return [b'\xbe']
             if self.target != creature.id or now >= self.next_attack:
                 self.target = creature.id
                 self.next_attack = now+3
@@ -205,18 +229,8 @@ class Agent:
                 if corpse_id and not (self.passive_attack and self.passive_attack[0]==creature.id):
                     baseline=sum(t.id==corpse_id and not t.creature_id for t in w.tiles.get(creature.position,[]))
                     self.passive_attack=(creature.id,creature.position,corpse_id,baseline,now)
-                # Stand mode; manual movement respects observed occupancy.
-                return [b'\xa0\x01\x00\x00',attack(creature)]
-            if p.distance(creature.position) > 1:
-                adjacent = [creature.position.shift(dx,dy) for dx,dy in ((0,1),(1,0),(0,-1),(-1,0))]
-                paths = [path for goal in adjacent if (path:=find_path(w,p,goal,self.items))]
-                if paths:
-                    return [walk_packet(p,min(paths,key=len)[0])]
-                if len(self.unreachable_prey)>=128:
-                    self.unreachable_prey.pop(next(iter(self.unreachable_prey)))
-                self.unreachable_prey[creature.id]=(creature.position,time.monotonic()+15)
-                self.target=0
-                return [b'\xbe']
+                mode=b'\xa0\x01\x01\x00' if corpse_id else b'\xa0\x01\x00\x00'
+                return [mode,attack(creature)]
             return []
         self.target = 0
         if self.destination and self.destination != p:
@@ -226,10 +240,14 @@ class Agent:
         self.destination = None
         candidates = [n for n in w.tiles if n.z == p.z and p.distance(n) > 1 and walkable(w,n,self.items)]
         self.policy.rng.shuffle(candidates)
-        candidates.sort(key=lambda n:(self.visits[n],-p.distance(n)))
+        candidates.sort(key=lambda n:(self.visits[n],p.distance(n)))
         for goal in candidates[:20]:
             path = find_path(w,p,goal,self.items)
             if path:
                 self.destination = goal
                 return [walk_packet(p,path[0])]
+        adjacent = [n for n in w.tiles if n.z == p.z and p.distance(n) == 1 and
+                    walkable(w,n,self.items)]
+        if adjacent:
+            return [walk_packet(p,min(adjacent,key=lambda n:self.visits[n]))]
         return []

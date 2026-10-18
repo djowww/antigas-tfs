@@ -13,6 +13,7 @@ from .learning import Policy
 from .learning_bridge import LearningBridge
 from .learning_protocol import LearningObservation
 from .learned_navigation import RegionGraph
+from .navigation import walkable
 from .protocol import Decoder
 from .progression import Progression
 from .runtime import Session,RateLimit
@@ -107,6 +108,14 @@ def functional_population(status,population,target,now=None):
             0 <= now-status[key].get('last_xp_at',0) <= 600 for key in active))
 
 
+def owned_food_count(world,items,corpse_open=False):
+    possessions=list(world.inventory.values())
+    possessions.extend(item for cid,container in world.containers.items()
+                       if not (corpse_open and cid==1) for item in container.items)
+    return sum(max(1,item.count) for item in possessions
+               if items[item.id].attributes.get('nutrition',0)>0)
+
+
 class PlayerRunner:
     def __init__(self,profile,config,items,store,names,routes=None,budget=None,conversation_budget=None,connection_budget=None):
         self.profile,self.config,self.items,self.store,self.names = profile,config,items,store,names
@@ -142,7 +151,9 @@ class PlayerRunner:
                     tuple(self.config.get('rook_bounds',[32000,32000,32200,32350])),
                     self.config.get('hunting_points',[]), learned_graph=self.learned_graph)
                 agent.escape=progression.recover
+                agent.forage=progression.forage
                 initial_exp,last_social,last_ping,last_saved,last_learning = None,0,0,0,0
+                last_food_count=None
                 last_executed_action = 'wait'
                 pending_transition_id = None
                 pending_transition_source = None
@@ -173,6 +184,14 @@ class PlayerRunner:
                     self.status.update(level=w.stats.level,experience=w.stats.experience,
                         xp_gain=max(0,w.stats.experience-(initial_exp or 0)),health=w.stats.health,
                         position=[w.position.x,w.position.y,w.position.z] if w.position else None)
+                    if self.status['online']:
+                        food_count=owned_food_count(w,self.items,agent.loot_pending is not None)
+                        if last_food_count is not None and food_count>last_food_count:
+                            gained=food_count-last_food_count
+                            self.status['food_received']=self.status.get('food_received',0)+gained
+                            self.status['last_food_at']=time.time()
+                            self.store.event(time.time(),p['character'],'food_received',dict(count=gained))
+                        last_food_count=food_count
                     learned_intent = None
                     if self.learning and self.status['online'] and now-last_learning >= 2:
                         if pending_transition_id is not None and now > pending_transition_deadline:
@@ -229,6 +248,29 @@ class PlayerRunner:
                         self.status.update(strategy=agent.strategy,npc_busy=progression.busy,
                             purchase=progression.purchase.state if progression.purchase else None,
                             food_available=next(agent.food(),None) is not None)
+                        # Bounded operational evidence for diagnosing idle clients and ping loss.
+                        visible_prey=agent.prey() if w.position else []
+                        visible_goals=self.status.get('decision',{}).get('visible_goals')
+                        if (visible_goals is None and w.position and not actions and
+                                self.status['moves']==0):
+                            visible_goals=sum(p.z==w.position.z and p.distance(w.position)>1 and
+                                              walkable(w,p,self.items) for p in w.tiles)
+                        self.status['decision']={
+                            'priority': bool(priority),
+                            'retreat': bool(agent.retreat_needed()),
+                            'actions': [a[0] for a in actions[:3] if a],
+                            'target': agent.target,
+                            'prey': [(c.name,c.position.x,c.position.y,c.position.z)
+                                     for c in visible_prey[:3]],
+                            'tiles': len(w.tiles),
+                            'walkable_neighbors': sum(walkable(w,w.position.shift(dx,dy),self.items)
+                                                      for dx,dy in ((0,1),(1,0),(0,-1),(-1,0))) if w.position else 0,
+                            'visible_goals': visible_goals,
+                            'next_action_in': round(max(0,agent.next_action-now),1),
+                            'ping_pending': len(s.pings),
+                            'oldest_ping_age': round(now-min(s.pings.values()),1) if s.pings else 0,
+                            'receive_age': round(now-s.last_received,1),
+                        }
                         sent = False
                         for action in actions:
                             sent = bool(await s.send(action)) or sent

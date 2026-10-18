@@ -101,7 +101,7 @@ class ActionGate:
                             walkable(w,destination,self.items,True))
                 return walkable(w,destination,self.items)
             if op == 0xa0:
-                return r.take(3) in (b'\x01\x00\x00',b'\x03\x00\x00') and not r.remaining
+                return r.take(3) in (b'\x01\x00\x00',b'\x01\x01\x00',b'\x03\x00\x00') and not r.remaining
             if op == 0x82:
                 x,y,z = r.u16(),r.u16(),r.u8()
                 item,stack,index = r.u16(),r.u8(),r.u8()

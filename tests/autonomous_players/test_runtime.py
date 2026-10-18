@@ -8,6 +8,11 @@ from tools.autonomous_players.protocol import say
 
 
 class GateTests(unittest.TestCase):
+    def test_normal_follow_mode_is_allowed_without_secure_pvp(self):
+        gate=ActionGate(World(position=Position(100,100,7)))
+        self.assertTrue(gate.permit(b'\xa0\x01\x01\x00'))
+        self.assertFalse(gate.permit(b'\xa0\x01\x01\x01'))
+
     def test_speech_needs_live_nearby_npc_and_one_confirmation_token(self):
         world=World(position=Position(100,100,7))
         world.creatures[0x80000001]=Creature(0x80000001,'The Oracle',Position(101,100,7))

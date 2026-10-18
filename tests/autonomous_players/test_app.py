@@ -1,6 +1,6 @@
 import unittest
 import asyncio
-from tools.autonomous_players.app import validate_config, functional_population, admission_available, occupancy_ids
+from tools.autonomous_players.app import validate_config, functional_population, admission_available, occupancy_ids, owned_food_count
 
 
 class ConnectionAdmissionTests(unittest.IsolatedAsyncioTestCase):
@@ -42,6 +42,19 @@ class ConnectionAdmissionTests(unittest.IsolatedAsyncioTestCase):
 
 
 class AppTests(unittest.TestCase):
+    def test_food_receipt_counts_owned_items_without_open_corpse_contents(self):
+        from pathlib import Path
+        from tools.autonomous_players.world import World,Thing,Container
+        from tools.autonomous_players.definitions import load_items
+        items=load_items(Path(__file__).resolve().parents[2]/'data/items/items.srv')
+        w=World()
+        w.containers[0]=Container(0,2853,'bag',20,False,[Thing(3577,2)])
+        w.containers[1]=Container(1,4173,'dead rabbit',10,False,[Thing(3577,1)])
+        self.assertEqual(owned_food_count(w,items,True),2)
+        w.containers[0].items.append(Thing(3577,1))
+        w.containers[1].items.clear()
+        self.assertEqual(owned_food_count(w,items,True),3)
+
     def test_requires_explicit_target_and_maximum_twenty(self):
         config = dict(identity='test-world',public_authorized=True,max_players=20,host='127.0.0.1',game_port=7186,
                       manifest='private.json',state_dir='state',health_file='health.json',items='items.srv',modulus='1')

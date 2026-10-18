@@ -4,6 +4,11 @@ from .social import Oracle,Purchase
 from .protocol import say
 from .navigation import find_path,walk_packet,walkable
 
+# Surface animal spawns verified in the active Rook spawn map.
+FOOD_POINTS = (Position(32103,32230,7), Position(32108,32230,7),
+               Position(32072,32224,7), Position(32053,32220,7),
+               Position(32084,32233,7), Position(32103,32245,7))
+
 
 class Progression:
     def __init__(self,profile,world,items,routes=None,oracle_position=Position(32104,32190,6),
@@ -23,6 +28,30 @@ class Progression:
         self.learned_graph=learned_graph
         self.hunting_index=profile.get('account',0)%len(self.hunting_points) if self.hunting_points else 0
         self.hunting_started,self.hunting_position,self.hunting_progress=None,None,None
+        self.forage_index=profile.get('account',0)%len(FOOD_POINTS)
+        self.forage_started,self.forage_position,self.forage_progress=None,None,None
+        self.forage_arrived=None
+
+    def forage(self,now):
+        if not self.in_rook() or not self.routes or self.world.position.z!=7:
+            return []
+        p=self.world.position
+        goal=FOOD_POINTS[self.forage_index]
+        if self.forage_started is None:
+            self.forage_started,self.forage_position,self.forage_progress=now,p,now
+        elif p!=self.forage_position:
+            self.forage_position,self.forage_progress=p,now
+        if p.distance(goal)<=4:
+            self.forage_arrived=self.forage_arrived or now
+            if now-self.forage_arrived<30:
+                return []  # Search the current animal area while it respawns.
+        if (self.forage_arrived is not None or now-self.forage_started>180 or
+                now-self.forage_progress>20):
+            self.forage_index=(self.forage_index+1)%len(FOOD_POINTS)
+            self.forage_started,self.forage_position,self.forage_progress=now,p,now
+            self.forage_arrived=None
+            goal=FOOD_POINTS[self.forage_index]
+        return self._toward(goal)
 
     def recover(self,now):
         if not self.in_rook():

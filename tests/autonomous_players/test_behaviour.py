@@ -25,6 +25,14 @@ class BehaviourTests(unittest.TestCase):
             self.assertEqual([c.name for c in a.prey()],['Rabbit'])
             self.assertTrue(any(p[0]==0xa1 for p in a.step(1)))
 
+    def test_wounded_bot_without_visible_food_uses_foraging_route(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.stats.health=65
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            a.forage=lambda now:[b'\x66']
+            self.assertEqual(a.step(1),[b'\x66'])
+            self.assertEqual(a.strategy,'forage')
+
     def test_red_health_prioritizes_temple_over_passive_animal(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
             w=self.world();w.stats.health=30
@@ -82,11 +90,32 @@ class BehaviourTests(unittest.TestCase):
             for p in (Position(101,100,7),Position(103,100,7),Position(102,99,7),Position(102,101,7)):
                 w.tiles[p]=[]
             a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
-            self.assertTrue(any(packet[0]==0xa1 for packet in a.step(1)))
-            self.assertEqual(a.step(2),[b'\xbe'])
+            self.assertTrue(all(packet[0]!=0xa1 for packet in a.step(1)))
             self.assertFalse(a.priority(3))
             rat.position=Position(100,101,7)
             self.assertTrue(a.priority(4))
+
+    def test_distant_prey_is_approached_before_melee_attack(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world()
+            rat=Creature(0x40000001,'Rat',Position(102,100,7))
+            w.creatures[rat.id]=rat
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertEqual(a.step(1),[b'\x66'])
+            self.assertEqual(a.target,0)
+            w.position=Position(101,100,7)
+            self.assertTrue(any(packet[0]==0xa1 for packet in a.step(2)))
+
+    def test_fleeing_food_animal_keeps_server_follow_until_cancelled_or_unsafe(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.stats.health=70
+            rabbit=Creature(0x40000001,'Rabbit',Position(101,100,7))
+            w.creatures[rabbit.id]=rabbit
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertEqual(a.step(1)[0],b'\xa0\x01\x01\x00')
+            rabbit.position=Position(103,100,7)
+            self.assertEqual(a.step(2),[])
+            self.assertEqual(a.target,rabbit.id)
 
     def world(self):
         w = World(self_id=0x10000001,position=Position(100,100,7),stats=Stats(150,150,400,0,1))
@@ -113,6 +142,18 @@ class BehaviourTests(unittest.TestCase):
             self.assertIsNotNone(goal)
             self.assertTrue(a.step(2))
             self.assertEqual(a.destination,goal)
+
+    def test_exploration_tries_reachable_nearby_goal_before_distant_disconnected_tiles(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world()
+            w.tiles={Position(100,100,7):[Thing(102)],
+                     Position(100,101,7):[Thing(102)],
+                     Position(100,102,7):[Thing(102)]}
+            for x in range(110,118):
+                for y in range(110,118):
+                    w.tiles[Position(x,y,7)]=[Thing(102)]
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertEqual(a.step(1),[b'\x67'])
 
     def test_low_health_never_attacks_and_actions_are_rate_limited(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
@@ -151,7 +192,7 @@ class BehaviourTests(unittest.TestCase):
                 agent = Agent('Sim One',w,ITEMS,policy)
                 outputs.append(agent.step(1))
             self.assertTrue(all(a[0] != 0xa1 for a in outputs[0]))
-            self.assertTrue(any(a[0] == 0xa1 for a in outputs[1]))
+            self.assertEqual(outputs[1],[b'\x66'])
 
     def test_rejected_attack_can_retry_after_leaving_protection(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
