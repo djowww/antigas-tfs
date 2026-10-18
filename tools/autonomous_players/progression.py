@@ -28,6 +28,12 @@ class Progression:
             return []
         w=self.world
         temple=Position(32097,32219,7)
+        possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
+        gold=sum(i.count for i in possessions if i.id==3031)
+        food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
+        if w.stats.health>=65 and not self.healer_greeted and not food and gold>=3:
+            self.next_purchase=0
+            return self.step(now)
         if w.position.distance(temple)>3:
             return self._toward(temple)
         if self._npc('Cipfried'):
@@ -39,12 +45,6 @@ class Progression:
                 result=self._speak('Cipfried','bye',now)
                 if result:self.healer_greeted=False
                 return result
-        possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
-        gold=sum(i.count for i in possessions if i.id==3031)
-        food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
-        if not food and gold>=3:
-            self.next_purchase=0
-            return self.step(now)
         return []
 
     def _patrol(self,now):
