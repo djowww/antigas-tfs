@@ -48,7 +48,7 @@ class LearningStore:
 
     def record_transition(self, agent, state, action, next_state, outcome, reward, at):
         self._agent(agent)
-        if not all(isinstance(v, str) and 1 <= len(v) <= 256 for v in (state, action, next_state)):
+        if not all(isinstance(v, str) and 1 <= len(v) <= 4096 for v in (state, action, next_state)):
             raise ValueError('invalid transition')
         if not isinstance(reward, (int, float)) or not math.isfinite(reward):
             raise ValueError('invalid reward')
@@ -77,7 +77,7 @@ class LearningStore:
 
     def set_value(self, agent, state, action, value):
         self._agent(agent)
-        if not isinstance(state, str) or not 1 <= len(state) <= 256 or not isinstance(action, str) or not 1 <= len(action) <= 32:
+        if not isinstance(state, str) or not 1 <= len(state) <= 4096 or not isinstance(action, str) or not 1 <= len(action) <= 32:
             raise ValueError('invalid policy key')
         if not isinstance(value, (int, float)) or not math.isfinite(value):
             raise ValueError('invalid policy value')

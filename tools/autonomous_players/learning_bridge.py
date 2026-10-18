@@ -79,7 +79,7 @@ class LearningAgent:
             previous_value = json.loads(previous_state)
             reward = self._reward(previous_value, observation.state)
             transition_id = observation.state.get('transition_id')
-            if reward and transition_id is not None:
+            if previous_value.get('floor') != observation.state.get('floor') and transition_id is not None:
                 from .world import Position
                 source = Position(previous_value['x'], previous_value['y'], previous_value['floor'])
                 destination = Position(observation.state['x'], observation.state['y'], observation.state['floor'])

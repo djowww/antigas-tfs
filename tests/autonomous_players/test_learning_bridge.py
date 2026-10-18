@@ -120,6 +120,18 @@ class LearningBridgeTests(unittest.TestCase):
             finally:
                 agent.close()
 
+    def test_xp_gain_without_floor_change_does_not_create_stair_edge(self):
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                first = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 0, 1))
+                second = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 100, 1))
+                agent.handle(LearningObservation.from_world('A', first, 'hunt', 0))
+                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0, transition_id=1947))
+                self.assertFalse(agent.graph.can_use('A', Position(1, 1, 7), Position(1, 1, 7), 3))
+            finally:
+                agent.close()
+
     def test_observations_do_not_append_unbounded_checkpoints(self):
         with tempfile.TemporaryDirectory() as d:
             agent = LearningAgent(Path(d) / 'learning.db')

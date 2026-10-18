@@ -210,13 +210,13 @@ class PlayerRunner:
                         priority = agent.priority(now)
                         actions=choose_actions_with_learning(agent,progression,now,learned_intent)
                         if priority:
-                            last_executed_action = 'reactive'
+                            action_kind = 'reactive'
                         elif learned_intent is not None and not progression.busy and learned_intent.kind in ('hunt', 'retreat', 'wait'):
-                            last_executed_action = learned_intent.kind
+                            action_kind = learned_intent.kind
                         elif actions:
-                            last_executed_action = 'move'
+                            action_kind = 'move'
                         else:
-                            last_executed_action = 'wait'
+                            action_kind = 'none'
                         if progression.floor_authorization and actions:
                             pending_transition_id = progression.floor_authorization[1]
                             pending_transition_source = w.position
@@ -226,8 +226,10 @@ class PlayerRunner:
                         self.status.update(strategy=agent.strategy,npc_busy=progression.busy,
                             purchase=progression.purchase.state if progression.purchase else None,
                             food_available=next(agent.food(),None) is not None)
+                        sent = False
                         for action in actions:
-                            await s.send(action)
+                            sent = bool(await s.send(action)) or sent
+                        last_executed_action = action_kind if sent or action_kind == 'wait' else 'none'
                         reply=conversation.step(now,self.conversation_budget) if not progression.busy else None
                         if reply:
                             from .protocol import say

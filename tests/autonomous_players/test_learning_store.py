@@ -35,6 +35,14 @@ class LearningStoreTests(unittest.TestCase):
                     store.record_transition('A', 's', 'wait', 's', {'i': i}, 0, i + 1)
                 self.assertLessEqual(store.summary('A')['transitions'], 2)
 
+    def test_extended_observation_state_fits_storage_budget(self):
+        with tempfile.TemporaryDirectory() as d:
+            with LearningStore(Path(d) / 'learning.db') as store:
+                state = '{"' + ('x' * 500) + '"}'
+                store.record_transition('A', state, 'move', state, {}, 0, 1)
+                store.set_value('A', state, 'move', 1)
+                self.assertEqual(store.values('A', state)['move'], 1)
+
     def test_policy_values_are_persisted_in_learning_store(self):
         with tempfile.TemporaryDirectory() as d:
             with LearningStore(Path(d) / 'learning.db') as store:
