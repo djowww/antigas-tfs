@@ -25,6 +25,9 @@ def validate_config(config):
         type(config['max_players']) is not int or not 1 <= config['max_players'] <= 20 or
         not 1 <= config['game_port'] <= 65535):
         raise ValueError('explicit authorized target and maximum 1..20 required')
+    if config.get('immediate_target') is not None and (
+            type(config['immediate_target']) is not int or config['immediate_target'] != 10 or config['max_players'] != 10):
+        raise ValueError('direct admission requires explicit maximum ten')
     return config
 
 
@@ -196,7 +199,7 @@ async def run(config):
         asyncio.get_running_loop().add_signal_handler(sig,stop.set)
     with Store(state_dir/'state.db') as store:
         saved = store.restore('_supervisor')
-        guard = Supervisor(saved)
+        guard = Supervisor(saved,immediate_target=config.get('immediate_target'))
         if saved is None and config.get('preflight_baseline'):
             try:
                 previous=json.loads(Path(config['preflight_baseline']).read_text())

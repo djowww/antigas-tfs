@@ -55,7 +55,10 @@ class Supervisor:
                            reason='recent independent preflight verified')
         return guard
 
-    def __init__(self, state=None):
+    def __init__(self, state=None, *, immediate_target=None):
+        if immediate_target is not None and (type(immediate_target) is not int or immediate_target != 10):
+            raise ValueError('direct admission requires explicit target ten')
+        self.immediate_target = immediate_target
         self.state = dict(state) if state else dict(target=0, suspended=False, reason='baseline',
             started=None, tier_at=None, healthy_at=None, pid=None, last=None,
             violations={}, recoveries=[], baseline=[])
@@ -63,7 +66,10 @@ class Supervisor:
             required = {'target','suspended','started','tier_at','healthy_at','pid','last','violations','recoveries','baseline','reason'}
             if not required.issubset(state) or state['target'] not in self.TIERS:
                 raise ValueError('invalid supervisor checkpoint')
-            self.state.update(target=0,suspended=True,healthy_at=None,reason='controller restart verification')
+            reason='controller restart verification'
+            if immediate_target and state['suspended'] and state['reason'] not in ('cpu',reason):
+                reason=state['reason']
+            self.state.update(target=0,suspended=True,healthy_at=None,reason=reason)
 
     def snapshot(self):
         import copy
@@ -116,7 +122,7 @@ class Supervisor:
             del baseline[:-60]
         sorted_baseline = sorted(baseline)
         p95 = sorted_baseline[min(len(sorted_baseline)-1, int(len(sorted_baseline)*.95))] if baseline else 50
-        delayed = dict(memory=(sample.memory_mib < 512, 30), cpu=(sample.cpu_percent > 85, 60),
+        delayed = dict(memory=(sample.memory_mib < 512, 30), cpu=(sample.cpu_percent > 85 and not self.immediate_target, 60),
                        latency=(sample.latency_ms > max(250, 3*p95), 60),
                        dispatcher=(sample.dispatcher_queued > 200, 5))
         for name, (bad, duration) in delayed.items():
@@ -126,8 +132,14 @@ class Supervisor:
                     self._suspend(name)
             else:
                 s['violations'].pop(name, None)
-        healthy = (sample.memory_mib >= 768 and sample.cpu_percent <= 85 and
+        healthy = (sample.memory_mib >= 768 and (sample.cpu_percent <= 85 or self.immediate_target is not None) and
                    sample.latency_ms <= max(250, 3*p95) and sample.dispatcher_queued <= 200)
+        # Operator-authorized direct admission skips CPU/tier waiting, never a
+        # non-CPU suspension, stale observation or any critical check above.
+        if self.immediate_target and healthy and (not s['suspended'] or
+                s['reason'] in ('cpu','controller restart verification')):
+            s.update(target=self.immediate_target,suspended=False,reason='operator direct ten',tier_at=t)
+            return Decision(s['target'],False,s['reason'])
         if not healthy:
             s['healthy_at'] = None
         elif s['healthy_at'] is None:
