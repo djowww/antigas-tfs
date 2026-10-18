@@ -15,6 +15,20 @@ ITEMS = load_items(Path(__file__).resolve().parents[2] / 'data/items/items.srv')
 
 
 class BehaviourTests(unittest.TestCase):
+    def test_unreachable_pen_prey_does_not_hold_patrol_forever(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world()
+            rat=Creature(0x40000001,'Rat',Position(102,100,7))
+            w.creatures[rat.id]=rat
+            for p in (Position(101,100,7),Position(103,100,7),Position(102,99,7),Position(102,101,7)):
+                w.tiles[p]=[]
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertTrue(any(packet[0]==0xa1 for packet in a.step(1)))
+            self.assertEqual(a.step(2),[b'\xbe'])
+            self.assertFalse(a.priority(3))
+            rat.position=Position(100,101,7)
+            self.assertTrue(a.priority(4))
+
     def world(self):
         w = World(self_id=0x10000001,position=Position(100,100,7),stats=Stats(150,150,400,0,1))
         for x in range(98,104):

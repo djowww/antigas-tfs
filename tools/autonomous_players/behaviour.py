@@ -1,5 +1,6 @@
 """Conservative normal actions; strategies are selected by the persistent policy."""
 from collections import Counter
+import time
 from .world import Position
 from .navigation import find_path, walkable, walk_packet
 from .protocol import attack, use_item, move_item
@@ -22,6 +23,7 @@ class Agent:
         self.destination = None
         self.pending_loot = None
         self.attack_evidence = None
+        self.unreachable_prey = {}
 
     def food(self):
         for slot,item in self.world.inventory.items():
@@ -34,9 +36,13 @@ class Agent:
 
     def prey(self):
         w=self.world
+        current=time.monotonic()
+        self.unreachable_prey={cid:entry for cid,entry in self.unreachable_prey.items()
+            if entry[1]>current and cid in w.creatures and w.creatures[cid].position==entry[0]}
         humans=[c for c in w.creatures.values() if c.kind=='player' and c.id!=w.self_id and
                 c.name not in self.own_names and c.position]
         return [c for c in w.creatures.values() if c.kind=='monster' and c.position and c.health>0 and
+                c.id not in self.unreachable_prey and
                 c.position.distance(w.position)<=7 and
                 c.name.lower() in ('rat','cave rat','rabbit','deer','sheep','pig','chicken') and
                 not any(h.position.distance(c.position)<=3 for h in humans)]
@@ -164,6 +170,11 @@ class Agent:
                 paths = [path for goal in adjacent if (path:=find_path(w,p,goal,self.items))]
                 if paths:
                     return [walk_packet(p,min(paths,key=len)[0])]
+                if len(self.unreachable_prey)>=128:
+                    self.unreachable_prey.pop(next(iter(self.unreachable_prey)))
+                self.unreachable_prey[creature.id]=(creature.position,time.monotonic()+15)
+                self.target=0
+                return [b'\xbe']
             return []
         self.target = 0
         if self.destination and self.destination != p:
