@@ -36,6 +36,23 @@ def admission_available(active,occupied,target):
     return active < target and occupied < target
 
 
+async def connection_admission(budget,draining):
+    if budget is None:
+        return not draining.is_set()
+    acquire=asyncio.create_task(budget.acquire())
+    stopped=asyncio.create_task(draining.wait())
+    try:
+        await asyncio.wait((acquire,stopped),return_when=asyncio.FIRST_COMPLETED)
+        if draining.is_set():
+            return False
+        await acquire
+        return True
+    finally:
+        for task in (acquire,stopped):
+            if not task.done():task.cancel()
+        await asyncio.gather(acquire,stopped,return_exceptions=True)
+
+
 def choose_actions(agent,progression,now):
     progression.authorization,progression.floor_authorization=None,None
     if agent.priority(now):
@@ -80,9 +97,7 @@ class PlayerRunner:
         while not self.draining.is_set():
             task = None
             try:
-                if self.connection_budget:
-                    await self.connection_budget.acquire()
-                if self.draining.is_set():
+                if not await connection_admission(self.connection_budget,self.draining):
                     return
                 s = self.session = await Session.connect(self.config['host'],self.config['game_port'],
                     LoginCredentials(p['account'],p['character'],p['password']),int(self.config['modulus']),Decoder(self.items))

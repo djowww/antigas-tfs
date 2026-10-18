@@ -1,5 +1,20 @@
 import unittest
+import asyncio
 from tools.autonomous_players.app import validate_config, functional_population, admission_available, occupancy_ids
+
+
+class ConnectionAdmissionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_suspension_cancels_waiting_connection_without_consuming_future_slot(self):
+        from tools.autonomous_players.app import connection_admission
+        from tools.autonomous_players.runtime import RateLimit
+        budget=RateLimit(.1,1)
+        await budget.acquire()
+        draining=asyncio.Event()
+        waiting=asyncio.create_task(connection_admission(budget,draining))
+        await asyncio.sleep(.01)
+        draining.set()
+        self.assertFalse(await asyncio.wait_for(waiting,.1))
+        self.assertFalse(budget.lock.locked())
 
 
 class AppTests(unittest.TestCase):
