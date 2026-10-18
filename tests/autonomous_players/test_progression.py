@@ -21,6 +21,20 @@ class ProgressionTests(unittest.TestCase):
             self.assertEqual(p.forage(25),[b'\x66'])
             self.assertEqual(toward.call_args.args[0],FOOD_POINTS[3])
 
+    def test_foraging_waits_for_animal_respawn_and_returns_if_it_wanders_away(self):
+        from unittest.mock import patch
+        goal=FOOD_POINTS[0]
+        w=World(position=goal,stats=Stats(65,150,400,0,1))
+        p=Progression(dict(account=0,character='Sim One',city='thais',vocation='knight'),
+                      w,ITEMS,RouteGraph({goal:None}))
+        self.assertEqual(p.forage(1),[])
+        w.position=goal.shift(x=7)
+        with patch.object(p,'_toward',return_value=[b'\x68']) as toward:
+            self.assertEqual(p.forage(10),[b'\x68'])
+            self.assertEqual(toward.call_args.args[0],goal)
+            self.assertEqual(p.forage(91),[b'\x68'])
+            self.assertEqual(toward.call_args.args[0],FOOD_POINTS[1])
+
     def test_red_health_at_temple_says_hi_then_heal(self):
         w=World(position=Position(32097,32218,7),stats=Stats(30,150,400,0,1))
         npc=Creature(0x80000001,'Cipfried',Position(32097,32217,7))

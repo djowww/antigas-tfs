@@ -5,9 +5,9 @@ from .protocol import say
 from .navigation import find_path,walk_packet,walkable
 
 # Surface animal spawns verified in the active Rook spawn map.
-FOOD_POINTS = (Position(32103,32230,7), Position(32108,32230,7),
-               Position(32072,32224,7), Position(32053,32220,7),
-               Position(32084,32233,7), Position(32103,32245,7))
+FOOD_POINTS = (Position(32105,32245,7), Position(32108,32230,7),
+               Position(32085,32238,7), Position(32053,32220,7),
+               Position(32023,32225,7), Position(32074,32239,7))
 
 
 class Progression:
@@ -43,8 +43,8 @@ class Progression:
             self.forage_position,self.forage_progress=p,now
         if p.distance(goal)<=4:
             self.forage_arrived=self.forage_arrived or now
-            if now-self.forage_arrived<30:
-                return []  # Search the current animal area while it respawns.
+        if self.forage_arrived is not None and now-self.forage_arrived<90:
+            return self._toward(goal) if p.distance(goal)>6 else []
         if (self.forage_arrived is not None or now-self.forage_started>180 or
                 now-self.forage_progress>20):
             self.forage_index=(self.forage_index+1)%len(FOOD_POINTS)
