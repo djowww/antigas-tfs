@@ -28,6 +28,10 @@ class LearningStore:
             CREATE TABLE IF NOT EXISTS route_edges(
                 agent TEXT NOT NULL, source TEXT NOT NULL, destination TEXT NOT NULL,
                 transition_id INTEGER NOT NULL, success INTEGER NOT NULL, at REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS qvalues(
+                agent TEXT NOT NULL, state TEXT NOT NULL, action TEXT NOT NULL,
+                value REAL NOT NULL, updates INTEGER NOT NULL,
+                PRIMARY KEY(agent,state,action));
         ''')
         self.db.execute('PRAGMA wal_autocheckpoint=64')
         self.db.execute('PRAGMA journal_size_limit=1048576')
@@ -62,6 +66,20 @@ class LearningStore:
         with self.db:
             self.db.execute('INSERT INTO route_edges VALUES(?,?,?,?,?,?)',
                             (agent, str(source), str(destination), int(transition_id), int(bool(success)), float(at)))
+
+    def values(self, agent, state):
+        return dict(self.db.execute('SELECT action,value FROM qvalues WHERE agent=? AND state=?', (agent, state)))
+
+    def set_value(self, agent, state, action, value):
+        self._agent(agent)
+        if not isinstance(state, str) or not 1 <= len(state) <= 256 or not isinstance(action, str) or not 1 <= len(action) <= 32:
+            raise ValueError('invalid policy key')
+        if not isinstance(value, (int, float)) or not math.isfinite(value):
+            raise ValueError('invalid policy value')
+        with self.db:
+            self.db.execute('''INSERT INTO qvalues(agent,state,action,value,updates) VALUES(?,?,?,?,1)
+                               ON CONFLICT(agent,state,action) DO UPDATE SET value=excluded.value,updates=updates+1''',
+                            (agent, state, action, float(value)))
 
     def checkpoint(self, agent, payload):
         self._agent(agent)

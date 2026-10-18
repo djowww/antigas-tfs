@@ -35,6 +35,12 @@ class LearningStoreTests(unittest.TestCase):
                     store.record_transition('A', 's', 'wait', 's', {'i': i}, 0, i + 1)
                 self.assertLessEqual(store.summary('A')['transitions'], 2)
 
+    def test_policy_values_are_persisted_in_learning_store(self):
+        with tempfile.TemporaryDirectory() as d:
+            with LearningStore(Path(d) / 'learning.db') as store:
+                store.set_value('A', 'state', 'hunt', 1.5)
+                self.assertEqual(store.values('A', 'state')['hunt'], 1.5)
+
 
 if __name__ == '__main__':
     unittest.main()
