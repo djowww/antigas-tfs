@@ -5,6 +5,8 @@ from tools.autonomous_players.learning_protocol import LearningIntent
 
 class _Progression:
     busy = False
+    authorization = None
+    floor_authorization = None
 
     def recover(self, now):
         return [b'recover']

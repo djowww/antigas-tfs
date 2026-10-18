@@ -145,6 +145,21 @@ class LearningBridgeTests(unittest.TestCase):
             finally:
                 agent.close()
 
+    def test_real_xp_rewards_learning_and_unconfirmed_action_is_not_used(self):
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                first = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                second = World(position=Position(1, 1, 8), stats=Stats(140, 150, 400, 100, 1))
+                agent.handle(LearningObservation.from_world('A', first, 'hunt', 0, executed_action='reactive'))
+                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0, executed_action='hunt'))
+                reward = agent.store.db.execute('SELECT reward FROM transitions WHERE agent=?', ('A',)).fetchone()[0]
+                self.assertGreater(reward, 0)
+                outcome = agent.store.db.execute('SELECT outcome FROM transitions WHERE agent=?', ('A',)).fetchone()[0]
+                self.assertIn('"executed_action":"hunt"', outcome)
+            finally:
+                agent.close()
+
 
 if __name__ == '__main__':
     unittest.main()

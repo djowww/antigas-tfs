@@ -20,7 +20,8 @@ class LearningObservation:
     observed_at: float
 
     @classmethod
-    def from_world(cls, agent, world, goal, route_confidence, transition_id=None):
+    def from_world(cls, agent, world, goal, route_confidence, transition_id=None, executed_action=None,
+                   food_available=None, retreat_available=None):
         if not isinstance(agent, str) or not 1 <= len(agent) <= 64:
             raise ValueError('invalid agent')
         if not world.position or not _finite(route_confidence) or not 0 <= route_confidence <= 1:
@@ -47,6 +48,14 @@ class LearningObservation:
             if not isinstance(transition_id, int) or transition_id < 0:
                 raise ValueError('invalid transition id')
             state['transition_id'] = transition_id
+        if executed_action is not None:
+            if not isinstance(executed_action, str) or not 1 <= len(executed_action) <= 32:
+                raise ValueError('invalid executed action')
+            state['executed_action'] = executed_action
+        if food_available is not None:
+            state['food_available'] = bool(food_available)
+        if retreat_available is not None:
+            state['retreat_available'] = bool(retreat_available)
         return cls(agent, state, time.time())
 
     def to_message(self):

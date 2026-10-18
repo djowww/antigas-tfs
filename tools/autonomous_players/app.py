@@ -72,6 +72,7 @@ def apply_learning_intent(intent, progression, now, fallback):
 
 
 def choose_actions_with_learning(agent, progression, now, intent):
+    progression.authorization, progression.floor_authorization = None, None
     if agent.priority(now):
         return agent.step(now)
     if intent is not None and not progression.busy:
@@ -142,6 +143,9 @@ class PlayerRunner:
                     self.config.get('hunting_points',[]), learned_graph=self.learned_graph)
                 agent.escape=progression.recover
                 initial_exp,last_social,last_ping,last_saved,last_learning = None,0,0,0,0
+                last_executed_action = 'wait'
+                pending_transition_id = None
+                last_learning_floor = None
                 async def observed(events):
                     agent.observe(events,time.monotonic())
                     progression.observe(events,time.monotonic())
@@ -171,9 +175,15 @@ class PlayerRunner:
                     if self.learning and self.status['online'] and now-last_learning >= 2:
                         observation = LearningObservation.from_world(p['character'], w,
                             'retreat' if w.stats.health < max(1, int(w.stats.max_health * .65)) else 'hunt',
-                            0.0)
+                            0.0, transition_id=pending_transition_id,
+                            executed_action=last_executed_action,
+                            food_available=next(agent.food(), None) is not None,
+                            retreat_available=progression.in_rook())
                         await self.learning.publish_async(observation)
                         learned_intent = self.learning.poll_intent(time.time())
+                        if pending_transition_id is not None and last_learning_floor is not None and w.position.z != last_learning_floor:
+                            pending_transition_id = None
+                        last_learning_floor = w.position.z
                         last_learning = now
                     if (not self.draining.is_set() and self.status['online'] and
                             w.stats.max_health>0 and w.stats.health<=0):
@@ -188,7 +198,18 @@ class PlayerRunner:
                         if not (w.icons & 128) or now-drain_started >= 90:
                             break
                     else:
+                        priority = agent.priority(now)
                         actions=choose_actions_with_learning(agent,progression,now,learned_intent)
+                        if priority:
+                            last_executed_action = 'reactive'
+                        elif learned_intent is not None and not progression.busy and learned_intent.kind in ('hunt', 'retreat', 'wait'):
+                            last_executed_action = learned_intent.kind
+                        elif actions:
+                            last_executed_action = 'move'
+                        else:
+                            last_executed_action = 'wait'
+                        if progression.floor_authorization and actions:
+                            pending_transition_id = progression.floor_authorization[1]
                         if progression.authorization:
                             s.gate.authorize_speech(*progression.authorization)
                         s.gate.floor_token=progression.floor_authorization

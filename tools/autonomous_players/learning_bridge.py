@@ -41,6 +41,25 @@ class LearningAgent:
             self.policies[agent] = Policy(self.store, agent, random.Random(agent))
         return self.policies[agent]
 
+    @staticmethod
+    def _reward(previous, current):
+        """Turn observed outcomes into a bounded learning signal.
+
+        Rewards come only from the world snapshot: floor progress and real XP
+        are positive, damage and death are negative.  The cap prevents one
+        unusually large server-side XP update from dominating future policy.
+        """
+        xp_delta = current.get('experience', 0) - previous.get('experience', 0)
+        health_delta = current.get('health', 0) - previous.get('health', 0)
+        reward = 1.0 if previous.get('floor') != current.get('floor') else 0.0
+        if xp_delta > 0:
+            reward += min(2.0, xp_delta / 100.0)
+        if health_delta < 0:
+            reward -= min(1.0, abs(health_delta) / max(1.0, previous.get('max_health', 1)))
+        if current.get('death'):
+            reward -= 3.0
+        return max(-5.0, min(5.0, reward))
+
     def handle(self, observation):
         if not isinstance(observation, LearningObservation):
             raise TypeError('LearningObservation required')
@@ -58,23 +77,34 @@ class LearningAgent:
         if previous:
             previous_state, previous_action, previous_at = previous
             previous_value = json.loads(previous_state)
-            reward = 1.0 if previous_value.get('floor') != observation.state.get('floor') else 0.0
+            reward = self._reward(previous_value, observation.state)
             transition_id = observation.state.get('transition_id')
             if reward and transition_id is not None:
                 from .world import Position
                 source = Position(previous_value['x'], previous_value['y'], previous_value['floor'])
                 destination = Position(observation.state['x'], observation.state['y'], observation.state['floor'])
                 self.graph.record_stair_observation(observation.agent, source, transition_id, destination)
-                self.graph.observe_transition(observation.agent, source, destination, transition_id, observation.observed_at)
-                self.curriculum.record(observation.agent, {'region': 'cave', 'floor': observation.state['floor']})
+                verified = self.graph.observe_transition(observation.agent, source, destination, transition_id, observation.observed_at)
+                self.store.route_edge(observation.agent, source, destination, transition_id, verified, observation.observed_at)
+                from types import SimpleNamespace
+                world_like = SimpleNamespace(stats=SimpleNamespace(
+                    health=observation.state.get('health', 0),
+                    max_health=observation.state.get('max_health', 0)))
+                if self.curriculum.ready_for(observation.agent, 'cave', world_like,
+                                             observation.state.get('food_available', False),
+                                             observation.state.get('retreat_available', False)):
+                    self.curriculum.record(observation.agent, {'region': 'cave', 'floor': observation.state['floor']})
+            executed_action = observation.state.get('executed_action')
             self.store.record_transition(observation.agent, previous_state, previous_action, state,
                                          {'floor': observation.state.get('floor'),
                                           'xp_delta': observation.state.get('experience', 0) - previous_value.get('experience', 0),
                                           'health_delta': observation.state.get('health', 0) - previous_value.get('health', 0),
                                           'death': observation.state.get('death', False),
-                                          'executed_action': previous_action}, reward, observation.observed_at)
-            self._policy(observation.agent).update(previous_state, previous_action, reward, state,
-                                                   ('move', 'hunt', 'retreat', 'wait'))
+                                          'executed_action': executed_action}, reward, observation.observed_at)
+            if executed_action in ('move', 'hunt', 'retreat', 'wait'):
+                self._policy(observation.agent).update(previous_state, executed_action, reward, state,
+                                                       ('move', 'hunt', 'retreat', 'wait'),
+                                                       terminal=bool(observation.state.get('death')))
         if observation.state.get('health_band') in ('critical', 'wounded'):
             kind = 'retreat'
         else:

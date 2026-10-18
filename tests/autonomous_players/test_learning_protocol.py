@@ -34,6 +34,11 @@ class LearningProtocolTests(unittest.TestCase):
         obs = LearningObservation.from_world('A', world, 'hunt', 0, transition_id=1947)
         self.assertEqual(obs.state['transition_id'], 1947)
 
+    def test_executed_action_is_optional_and_bounded(self):
+        world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+        obs = LearningObservation.from_world('A', world, 'hunt', 0, executed_action='move')
+        self.assertEqual(obs.state['executed_action'], 'move')
+
 
 if __name__ == '__main__':
     unittest.main()

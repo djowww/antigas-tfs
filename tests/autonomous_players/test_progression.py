@@ -92,3 +92,15 @@ class ProgressionTests(unittest.TestCase):
         with patch.object(p,'_toward',side_effect=[[],[b'\x66']]):
             self.assertEqual(p.step(1),[b'\x66'])
         self.assertIsNotNone(learned.next_goal('Sim One',w.position,p.hunting_points,2))
+
+    def test_all_cooled_down_goals_hold_instead_of_repeating_blocked_route(self):
+        from tools.autonomous_players.learned_navigation import RegionGraph
+        w=World(position=Position(100,100,7),stats=Stats(150,150,400,0,1))
+        learned=RegionGraph()
+        profile=dict(account=1,character='Sim One',city='thais',vocation='knight')
+        goals=[(102,100,7),(101,100,7)]
+        p=Progression(profile,w,ITEMS,RouteGraph({w.position:None}),rook_bounds=(99,99,105,105),
+                      hunting_points=goals,learned_graph=learned)
+        for goal in p.hunting_points:
+            learned.record_failure('Sim One', w.position, goal, 'blocked', 1)
+        self.assertEqual(p.step(2),[])

@@ -58,6 +58,8 @@ class Progression:
             if learned_goal is not None:
                 goal=learned_goal
                 self.hunting_index=self.hunting_points.index(learned_goal)
+            elif self.learned_graph.has_blocked_goal(self.profile['character'], p, self.hunting_points, now):
+                return []
         if self.hunting_started is None:
             self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
         elif p!=self.hunting_position:
@@ -66,6 +68,13 @@ class Progression:
             self.hunting_index=(self.hunting_index+1)%len(self.hunting_points)
             self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
             goal=self.hunting_points[self.hunting_index]
+            if self.learned_graph:
+                learned_goal=self.learned_graph.next_goal(self.profile['character'], p, self.hunting_points, now)
+                if learned_goal is not None:
+                    goal=learned_goal
+                    self.hunting_index=self.hunting_points.index(learned_goal)
+                elif self.learned_graph.has_blocked_goal(self.profile['character'], p, self.hunting_points, now):
+                    return []
         route = self._toward(goal)
         if route or not self.learned_graph:
             return route

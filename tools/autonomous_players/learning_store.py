@@ -10,10 +10,10 @@ VERSION = 1
 
 
 class LearningStore:
-    def __init__(self, path, max_agents=24, max_events=100000, max_values=4096, max_edges=20000):
+    def __init__(self, path, max_agents=24, max_events=100000, max_values=4096, max_edges=20000, max_checkpoints=8):
         self.path = Path(path)
         self.max_agents, self.max_events = max_agents, max_events
-        self.max_values, self.max_edges = max_values, max_edges
+        self.max_values, self.max_edges, self.max_checkpoints = max_values, max_edges, max_checkpoints
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(self.path)
         self.db.executescript('''
@@ -64,11 +64,13 @@ class LearningStore:
 
     def route_edge(self, agent, source, destination, transition_id, success, at):
         self._agent(agent)
-        if self.db.execute('SELECT count(*) FROM route_edges WHERE agent=?', (agent,)).fetchone()[0] >= self.max_edges:
-            raise ValueError('route edge budget exhausted')
         with self.db:
             self.db.execute('INSERT INTO route_edges VALUES(?,?,?,?,?,?)',
                             (agent, str(source), str(destination), int(transition_id), int(bool(success)), float(at)))
+            self.db.execute('''DELETE FROM route_edges WHERE rowid IN
+                               (SELECT rowid FROM route_edges WHERE agent=? ORDER BY at ASC, rowid ASC
+                                LIMIT max(0, (SELECT count(*) FROM route_edges WHERE agent=?)-?))''',
+                            (agent, agent, self.max_edges))
 
     def values(self, agent, state):
         return dict(self.db.execute('SELECT action,value FROM qvalues WHERE agent=? AND state=?', (agent, state)))
@@ -81,9 +83,10 @@ class LearningStore:
             raise ValueError('invalid policy value')
         exists = self.db.execute('SELECT 1 FROM qvalues WHERE agent=? AND state=? AND action=?',
                                  (agent, state, action)).fetchone()
-        if not exists and self.db.execute('SELECT count(*) FROM qvalues WHERE agent=?', (agent,)).fetchone()[0] >= self.max_values:
-            raise ValueError('policy value budget exhausted')
         with self.db:
+            if not exists and self.db.execute('SELECT count(*) FROM qvalues WHERE agent=?', (agent,)).fetchone()[0] >= self.max_values:
+                self.db.execute('''DELETE FROM qvalues WHERE rowid IN
+                                   (SELECT rowid FROM qvalues WHERE agent=? ORDER BY updates ASC, rowid ASC LIMIT 1)''', (agent,))
             self.db.execute('''INSERT INTO qvalues(agent,state,action,value,updates) VALUES(?,?,?,?,1)
                                ON CONFLICT(agent,state,action) DO UPDATE SET value=excluded.value,updates=updates+1''',
                             (agent, state, action, float(value)))
@@ -97,6 +100,9 @@ class LearningStore:
         with self.db:
             seq = self.db.execute('SELECT coalesce(max(seq),0)+1 FROM checkpoints WHERE agent=?', (agent,)).fetchone()[0]
             self.db.execute('INSERT INTO checkpoints VALUES(?,?,?,?)', (agent, seq, encoded, checksum))
+            self.db.execute('''DELETE FROM checkpoints WHERE agent=? AND seq NOT IN
+                               (SELECT seq FROM checkpoints WHERE agent=? ORDER BY seq DESC LIMIT ?)''',
+                            (agent, agent, self.max_checkpoints))
         return checksum
 
     def restore_latest(self, agent):

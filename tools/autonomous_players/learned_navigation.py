@@ -55,6 +55,12 @@ class RegionGraph:
                 candidates.append(target)
         return min(candidates, key=lambda target: current.distance(target)) if candidates else None
 
+    def has_blocked_goal(self, agent, current, safe_routes, now):
+        """Whether learned evidence currently blocks every supplied goal."""
+        targets = set(safe_routes)
+        return any(owner == agent and edge.source == current and edge.destination in targets and
+                   edge.cooldown_until > now for (owner, *_), edge in self._edges.items())
+
 
 class Curriculum:
     def __init__(self, minimum_health_ratio=0.65):
