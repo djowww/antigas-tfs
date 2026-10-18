@@ -7,7 +7,7 @@ from .navigation import find_path,walk_packet,walkable
 
 class Progression:
     def __init__(self,profile,world,items,routes=None,oracle_position=Position(32104,32190,6),
-                 rook_bounds=(32000,32000,32200,32350),hunting_points=()):
+                 rook_bounds=(32000,32000,32200,32350),hunting_points=(),learned_graph=None):
         self.profile,self.world,self.items,self.routes = profile,world,items,routes
         self.oracle_position,self.rook_bounds = oracle_position,rook_bounds
         self.oracle = Oracle(profile['character'],profile['city'],profile['vocation'])
@@ -20,6 +20,7 @@ class Progression:
         if len(hunting_points)>64:
             raise ValueError('hunting route budget exceeded')
         self.hunting_points=tuple(Position(*p) for p in hunting_points)
+        self.learned_graph=learned_graph
         self.hunting_index=profile.get('account',0)%len(self.hunting_points) if self.hunting_points else 0
         self.hunting_started,self.hunting_position,self.hunting_progress=None,None,None
 
@@ -52,6 +53,11 @@ class Progression:
             return []
         p=self.world.position
         goal=self.hunting_points[self.hunting_index]
+        if self.learned_graph:
+            learned_goal=self.learned_graph.next_goal(self.profile['character'], p, self.hunting_points, now)
+            if learned_goal is not None:
+                goal=learned_goal
+                self.hunting_index=self.hunting_points.index(learned_goal)
         if self.hunting_started is None:
             self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
         elif p!=self.hunting_position:

@@ -70,3 +70,13 @@ class ProgressionTests(unittest.TestCase):
         self.assertEqual(p.step(1),[b'\x66'])
         w.tiles[b]=[Thing(102),Thing(0,creature_id=0x10000002)]
         self.assertEqual(p.step(2),[])
+
+    def test_learned_graph_skips_cooled_down_hunting_goal(self):
+        from tools.autonomous_players.learned_navigation import RegionGraph
+        a,b,c=Position(100,100,7),Position(101,100,7),Position(102,100,7)
+        w=World(position=a,stats=Stats(150,150,400,0,1)); w.tiles[b]=[Thing(102)]
+        graph=RouteGraph({a:None,b:None,c:None})
+        learned=RegionGraph(); learned.record_failure('Sim One',a,c,'blocked',1)
+        profile=dict(account=1,character='Sim One',city='thais',vocation='knight')
+        p=Progression(profile,w,ITEMS,graph,rook_bounds=(99,99,105,105),hunting_points=[(102,100,7),(101,100,7)],learned_graph=learned)
+        self.assertEqual(p.step(2),[b'\x66'])
