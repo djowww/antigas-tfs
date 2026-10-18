@@ -56,8 +56,8 @@ class Supervisor:
         return guard
 
     def __init__(self, state=None, *, immediate_target=None):
-        if immediate_target is not None and (type(immediate_target) is not int or immediate_target != 10):
-            raise ValueError('direct admission requires explicit target ten')
+        if immediate_target is not None and (type(immediate_target) is not int or immediate_target not in (10,20)):
+            raise ValueError('direct admission requires explicit target ten or twenty')
         self.immediate_target = immediate_target
         self.state = dict(state) if state else dict(target=0, suspended=False, reason='baseline',
             started=None, tier_at=None, healthy_at=None, pid=None, last=None,
@@ -138,7 +138,7 @@ class Supervisor:
         # non-CPU suspension, stale observation or any critical check above.
         if self.immediate_target and healthy and (not s['suspended'] or
                 s['reason'] in ('cpu','controller restart verification')):
-            s.update(target=self.immediate_target,suspended=False,reason='operator direct ten',tier_at=t)
+            s.update(target=self.immediate_target,suspended=False,reason=f'operator direct {self.immediate_target}',tier_at=t)
             return Decision(s['target'],False,s['reason'])
         if not healthy:
             s['healthy_at'] = None

@@ -39,7 +39,7 @@ class DirectAdmissionTests(unittest.TestCase):
         failed=Supervisor()
         failed._suspend('client protocol fault')
         self.assertEqual(Supervisor(failed.snapshot(),immediate_target=10).observe(self.sample()).target,0)
-        for target in (1,20,True,'10'):
+        for target in (1,21,True,'10'):
             with self.assertRaises(ValueError):Supervisor(immediate_target=target)
 
     def test_config_requires_matching_ten_cap(self):
@@ -49,3 +49,13 @@ class DirectAdmissionTests(unittest.TestCase):
         self.assertEqual(validate_config(config)['immediate_target'],10)
         for changed in ({'max_players':20},{'immediate_target':True},{'immediate_target':20}):
             with self.assertRaises(ValueError):validate_config(dict(config,**changed))
+
+    def test_explicit_twenty_and_matching_cap(self):
+        from tools.autonomous_players.app import validate_config
+        guard=Supervisor(immediate_target=20)
+        for t in range(0,125,5):
+            self.assertEqual(guard.observe(self.sample(t)).target,20)
+        config=dict(identity='qa',public_authorized=True,max_players=20,host='127.0.0.1',game_port=7186,
+                    manifest='private',state_dir='state',health_file='health',items='items',modulus='1',immediate_target=20)
+        self.assertEqual(validate_config(config)['immediate_target'],20)
+        self.assertEqual(guard.observe(self.sample(125,memory_mib=300)).target,0)

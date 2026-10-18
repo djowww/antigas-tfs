@@ -26,8 +26,9 @@ def validate_config(config):
         not 1 <= config['game_port'] <= 65535):
         raise ValueError('explicit authorized target and maximum 1..20 required')
     if config.get('immediate_target') is not None and (
-            type(config['immediate_target']) is not int or config['immediate_target'] != 10 or config['max_players'] != 10):
-        raise ValueError('direct admission requires explicit maximum ten')
+            type(config['immediate_target']) is not int or config['immediate_target'] not in (10,20) or
+            config['max_players'] != config['immediate_target']):
+        raise ValueError('direct admission requires matching explicit maximum ten or twenty')
     return config
 
 
