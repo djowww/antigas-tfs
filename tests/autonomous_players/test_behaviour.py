@@ -15,6 +15,16 @@ ITEMS = load_items(Path(__file__).resolve().parents[2] / 'data/items/items.srv')
 
 
 class BehaviourTests(unittest.TestCase):
+    def test_multiple_adjacent_rats_trigger_retreat_before_health_collapses(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world()
+            for cid,position in ((0x40000001,Position(101,100,7)),(0x40000002,Position(100,101,7))):
+                w.creatures[cid]=Creature(cid,'Rat',position)
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertTrue(a.priority(1))
+            self.assertTrue(all(p[0]!=0xa1 for p in a.step(1)))
+            self.assertEqual(a.strategy,'retreat')
+
     def test_unreachable_pen_prey_does_not_hold_patrol_forever(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
             w=self.world()

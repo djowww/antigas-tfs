@@ -4,6 +4,30 @@ from tools.autonomous_players.app import validate_config, functional_population,
 
 
 class ConnectionAdmissionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_dead_session_relogs_without_ping_timeout_or_database_repair(self):
+        from unittest.mock import AsyncMock,MagicMock,patch
+        from types import SimpleNamespace
+        from tools.autonomous_players.app import PlayerRunner
+        from tools.autonomous_players.world import World,Stats,Position
+        store=MagicMock()
+        profile=dict(account=1,character='Sim Test',password='qa',vocation='knight',city='thais')
+        runner=PlayerRunner(profile,dict(host='127.0.0.1',game_port=1,modulus='1'),{},store,{'Sim Test'})
+        sessions=[]
+        async def receive():await asyncio.Future()
+        async def connect(*args):
+            world=World(self_id=0x10000001,position=Position(100,100,7),stats=Stats(0 if not sessions else 150,150,400,0,1))
+            session=SimpleNamespace(world=world,gate=MagicMock(),receive=receive,send=AsyncMock(),close=AsyncMock(),ping=AsyncMock())
+            sessions.append(session)
+            if len(sessions)>1:runner.draining.set()
+            return session
+        with patch('tools.autonomous_players.app.Session.connect',side_effect=connect),patch('tools.autonomous_players.app.Agent'),patch('tools.autonomous_players.app.Progression'),patch('tools.autonomous_players.app.Conversation'):
+            await asyncio.wait_for(runner.run(),7)
+        self.assertEqual(len(sessions),2)
+        sessions[0].ping.assert_not_awaited()
+        sessions[0].close.assert_awaited_once()
+        self.assertEqual(runner.status['failures'],0)
+        self.assertTrue(any(call.args[2]=='death' for call in store.event.call_args_list))
+
     async def test_suspension_cancels_waiting_connection_without_consuming_future_slot(self):
         from tools.autonomous_players.app import connection_admission
         from tools.autonomous_players.runtime import RateLimit

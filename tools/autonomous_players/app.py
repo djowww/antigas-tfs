@@ -138,6 +138,11 @@ class PlayerRunner:
                     self.status.update(level=w.stats.level,experience=w.stats.experience,
                         xp_gain=max(0,w.stats.experience-(initial_exp or 0)),health=w.stats.health,
                         position=[w.position.x,w.position.y,w.position.z] if w.position else None)
+                    if (not self.draining.is_set() and self.status['online'] and
+                            w.stats.max_health>0 and w.stats.health<=0):
+                        self.status['deaths']=self.status.get('deaths',0)+1
+                        self.store.event(time.time(),p['character'],'death',dict(level=w.stats.level))
+                        break  # Dead clients cannot receive new-ping replies.
                     if self.draining.is_set():
                         if drain_started is None:
                             drain_started = now
@@ -177,7 +182,8 @@ class PlayerRunner:
                         self.store.checkpoint(p['character'],dict(self.status))
                         last_saved = now
                     await asyncio.sleep(.2)
-                return
+                if self.draining.is_set():
+                    return
             except (OSError,EOFError,TimeoutError,ProtocolError) as exc:
                 failures += 1
                 self.status.update(failures=failures,error=type(exc).__name__)

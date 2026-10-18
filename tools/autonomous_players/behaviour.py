@@ -47,11 +47,19 @@ class Agent:
                 c.name.lower() in ('rat','cave rat','rabbit','deer','sheep','pig','chicken') and
                 not any(h.position.distance(c.position)<=3 for h in humans)]
 
+    def retreat_needed(self):
+        w=self.world
+        if not w.position:return False
+        near=[c for c in w.creatures.values() if c.kind=='monster' and c.position and
+              c.health>0 and c.position.distance(w.position)<=3]
+        aggressive=[c for c in near if c.name.lower() not in ('rabbit','deer','sheep','pig','chicken')]
+        return w.stats.health<w.stats.max_health*.65 or len(aggressive)>=2
+
     def priority(self,now):
         w=self.world
         if not w.valid or not w.position or not w.stats.level:
             return False
-        return (w.stats.health<w.stats.max_health*.45 or
+        return (self.retreat_needed() or
                 self.withdraw_target() or
                 (3 in w.inventory and 0 not in w.containers) or
                 (now>=self.next_food and next(self.food(),None) is not None) or
@@ -112,7 +120,7 @@ class Agent:
             if food:
                 self.next_food = now+90
                 return [use_item(*food)]
-        if health < .45:
+        if self.retreat_needed():
             self.strategy = 'retreat'
             if self.target:
                 self.target = 0
