@@ -146,6 +146,7 @@ class PlayerRunner:
                 last_executed_action = 'wait'
                 pending_transition_id = None
                 pending_transition_source = None
+                pending_transition_deadline = 0
                 last_learning_floor = None
                 async def observed(events):
                     agent.observe(events,time.monotonic())
@@ -174,6 +175,9 @@ class PlayerRunner:
                         position=[w.position.x,w.position.y,w.position.z] if w.position else None)
                     learned_intent = None
                     if self.learning and self.status['online'] and now-last_learning >= 2:
+                        if pending_transition_id is not None and now > pending_transition_deadline:
+                            pending_transition_id = None
+                            pending_transition_source = None
                         observation = LearningObservation.from_world(p['character'], w,
                             'retreat' if w.stats.health < max(1, int(w.stats.max_health * .65)) else 'hunt',
                             0.0, transition_id=pending_transition_id,
@@ -217,9 +221,8 @@ class PlayerRunner:
                             action_kind = 'move'
                         else:
                             action_kind = 'none'
-                        if progression.floor_authorization and actions:
-                            pending_transition_id = progression.floor_authorization[1]
-                            pending_transition_source = w.position
+                        floor_attempt = progression.floor_authorization if actions else None
+                        floor_source = w.position if floor_attempt else None
                         if progression.authorization:
                             s.gate.authorize_speech(*progression.authorization)
                         s.gate.floor_token=progression.floor_authorization
@@ -230,6 +233,14 @@ class PlayerRunner:
                         for action in actions:
                             sent = bool(await s.send(action)) or sent
                         last_executed_action = action_kind if sent or action_kind == 'wait' else 'none'
+                        if floor_attempt:
+                            if sent:
+                                pending_transition_id = floor_attempt[1]
+                                pending_transition_source = floor_source
+                                pending_transition_deadline = now + 15
+                            else:
+                                pending_transition_id = None
+                                pending_transition_source = None
                         reply=conversation.step(now,self.conversation_budget) if not progression.busy else None
                         if reply:
                             from .protocol import say
