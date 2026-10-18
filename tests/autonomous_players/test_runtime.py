@@ -33,6 +33,26 @@ class GateTests(unittest.TestCase):
 
 
 class SessionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_shared_connection_budget_spaces_reconnecting_clients(self):
+        state=[0.0]
+        async def sleep(delay):state[0]+=delay
+        budget=RateLimit(.1,1,clock=lambda:state[0],sleep=sleep)
+        admitted=[]
+        for _ in range(20):
+            await budget.acquire();admitted.append(state[0])
+        self.assertEqual(admitted,list(range(0,200,10)))
+
+    async def test_deadline_reports_only_fixed_stage_and_cancels_operation(self):
+        from tools.autonomous_players.runtime import deadline, SessionTimeout
+        cancelled=[]
+        async def blocked():
+            try:await asyncio.Future()
+            finally:cancelled.append(True)
+        with self.assertRaises(SessionTimeout) as failure:
+            await deadline(blocked(),.01,'read')
+        self.assertEqual(failure.exception.stage,'read')
+        self.assertEqual(cancelled,[True])
+
     async def test_rate_budget_waits_without_dropping_actions(self):
         state=[0.0]
         async def sleep(delay):

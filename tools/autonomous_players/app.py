@@ -64,12 +64,13 @@ def functional_population(status,population,target,now=None):
 
 
 class PlayerRunner:
-    def __init__(self,profile,config,items,store,names,routes=None,budget=None,conversation_budget=None):
+    def __init__(self,profile,config,items,store,names,routes=None,budget=None,conversation_budget=None,connection_budget=None):
         self.profile,self.config,self.items,self.store,self.names = profile,config,items,store,names
         self.draining = asyncio.Event()
         self.session = None
         self.routes=routes
         self.budget=budget
+        self.connection_budget=connection_budget
         self.conversation_budget=conversation_budget or ReplyBudget()
         self.status = dict(online=False,moves=0,xp_gain=0,failures=0)
 
@@ -79,6 +80,10 @@ class PlayerRunner:
         while not self.draining.is_set():
             task = None
             try:
+                if self.connection_budget:
+                    await self.connection_budget.acquire()
+                if self.draining.is_set():
+                    return
                 s = self.session = await Session.connect(self.config['host'],self.config['game_port'],
                     LoginCredentials(p['account'],p['character'],p['password']),int(self.config['modulus']),Decoder(self.items))
                 s.gate.own_names = self.names
@@ -161,6 +166,8 @@ class PlayerRunner:
             except (OSError,EOFError,TimeoutError,ProtocolError) as exc:
                 failures += 1
                 self.status.update(failures=failures,error=type(exc).__name__)
+                stage=getattr(exc,'stage',None)
+                self.status['error_stage']=stage
                 self.store.event(time.time(),p['character'],'connection_failure',dict(kind=type(exc).__name__))
                 if isinstance(exc,ProtocolError):
                     # A changed layout needs a reviewed fix, not an endless login loop.
@@ -213,6 +220,7 @@ async def run(config):
         names = {p['character'] for p in profiles}
         last_admission,last_measurement = 0,None
         budget=RateLimit(40,40)
+        connection_budget=RateLimit(.1,1)
         conversation_budget=ReplyBudget()
         paused = False
         try:
@@ -263,7 +271,7 @@ async def run(config):
                         key = p['player_id']
                         if key in runners and (not tasks[key].done() or runners[key].status.get('halted')):
                             continue
-                        runner = PlayerRunner(p,config,items,store,names,routes,budget,conversation_budget)
+                        runner = PlayerRunner(p,config,items,store,names,routes,budget,conversation_budget,connection_budget)
                         runners[key],tasks[key] = runner,asyncio.create_task(runner.run())
                         last_admission = now
                         break

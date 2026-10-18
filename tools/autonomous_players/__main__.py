@@ -55,7 +55,8 @@ def main():
             if result.get('error'):
                 print(json.dumps(result),flush=True)
             atomic_json(config['health_file'],result)
-            time.sleep(max(.1,5-(time.monotonic()-started)))
+            # Stay above the native per-IP attempt window, including retries.
+            time.sleep(max(.1,6-(time.monotonic()-started)))
     elif args.command == 'run':
         from .app import run
         asyncio.run(run(config))

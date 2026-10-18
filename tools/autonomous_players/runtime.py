@@ -9,6 +9,19 @@ from .protocol import read_position
 from .navigation import DIRECTIONS, walkable
 
 
+class SessionTimeout(TimeoutError):
+    def __init__(self,stage):
+        self.stage=stage
+        super().__init__(stage)
+
+
+async def deadline(operation,seconds,stage):
+    try:
+        return await asyncio.wait_for(operation,seconds)
+    except TimeoutError:
+        raise SessionTimeout(stage) from None
+
+
 class RateLimit:
     def __init__(self,rate,burst,clock=time.monotonic,sleep=asyncio.sleep):
         if rate<=0 or burst<1:
@@ -149,11 +162,11 @@ class Session:
 
     @classmethod
     async def connect(cls,host,port,credentials,modulus,decoder):
-        reader,writer = await asyncio.wait_for(asyncio.open_connection(host,port,limit=1048576),10)
+        reader,writer = await deadline(asyncio.open_connection(host,port,limit=1048576),10,'connect')
         key = struct.unpack('<IIII',secrets.token_bytes(16))
         try:
             writer.write(credentials.packet(key,modulus))
-            await asyncio.wait_for(writer.drain(),5)
+            await deadline(writer.drain(),5,'login_write')
         except BaseException:
             writer.close()
             await writer.wait_closed()
@@ -173,7 +186,7 @@ class Session:
                 return False
         async with self.send_lock:
             self.writer.write(self.codec.encode(packet))
-            await asyncio.wait_for(self.writer.drain(),5)
+            await deadline(self.writer.drain(),5,'write')
         return True
 
     async def receive(self):
@@ -182,7 +195,7 @@ class Session:
         self._receiving = True
         try:
             while True:
-                incoming = await asyncio.wait_for(self.reader.read(65536),90)
+                incoming = await deadline(self.reader.read(65536),90,'read')
                 if not incoming:
                     raise EOFError('game connection closed')
                 for payload in self.codec.feed(incoming):
@@ -206,7 +219,7 @@ class Session:
     async def ping(self):
         from .wire import Writer
         if len(self.pings) >= 3:
-            raise TimeoutError('game ping response missing')
+            raise SessionTimeout('ping_ack')
         identifier = secrets.randbits(32)
         self.pings[identifier] = time.monotonic()
         return await self.send(Writer().u8(0x40).u32(identifier).u16(0).u16(0).data)
