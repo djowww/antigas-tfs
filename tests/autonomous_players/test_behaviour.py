@@ -107,6 +107,19 @@ class BehaviourTests(unittest.TestCase):
             w.position=Position(101,100,7)
             self.assertTrue(any(packet[0]==0xa1 for packet in a.step(2)))
 
+    def test_safe_visible_prey_overrides_patrol_and_starts_hunt(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world()
+            rat=Creature(0x40000001,'Rat',Position(104,100,7))
+            w.creatures[rat.id]=rat
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            self.assertTrue(a.priority(1))
+            a.policy.choose=lambda state,allowed:'explore' if 'explore' in allowed else allowed[0]
+            actions=a.step(1)
+            self.assertEqual(a.strategy,'hunt')
+            self.assertTrue(actions)
+            self.assertEqual(actions[0][0],0x66)
+
     def test_fleeing_food_animal_keeps_server_follow_until_cancelled_or_unsafe(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
             w=self.world();w.stats.health=70

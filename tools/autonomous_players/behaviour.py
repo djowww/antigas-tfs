@@ -75,7 +75,7 @@ class Agent:
                 (now>=self.next_food and next(self.food(),None) is not None) or
                 any(expiry>now and location.distance(w.position)<=7
                     for (location,_),expiry in self.allowed_corpses.items()) or
-                any(c.position.distance(w.position)<=3 for c in self.prey()))
+                any(c.position.distance(w.position)<=7 for c in self.prey()))
 
     def withdraw_target(self):
         current=self.world.creatures.get(self.target)
@@ -190,7 +190,7 @@ class Agent:
                 self.strategy='forage'
                 return route
         state = f'l{min(w.stats.level,30)//3}:h{int(health*3)}:m{min(len(prey),3)}'
-        reactive = any(p.distance(c.position) <= 3 or c.id == self.target for c in prey)
+        reactive = bool(prey)
         if health < .65 and prey:
             reactive = True  # Food gathering is the wounded character's current goal.
         allowed = ['hunt'] if reactive else ['explore'] + (['hunt'] if prey else [])
