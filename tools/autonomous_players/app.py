@@ -10,6 +10,8 @@ from .conversation import Conversation,ReplyBudget
 from .definitions import load_items
 from .health import atomic_json
 from .learning import Policy
+from .learning_bridge import LearningBridge
+from .learning_protocol import LearningObservation
 from .protocol import Decoder
 from .progression import Progression
 from .runtime import Session,RateLimit
@@ -61,6 +63,13 @@ def choose_actions(agent,progression,now):
     return actions if actions or progression.busy else agent.step(now)
 
 
+def apply_learning_intent(intent, progression, now, fallback):
+    if intent is not None and intent.kind == 'retreat':
+        recovered = progression.recover(now)
+        return recovered or fallback
+    return fallback
+
+
 def occupancy_ids(active_tasks,disconnected,rows,sql_at):
     occupied=set(active_tasks)
     online={row[0] for row in rows if row[-1]==1}
@@ -90,6 +99,7 @@ class PlayerRunner:
         self.connection_budget=connection_budget
         self.conversation_budget=conversation_budget or ReplyBudget()
         self.status = dict(online=False,moves=0,xp_gain=0,failures=0)
+        self.learning = LearningBridge(config['learning_socket']) if config.get('learning_socket') else None
 
     async def run(self):
         p = self.profile
@@ -113,7 +123,7 @@ class PlayerRunner:
                     tuple(self.config.get('rook_bounds',[32000,32000,32200,32350])),
                     self.config.get('hunting_points',[]))
                 agent.escape=progression.recover
-                initial_exp,last_social,last_ping,last_saved = None,0,0,0
+                initial_exp,last_social,last_ping,last_saved,last_learning = None,0,0,0,0
                 async def observed(events):
                     agent.observe(events,time.monotonic())
                     progression.observe(events,time.monotonic())
@@ -139,6 +149,14 @@ class PlayerRunner:
                     self.status.update(level=w.stats.level,experience=w.stats.experience,
                         xp_gain=max(0,w.stats.experience-(initial_exp or 0)),health=w.stats.health,
                         position=[w.position.x,w.position.y,w.position.z] if w.position else None)
+                    learned_intent = None
+                    if self.learning and self.status['online'] and now-last_learning >= 2:
+                        observation = LearningObservation.from_world(p['character'], w,
+                            'retreat' if w.stats.health < max(1, int(w.stats.max_health * .65)) else 'hunt',
+                            0.0)
+                        self.learning.publish(observation)
+                        learned_intent = self.learning.poll_intent(time.time())
+                        last_learning = now
                     if (not self.draining.is_set() and self.status['online'] and
                             w.stats.max_health>0 and w.stats.health<=0):
                         self.status['deaths']=self.status.get('deaths',0)+1
@@ -152,7 +170,8 @@ class PlayerRunner:
                         if not (w.icons & 128) or now-drain_started >= 90:
                             break
                     else:
-                        actions=choose_actions(agent,progression,now)
+                        actions=apply_learning_intent(learned_intent,progression,now,
+                                                      choose_actions(agent,progression,now))
                         if progression.authorization:
                             s.gate.authorize_speech(*progression.authorization)
                         s.gate.floor_token=progression.floor_authorization
@@ -206,6 +225,8 @@ class PlayerRunner:
                 if task:
                     task.cancel();await asyncio.gather(task,return_exceptions=True)
                 self.session = None
+                if self.learning:
+                    self.learning.close()
             try:
                 await asyncio.wait_for(self.draining.wait(),min(300,5*2**min(failures,6)))
             except asyncio.TimeoutError:
