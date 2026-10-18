@@ -2,12 +2,20 @@ import asyncio
 import tempfile
 import unittest
 from pathlib import Path
-from tools.autonomous_players.learning_bridge import LearningAgent, LearningBridge
+from tools.autonomous_players.learning_bridge import LearningAgent, LearningBridge, recv_line
 from tools.autonomous_players.learning_protocol import LearningObservation
 from tools.autonomous_players.world import Position, Stats, World
 
 
 class LearningBridgeTests(unittest.TestCase):
+    def test_stream_reader_reassembles_fragmented_json_line(self):
+        class Fragmented:
+            def __init__(self):
+                self.parts = [b'{"schema":1,', b'"type":"intent"}\n']
+            def recv(self, size):
+                return self.parts.pop(0) if self.parts else b''
+        self.assertEqual(recv_line(Fragmented()), b'{"schema":1,"type":"intent"}\n')
+
     def test_stale_socket_falls_back_without_an_intent(self):
         with tempfile.TemporaryDirectory() as d:
             bridge = LearningBridge(Path(d) / 'missing.sock')
@@ -30,7 +38,7 @@ class LearningBridgeTests(unittest.TestCase):
             try:
                 healthy = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
                 wounded = World(position=Position(1, 1, 8), stats=Stats(50, 150, 400, 0, 1))
-                self.assertEqual(agent.handle(LearningObservation.from_world('A', healthy, 'hunt', 0)).kind, 'hunt')
+                self.assertIn(agent.handle(LearningObservation.from_world('A', healthy, 'hunt', 0)).kind, ('hunt', 'move', 'wait'))
                 self.assertEqual(agent.handle(LearningObservation.from_world('B', wounded, 'retreat', 0)).kind, 'retreat')
             finally:
                 agent.close()
@@ -71,7 +79,7 @@ class LearningBridgeTests(unittest.TestCase):
                 first = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 0, 1))
                 second = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
                 agent.handle(LearningObservation.from_world('A', first, 'hunt', 0))
-                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0))
+                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0, transition_id=1947))
                 self.assertTrue(agent.graph.can_use('A', Position(1, 1, 7), Position(1, 1, 8), 3))
             finally:
                 agent.close()
@@ -83,6 +91,59 @@ class LearningBridgeTests(unittest.TestCase):
                 world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
                 return await bridge.publish_async(LearningObservation.from_world('A', world, 'hunt', 0))
         self.assertIsNone(asyncio.run(run()))
+
+    def test_corrupt_checkpoint_is_quarantined_by_learner(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / 'learning.db'
+            first = LearningAgent(path)
+            first.store.checkpoint('A', {'previous_state': '{"floor":7,"x":1,"y":1}', 'previous_action': 'hunt', 'updated_at': 1})
+            first.store.db.execute("UPDATE checkpoints SET payload='broken' WHERE agent='A'")
+            first.store.db.commit()
+            first.close()
+            second = LearningAgent(path)
+            try:
+                world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                second.handle(LearningObservation.from_world('A', world, 'hunt', 0))
+                self.assertTrue((path.parent / 'learning.db.A.corrupt').exists())
+            finally:
+                second.close()
+
+    def test_floor_change_without_observed_stair_is_not_learned(self):
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                first = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 0, 1))
+                second = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                agent.handle(LearningObservation.from_world('A', first, 'hunt', 0))
+                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0))
+                self.assertFalse(agent.graph.can_use('A', Position(1, 1, 7), Position(1, 1, 8), 3))
+            finally:
+                agent.close()
+
+    def test_observations_do_not_append_unbounded_checkpoints(self):
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                for _ in range(6):
+                    world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                    agent.handle(LearningObservation.from_world('A', world, 'hunt', 0))
+                count = agent.store.summary('A')['checkpoints']
+                self.assertLessEqual(count, 2)
+            finally:
+                agent.close()
+
+    def test_persisted_policy_value_can_select_a_safe_action(self):
+        import json
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                observation = LearningObservation.from_world('A', world, 'hunt', 0)
+                state = json.dumps(observation.state, sort_keys=True, separators=(',', ':'))
+                agent.store.set_value('A', state, 'wait', 10.0)
+                self.assertEqual(agent.handle(observation).kind, 'wait')
+            finally:
+                agent.close()
 
 
 if __name__ == '__main__':

@@ -7,9 +7,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='local autonomous learning companion')
     parser.add_argument('--socket', required=True)
     parser.add_argument('--state', required=True)
+    parser.add_argument('--status')
     parser.add_argument('--shadow', action='store_true')
     args = parser.parse_args(argv)
-    serve(args.socket, args.state, args.shadow)
+    serve(args.socket, args.state, args.shadow, args.status)
     return 0
 
 

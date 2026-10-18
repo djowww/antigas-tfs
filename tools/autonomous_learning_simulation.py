@@ -18,15 +18,24 @@ def run_simulation(state_path, agents=20, steps=200, seed=1):
     try:
         for index in range(agents):
             name = f'Sim-{index + 1:02d}'
+            agent_transitions = 0
+            agent_xp = 0
+            previous_floor = None
+            previous_xp = 0
             for step in range(steps):
                 floor = 7 if step < max(2, steps // 4) else 8
                 xp = 0 if step < max(2, steps // 3) else 5
                 world = World(position=Position(32100 + index % 5, 32200 + index // 5, floor),
                               stats=Stats(150, 150, 400, xp, 1))
                 learner.handle(LearningObservation.from_world(name, world, 'hunt', .5))
+                if previous_floor is not None and floor != previous_floor:
+                    agent_transitions += 1
+                if xp > previous_xp:
+                    agent_xp += 1
+                previous_floor, previous_xp = floor, xp
             learner.store.checkpoint(name, {'floor': 8, 'xp_observed': 5, 'seed': rng.randrange(1 << 30)})
-            transitions += 1
-            xp_observations += 1
+            transitions += agent_transitions
+            xp_observations += agent_xp
         event_count = learner.store.db.execute('SELECT count(*) FROM transitions').fetchone()[0]
     finally:
         learner.close()

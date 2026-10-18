@@ -66,7 +66,15 @@ class Progression:
             self.hunting_index=(self.hunting_index+1)%len(self.hunting_points)
             self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
             goal=self.hunting_points[self.hunting_index]
-        return self._toward(goal)
+        route = self._toward(goal)
+        if route or not self.learned_graph:
+            return route
+        self.learned_graph.record_failure(self.profile['character'], p, goal, 'blocked', now)
+        alternate = self.learned_graph.next_goal(self.profile['character'], p, self.hunting_points, now)
+        if alternate is not None and alternate != goal:
+            self.hunting_index = self.hunting_points.index(alternate)
+            return self._toward(alternate)
+        return []
 
     @property
     def busy(self):

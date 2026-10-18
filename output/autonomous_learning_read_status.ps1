@@ -8,7 +8,11 @@ foreach ($entry in @(@{Name='learning';Path=$StatusPath}, @{Name='health';Path=$
     if (Test-Path -LiteralPath $entry.Path) {
         try {
             $value = Get-Content -LiteralPath $entry.Path -Raw | ConvertFrom-Json
-            $result[$entry.Name] = $value
+            if ($entry.Name -eq 'learning') {
+                $result[$entry.Name] = $value | Select-Object at,agents,shadow
+            } else {
+                $result[$entry.Name] = $value | Select-Object at,sample,population,sql_measured_at,error
+            }
         } catch {
             $result[$entry.Name] = @{ error = 'invalid-json' }
         }

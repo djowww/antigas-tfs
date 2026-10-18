@@ -12,6 +12,7 @@ from .health import atomic_json
 from .learning import Policy
 from .learning_bridge import LearningBridge
 from .learning_protocol import LearningObservation
+from .learned_navigation import RegionGraph
 from .protocol import Decoder
 from .progression import Progression
 from .runtime import Session,RateLimit
@@ -73,10 +74,15 @@ def apply_learning_intent(intent, progression, now, fallback):
 def choose_actions_with_learning(agent, progression, now, intent):
     if agent.priority(now):
         return agent.step(now)
-    if intent is not None and intent.kind == 'retreat':
-        recovered = progression.recover(now)
-        if recovered:
-            return recovered
+    if intent is not None and not progression.busy:
+        if intent.kind == 'wait':
+            return []
+        if intent.kind == 'hunt':
+            return agent.step(now)
+        if intent.kind == 'retreat':
+            recovered = progression.recover(now)
+            if recovered:
+                return recovered
     actions = progression.step(now)
     return actions if actions or progression.busy else agent.step(now)
 
@@ -111,6 +117,7 @@ class PlayerRunner:
         self.conversation_budget=conversation_budget or ReplyBudget()
         self.status = dict(online=False,moves=0,xp_gain=0,failures=0)
         self.learning = LearningBridge(config['learning_socket']) if config.get('learning_socket') else None
+        self.learned_graph = RegionGraph()
 
     async def run(self):
         p = self.profile
@@ -132,7 +139,7 @@ class PlayerRunner:
                 progression=Progression(p,s.world,self.items,self.routes,
                     Position(*self.config.get('oracle_position',[32104,32190,6])),
                     tuple(self.config.get('rook_bounds',[32000,32000,32200,32350])),
-                    self.config.get('hunting_points',[]))
+                    self.config.get('hunting_points',[]), learned_graph=self.learned_graph)
                 agent.escape=progression.recover
                 initial_exp,last_social,last_ping,last_saved,last_learning = None,0,0,0,0
                 async def observed(events):

@@ -41,6 +41,13 @@ class LearningStoreTests(unittest.TestCase):
                 store.set_value('A', 'state', 'hunt', 1.5)
                 self.assertEqual(store.values('A', 'state')['hunt'], 1.5)
 
+    def test_policy_value_budget_is_bounded(self):
+        with tempfile.TemporaryDirectory() as d:
+            with LearningStore(Path(d) / 'learning.db', max_values=1) as store:
+                store.set_value('A', 'one', 'hunt', 1)
+                with self.assertRaises(ValueError):
+                    store.set_value('A', 'two', 'hunt', 1)
+
 
 if __name__ == '__main__':
     unittest.main()

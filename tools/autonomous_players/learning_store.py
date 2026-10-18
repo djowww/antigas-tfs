@@ -10,9 +10,10 @@ VERSION = 1
 
 
 class LearningStore:
-    def __init__(self, path, max_agents=24, max_events=100000):
+    def __init__(self, path, max_agents=24, max_events=100000, max_values=4096, max_edges=20000):
         self.path = Path(path)
         self.max_agents, self.max_events = max_agents, max_events
+        self.max_values, self.max_edges = max_values, max_edges
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(self.path)
         self.db.executescript('''
@@ -63,6 +64,8 @@ class LearningStore:
 
     def route_edge(self, agent, source, destination, transition_id, success, at):
         self._agent(agent)
+        if self.db.execute('SELECT count(*) FROM route_edges WHERE agent=?', (agent,)).fetchone()[0] >= self.max_edges:
+            raise ValueError('route edge budget exhausted')
         with self.db:
             self.db.execute('INSERT INTO route_edges VALUES(?,?,?,?,?,?)',
                             (agent, str(source), str(destination), int(transition_id), int(bool(success)), float(at)))
@@ -76,6 +79,10 @@ class LearningStore:
             raise ValueError('invalid policy key')
         if not isinstance(value, (int, float)) or not math.isfinite(value):
             raise ValueError('invalid policy value')
+        exists = self.db.execute('SELECT 1 FROM qvalues WHERE agent=? AND state=? AND action=?',
+                                 (agent, state, action)).fetchone()
+        if not exists and self.db.execute('SELECT count(*) FROM qvalues WHERE agent=?', (agent,)).fetchone()[0] >= self.max_values:
+            raise ValueError('policy value budget exhausted')
         with self.db:
             self.db.execute('''INSERT INTO qvalues(agent,state,action,value,updates) VALUES(?,?,?,?,1)
                                ON CONFLICT(agent,state,action) DO UPDATE SET value=excluded.value,updates=updates+1''',

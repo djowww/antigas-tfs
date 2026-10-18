@@ -14,6 +14,7 @@ class LearningProtocolTests(unittest.TestCase):
         self.assertEqual(value['agent'], 'Sim Aster')
         self.assertEqual(value['state']['floor'], 8)
         self.assertEqual(value['state']['goal'], 'hunt')
+        self.assertEqual(value['state']['experience'], 5)
 
     def test_unknown_schema_is_rejected(self):
         with self.assertRaises(ValueError):
@@ -27,6 +28,11 @@ class LearningProtocolTests(unittest.TestCase):
     def test_message_size_is_bounded(self):
         with self.assertRaises(ValueError):
             encode_message({'schema': 1, 'type': 'observation', 'payload': 'x' * 40000})
+
+    def test_transition_id_is_optional_and_explicit(self):
+        world = World(position=Position(10, 11, 8), stats=Stats(90, 150, 400, 5, 2))
+        obs = LearningObservation.from_world('A', world, 'hunt', 0, transition_id=1947)
+        self.assertEqual(obs.state['transition_id'], 1947)
 
 
 if __name__ == '__main__':

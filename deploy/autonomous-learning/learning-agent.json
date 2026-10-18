@@ -1,6 +1,6 @@
 {
   "enabled": false,
-  "mode": "shadow",
+  "mode": "active",
   "socket": "/run/autonomous-learning-agent/agent.sock",
   "state": "/var/lib/autonomous-learning/learning.db",
   "max_agents": 20,
