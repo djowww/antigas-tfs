@@ -18,6 +18,9 @@ class LearningDeploymentTests(unittest.TestCase):
         self.assertIn('--dry-run', script)
         self.assertIn('--apply', script)
         self.assertIn('learning-agent.service', script)
+        self.assertNotIn('learning_bridge.py', script)
+        self.assertNotIn('learning_protocol.py', script)
+        self.assertNotIn('learning_store.py', script)
         self.assertNotIn('/var/lib/autonomous-players/state.db', script)
         self.assertNotIn('mysql', script.lower())
 

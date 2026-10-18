@@ -1,3 +1,4 @@
+import asyncio
 import tempfile
 import unittest
 from pathlib import Path
@@ -33,6 +34,55 @@ class LearningBridgeTests(unittest.TestCase):
                 self.assertEqual(agent.handle(LearningObservation.from_world('B', wounded, 'retreat', 0)).kind, 'retreat')
             finally:
                 agent.close()
+
+    def test_floor_transition_records_positive_observed_reward(self):
+        import json
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                first = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 0, 1))
+                second = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                agent.handle(LearningObservation.from_world('A', first, 'hunt', 0))
+                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0))
+                reward = agent.store.db.execute('SELECT reward FROM transitions WHERE agent=?', ('A',)).fetchone()[0]
+                self.assertEqual(reward, 1.0)
+            finally:
+                agent.close()
+
+    def test_restart_restores_last_policy_context(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / 'learning.db'
+            first = LearningAgent(path)
+            world = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 0, 1))
+            first.handle(LearningObservation.from_world('A', world, 'hunt', 0))
+            first.close()
+            second = LearningAgent(path)
+            try:
+                next_world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                second.handle(LearningObservation.from_world('A', next_world, 'hunt', 0))
+                self.assertEqual(second.store.summary('A')['transitions'], 1)
+            finally:
+                second.close()
+
+    def test_observed_floor_transition_updates_learned_region_graph(self):
+        with tempfile.TemporaryDirectory() as d:
+            agent = LearningAgent(Path(d) / 'learning.db')
+            try:
+                first = World(position=Position(1, 1, 7), stats=Stats(150, 150, 400, 0, 1))
+                second = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                agent.handle(LearningObservation.from_world('A', first, 'hunt', 0))
+                agent.handle(LearningObservation.from_world('A', second, 'hunt', 0))
+                self.assertTrue(agent.graph.can_use('A', Position(1, 1, 7), Position(1, 1, 8), 3))
+            finally:
+                agent.close()
+
+    def test_async_publish_does_not_block_event_loop(self):
+        async def run():
+            with tempfile.TemporaryDirectory() as d:
+                bridge = LearningBridge(Path(d) / 'missing.sock')
+                world = World(position=Position(1, 1, 8), stats=Stats(150, 150, 400, 0, 1))
+                return await bridge.publish_async(LearningObservation.from_world('A', world, 'hunt', 0))
+        self.assertIsNone(asyncio.run(run()))
 
 
 if __name__ == '__main__':

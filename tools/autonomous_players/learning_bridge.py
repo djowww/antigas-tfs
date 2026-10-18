@@ -2,8 +2,10 @@
 import json
 import socket
 import time
+import asyncio
 from pathlib import Path
 from .learning import Policy
+from .learned_navigation import Curriculum, RegionGraph
 from .learning_protocol import LearningIntent, LearningObservation, decode_message, encode_message
 from .learning_store import LearningStore
 
@@ -14,6 +16,9 @@ class LearningAgent:
         self.shadow = bool(shadow)
         self.previous = {}
         self.policies = {}
+        self.restored = set()
+        self.graph = RegionGraph()
+        self.curriculum = Curriculum()
 
     def _policy(self, agent):
         if agent not in self.policies:
@@ -25,10 +30,23 @@ class LearningAgent:
         if not isinstance(observation, LearningObservation):
             raise TypeError('LearningObservation required')
         state = json.dumps(observation.state, sort_keys=True, separators=(',', ':'))
+        if observation.agent not in self.restored:
+            saved = self.store.restore_latest(observation.agent)
+            if saved and saved.get('previous_state') and saved.get('previous_action'):
+                self.previous[observation.agent] = (saved['previous_state'], saved['previous_action'], saved.get('updated_at', 0))
+            self.restored.add(observation.agent)
         previous = self.previous.get(observation.agent)
         if previous:
             previous_state, previous_action, previous_at = previous
-            reward = 1.0 if observation.state.get('floor') != json.loads(state).get('floor') else 0.0
+            previous_value = json.loads(previous_state)
+            reward = 1.0 if previous_value.get('floor') != observation.state.get('floor') else 0.0
+            if reward:
+                from .world import Position
+                source = Position(previous_value['x'], previous_value['y'], previous_value['floor'])
+                destination = Position(observation.state['x'], observation.state['y'], observation.state['floor'])
+                self.graph.record_stair_observation(observation.agent, source, 0, destination)
+                self.graph.observe_transition(observation.agent, source, destination, 0, observation.observed_at)
+                self.curriculum.record(observation.agent, {'region': 'cave', 'floor': observation.state['floor']})
             self.store.record_transition(observation.agent, previous_state, previous_action, state,
                                          {'floor': observation.state.get('floor')}, reward, observation.observed_at)
             self._policy(observation.agent).update(previous_state, previous_action, reward, state,
@@ -42,6 +60,8 @@ class LearningAgent:
         else:
             kind = 'wait'
         self.previous[observation.agent] = (state, kind, observation.observed_at)
+        self.store.checkpoint(observation.agent, {
+            'previous_state': state, 'previous_action': kind, 'updated_at': observation.observed_at})
         if self.shadow:
             return None
         return LearningIntent(observation.agent, kind, {'source': 'learner'}, observation.observed_at, 2.0)
@@ -71,9 +91,10 @@ class LearningBridge:
             if not data:
                 return None
             message = decode_message(data)
-            if message['type'] != 'intent' or message.get('payload', {}).get('shadow'):
+            payload = message.get('payload')
+            if not isinstance(payload, dict) or message['type'] != 'intent' or payload.get('shadow'):
                 return None
-            intent = LearningIntent(message['agent'], message['kind'], message.get('payload', {}),
+            intent = LearningIntent(message['agent'], message['kind'], payload,
                                     message['issued_at'], min(message.get('ttl', self.intent_ttl), self.intent_ttl))
             if intent.expired(time.time()):
                 return None
@@ -81,6 +102,9 @@ class LearningBridge:
             return intent
         except (OSError, ValueError, json.JSONDecodeError):
             return None
+
+    async def publish_async(self, observation):
+        return await asyncio.to_thread(self.publish, observation)
 
     def poll_intent(self, now=None):
         intent, self._intent = self._intent, None

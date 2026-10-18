@@ -70,6 +70,17 @@ def apply_learning_intent(intent, progression, now, fallback):
     return fallback
 
 
+def choose_actions_with_learning(agent, progression, now, intent):
+    if agent.priority(now):
+        return agent.step(now)
+    if intent is not None and intent.kind == 'retreat':
+        recovered = progression.recover(now)
+        if recovered:
+            return recovered
+    actions = progression.step(now)
+    return actions if actions or progression.busy else agent.step(now)
+
+
 def occupancy_ids(active_tasks,disconnected,rows,sql_at):
     occupied=set(active_tasks)
     online={row[0] for row in rows if row[-1]==1}
@@ -154,7 +165,7 @@ class PlayerRunner:
                         observation = LearningObservation.from_world(p['character'], w,
                             'retreat' if w.stats.health < max(1, int(w.stats.max_health * .65)) else 'hunt',
                             0.0)
-                        self.learning.publish(observation)
+                        await self.learning.publish_async(observation)
                         learned_intent = self.learning.poll_intent(time.time())
                         last_learning = now
                     if (not self.draining.is_set() and self.status['online'] and
@@ -170,8 +181,7 @@ class PlayerRunner:
                         if not (w.icons & 128) or now-drain_started >= 90:
                             break
                     else:
-                        actions=apply_learning_intent(learned_intent,progression,now,
-                                                      choose_actions(agent,progression,now))
+                        actions=choose_actions_with_learning(agent,progression,now,learned_intent)
                         if progression.authorization:
                             s.gate.authorize_speech(*progression.authorization)
                         s.gate.floor_token=progression.floor_authorization
