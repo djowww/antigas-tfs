@@ -15,12 +15,37 @@ class Progression:
         self.last_speech,self.dialogue_started,self.next_purchase = -10,0,0
         self.purchase = None
         self.halted = False
+        self.healer_greeted = False
         self.travel_started,self.travel_position,self.travel_progress=None,None,None
         if len(hunting_points)>64:
             raise ValueError('hunting route budget exceeded')
         self.hunting_points=tuple(Position(*p) for p in hunting_points)
         self.hunting_index=profile.get('account',0)%len(self.hunting_points) if self.hunting_points else 0
         self.hunting_started,self.hunting_position,self.hunting_progress=None,None,None
+
+    def recover(self,now):
+        if not self.in_rook():
+            return []
+        w=self.world
+        temple=Position(32097,32219,7)
+        if w.position.distance(temple)>3:
+            return self._toward(temple)
+        if self._npc('Cipfried'):
+            if w.stats.health<65:
+                result=self._speak('Cipfried','heal' if self.healer_greeted else 'hi',now)
+                if result:self.healer_greeted=True
+                return result
+            if self.healer_greeted:
+                result=self._speak('Cipfried','bye',now)
+                if result:self.healer_greeted=False
+                return result
+        possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
+        gold=sum(i.count for i in possessions if i.id==3031)
+        food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
+        if not food and gold>=3:
+            self.next_purchase=0
+            return self.step(now)
+        return []
 
     def _patrol(self,now):
         if not self.routes or not self.hunting_points:

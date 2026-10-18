@@ -24,6 +24,7 @@ class Agent:
         self.pending_loot = None
         self.attack_evidence = None
         self.unreachable_prey = {}
+        self.escape = None
 
     def food(self):
         for slot,item in self.world.inventory.items():
@@ -125,6 +126,10 @@ class Agent:
             if self.target:
                 self.target = 0
                 return [b'\xbe']
+            if self.escape:
+                route=self.escape(now)
+                if route:
+                    return route
             candidates = [n for n in w.tiles if n.z == p.z and p.distance(n) == 1 and walkable(w,n,self.items)]
             if candidates and monsters:
                 best = max(candidates,key=lambda n:min(n.distance(c.position) for c in monsters))

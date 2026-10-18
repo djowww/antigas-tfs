@@ -15,6 +15,13 @@ ITEMS = load_items(Path(__file__).resolve().parents[2] / 'data/items/items.srv')
 
 
 class BehaviourTests(unittest.TestCase):
+    def test_retreat_uses_observed_escape_route_instead_of_wandering(self):
+        with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
+            w=self.world();w.stats.health=50
+            a=Agent('Sim One',w,ITEMS,Policy(store,'Sim One',random.Random(7)))
+            a.escape=lambda now:[b'\x65']
+            self.assertEqual(a.step(1),[b'\x65'])
+
     def test_multiple_adjacent_rats_trigger_retreat_before_health_collapses(self):
         with tempfile.TemporaryDirectory() as d, Store(Path(d)/'s.db') as store:
             w=self.world()
