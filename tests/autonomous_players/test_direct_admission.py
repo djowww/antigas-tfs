@@ -59,3 +59,10 @@ class DirectAdmissionTests(unittest.TestCase):
                     manifest='private',state_dir='state',health_file='health',items='items',modulus='1',immediate_target=20)
         self.assertEqual(validate_config(config)['immediate_target'],20)
         self.assertEqual(guard.observe(self.sample(125,memory_mib=300)).target,0)
+
+    def test_direct_restart_requires_fresh_sample_not_previous_process_cadence(self):
+        previous=Supervisor(immediate_target=20)
+        previous.observe(self.sample())
+        restored=Supervisor(previous.snapshot(),immediate_target=20)
+        self.assertEqual(restored.observe(self.sample(100)).target,20)
+        self.assertEqual(restored.observe(self.sample(130)).target,0)

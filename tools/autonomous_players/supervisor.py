@@ -70,6 +70,10 @@ class Supervisor:
             if immediate_target and state['suspended'] and state['reason'] not in ('cpu',reason):
                 reason=state['reason']
             self.state.update(target=0,suspended=True,healthy_at=None,reason=reason)
+            if immediate_target and reason == 'controller restart verification':
+                # A new process establishes its cadence from a fresh lease;
+                # graceful combat logout can exceed the in-process 15s limit.
+                self.state['last'] = None
 
     def snapshot(self):
         import copy
