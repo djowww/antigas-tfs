@@ -104,3 +104,18 @@ class ProgressionTests(unittest.TestCase):
         for goal in p.hunting_points:
             learned.record_failure('Sim One', w.position, goal, 'blocked', 1)
         self.assertEqual(p.step(2),[])
+
+    def test_active_hunting_goal_is_kept_until_rotation(self):
+        from unittest.mock import patch
+        from tools.autonomous_players.learned_navigation import RegionGraph
+        w=World(position=Position(98,100,7),stats=Stats(150,150,400,0,1))
+        profile=dict(account=0,character='Sim One',city='thais',vocation='knight')
+        p=Progression(profile,w,ITEMS,RouteGraph({w.position:None}),rook_bounds=(99,99,110,105),
+                      hunting_points=[(100,100,7),(104,100,7),(108,100,7)],learned_graph=RegionGraph())
+        with patch.object(p,'_toward',side_effect=lambda goal:[goal]):
+            self.assertEqual(p._patrol(1),[Position(100,100,7)])
+            self.assertEqual(p._patrol(2),[Position(100,100,7)])
+            w.position=Position(98,100,7)
+            self.assertEqual(p._patrol(3),[Position(100,100,7)])
+            w.position=Position(100,100,7)
+            self.assertEqual(p._patrol(4),[Position(104,100,7)])

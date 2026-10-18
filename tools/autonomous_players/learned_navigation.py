@@ -61,6 +61,10 @@ class RegionGraph:
         return any(owner == agent and edge.source == current and edge.destination in targets and
                    edge.cooldown_until > now for (owner, *_), edge in self._edges.items())
 
+    def is_blocked(self, agent, source, target, now):
+        return any(owner == agent and edge.source == source and edge.destination == target and
+                   edge.cooldown_until > now for (owner, *_), edge in self._edges.items())
+
 
 class Curriculum:
     def __init__(self, minimum_health_ratio=0.65):

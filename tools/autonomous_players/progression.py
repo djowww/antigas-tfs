@@ -53,7 +53,7 @@ class Progression:
             return []
         p=self.world.position
         goal=self.hunting_points[self.hunting_index]
-        if self.learned_graph:
+        if self.learned_graph and self.learned_graph.is_blocked(self.profile['character'], p, goal, now):
             learned_goal=self.learned_graph.next_goal(self.profile['character'], p, self.hunting_points, now)
             if learned_goal is not None:
                 goal=learned_goal
@@ -68,7 +68,7 @@ class Progression:
             self.hunting_index=(self.hunting_index+1)%len(self.hunting_points)
             self.hunting_started,self.hunting_position,self.hunting_progress=now,p,now
             goal=self.hunting_points[self.hunting_index]
-            if self.learned_graph:
+            if self.learned_graph and self.learned_graph.is_blocked(self.profile['character'], p, goal, now):
                 learned_goal=self.learned_graph.next_goal(self.profile['character'], p, self.hunting_points, now)
                 if learned_goal is not None:
                     goal=learned_goal
