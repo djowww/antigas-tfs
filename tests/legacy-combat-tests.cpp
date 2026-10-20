@@ -165,7 +165,7 @@ static void chargeLessProtection(Player& attacker, Player& target)
  require(legs->getCharges() == 0, "equipment fixture carries no charges");
  int32_t amount = 100;
  require(target.blockHit(&attacker, COMBAT_PHYSICALDAMAGE, amount) == BLOCK_NONE && amount == 49,
-  "charge-less protection halves PvP then removes 2 percent");
+  "charge-less protection halves PvP then removes 2 percent (got " + std::to_string(amount) + ")");
  require(target.getInventoryItem(CONST_SLOT_LEGS) == legs && !legs->isRemoved(),
   "permanent equipment must survive absorbed damage");
  amount = 100;
