@@ -407,6 +407,7 @@ int main()
   require(g_vocations.loadFromXml(), "production vocations load");
   require(g_luaEnvironment.initState(), "Lua environment");
   require(g_luaEnvironment.loadFile("data/global.lua") == 0, "production Lua libraries");
+  require(g_luaEnvironment.loadFile("data/spells/lib/spells.lua") == 0, "production spell library");
   Events events; MoveEvents movements; CreatureEvents creatures; Weapons weapons;
   g_events = &events; g_moveEvents = &movements; g_creatureEvents = &creatures; g_weapons = &weapons;
   require(weapons.loadFromXml(), "production weapon registry"); weapons.loadDefaults();

@@ -139,7 +139,6 @@ int main() {
  expect(player.getHealth()==51 && player.getMana()==54,"bed60seconds HP1 mana4");
  expect(!player.getCondition(CONDITION_REGENERATION,CONDITIONID_DEFAULT),"bed consumes food3perunit");
  std::cerr << "P9 bed ok" << std::endl;
- LoginGateCoreTestAccess::clearParent(player);
  g_events=nullptr; g_creatureEvents=nullptr;
  std::cerr << "P10 end" << std::endl;
  std::cout << checks << " legacy progression checks passed\n";
