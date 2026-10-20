@@ -140,7 +140,7 @@ static void pipeline(Player& attacker, Player& target)
  target.addCondition(Condition::createCondition(CONDITIONID_DEFAULT, CONDITION_MANASHIELD, -1));
  target.changeMana(-target.getMana() + 20);
  CombatDamage damage; damage.type = COMBAT_FIREDAMAGE; damage.value = -51;
- require(!g_game.combatBlockHit(damage, &attacker, &target, false, false), "actual Game block entry");
+ require(!g_game.combatBlockHit(damage, &attacker, &target, false, false, false, nullptr), "actual Game block entry");
  require(damage.value == -26, "odd PvP rounds upward once");
  const int32_t health = target.getHealth();
  require(g_game.combatChangeHealth(&attacker, &target, damage), "actual Game resource consumer");
@@ -195,7 +195,7 @@ static void effects(Player& target)
  ConditionDamage original(CONDITIONID_COMBAT, CONDITION_POISON); original.setLegacyForce(100); original.startCondition(&target);
  original.executeCondition(&target, 1000);
  PropWriteStream saved; original.serialize(saved); saved.write<uint8_t>(CONDITIONATTR_END);
- size_t size; const char* bytes = saved.getStream(size); PropStream input(bytes, size);
+ size_t size; const char* bytes = saved.getStream(size); PropStream input; input.init(bytes, size);
  std::unique_ptr<Condition> restored(Condition::createCondition(input));
  require(restored && restored->unserialize(input), "condition serialized roundtrip");
  const int hp = target.getHealth();
@@ -317,12 +317,12 @@ static void learningSources(Player& attacker, Player& target, Weapons& weapons)
  decoy.setGUID(990002); decoy.setName("Legacy unrelated"); LoginGateCoreTestAccess::runtimeId(decoy,priorId); g_game.addPlayer(&decoy);
  Unregister unregisterDecoy{decoy};
  Player fresh(nullptr); LoginGateCoreTestAccess::prepare(fresh,*attacker.getGroup(),*target.getTile());
- PropStream input(bytes,length); std::unique_ptr<Condition> restored(Condition::createCondition(input));
+ PropStream input; input.init(bytes,length); std::unique_ptr<Condition> restored(Condition::createCondition(input));
  require(restored && restored->unserialize(input) && restored->startCondition(&fresh), "restore stable player GUID");
  const int hp = fresh.getHealth(); restored->executeCondition(&fresh,4000);
  require(fresh.getHealth() == hp - 3 && fresh.hasBeenAttacked(attacker.getID()) && !fresh.hasBeenAttacked(decoy.getID()), "persisted effect resolves same GUID at new runtime ID, never its old ID occupant");
  g_game.removePlayer(&attacker);
- PropStream offlineInput(bytes,length); std::unique_ptr<Condition> offline(Condition::createCondition(offlineInput));
+ PropStream offlineInput; offlineInput.init(bytes,length); std::unique_ptr<Condition> offline(Condition::createCondition(offlineInput));
  require(offline && offline->unserialize(offlineInput) && offline->startCondition(&fresh), "offline owner restore");
  const int offlineHp = fresh.getHealth(); offline->executeCondition(&fresh,4000); g_game.addPlayer(&attacker);
  require(fresh.getHealth() == offlineHp - 5 && !fresh.hasBeenAttacked(decoy.getID()), "offline GUID is unresolved: damage continues without PvP or false author");
