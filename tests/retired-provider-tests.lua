@@ -77,7 +77,12 @@ check('market filters retired types and rejects direct buy/sell requests',functi
  assert(marketType(3157)==nil,'retired type must not enter catalog even with valid equipment metadata')
  for id in pairs(retired) do assert(marketType(id)==nil,'retired manifest type leaked into market: '..id) end
  assert(marketType(3270) and marketType(3270).id==3270,'ordinary classic item must remain available')
- assert(marketType(5130)==nil,'Antigas Coin must remain a currency, not a tradable product item')
+ local coin=marketType(5130)
+ assert(coin and coin.id==5130 and coin.stackable and coin.subtype==-1,
+  'physical Antigas Coins must be available as stackable Market products')
+ for _,id in ipairs({3031,3035,3043}) do
+  assert(marketType(id)==nil,'ordinary gold denominations must remain excluded from product offers')
+ end
  db={storeQuery=function() error('rejected item must not query or mutate the economy') end,query=function() error('must not mutate') end}
  local ctx={player=player,fail=function(self,text) self.error=text;return false end,pay=function() error('must not debit') end,takeItems=function() error('must not remove items') end}
  for _,side in ipairs({'buy','sell'}) do assert(actions.create(ctx,{side=side,itemId=3157,subtype=-1,amount=1,price=1,currency=3031})==false) end

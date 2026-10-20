@@ -2,6 +2,7 @@
 <globalevents>
 	<globalevent type="startup" name="ServerStartup" script="startup.lua"/>
 	<globalevent type="record" name="PlayerRecord" script="record.lua"/>
+	<globalevent name="DatabaseKeepalive" interval="60000" script="database_keepalive.lua"/>
 	<globalevent name="Server Save" time="06:00:00" script="serversave.lua"/>
 
 

@@ -45,7 +45,7 @@ local function category(t)
 end
 local function marketType(id)
  id=integer(id,100,6000)
- if not id or id==GOLD or id==PLATINUM or id==CRYSTAL or id==ANTIGAS then return nil end
+ if not id or id==GOLD or id==PLATINUM or id==CRYSTAL then return nil end
  if ItemType(id):isRetired() then types[id]=false;return nil end
  if types[id]~=nil then return types[id] or nil end
  local t=ItemType(id)
