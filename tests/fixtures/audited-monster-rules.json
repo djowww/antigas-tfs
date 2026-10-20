@@ -1,0 +1,5084 @@
+{
+  "reference_sha256": "61ec3c56da0a2e328834e94fb0bb5aa87ed9211ab26eb7d8c11d508060112b69",
+  "mapped": 154,
+  "damage_entries": 214,
+  "monsters": [
+    {
+      "source": "amazon.mon",
+      "name": "amazon",
+      "file": "data/monster/amazon.xml",
+      "status": "mapped",
+      "attack": 16,
+      "defend": 11,
+      "armor": 11,
+      "fist": 24,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            9,
+            0
+          ],
+          "type": 1,
+          "base": 25,
+          "variation": 5,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "ancientscarab.mon",
+      "name": "ancient scarab",
+      "file": "data/monster/ancientscarab.xml",
+      "status": "mapped",
+      "attack": 50,
+      "defend": 33,
+      "armor": 36,
+      "fist": 80,
+      "poison": 100,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 75,
+          "variation": 60,
+          "divisor": 9
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            4,
+            21
+          ],
+          "type": 32,
+          "base": 450,
+          "variation": 50,
+          "divisor": 6
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            4,
+            21
+          ],
+          "type": 32,
+          "base": 450,
+          "variation": 50,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "apocalypse.mon",
+      "name": "Apocalypse",
+      "file": "data/monster/apocalypse.xml",
+      "status": "mapped",
+      "attack": 295,
+      "defend": 145,
+      "armor": 188,
+      "fist": 200,
+      "poison": 500,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 8000,
+          "variation": 2000,
+          "divisor": 7
+        },
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 2500,
+          "variation": 500,
+          "divisor": 4
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            7,
+            18
+          ],
+          "type": 256,
+          "base": 500,
+          "variation": 100,
+          "divisor": 8
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 4,
+          "base": 500,
+          "variation": 400,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            0,
+            11
+          ],
+          "type": 512,
+          "base": 850,
+          "variation": 250,
+          "divisor": 16
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            0
+          ],
+          "type": 1,
+          "base": 600,
+          "variation": 300,
+          "divisor": 15
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            14
+          ],
+          "type": 8,
+          "base": 1000,
+          "variation": 500,
+          "divisor": 12
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            0,
+            17
+          ],
+          "type": 32,
+          "base": 1500,
+          "variation": 500,
+          "divisor": 10
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            14
+          ],
+          "type": 256,
+          "base": 750,
+          "variation": 250,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "assassin.mon",
+      "name": "assassin",
+      "file": "data/monster/assassin.xml",
+      "status": "mapped",
+      "attack": 45,
+      "defend": 40,
+      "armor": 17,
+      "fist": 45,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            8,
+            0
+          ],
+          "type": 1,
+          "base": 33,
+          "variation": 5,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "badger.mon",
+      "name": "badger",
+      "file": "data/monster/badger.xml",
+      "status": "mapped",
+      "attack": 10,
+      "defend": 3,
+      "armor": 1,
+      "fist": 17,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "bandit.mon",
+      "name": "bandit",
+      "file": "data/monster/bandit.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 17,
+      "armor": 11,
+      "fist": 37,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "banshee.mon",
+      "name": "banshee",
+      "file": "data/monster/banshee.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 65,
+      "armor": 25,
+      "fist": 45,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 150,
+          "variation": 37,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 200,
+          "variation": 150,
+          "divisor": 30
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            3,
+            20
+          ],
+          "type": 256,
+          "base": 160,
+          "variation": 40,
+          "divisor": 3
+        }
+      ]
+    },
+    {
+      "source": "bat.mon",
+      "name": "bat",
+      "file": "data/monster/bat.xml",
+      "status": "mapped",
+      "attack": 8,
+      "defend": 6,
+      "armor": 1,
+      "fist": 16,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "bazir.mon",
+      "name": "Bazir",
+      "file": "data/monster/bazir.xml",
+      "status": "mapped",
+      "attack": 250,
+      "defend": 160,
+      "armor": 160,
+      "fist": 200,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 7500,
+          "variation": 2500,
+          "divisor": 7
+        },
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 2500,
+          "variation": 500,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            3
+          ],
+          "type": 512,
+          "base": 550,
+          "variation": 450,
+          "divisor": 16
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            7,
+            2
+          ],
+          "type": 256,
+          "base": 550,
+          "variation": 150,
+          "divisor": 8
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            7,
+            15
+          ],
+          "type": 512,
+          "base": 550,
+          "variation": 150,
+          "divisor": 10
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 4,
+          "base": 500,
+          "variation": 400,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            14
+          ],
+          "type": 256,
+          "base": 675,
+          "variation": 175,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "bear.mon",
+      "name": "bear",
+      "file": "data/monster/bear.xml",
+      "status": "mapped",
+      "attack": 17,
+      "defend": 6,
+      "armor": 6,
+      "fist": 15,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "behemoth.mon",
+      "name": "behemoth",
+      "file": "data/monster/behemoth.xml",
+      "status": "mapped",
+      "attack": 75,
+      "defend": 65,
+      "armor": 50,
+      "fist": 110,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            12,
+            0
+          ],
+          "type": 1,
+          "base": 155,
+          "variation": 30,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "beholder.mon",
+      "name": "beholder",
+      "file": "data/monster/beholder.xml",
+      "status": "mapped",
+      "attack": 12,
+      "defend": 20,
+      "armor": 5,
+      "fist": 35,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 8,
+          "base": 30,
+          "variation": 15,
+          "divisor": 15
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 35,
+          "variation": 10,
+          "divisor": 16
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            18
+          ],
+          "type": 1,
+          "base": 40,
+          "variation": 10,
+          "divisor": 13
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            0
+          ],
+          "type": 2,
+          "base": 25,
+          "variation": 20,
+          "divisor": 14
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 256,
+          "base": 40,
+          "variation": 5,
+          "divisor": 17
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 512,
+          "base": 15,
+          "variation": 10,
+          "divisor": 20
+        }
+      ]
+    },
+    {
+      "source": "blackknight.mon",
+      "name": "black knight",
+      "file": "data/monster/blackknight.xml",
+      "status": "mapped",
+      "attack": 60,
+      "defend": 60,
+      "armor": 42,
+      "fist": 88,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            1,
+            0
+          ],
+          "type": 1,
+          "base": 165,
+          "variation": 20,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "blacksheep.mon",
+      "name": "black sheep",
+      "file": "data/monster/blacksheep.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 2,
+      "armor": 1,
+      "fist": 0,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "bluedjinn.mon",
+      "name": "blue djinn",
+      "file": "data/monster/bluedjinn.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 30,
+      "armor": 20,
+      "fist": 50,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 60,
+          "variation": 15,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 128,
+          "base": 70,
+          "variation": 20,
+          "divisor": 3
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 25,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "bonebeast.mon",
+      "name": "bonebeast",
+      "file": "data/monster/bonebeast.xml",
+      "status": "mapped",
+      "attack": 47,
+      "defend": 45,
+      "armor": 40,
+      "fist": 75,
+      "poison": 110,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            17
+          ],
+          "type": "healing",
+          "base": 45,
+          "variation": 15,
+          "divisor": 9
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 45,
+          "variation": 20,
+          "divisor": 10
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            14
+          ],
+          "type": 256,
+          "base": 40,
+          "variation": 10,
+          "divisor": 7
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            21
+          ],
+          "type": 32,
+          "base": 70,
+          "variation": 10,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "bug.mon",
+      "name": "bug",
+      "file": "data/monster/bug.xml",
+      "status": "mapped",
+      "attack": 9,
+      "defend": 3,
+      "armor": 2,
+      "fist": 23,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "butterflyblue.mon",
+      "name": "butterfly",
+      "status": "not-present-in-enabled-datapack"
+    },
+    {
+      "source": "butterflypurple.mon",
+      "name": "butterfly",
+      "status": "not-present-in-enabled-datapack"
+    },
+    {
+      "source": "butterflyred.mon",
+      "name": "butterfly",
+      "status": "not-present-in-enabled-datapack"
+    },
+    {
+      "source": "butterflyyellow.mon",
+      "name": "butterfly",
+      "status": "not-present-in-enabled-datapack"
+    },
+    {
+      "source": "carniphila.mon",
+      "name": "carniphila",
+      "file": "data/monster/carniphila.xml",
+      "status": "mapped",
+      "attack": 40,
+      "defend": 20,
+      "armor": 26,
+      "fist": 40,
+      "poison": 95,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            17
+          ],
+          "type": 2,
+          "base": 75,
+          "variation": 15,
+          "divisor": 4
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            21
+          ],
+          "type": 2,
+          "base": 85,
+          "variation": 45,
+          "divisor": 9
+        }
+      ]
+    },
+    {
+      "source": "caverat.mon",
+      "name": "cave rat",
+      "file": "data/monster/caverat.xml",
+      "status": "mapped",
+      "attack": 8,
+      "defend": 4,
+      "armor": 1,
+      "fist": 18,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "centipede.mon",
+      "name": "centipede",
+      "file": "data/monster/centipede.xml",
+      "status": "mapped",
+      "attack": 24,
+      "defend": 9,
+      "armor": 8,
+      "fist": 30,
+      "poison": 22,
+      "spells": []
+    },
+    {
+      "source": "chicken.mon",
+      "name": "chicken",
+      "file": "data/monster/chicken.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 2,
+      "armor": 1,
+      "fist": 0,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "cobra.mon",
+      "name": "cobra",
+      "file": "data/monster/cobra.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 6,
+      "armor": 1,
+      "fist": 23,
+      "poison": 100,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            5,
+            15,
+            0
+          ],
+          "type": 32,
+          "base": 20,
+          "variation": 6,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "crab.mon",
+      "name": "crab",
+      "file": "data/monster/crab.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 30,
+      "armor": 28,
+      "fist": 25,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "crocodile.mon",
+      "name": "crocodile",
+      "file": "data/monster/crocodile.xml",
+      "status": "mapped",
+      "attack": 32,
+      "defend": 5,
+      "armor": 13,
+      "fist": 21,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "cryptshambler.mon",
+      "name": "crypt shambler",
+      "file": "data/monster/cryptshambler.xml",
+      "status": "mapped",
+      "attack": 39,
+      "defend": 25,
+      "armor": 30,
+      "fist": 60,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 40,
+          "variation": 15,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "cyclops.mon",
+      "name": "cyclops",
+      "file": "data/monster/cyclops.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 24,
+      "armor": 17,
+      "fist": 50,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "darkmonk.mon",
+      "name": "dark monk",
+      "file": "data/monster/darkmonk.xml",
+      "status": "mapped",
+      "attack": 37,
+      "defend": 43,
+      "armor": 22,
+      "fist": 50,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 37,
+          "variation": 12,
+          "divisor": 9
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 37,
+          "variation": 12,
+          "divisor": 9
+        }
+      ]
+    },
+    {
+      "source": "deathslicer.mon",
+      "name": "deathslicer",
+      "file": "data/monster/deathslicer.xml",
+      "status": "mapped",
+      "attack": 90,
+      "defend": 199,
+      "armor": 199,
+      "fist": 110,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 200,
+          "variation": 50,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 8,
+          "base": 200,
+          "variation": 50,
+          "divisor": 3
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            4
+          ],
+          "type": 8,
+          "base": 200,
+          "variation": 50,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "deer.mon",
+      "name": "deer",
+      "file": "data/monster/deer.xml",
+      "status": "mapped",
+      "attack": 2,
+      "defend": 2,
+      "armor": 2,
+      "fist": 10,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "demodras.mon",
+      "name": "Demodras",
+      "file": "data/monster/demodras.xml",
+      "status": "mapped",
+      "attack": 80,
+      "defend": 70,
+      "armor": 45,
+      "fist": 90,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 550,
+          "variation": 150,
+          "divisor": 4
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            3,
+            7
+          ],
+          "type": 4,
+          "base": 300,
+          "variation": 50,
+          "divisor": 5
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            7
+          ],
+          "type": 4,
+          "base": 400,
+          "variation": 150,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "demon.mon",
+      "name": "demon",
+      "file": "data/monster/demon.xml",
+      "status": "mapped",
+      "attack": 80,
+      "defend": 65,
+      "armor": 40,
+      "fist": 120,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 120,
+          "variation": 30,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 70,
+          "variation": 30,
+          "divisor": 8
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 4,
+          "base": 155,
+          "variation": 45,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            12
+          ],
+          "type": 8,
+          "base": 360,
+          "variation": 60,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "demonskeleton.mon",
+      "name": "demon skeleton",
+      "file": "data/monster/demonskeleton.xml",
+      "status": "mapped",
+      "attack": 45,
+      "defend": 35,
+      "armor": 25,
+      "fist": 70,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 40,
+          "variation": 10,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "dharalion.mon",
+      "name": "Dharalion",
+      "file": "data/monster/dharalion.xml",
+      "status": "mapped",
+      "attack": 28,
+      "defend": 39,
+      "armor": 15,
+      "fist": 30,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 105,
+          "variation": 15,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 45,
+          "variation": 15,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 80,
+          "variation": 10,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 1,
+          "base": 140,
+          "variation": 10,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "dog.mon",
+      "name": "dog",
+      "file": "data/monster/dog.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 2,
+      "armor": 1,
+      "fist": 0,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "dragon.mon",
+      "name": "dragon",
+      "file": "data/monster/dragon.xml",
+      "status": "mapped",
+      "attack": 42,
+      "defend": 38,
+      "armor": 25,
+      "fist": 55,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 45,
+          "variation": 11,
+          "divisor": 8
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            3,
+            7
+          ],
+          "type": 4,
+          "base": 80,
+          "variation": 25,
+          "divisor": 7
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            7
+          ],
+          "type": 4,
+          "base": 130,
+          "variation": 30,
+          "divisor": 9
+        }
+      ]
+    },
+    {
+      "source": "dragonlord.mon",
+      "name": "dragon lord",
+      "file": "data/monster/dragonlord.xml",
+      "status": "mapped",
+      "attack": 55,
+      "defend": 48,
+      "armor": 32,
+      "fist": 65,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 75,
+          "variation": 18,
+          "divisor": 4
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            3,
+            7
+          ],
+          "type": 4,
+          "base": 150,
+          "variation": 30,
+          "divisor": 6
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            7
+          ],
+          "type": 4,
+          "base": 200,
+          "variation": 50,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "dwarf.mon",
+      "name": "dwarf",
+      "file": "data/monster/dwarf.xml",
+      "status": "mapped",
+      "attack": 14,
+      "defend": 14,
+      "armor": 8,
+      "fist": 23,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "dwarfgeomancer.mon",
+      "name": "dwarf geomancer",
+      "file": "data/monster/dwarfgeomancer.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 35,
+      "armor": 15,
+      "fist": 50,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 100,
+          "variation": 25,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            12,
+            0
+          ],
+          "type": 1,
+          "base": 80,
+          "variation": 25,
+          "divisor": 3
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 65,
+          "variation": 15,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "dwarfguard.mon",
+      "name": "dwarf guard",
+      "file": "data/monster/dwarfguard.xml",
+      "status": "mapped",
+      "attack": 39,
+      "defend": 37,
+      "armor": 15,
+      "fist": 55,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "dwarfsoldier.mon",
+      "name": "dwarf soldier",
+      "file": "data/monster/dwarfsoldier.xml",
+      "status": "mapped",
+      "attack": 21,
+      "defend": 20,
+      "armor": 9,
+      "fist": 42,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            2,
+            0
+          ],
+          "type": 1,
+          "base": 30,
+          "variation": 10,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "dworcfleshhunter.mon",
+      "name": "dworc fleshhunter",
+      "file": "data/monster/dworcfleshhunter.xml",
+      "status": "mapped",
+      "attack": 17,
+      "defend": 8,
+      "armor": 3,
+      "fist": 25,
+      "poison": 20,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            9,
+            0
+          ],
+          "type": 1,
+          "base": 10,
+          "variation": 5,
+          "divisor": 12
+        }
+      ]
+    },
+    {
+      "source": "dworcvenomsniper.mon",
+      "name": "dworc venomsniper",
+      "file": "data/monster/dworcvenomsniper.xml",
+      "status": "mapped",
+      "attack": 10,
+      "defend": 15,
+      "armor": 3,
+      "fist": 20,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            5,
+            15,
+            0
+          ],
+          "type": 32,
+          "base": 20,
+          "variation": 6,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "dworcvoodoomaster.mon",
+      "name": "dworc voodoomaster",
+      "file": "data/monster/dworcvoodoomaster.xml",
+      "status": "mapped",
+      "attack": 13,
+      "defend": 8,
+      "armor": 3,
+      "fist": 22,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 6,
+          "variation": 3,
+          "divisor": 10
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 20,
+          "variation": 19,
+          "divisor": 18
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            5,
+            9
+          ],
+          "type": 2,
+          "base": 12,
+          "variation": 6,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "efreet.mon",
+      "name": "efreet",
+      "file": "data/monster/efreet.xml",
+      "status": "mapped",
+      "attack": 35,
+      "defend": 35,
+      "armor": 24,
+      "fist": 55,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 65,
+          "variation": 15,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 75,
+          "variation": 35,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 8,
+          "base": 90,
+          "variation": 25,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 256,
+          "base": 90,
+          "variation": 30,
+          "divisor": 5
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            12
+          ],
+          "type": 128,
+          "base": 80,
+          "variation": 20,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "elderbeholder.mon",
+      "name": "elder beholder",
+      "file": "data/monster/elderbeholder.xml",
+      "status": "mapped",
+      "attack": 16,
+      "defend": 26,
+      "armor": 13,
+      "fist": 45,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 8,
+          "base": 60,
+          "variation": 15,
+          "divisor": 14
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 70,
+          "variation": 10,
+          "divisor": 15
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            18
+          ],
+          "type": 1,
+          "base": 80,
+          "variation": 10,
+          "divisor": 12
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            0
+          ],
+          "type": 2,
+          "base": 50,
+          "variation": 20,
+          "divisor": 13
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 5,
+          "divisor": 18
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 5,
+          "divisor": 18
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 512,
+          "base": 30,
+          "variation": 10,
+          "divisor": 19
+        }
+      ]
+    },
+    {
+      "source": "elephant.mon",
+      "name": "elephant",
+      "file": "data/monster/elephant.xml",
+      "status": "mapped",
+      "attack": 41,
+      "defend": 16,
+      "armor": 20,
+      "fist": 45,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "elf.mon",
+      "name": "elf",
+      "file": "data/monster/elf.xml",
+      "status": "mapped",
+      "attack": 12,
+      "defend": 12,
+      "armor": 6,
+      "fist": 20,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            3,
+            0
+          ],
+          "type": 1,
+          "base": 25,
+          "variation": 10,
+          "divisor": 20
+        }
+      ]
+    },
+    {
+      "source": "elfarcanist.mon",
+      "name": "elf arcanist",
+      "file": "data/monster/elfarcanist.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 20,
+      "armor": 15,
+      "fist": 25,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 55,
+          "variation": 13,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            3,
+            0
+          ],
+          "type": 1,
+          "base": 30,
+          "variation": 15,
+          "divisor": 11
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 40,
+          "variation": 10,
+          "divisor": 12
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 1,
+          "base": 70,
+          "variation": 10,
+          "divisor": 9
+        }
+      ]
+    },
+    {
+      "source": "elfscout.mon",
+      "name": "elf scout",
+      "file": "data/monster/elfscout.xml",
+      "status": "mapped",
+      "attack": 18,
+      "defend": 18,
+      "armor": 7,
+      "fist": 25,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            3,
+            0
+          ],
+          "type": 1,
+          "base": 45,
+          "variation": 15,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "evileye.mon",
+      "name": "The Evil Eye",
+      "file": "data/monster/evileye.xml",
+      "status": "mapped",
+      "attack": 24,
+      "defend": 35,
+      "armor": 19,
+      "fist": 65,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 110,
+          "variation": 109,
+          "divisor": 12
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 8,
+          "base": 95,
+          "variation": 35,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 100,
+          "variation": 15,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            18
+          ],
+          "type": 1,
+          "base": 155,
+          "variation": 20,
+          "divisor": 6
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            0
+          ],
+          "type": 2,
+          "base": 80,
+          "variation": 40,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 256,
+          "base": 120,
+          "variation": 10,
+          "divisor": 9
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            9
+          ],
+          "type": 2,
+          "base": 60,
+          "variation": 25,
+          "divisor": 13
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            14
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 5,
+          "divisor": 18
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            2
+          ],
+          "type": 512,
+          "base": 200,
+          "variation": 50,
+          "divisor": 12
+        }
+      ]
+    },
+    {
+      "source": "fernfang.mon",
+      "name": "Fernfang",
+      "file": "data/monster/fernfang.xml",
+      "status": "mapped",
+      "attack": 40,
+      "defend": 50,
+      "armor": 25,
+      "fist": 50,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 105,
+          "variation": 15,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 35,
+          "variation": 10,
+          "divisor": 9
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 80,
+          "variation": 10,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 1,
+          "base": 160,
+          "variation": 20,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "ferumbras.mon",
+      "name": "Ferumbras",
+      "file": "data/monster/ferumbras.xml",
+      "status": "mapped",
+      "attack": 155,
+      "defend": 110,
+      "armor": 90,
+      "fist": 165,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            15
+          ],
+          "type": "healing",
+          "base": 800,
+          "variation": 200,
+          "divisor": 4
+        },
+        {
+          "form": "Actor",
+          "geometry": [
+            15
+          ],
+          "type": "healing",
+          "base": 2000,
+          "variation": 600,
+          "divisor": 10
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 512,
+          "base": 500,
+          "variation": 150,
+          "divisor": 9
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            5,
+            21
+          ],
+          "type": 32,
+          "base": 400,
+          "variation": 350,
+          "divisor": 12
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            5,
+            12
+          ],
+          "type": 128,
+          "base": 650,
+          "variation": 50,
+          "divisor": 11
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            5,
+            14
+          ],
+          "type": 512,
+          "base": 250,
+          "variation": 125,
+          "divisor": 13
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            5,
+            3
+          ],
+          "type": 256,
+          "base": 300,
+          "variation": 100,
+          "divisor": 10
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 64,
+          "base": 500,
+          "variation": 200,
+          "divisor": 7
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            17
+          ],
+          "type": 256,
+          "base": 450,
+          "variation": 400,
+          "divisor": 12
+        }
+      ]
+    },
+    {
+      "source": "firedevil.mon",
+      "name": "fire devil",
+      "file": "data/monster/firedevil.xml",
+      "status": "mapped",
+      "attack": 22,
+      "defend": 15,
+      "armor": 13,
+      "fist": 30,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            3,
+            7
+          ],
+          "type": 4,
+          "base": 75,
+          "variation": 15,
+          "divisor": 9
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            1,
+            7
+          ],
+          "type": 4,
+          "base": 35,
+          "variation": 15,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "fireelemental.mon",
+      "name": "fire elemental",
+      "file": "data/monster/fireelemental.xml",
+      "status": "mapped",
+      "attack": 38,
+      "defend": 20,
+      "armor": 18,
+      "fist": 38,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            1,
+            7
+          ],
+          "type": 4,
+          "base": 105,
+          "variation": 50,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "flamethrower.mon",
+      "name": "flamethrower",
+      "file": "data/monster/flamethrower.xml",
+      "status": "mapped",
+      "attack": 1,
+      "defend": 1,
+      "armor": 1,
+      "fist": 1,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            16
+          ],
+          "type": 4,
+          "base": 75,
+          "variation": 25,
+          "divisor": 1
+        }
+      ]
+    },
+    {
+      "source": "flamingo.mon",
+      "name": "flamingo",
+      "file": "data/monster/flamingo.xml",
+      "status": "mapped",
+      "attack": 4,
+      "defend": 6,
+      "armor": 1,
+      "fist": 9,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "frosttroll.mon",
+      "name": "frost troll",
+      "file": "data/monster/frosttroll.xml",
+      "status": "mapped",
+      "attack": 11,
+      "defend": 9,
+      "armor": 7,
+      "fist": 19,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "gamemaster.mon",
+      "name": "Gamemaster",
+      "file": "data/monster/gamemaster.xml",
+      "status": "mapped",
+      "attack": 299,
+      "defend": 199,
+      "armor": 199,
+      "fist": 599,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 6000,
+          "variation": 1500,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 2000,
+          "variation": 150,
+          "divisor": 3
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 999,
+          "variation": 30,
+          "divisor": 4
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            1,
+            12
+          ],
+          "type": 8,
+          "base": 2000,
+          "variation": 250,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "gargoyle.mon",
+      "name": "gargoyle",
+      "file": "data/monster/gargoyle.xml",
+      "status": "mapped",
+      "attack": 24,
+      "defend": 30,
+      "armor": 26,
+      "fist": 45,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 10,
+          "variation": 5,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "gazer.mon",
+      "name": "gazer",
+      "file": "data/monster/gazer.xml",
+      "status": "mapped",
+      "attack": 9,
+      "defend": 15,
+      "armor": 4,
+      "fist": 25,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 256,
+          "base": 30,
+          "variation": 5,
+          "divisor": 9
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 512,
+          "base": 10,
+          "variation": 5,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "ghost.mon",
+      "name": "ghost",
+      "file": "data/monster/ghost.xml",
+      "status": "mapped",
+      "attack": 28,
+      "defend": 20,
+      "armor": 10,
+      "fist": 45,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 35,
+          "variation": 10,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "ghoul.mon",
+      "name": "ghoul",
+      "file": "data/monster/ghoul.xml",
+      "status": "mapped",
+      "attack": 26,
+      "defend": 17,
+      "armor": 8,
+      "fist": 37,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 12,
+          "variation": 3,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 20,
+          "variation": 5,
+          "divisor": 9
+        }
+      ]
+    },
+    {
+      "source": "giantspider.mon",
+      "name": "giant spider",
+      "file": "data/monster/giantspider.xml",
+      "status": "mapped",
+      "attack": 65,
+      "defend": 40,
+      "armor": 30,
+      "fist": 80,
+      "poison": 150,
+      "spells": []
+    },
+    {
+      "source": "goblin.mon",
+      "name": "goblin",
+      "file": "data/monster/goblin.xml",
+      "status": "mapped",
+      "attack": 10,
+      "defend": 8,
+      "armor": 6,
+      "fist": 15,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            10,
+            0
+          ],
+          "type": 1,
+          "base": 20,
+          "variation": 5,
+          "divisor": 12
+        }
+      ]
+    },
+    {
+      "source": "greendjinn.mon",
+      "name": "green djinn",
+      "file": "data/monster/greendjinn.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 30,
+      "armor": 20,
+      "fist": 50,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 60,
+          "variation": 15,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 128,
+          "base": 70,
+          "variation": 20,
+          "divisor": 3
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 25,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "grorlam.mon",
+      "name": "Grorlam",
+      "file": "data/monster/grorlam.xml",
+      "status": "mapped",
+      "attack": 60,
+      "defend": 35,
+      "armor": 55,
+      "fist": 75,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 125,
+          "variation": 25,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            12,
+            0
+          ],
+          "type": 1,
+          "base": 175,
+          "variation": 25,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "halloweenhare.mon",
+      "name": "The Halloween Hare",
+      "file": "data/monster/halloweenhare.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 999,
+      "armor": 999,
+      "fist": 0,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "hero.mon",
+      "name": "hero",
+      "file": "data/monster/hero.xml",
+      "status": "mapped",
+      "attack": 58,
+      "defend": 50,
+      "armor": 35,
+      "fist": 80,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 225,
+          "variation": 25,
+          "divisor": 10
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            3,
+            0
+          ],
+          "type": 1,
+          "base": 100,
+          "variation": 25,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "hornedfox.mon",
+      "name": "The Horned Fox",
+      "file": "data/monster/hornedfox.xml",
+      "status": "mapped",
+      "attack": 38,
+      "defend": 36,
+      "armor": 17,
+      "fist": 54,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            14
+          ],
+          "type": "healing",
+          "base": 50,
+          "variation": 25,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            2,
+            0
+          ],
+          "type": 1,
+          "base": 85,
+          "variation": 35,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            2,
+            0
+          ],
+          "type": 32,
+          "base": 85,
+          "variation": 35,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "human.mon",
+      "name": "human",
+      "status": "not-present-in-enabled-datapack"
+    },
+    {
+      "source": "hunter.mon",
+      "name": "hunter",
+      "file": "data/monster/hunter.xml",
+      "status": "mapped",
+      "attack": 13,
+      "defend": 10,
+      "armor": 8,
+      "fist": 18,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            3,
+            0
+          ],
+          "type": 1,
+          "base": 75,
+          "variation": 25,
+          "divisor": 2
+        }
+      ]
+    },
+    {
+      "source": "hyaena.mon",
+      "name": "hyaena",
+      "file": "data/monster/hyaena.xml",
+      "status": "mapped",
+      "attack": 11,
+      "defend": 5,
+      "armor": 1,
+      "fist": 18,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "hydra.mon",
+      "name": "hydra",
+      "file": "data/monster/hydra.xml",
+      "status": "mapped",
+      "attack": 56,
+      "defend": 45,
+      "armor": 27,
+      "fist": 71,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 300,
+          "variation": 100,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            2
+          ],
+          "type": 1,
+          "base": 150,
+          "variation": 50,
+          "divisor": 7
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            21
+          ],
+          "type": 2,
+          "base": 180,
+          "variation": 120,
+          "divisor": 9
+        }
+      ]
+    },
+    {
+      "source": "illusion.mon",
+      "name": "demon",
+      "file": "data/monster/illusion.xml",
+      "status": "mapped",
+      "attack": 10,
+      "defend": 8,
+      "armor": 6,
+      "fist": 15,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            1,
+            7
+          ],
+          "type": 1,
+          "base": 20,
+          "variation": 5,
+          "divisor": 8
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            12
+          ],
+          "type": 1,
+          "base": 20,
+          "variation": 5,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "infernatil.mon",
+      "name": "Infernatil",
+      "file": "data/monster/infernatil.xml",
+      "status": "mapped",
+      "attack": 260,
+      "defend": 150,
+      "armor": 165,
+      "fist": 210,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 7500,
+          "variation": 2500,
+          "divisor": 7
+        },
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 2500,
+          "variation": 500,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            2,
+            4,
+            16
+          ],
+          "type": 64,
+          "base": 1000,
+          "variation": 200,
+          "divisor": 15
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            5,
+            5
+          ],
+          "type": 1,
+          "base": 500,
+          "variation": 250,
+          "divisor": 15
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            4,
+            16
+          ],
+          "type": 4,
+          "base": 350,
+          "variation": 150,
+          "divisor": 2
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 4,
+          "base": 600,
+          "variation": 250,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            5
+          ],
+          "type": 4,
+          "base": 750,
+          "variation": 250,
+          "divisor": 8
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            7
+          ],
+          "type": 4,
+          "base": 900,
+          "variation": 600,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "kongra.mon",
+      "name": "kongra",
+      "file": "data/monster/kongra.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 14,
+      "armor": 18,
+      "fist": 40,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "larva.mon",
+      "name": "larva",
+      "file": "data/monster/larva.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 11,
+      "armor": 5,
+      "fist": 30,
+      "poison": 15,
+      "spells": []
+    },
+    {
+      "source": "lich.mon",
+      "name": "lich",
+      "file": "data/monster/lich.xml",
+      "status": "mapped",
+      "attack": 40,
+      "defend": 60,
+      "armor": 50,
+      "fist": 40,
+      "poison": 400,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            14
+          ],
+          "type": "healing",
+          "base": 100,
+          "variation": 50,
+          "divisor": 6
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            13
+          ],
+          "type": 256,
+          "base": 150,
+          "variation": 100,
+          "divisor": 30
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            14
+          ],
+          "type": 256,
+          "base": 160,
+          "variation": 40,
+          "divisor": 6
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            14
+          ],
+          "type": 256,
+          "base": 150,
+          "variation": 50,
+          "divisor": 12
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            17
+          ],
+          "type": 32,
+          "base": 350,
+          "variation": 50,
+          "divisor": 12
+        }
+      ]
+    },
+    {
+      "source": "lion.mon",
+      "name": "lion",
+      "file": "data/monster/lion.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 13,
+      "armor": 6,
+      "fist": 32,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "lizardsentinel.mon",
+      "name": "lizard sentinel",
+      "file": "data/monster/lizardsentinel.xml",
+      "status": "mapped",
+      "attack": 26,
+      "defend": 24,
+      "armor": 17,
+      "fist": 35,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            1,
+            0
+          ],
+          "type": 1,
+          "base": 55,
+          "variation": 15,
+          "divisor": 15
+        }
+      ]
+    },
+    {
+      "source": "lizardsnakecharmer.mon",
+      "name": "lizard snakecharmer",
+      "file": "data/monster/lizardsnakecharmer.xml",
+      "status": "mapped",
+      "attack": 18,
+      "defend": 15,
+      "armor": 22,
+      "fist": 28,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 75,
+          "variation": 25,
+          "divisor": 3
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 32,
+          "base": 170,
+          "variation": 30,
+          "divisor": 9
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            15,
+            0,
+            9
+          ],
+          "type": 2,
+          "base": 75,
+          "variation": 25,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "lizardtemplar.mon",
+      "name": "lizard templar",
+      "file": "data/monster/lizardtemplar.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 20,
+      "armor": 26,
+      "fist": 44,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "magicthrower.mon",
+      "name": "magicthrower",
+      "file": "data/monster/magicthrower.xml",
+      "status": "mapped",
+      "attack": 1,
+      "defend": 1,
+      "armor": 1,
+      "fist": 1,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            16
+          ],
+          "type": 2,
+          "base": 75,
+          "variation": 25,
+          "divisor": 1
+        }
+      ]
+    },
+    {
+      "source": "marid.mon",
+      "name": "marid",
+      "file": "data/monster/marid.xml",
+      "status": "mapped",
+      "attack": 35,
+      "defend": 35,
+      "armor": 24,
+      "fist": 55,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 65,
+          "variation": 15,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 75,
+          "variation": 35,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 8,
+          "base": 90,
+          "variation": 25,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 256,
+          "base": 90,
+          "variation": 30,
+          "divisor": 5
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            12
+          ],
+          "type": 128,
+          "base": 80,
+          "variation": 20,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "merlkin.mon",
+      "name": "merlkin",
+      "file": "data/monster/merlkin.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 40,
+      "armor": 16,
+      "fist": 25,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 25,
+          "variation": 15,
+          "divisor": 11
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            7
+          ],
+          "type": 4,
+          "base": 60,
+          "variation": 30,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 30,
+          "variation": 15,
+          "divisor": 3
+        }
+      ]
+    },
+    {
+      "source": "mimic.mon",
+      "name": "mimic",
+      "file": "data/monster/mimic.xml",
+      "status": "mapped",
+      "attack": 9,
+      "defend": 3,
+      "armor": 2,
+      "fist": 23,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "minotaur.mon",
+      "name": "minotaur",
+      "file": "data/monster/minotaur.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 11,
+      "armor": 11,
+      "fist": 25,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "minotaurarcher.mon",
+      "name": "minotaur archer",
+      "file": "data/monster/minotaurarcher.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 8,
+      "armor": 7,
+      "fist": 20,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            2,
+            0
+          ],
+          "type": 1,
+          "base": 65,
+          "variation": 20,
+          "divisor": 3
+        }
+      ]
+    },
+    {
+      "source": "minotaurguard.mon",
+      "name": "minotaur guard",
+      "file": "data/monster/minotaurguard.xml",
+      "status": "mapped",
+      "attack": 35,
+      "defend": 32,
+      "armor": 15,
+      "fist": 50,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "minotaurmage.mon",
+      "name": "minotaur mage",
+      "file": "data/monster/minotaurmage.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 40,
+      "armor": 18,
+      "fist": 18,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 30,
+          "variation": 15,
+          "divisor": 6
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            0,
+            7
+          ],
+          "type": 4,
+          "base": 65,
+          "variation": 30,
+          "divisor": 11
+        }
+      ]
+    },
+    {
+      "source": "monk.mon",
+      "name": "monk",
+      "file": "data/monster/monk.xml",
+      "status": "mapped",
+      "attack": 42,
+      "defend": 52,
+      "armor": 25,
+      "fist": 55,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 40,
+          "variation": 10,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "morgaroth.mon",
+      "name": "Morgaroth",
+      "file": "data/monster/morgaroth.xml",
+      "status": "mapped",
+      "attack": 200,
+      "defend": 130,
+      "armor": 130,
+      "fist": 200,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 4500,
+          "variation": 1500,
+          "divisor": 7
+        },
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 1000,
+          "variation": 200,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            3
+          ],
+          "type": 512,
+          "base": 550,
+          "variation": 450,
+          "divisor": 16
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            7,
+            2
+          ],
+          "type": 256,
+          "base": 550,
+          "variation": 150,
+          "divisor": 8
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            7,
+            15
+          ],
+          "type": 512,
+          "base": 550,
+          "variation": 150,
+          "divisor": 10
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 4,
+          "base": 500,
+          "variation": 400,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            14
+          ],
+          "type": 256,
+          "base": 675,
+          "variation": 175,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "mummy.mon",
+      "name": "mummy",
+      "file": "data/monster/mummy.xml",
+      "status": "mapped",
+      "attack": 32,
+      "defend": 23,
+      "armor": 14,
+      "fist": 50,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 35,
+          "variation": 5,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "murius.mon",
+      "name": "General Murius",
+      "file": "data/monster/murius.xml",
+      "status": "mapped",
+      "attack": 55,
+      "defend": 52,
+      "armor": 26,
+      "fist": 70,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            14
+          ],
+          "type": "healing",
+          "base": 75,
+          "variation": 25,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            2,
+            0
+          ],
+          "type": 1,
+          "base": 85,
+          "variation": 35,
+          "divisor": 9
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            10
+          ],
+          "type": 1,
+          "base": 65,
+          "variation": 15,
+          "divisor": 10
+        }
+      ]
+    },
+    {
+      "source": "necromancer.mon",
+      "name": "necromancer",
+      "file": "data/monster/necromancer.xml",
+      "status": "mapped",
+      "attack": 40,
+      "defend": 40,
+      "armor": 50,
+      "fist": 30,
+      "poison": 90,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 55,
+          "variation": 13,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            1
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 20,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 65,
+          "variation": 30,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "necropharus.mon",
+      "name": "Necropharus",
+      "file": "data/monster/necropharus.xml",
+      "status": "mapped",
+      "attack": 45,
+      "defend": 45,
+      "armor": 55,
+      "fist": 35,
+      "poison": 95,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 75,
+          "variation": 15,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            1
+          ],
+          "type": 256,
+          "base": 100,
+          "variation": 20,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 95,
+          "variation": 45,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "oldwidow.mon",
+      "name": "The Old Widow",
+      "file": "data/monster/oldwidow.xml",
+      "status": "mapped",
+      "attack": 95,
+      "defend": 60,
+      "armor": 45,
+      "fist": 120,
+      "poison": 450,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 250,
+          "variation": 25,
+          "divisor": 6
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 275,
+          "variation": 25,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "orc.mon",
+      "name": "orc",
+      "file": "data/monster/orc.xml",
+      "status": "mapped",
+      "attack": 13,
+      "defend": 8,
+      "armor": 4,
+      "fist": 22,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "orcberserker.mon",
+      "name": "orc berserker",
+      "file": "data/monster/orcberserker.xml",
+      "status": "mapped",
+      "attack": 65,
+      "defend": 12,
+      "armor": 12,
+      "fist": 50,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "orcleader.mon",
+      "name": "orc leader",
+      "file": "data/monster/orcleader.xml",
+      "status": "mapped",
+      "attack": 48,
+      "defend": 45,
+      "armor": 20,
+      "fist": 52,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            9,
+            0
+          ],
+          "type": 1,
+          "base": 60,
+          "variation": 10,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "orcrider.mon",
+      "name": "orc rider",
+      "file": "data/monster/orcrider.xml",
+      "status": "mapped",
+      "attack": 41,
+      "defend": 20,
+      "armor": 9,
+      "fist": 48,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "orcshaman.mon",
+      "name": "orc shaman",
+      "file": "data/monster/orcshaman.xml",
+      "status": "mapped",
+      "attack": 13,
+      "defend": 10,
+      "armor": 8,
+      "fist": 20,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 35,
+          "variation": 8,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 25,
+          "variation": 5,
+          "divisor": 8
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            0,
+            7
+          ],
+          "type": 4,
+          "base": 25,
+          "variation": 20,
+          "divisor": 13
+        }
+      ]
+    },
+    {
+      "source": "orcspearman.mon",
+      "name": "orc spearman",
+      "file": "data/monster/orcspearman.xml",
+      "status": "mapped",
+      "attack": 17,
+      "defend": 12,
+      "armor": 6,
+      "fist": 19,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            1,
+            0
+          ],
+          "type": 1,
+          "base": 28,
+          "variation": 12,
+          "divisor": 15
+        }
+      ]
+    },
+    {
+      "source": "orcwarlord.mon",
+      "name": "orc warlord",
+      "file": "data/monster/orcwarlord.xml",
+      "status": "mapped",
+      "attack": 68,
+      "defend": 55,
+      "armor": 28,
+      "fist": 72,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            8,
+            0
+          ],
+          "type": 1,
+          "base": 110,
+          "variation": 10,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "orcwarrior.mon",
+      "name": "orc warrior",
+      "file": "data/monster/orcwarrior.xml",
+      "status": "mapped",
+      "attack": 19,
+      "defend": 14,
+      "armor": 8,
+      "fist": 42,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "orshabaal.mon",
+      "name": "Orshabaal",
+      "file": "data/monster/orshabaal.xml",
+      "status": "mapped",
+      "attack": 199,
+      "defend": 111,
+      "armor": 90,
+      "fist": 190,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 2000,
+          "variation": 500,
+          "divisor": 12
+        },
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 800,
+          "variation": 200,
+          "divisor": 6
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 450,
+          "variation": 150,
+          "divisor": 8
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            4,
+            21
+          ],
+          "type": 512,
+          "base": 250,
+          "variation": 100,
+          "divisor": 17
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            6,
+            7
+          ],
+          "type": 4,
+          "base": 455,
+          "variation": 145,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            12
+          ],
+          "type": 8,
+          "base": 675,
+          "variation": 175,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "panda.mon",
+      "name": "panda",
+      "file": "data/monster/panda.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 8,
+      "armor": 8,
+      "fist": 14,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "parrot.mon",
+      "name": "parrot",
+      "file": "data/monster/parrot.xml",
+      "status": "mapped",
+      "attack": 6,
+      "defend": 6,
+      "armor": 2,
+      "fist": 13,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "pharaohashmunrah.mon",
+      "name": "Ashmunrah",
+      "file": "data/monster/pharaohashmunrah.xml",
+      "status": "mapped",
+      "attack": 74,
+      "defend": 74,
+      "armor": 74,
+      "fist": 150,
+      "poison": 165,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 300,
+          "variation": 100,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 550,
+          "variation": 150,
+          "divisor": 15
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 400,
+          "variation": 100,
+          "divisor": 9
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            18
+          ],
+          "type": 1,
+          "base": 500,
+          "variation": 250,
+          "divisor": 6
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            8
+          ],
+          "type": 256,
+          "base": 350,
+          "variation": 200,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "pharaohdipthrah.mon",
+      "name": "Dipthrah",
+      "file": "data/monster/pharaohdipthrah.xml",
+      "status": "mapped",
+      "attack": 65,
+      "defend": 75,
+      "armor": 65,
+      "fist": 70,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 150,
+          "variation": 50,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 600,
+          "variation": 200,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            14
+          ],
+          "type": 512,
+          "base": 350,
+          "variation": 150,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "pharaohmahrdis.mon",
+      "name": "Mahrdis",
+      "file": "data/monster/pharaohmahrdis.xml",
+      "status": "mapped",
+      "attack": 45,
+      "defend": 60,
+      "armor": 40,
+      "fist": 60,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            16
+          ],
+          "type": "healing",
+          "base": 410,
+          "variation": 390,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 400,
+          "variation": 350,
+          "divisor": 15
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            7
+          ],
+          "type": 64,
+          "base": 550,
+          "variation": 250,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            16
+          ],
+          "type": 4,
+          "base": 450,
+          "variation": 150,
+          "divisor": 16
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            6
+          ],
+          "type": 4,
+          "base": 450,
+          "variation": 350,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            5
+          ],
+          "type": 64,
+          "base": 450,
+          "variation": 50,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "pharaohmorguthis.mon",
+      "name": "Morguthis",
+      "file": "data/monster/pharaohmorguthis.xml",
+      "status": "mapped",
+      "attack": 85,
+      "defend": 85,
+      "armor": 75,
+      "fist": 150,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 250,
+          "variation": 50,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 400,
+          "variation": 150,
+          "divisor": 15
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            10
+          ],
+          "type": 1,
+          "base": 450,
+          "variation": 150,
+          "divisor": 5
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            2,
+            18
+          ],
+          "type": 1,
+          "base": 600,
+          "variation": 150,
+          "divisor": 16
+        }
+      ]
+    },
+    {
+      "source": "pharaohomruc.mon",
+      "name": "Omruc",
+      "file": "data/monster/pharaohomruc.xml",
+      "status": "mapped",
+      "attack": 65,
+      "defend": 65,
+      "armor": 60,
+      "fist": 75,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 150,
+          "variation": 50,
+          "divisor": 6
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 200,
+          "variation": 150,
+          "divisor": 20
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            6,
+            9
+          ],
+          "type": 2,
+          "base": 350,
+          "variation": 150,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            7,
+            6
+          ],
+          "type": 4,
+          "base": 250,
+          "variation": 200,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            3,
+            6
+          ],
+          "type": 1,
+          "base": 300,
+          "variation": 100,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "pharaohrahemos.mon",
+      "name": "Rahemos",
+      "file": "data/monster/pharaohrahemos.xml",
+      "status": "mapped",
+      "attack": 40,
+      "defend": 65,
+      "armor": 40,
+      "fist": 55,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 350,
+          "variation": 150,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 400,
+          "variation": 350,
+          "divisor": 15
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            12
+          ],
+          "type": 8,
+          "base": 400,
+          "variation": 200,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            18
+          ],
+          "type": 1,
+          "base": 400,
+          "variation": 200,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "pharaohthalas.mon",
+      "name": "Thalas",
+      "file": "data/monster/pharaohthalas.xml",
+      "status": "mapped",
+      "attack": 65,
+      "defend": 60,
+      "armor": 40,
+      "fist": 110,
+      "poison": 700,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 300,
+          "variation": 150,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 650,
+          "variation": 250,
+          "divisor": 16
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 475,
+          "variation": 175,
+          "divisor": 4
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            4,
+            21
+          ],
+          "type": 32,
+          "base": 550,
+          "variation": 150,
+          "divisor": 7
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            21
+          ],
+          "type": 2,
+          "base": 400,
+          "variation": 150,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "pharaohvashresamun.mon",
+      "name": "Vashresamun",
+      "file": "data/monster/pharaohvashresamun.xml",
+      "status": "mapped",
+      "attack": 45,
+      "defend": 75,
+      "armor": 40,
+      "fist": 60,
+      "poison": 65,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 350,
+          "variation": 100,
+          "divisor": 5
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 400,
+          "variation": 350,
+          "divisor": 15
+        },
+        {
+          "form": "Origin",
+          "geometry": [
+            4,
+            20
+          ],
+          "type": 256,
+          "base": 400,
+          "variation": 150,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "pig.mon",
+      "name": "pig",
+      "file": "data/monster/pig.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 2,
+      "armor": 2,
+      "fist": 10,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "plaguethrower.mon",
+      "name": "plaguethrower",
+      "file": "data/monster/plaguethrower.xml",
+      "status": "mapped",
+      "attack": 1,
+      "defend": 1,
+      "armor": 1,
+      "fist": 1,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            21
+          ],
+          "type": 2,
+          "base": 75,
+          "variation": 25,
+          "divisor": 1
+        }
+      ]
+    },
+    {
+      "source": "poisonspider.mon",
+      "name": "poison spider",
+      "file": "data/monster/poisonspider.xml",
+      "status": "mapped",
+      "attack": 12,
+      "defend": 6,
+      "armor": 2,
+      "fist": 25,
+      "poison": 30,
+      "spells": []
+    },
+    {
+      "source": "polarbear.mon",
+      "name": "polar bear",
+      "file": "data/monster/polarbear.xml",
+      "status": "mapped",
+      "attack": 18,
+      "defend": 10,
+      "armor": 7,
+      "fist": 19,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "priestess.mon",
+      "name": "priestess",
+      "file": "data/monster/priestess.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 50,
+      "armor": 30,
+      "fist": 25,
+      "poison": 250,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 45,
+          "variation": 11,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            11,
+            0
+          ],
+          "type": 1,
+          "base": 75,
+          "variation": 20,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 90,
+          "variation": 30,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "rabbit.mon",
+      "name": "rabbit",
+      "file": "data/monster/rabbit.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 2,
+      "armor": 1,
+      "fist": 0,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "rat.mon",
+      "name": "rat",
+      "file": "data/monster/rat.xml",
+      "status": "mapped",
+      "attack": 7,
+      "defend": 3,
+      "armor": 1,
+      "fist": 15,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "rotworm.mon",
+      "name": "rotworm",
+      "file": "data/monster/rotworm.xml",
+      "status": "mapped",
+      "attack": 18,
+      "defend": 11,
+      "armor": 8,
+      "fist": 26,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "scarab.mon",
+      "name": "scarab",
+      "file": "data/monster/scarab.xml",
+      "status": "mapped",
+      "attack": 25,
+      "defend": 26,
+      "armor": 21,
+      "fist": 42,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Destination",
+          "geometry": [
+            1,
+            0,
+            0,
+            21
+          ],
+          "type": 2,
+          "base": 20,
+          "variation": 5,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "scorpion.mon",
+      "name": "scorpion",
+      "file": "data/monster/scorpion.xml",
+      "status": "mapped",
+      "attack": 21,
+      "defend": 5,
+      "armor": 14,
+      "fist": 35,
+      "poison": 350,
+      "spells": []
+    },
+    {
+      "source": "serpentspawn.mon",
+      "name": "serpent spawn",
+      "file": "data/monster/serpentspawn.xml",
+      "status": "mapped",
+      "attack": 62,
+      "defend": 40,
+      "armor": 38,
+      "fist": 82,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 350,
+          "variation": 50,
+          "divisor": 6
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            17
+          ],
+          "type": 2,
+          "base": 200,
+          "variation": 100,
+          "divisor": 8
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            20
+          ],
+          "type": 256,
+          "base": 275,
+          "variation": 125,
+          "divisor": 7
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            8,
+            21
+          ],
+          "type": 2,
+          "base": 275,
+          "variation": 225,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "sheep.mon",
+      "name": "sheep",
+      "file": "data/monster/sheep.xml",
+      "status": "mapped",
+      "attack": 0,
+      "defend": 2,
+      "armor": 1,
+      "fist": 0,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "shredderthrower.mon",
+      "name": "shredderthrower",
+      "file": "data/monster/shredderthrower.xml",
+      "status": "mapped",
+      "attack": 1,
+      "defend": 1,
+      "armor": 1,
+      "fist": 1,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            8,
+            16
+          ],
+          "type": 1,
+          "base": 110,
+          "variation": 30,
+          "divisor": 1
+        }
+      ]
+    },
+    {
+      "source": "sibang.mon",
+      "name": "sibang",
+      "file": "data/monster/sibang.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 32,
+      "armor": 15,
+      "fist": 33,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            10,
+            0
+          ],
+          "type": 1,
+          "base": 45,
+          "variation": 10,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "skeleton.mon",
+      "name": "skeleton",
+      "file": "data/monster/skeleton.xml",
+      "status": "mapped",
+      "attack": 14,
+      "defend": 9,
+      "armor": 2,
+      "fist": 18,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 10,
+          "variation": 3,
+          "divisor": 12
+        }
+      ]
+    },
+    {
+      "source": "skunk.mon",
+      "name": "skunk",
+      "file": "data/monster/skunk.xml",
+      "status": "mapped",
+      "attack": 4,
+      "defend": 5,
+      "armor": 1,
+      "fist": 15,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Destination",
+          "geometry": [
+            1,
+            0,
+            0,
+            21
+          ],
+          "type": 2,
+          "base": 2,
+          "variation": 1,
+          "divisor": 60
+        }
+      ]
+    },
+    {
+      "source": "slime.mon",
+      "name": "slime",
+      "file": "data/monster/slime.xml",
+      "status": "mapped",
+      "attack": 42,
+      "defend": 10,
+      "armor": 3,
+      "fist": 22,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "slime2.mon",
+      "name": "slime",
+      "file": "data/monster/slime2.xml",
+      "status": "mapped",
+      "attack": 42,
+      "defend": 10,
+      "armor": 3,
+      "fist": 22,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "smuggler.mon",
+      "name": "smuggler",
+      "file": "data/monster/smuggler.xml",
+      "status": "mapped",
+      "attack": 19,
+      "defend": 13,
+      "armor": 10,
+      "fist": 23,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "snake.mon",
+      "name": "snake",
+      "file": "data/monster/snake.xml",
+      "status": "mapped",
+      "attack": 5,
+      "defend": 1,
+      "armor": 0,
+      "fist": 11,
+      "poison": 20,
+      "spells": []
+    },
+    {
+      "source": "spider.mon",
+      "name": "spider",
+      "file": "data/monster/spider.xml",
+      "status": "mapped",
+      "attack": 7,
+      "defend": 2,
+      "armor": 2,
+      "fist": 19,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "spitnettle.mon",
+      "name": "spit nettle",
+      "file": "data/monster/spitnettle.xml",
+      "status": "mapped",
+      "attack": 9,
+      "defend": 33,
+      "armor": 12,
+      "fist": 15,
+      "poison": 18,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 12,
+          "variation": 4,
+          "divisor": 8
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            9
+          ],
+          "type": 2,
+          "base": 27,
+          "variation": 10,
+          "divisor": 7
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            15,
+            9
+          ],
+          "type": 32,
+          "base": 30,
+          "variation": 8,
+          "divisor": 4
+        }
+      ]
+    },
+    {
+      "source": "stalker.mon",
+      "name": "stalker",
+      "file": "data/monster/stalker.xml",
+      "status": "mapped",
+      "attack": 30,
+      "defend": 20,
+      "armor": 14,
+      "fist": 40,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 25,
+          "variation": 5,
+          "divisor": 6
+        }
+      ]
+    },
+    {
+      "source": "stonegolem.mon",
+      "name": "stone golem",
+      "file": "data/monster/stonegolem.xml",
+      "status": "mapped",
+      "attack": 38,
+      "defend": 25,
+      "armor": 30,
+      "fist": 52,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "swamptroll.mon",
+      "name": "swamp troll",
+      "file": "data/monster/swamptroll.xml",
+      "status": "mapped",
+      "attack": 12,
+      "defend": 10,
+      "armor": 6,
+      "fist": 20,
+      "poison": 10,
+      "spells": []
+    },
+    {
+      "source": "tarantula.mon",
+      "name": "tarantula",
+      "file": "data/monster/tarantula.xml",
+      "status": "mapped",
+      "attack": 38,
+      "defend": 20,
+      "armor": 20,
+      "fist": 40,
+      "poison": 30,
+      "spells": []
+    },
+    {
+      "source": "terrorbird.mon",
+      "name": "terror bird",
+      "file": "data/monster/terrorbird.xml",
+      "status": "mapped",
+      "attack": 37,
+      "defend": 21,
+      "armor": 13,
+      "fist": 46,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "tiger.mon",
+      "name": "tiger",
+      "file": "data/monster/tiger.xml",
+      "status": "mapped",
+      "attack": 15,
+      "defend": 15,
+      "armor": 5,
+      "fist": 42,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "troll.mon",
+      "name": "troll",
+      "file": "data/monster/troll.xml",
+      "status": "mapped",
+      "attack": 10,
+      "defend": 8,
+      "armor": 6,
+      "fist": 15,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "valkyrie.mon",
+      "name": "valkyrie",
+      "file": "data/monster/valkyrie.xml",
+      "status": "mapped",
+      "attack": 20,
+      "defend": 14,
+      "armor": 12,
+      "fist": 35,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            1,
+            0
+          ],
+          "type": 1,
+          "base": 35,
+          "variation": 7,
+          "divisor": 7
+        }
+      ]
+    },
+    {
+      "source": "vampire.mon",
+      "name": "vampire",
+      "file": "data/monster/vampire.xml",
+      "status": "mapped",
+      "attack": 42,
+      "defend": 38,
+      "armor": 27,
+      "fist": 65,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            1,
+            0,
+            0
+          ],
+          "type": 256,
+          "base": 80,
+          "variation": 25,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "warlock.mon",
+      "name": "warlock",
+      "file": "data/monster/warlock.xml",
+      "status": "mapped",
+      "attack": 40,
+      "defend": 50,
+      "armor": 32,
+      "fist": 50,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Actor",
+          "geometry": [
+            13
+          ],
+          "type": "healing",
+          "base": 80,
+          "variation": 20,
+          "divisor": 4
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            5,
+            0
+          ],
+          "type": 1,
+          "base": 75,
+          "variation": 30,
+          "divisor": 2
+        },
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            0,
+            0
+          ],
+          "type": 512,
+          "base": 55,
+          "variation": 20,
+          "divisor": 6
+        },
+        {
+          "form": "Destination",
+          "geometry": [
+            7,
+            4,
+            2,
+            7
+          ],
+          "type": 4,
+          "base": 130,
+          "variation": 40,
+          "divisor": 3
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            0,
+            8,
+            12
+          ],
+          "type": 8,
+          "base": 175,
+          "variation": 30,
+          "divisor": 8
+        }
+      ]
+    },
+    {
+      "source": "warwolf.mon",
+      "name": "war wolf",
+      "file": "data/monster/warwolf.xml",
+      "status": "mapped",
+      "attack": 24,
+      "defend": 16,
+      "armor": 8,
+      "fist": 39,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "wasp.mon",
+      "name": "wasp",
+      "file": "data/monster/wasp.xml",
+      "status": "mapped",
+      "attack": 12,
+      "defend": 8,
+      "armor": 4,
+      "fist": 23,
+      "poison": 25,
+      "spells": []
+    },
+    {
+      "source": "wildwarrior.mon",
+      "name": "wild warrior",
+      "file": "data/monster/wildwarrior.xml",
+      "status": "mapped",
+      "attack": 16,
+      "defend": 18,
+      "armor": 9,
+      "fist": 46,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "winterwolf.mon",
+      "name": "winter wolf",
+      "file": "data/monster/winterwolf.xml",
+      "status": "mapped",
+      "attack": 13,
+      "defend": 6,
+      "armor": 2,
+      "fist": 21,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "witch.mon",
+      "name": "witch",
+      "file": "data/monster/witch.xml",
+      "status": "mapped",
+      "attack": 18,
+      "defend": 12,
+      "armor": 8,
+      "fist": 18,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            4,
+            0
+          ],
+          "type": 4,
+          "base": 40,
+          "variation": 15,
+          "divisor": 5
+        }
+      ]
+    },
+    {
+      "source": "wolf.mon",
+      "name": "wolf",
+      "file": "data/monster/wolf.xml",
+      "status": "mapped",
+      "attack": 12,
+      "defend": 4,
+      "armor": 1,
+      "fist": 19,
+      "poison": 0,
+      "spells": []
+    },
+    {
+      "source": "yeti.mon",
+      "name": "yeti",
+      "file": "data/monster/yeti.xml",
+      "status": "mapped",
+      "attack": 53,
+      "defend": 43,
+      "armor": 28,
+      "fist": 79,
+      "poison": 0,
+      "spells": [
+        {
+          "form": "Victim",
+          "geometry": [
+            7,
+            13,
+            3
+          ],
+          "type": 1,
+          "base": 185,
+          "variation": 15,
+          "divisor": 7
+        },
+        {
+          "form": "Angle",
+          "geometry": [
+            30,
+            3,
+            3
+          ],
+          "type": 8,
+          "base": 165,
+          "variation": 45,
+          "divisor": 9
+        }
+      ]
+    }
+  ]
+}

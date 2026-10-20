@@ -356,6 +356,7 @@ bool Monsters::deserializeSpell(const pugi::xml_node& node, spellBlock_t& sb, co
 		sb.speed = std::max<int32_t>(1, pugi::cast<int32_t>(attr.value()));
 	}
 
+    sb.legacyChanceDivisor = node.attribute("legacychance").as_uint(0);
 	if ((attr = node.attribute("chance"))) {
 		uint32_t chance = pugi::cast<uint32_t>(attr.value());
 		if (chance > 100) {
@@ -456,6 +457,8 @@ bool Monsters::deserializeSpell(const pugi::xml_node& node, spellBlock_t& sb, co
 
 			pugi::xml_attribute attackAttribute, skillAttribute;
 			if ((attackAttribute = node.attribute("attack")) && (skillAttribute = node.attribute("skill"))) {
+				sb.legacyAttack = pugi::cast<int32_t>(attackAttribute.value());
+				sb.legacySkill = pugi::cast<int32_t>(skillAttribute.value());
 				sb.minCombatValue = 0;
 				sb.maxCombatValue = -Weapons::getMaxMeleeDamage(pugi::cast<int32_t>(skillAttribute.value()), pugi::cast<int32_t>(attackAttribute.value()));
 			}
@@ -476,7 +479,8 @@ bool Monsters::deserializeSpell(const pugi::xml_node& node, spellBlock_t& sb, co
 
 				minDamage = pugi::cast<int32_t>(attr.value());
 				maxDamage = minDamage;
-				tickInterval = 5000;
+				minDamage /= 2;
+				tickInterval = 4000;
 			} else if ((attr = node.attribute("energy"))) {
 				conditionType = CONDITION_ENERGY;
 
@@ -646,7 +650,7 @@ bool Monsters::deserializeSpell(const pugi::xml_node& node, spellBlock_t& sb, co
 			return false;
 		}
 
-		combat->setPlayerCombatValues(COMBAT_FORMULA_DAMAGE, sb.minCombatValue, 0, sb.maxCombatValue, 0);
+		combat->setPlayerCombatValues(sb.isMelee ? COMBAT_FORMULA_UNDEFINED : COMBAT_FORMULA_DAMAGE, sb.minCombatValue, 0, sb.maxCombatValue, 0);
 		combatSpell = new CombatSpell(combat, needTarget, needDirection);
 
 		for (auto attributeNode : node.children()) {
@@ -914,6 +918,8 @@ bool Monsters::loadMonster(const std::string& file, const std::string& monsterNa
 		}
 	}
 
+    mType->info.legacyReference = monsterNode.attribute("legacyreference").as_bool(false);
+    mType->info.legacyFistSkill = monsterNode.attribute("legacyfistskill").as_int(10);
 	if ((node = monsterNode.child("defenses"))) {
 		if ((attr = node.attribute("defense"))) {
 			mType->info.defense = pugi::cast<int32_t>(attr.value());

@@ -1,13 +1,21 @@
 local combat = Combat()
-combat:setParameter(COMBAT_PARAM_TYPE, COMBAT_FIREDAMAGE)
 combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_HITBYFIRE)
 combat:setParameter(COMBAT_PARAM_DISTANCEEFFECT, CONST_ANI_FIRE)
 
-local condition = Condition(CONDITION_FIRE)
-condition:addDamage(1, 10000, -0)
-condition:addDamage(13, 10000, -10)
-combat:setCondition(condition)
 
-function onCastSpell(creature, variant, isHotkey)
-	return combat:execute(creature, variant)
+local castForce = 0
+function onTargetCreature(caster, target)
+ local condition = Condition(CONDITION_FIRE)
+ condition:setParameter(CONDITION_PARAM_MINVALUE, castForce)
+ condition:setParameter(CONDITION_PARAM_MAXVALUE, castForce)
+ condition:setParameter(CONDITION_PARAM_OWNER, caster:getId())
+ target:addCondition(condition)
+end
+combat:setCallback(CALLBACK_PARAM_TARGETCREATURE, "onTargetCreature")
+
+function onCastSpell(creature, variant)
+ if creature:isPlayer() then
+  castForce = legacySpellForce(creature:getLevel(), creature:getMagicLevel(), 120, 20)
+ else castForce = 120 + math.random(-20, 20) end
+ return combat:execute(creature, variant)
 end

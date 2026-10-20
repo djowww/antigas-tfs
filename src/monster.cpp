@@ -20,6 +20,7 @@
 #include "otpch.h"
 
 #include "monster.h"
+#include "legacycombat.h"
 #include "game.h"
 #include "spells.h"
 #include "configmanager.h"
@@ -61,6 +62,13 @@ Monster::Monster(MonsterType* mtype) :
 			std::cout << "[Warning - Monster::Monster] Unknown event name: " << scriptName << std::endl;
 		}
 	}
+}
+
+int32_t Monster::getDefense() const
+{
+    return mType->info.legacyReference
+        ? LegacyCombat::probe(LegacyCombat::defendValue(mType->info.defense, (!attackedCreature || OTSYS_TIME() >= lastMeleeAttack + 2000) ? 3 : 2), mType->info.legacyFistSkill)
+        : mType->info.defense;
 }
 
 Monster::~Monster()
@@ -647,7 +655,7 @@ BlockType_t Monster::blockHit(Creature* attacker, CombatType_t combatType, int32
 {
 	BlockType_t blockType = Creature::blockHit(attacker, combatType, damage, checkDefense, checkArmor);
 
-	if (damage != 0) {
+	if (damage != 0 && !mType->info.legacyReference) {
 		int32_t elementMod = 0;
 		auto it = mType->info.elementMap.find(combatType);
 		if (it != mType->info.elementMap.end()) {
@@ -855,12 +863,14 @@ void Monster::doAttacking(uint32_t interval)
 		bool inRange = false;
 
 		if (canUseSpell(myPos, targetPos, spellBlock, interval, inRange, resetTicks)) {
-			if (static_cast<uint32_t>(uniform_random(0, spellBlock.chance) == 0)) {
+			if (spellBlock.legacyChanceDivisor ? uniform_random(0, spellBlock.legacyChanceDivisor - 1) == 0 : uniform_random(0, spellBlock.chance) == 0) {
 				if (updateLook) {
 					updateLookDirection();
 					updateLook = false;
 				}
 
+				legacyMeleeAttack = spellBlock.legacyAttack;
+				legacyMeleeSkill = spellBlock.legacySkill;
 				minCombatValue = spellBlock.minCombatValue;
 				maxCombatValue = spellBlock.maxCombatValue;
 				spellBlock.spell->castSpell(this, attackedCreature);
@@ -1011,7 +1021,8 @@ void Monster::onThinkDefense(uint32_t interval)
 			continue;
 		}
 
-		if (!uniform_random(0, spellBlock.chance)) {
+		if (spellBlock.legacyChanceDivisor ? uniform_random(0, spellBlock.legacyChanceDivisor - 1) == 0 : uniform_random(0, spellBlock.chance) == 0) {
+			legacyMeleeAttack = 0;
 			minCombatValue = spellBlock.minCombatValue;
 			maxCombatValue = spellBlock.maxCombatValue;
 			spellBlock.spell->castSpell(this, this);
@@ -1927,6 +1938,10 @@ bool Monster::isInSpawnRange(const Position& pos) const
 
 bool Monster::getCombatValues(int32_t& min, int32_t& max)
 {
+    if (legacyMeleeAttack > 0) {
+        min = max = -LegacyCombat::probe(legacyMeleeAttack, legacyMeleeSkill);
+        return true;
+    }
 	if (minCombatValue == 0 && maxCombatValue == 0) {
 		return false;
 	}

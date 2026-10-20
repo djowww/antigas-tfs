@@ -62,6 +62,9 @@ struct spellBlock_t {
 	spellBlock_t& operator=(const spellBlock_t& other) = delete;
 	spellBlock_t(spellBlock_t&& other) :
 		spell(other.spell),
+		legacyChanceDivisor(other.legacyChanceDivisor),
+		legacyAttack(other.legacyAttack),
+		legacySkill(other.legacySkill),
 		chance(other.chance),
 		speed(other.speed),
 		range(other.range),
@@ -73,6 +76,9 @@ struct spellBlock_t {
 	}
 
 	BaseSpell* spell = nullptr;
+	uint32_t legacyChanceDivisor = 0;
+	int32_t legacyAttack = 0;
+	int32_t legacySkill = 0;
 	uint32_t chance = 100;
 	uint32_t speed = 2000;
 	uint32_t range = 0;
@@ -109,6 +115,8 @@ class MonsterType
 		LightInfo light = {};
 		uint16_t lookcorpse = 0;
 
+		bool legacyReference = false;
+		int32_t legacyFistSkill = 10;
 		uint64_t experience = 0;
 
 		uint32_t manaCost = 0;

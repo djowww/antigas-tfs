@@ -294,6 +294,9 @@ class Creature : virtual public Thing
 		virtual bool setAttackedCreature(Creature* creature);
 		virtual BlockType_t blockHit(Creature* attacker, CombatType_t combatType, int32_t& damage,
 		                             bool checkDefense = false, bool checkArmor = false, bool field = false);
+		virtual void applyLegacyProtection(int32_t&, CombatType_t, bool) {}
+		virtual void applyLegacyConditionProtection(int32_t&, ConditionType_t) {}
+		int32_t rollLegacyDefense();
 
 		void setMaster(Creature* creature) {
 			master = creature;
@@ -366,6 +369,7 @@ class Creature : virtual public Thing
 
 		void onDeath();
 		virtual uint64_t getGainedExperience(Creature* attacker) const;
+		uint64_t getLegacyExperienceShare(uint64_t reward, const Creature* attacker) const;
 		void addDamagePoints(Creature* attacker, int32_t damagePoints);
 		bool hasBeenAttacked(uint32_t attackerId);
 
@@ -504,6 +508,9 @@ class Creature : virtual public Thing
 
 		typedef std::map<uint32_t, CountBlock_t> CountMap;
 		CountMap damageMap;
+		std::vector<uint32_t> legacyDamageOrder;
+		uint32_t legacyNextDamageSlot = 0;
+		uint64_t legacyTotalDamage = 0;
 
 		std::list<Creature*> summons;
 		CreatureEventList eventsList;
@@ -526,6 +533,8 @@ class Creature : virtual public Thing
 		uint32_t lastHitCreatureId = 0;
 		uint32_t blockCount = 0;
 		uint32_t blockTicks = 0;
+		int64_t legacyLastDefendTime = 0;
+		int64_t legacyEarliestDefendTime = 0;
 		uint32_t lastStepCost = 1;
 		uint32_t baseSpeed = 220;
 		uint32_t mana = 0;

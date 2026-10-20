@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Gamemaster" nameDescription="a Gamemaster" race="blood" experience="0" speed="478" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Gamemaster" nameDescription="a Gamemaster" race="blood" experience="0" speed="478" manacost="0" legacyreference="1" legacyfistskill="599">
 	<health now="8200" max="8200" />
 	<look type="75" head="0" body="0" legs="0" feet="0" corpse="4240" />
 	<targetchange interval="1000" chance="0" />
@@ -19,14 +19,14 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="599" attack="299" />
-		<attack name="lifedrain" min="-1850" max="-2150" range="1" interval="1000" chance="3" />
-		<attack name="manadrain" min="-969" max="-1029" range="7" interval="1000" chance="4" />
-		<attack name="energy" min="-1750" max="-2250" length="1" spread="0"  interval="1000" chance="5">
+		<attack name="lifedrain" legacychance="3" interval="1000" chance="0" min="-1850" max="-2150" range="1" target="1" />
+		<attack name="manadrain" legacychance="4" interval="1000" chance="0" min="-969" max="-1029" range="7" target="1" />
+		<attack name="energy" legacychance="5" interval="1000" chance="0" min="-1750" max="-2250" length="1" spread="0">
 			<attribute key="areaEffect" value="energy" />
 		</attack>
 	</attacks>
 	<defenses armor="199" defense="199">
-		<defense name="healing" min="4500" max="7500" interval="1000" chance="2">
+		<defense name="healing" legacychance="2" interval="1000" chance="0" min="4500" max="7500">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Serpent Spawn" nameDescription="a serpent spawn" race="blood" experience="2000" speed="234" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Serpent Spawn" nameDescription="a serpent spawn" race="blood" experience="2000" speed="234" manacost="0" legacyreference="1" legacyfistskill="82">
 	<health now="3000" max="3000" />
 	<look type="220" head="0" body="0" legs="0" feet="0" corpse="4388" />
 	<targetchange interval="1000" chance="25" />
@@ -19,27 +19,22 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="82" attack="62" />
-		<attack name="poison" min="-100" max="-300" range="7" interval="1000" chance="8">
-			<attribute key="shootEffect" value="poison" />
-			<attribute key="areaEffect" value="greenspark" />
-		</attack>
 		<attack name="speed" speedchange="-500" duration="120000" range="7" radius="4" target="1" interval="1000" chance="5">
 			<attribute key="shootEffect" value="poison" />
 			<attribute key="areaEffect" value="greenbubble" />
 		</attack>
-		<attack name="lifedrain" min="-150" max="-400" length="8" spread="0"  interval="1000" chance="7">
+		<attack name="earth" legacychance="8" interval="2000" chance="0" min="-100" max="-300" range="7" target="1" />
+		<attack name="lifedrain" legacychance="7" interval="1000" chance="0" min="-150" max="-400" length="8" spread="0">
 			<attribute key="areaEffect" value="rednote" />
 		</attack>
-		<attack name="poison" min="-50" max="-500" length="8" spread="3" interval="1000" chance="6">
-			<attribute key="areaEffect" value="poison" />
-		</attack>
+		<attack name="earth" legacychance="6" interval="2000" chance="0" min="-50" max="-500" length="8" spread="3" />
 	</attacks>
 	<defenses armor="38" defense="40">
-		<defense name="healing" min="300" max="400" interval="1000" chance="6">
-			<attribute key="areaEffect" value="blueshimmer" />
-		</defense>
 		<defense name="speed" speedchange="456" duration="3000" interval="1000" chance="12">
 			<attribute key="areaEffect" value="redshimmer" />
+		</defense>
+		<defense name="healing" legacychance="6" interval="1000" chance="0" min="300" max="400">
+			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
 	<immunities>
@@ -56,24 +51,41 @@
 		<voice sentence="I bring you deathhhh, mortalssss" />
 	</voices>
 	<loot>
-		<item id="2842" countmax="1" chance="90" /> <!-- a book -->
-		 <!-- a charmer's tiara -->
-		<item id="3386" countmax="1" chance="2" /> <!-- a dragon scale mail -->
-		<item id="3051" countmax="1" chance="30" /> <!-- an energy ring -->
-		<item id="3280" countmax="1" chance="3" /> <!-- a fire sword -->
-		<item id="3031" countmax="100" chance="800" /> <!-- a gold coin -->
-		<item id="3031" countmax="100" chance="600" /> <!-- a gold coin -->
-		<item id="3031" countmax="50" chance="400" /> <!-- a gold coin -->
-		<item id="2903" countmax="1" chance="30" /> <!-- a golden mug -->
-		<item id="3732" countmax="1" chance="180" /> <!-- a green mushroom -->
-		<item id="3061" countmax="1" chance="8" /> <!-- a life crystal -->
-		<item id="3052" countmax="1" chance="30" /> <!-- a life ring -->
-		 <!-- an old parchment -->
-		<item id="3450" countmax="1" chance="60" /> <!-- a power bolt -->
-		<item id="3392" countmax="1" chance="1" /> <!-- a royal helmet -->
-		<item id="3029" countmax="1" chance="60" /> <!-- a small sapphire -->
-		<item id="3373" countmax="1" chance="6" /> <!-- a strange helmet -->
-		<item id="3428" countmax="1" chance="4" /> <!-- a tower shield -->
-		<item id="3066" countmax="1" chance="10" /> <!-- a golden wand -->
+		<item id="2842" countmax="1" chance="90" />
+		<!-- a book -->
+		<!-- a charmer's tiara -->
+		<item id="3386" countmax="1" chance="2" />
+		<!-- a dragon scale mail -->
+		<item id="3051" countmax="1" chance="30" />
+		<!-- an energy ring -->
+		<item id="3280" countmax="1" chance="3" />
+		<!-- a fire sword -->
+		<item id="3031" countmax="100" chance="800" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="100" chance="600" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="50" chance="400" />
+		<!-- a gold coin -->
+		<item id="2903" countmax="1" chance="30" />
+		<!-- a golden mug -->
+		<item id="3732" countmax="1" chance="180" />
+		<!-- a green mushroom -->
+		<item id="3061" countmax="1" chance="8" />
+		<!-- a life crystal -->
+		<item id="3052" countmax="1" chance="30" />
+		<!-- a life ring -->
+		<!-- an old parchment -->
+		<item id="3450" countmax="1" chance="60" />
+		<!-- a power bolt -->
+		<item id="3392" countmax="1" chance="1" />
+		<!-- a royal helmet -->
+		<item id="3029" countmax="1" chance="60" />
+		<!-- a small sapphire -->
+		<item id="3373" countmax="1" chance="6" />
+		<!-- a strange helmet -->
+		<item id="3428" countmax="1" chance="4" />
+		<!-- a tower shield -->
+		<item id="3066" countmax="1" chance="10" />
+		<!-- a golden wand -->
 	</loot>
 </monster>

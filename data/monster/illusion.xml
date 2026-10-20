@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="illusion" nameDescription="a illusion" race="blood" experience="25" speed="120" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="illusion" nameDescription="a illusion" race="blood" experience="25" speed="120" manacost="0" legacyreference="1" legacyfistskill="15">
 	<health now="50" max="50" />
 	<look type="107" head="0" body="0" legs="0" feet="0" corpse="4121" />
 	<targetchange interval="1000" chance="0" />
@@ -19,11 +19,11 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="15" attack="10" />
-		<attack name="physical" min="-15" max="-25" range="7" radius="2" target="1" interval="1000" chance="8">
+		<attack name="physical" legacychance="8" interval="1000" chance="0" min="-15" max="-25" range="7" radius="5" target="1">
 			<attribute key="shootEffect" value="fire" />
 			<attribute key="areaEffect" value="firearea" />
 		</attack>
-		<attack name="physical" min="-15" max="-25" length="8" spread="0"  interval="1000" chance="8">
+		<attack name="physical" legacychance="8" interval="1000" chance="0" min="-15" max="-25" length="8" spread="0">
 			<attribute key="areaEffect" value="energy" />
 		</attack>
 	</attacks>
@@ -41,15 +41,25 @@
 		<voice sentence="Your soul will be mine!" yell="1" />
 	</voices>
 	<loot>
-		<item id="3115" countmax="1" chance="120" /> <!-- a bone -->
-		<item id="3267" countmax="1" chance="180" /> <!-- a dagger -->
-		<item id="3578" countmax="1" chance="130" /> <!-- a fish -->
-		<item id="3031" countmax="9" chance="500" /> <!-- a gold coin -->
-		<item id="3361" countmax="1" chance="75" /> <!-- a leather armor -->
-		<item id="3355" countmax="1" chance="100" /> <!-- a leather helmet -->
-		<item id="3120" countmax="1" chance="70" /> <!-- a moldy cheese -->
-		<item id="3294" countmax="1" chance="90" /> <!-- a short sword -->
-		<item id="3462" countmax="1" chance="100" /> <!-- a small axe -->
-		<item id="1781" countmax="3" chance="300" /> <!-- a small stone -->
+		<item id="3115" countmax="1" chance="120" />
+		<!-- a bone -->
+		<item id="3267" countmax="1" chance="180" />
+		<!-- a dagger -->
+		<item id="3578" countmax="1" chance="130" />
+		<!-- a fish -->
+		<item id="3031" countmax="9" chance="500" />
+		<!-- a gold coin -->
+		<item id="3361" countmax="1" chance="75" />
+		<!-- a leather armor -->
+		<item id="3355" countmax="1" chance="100" />
+		<!-- a leather helmet -->
+		<item id="3120" countmax="1" chance="70" />
+		<!-- a moldy cheese -->
+		<item id="3294" countmax="1" chance="90" />
+		<!-- a short sword -->
+		<item id="3462" countmax="1" chance="100" />
+		<!-- a small axe -->
+		<item id="1781" countmax="3" chance="300" />
+		<!-- a small stone -->
 	</loot>
 </monster>

@@ -181,51 +181,14 @@ local function getExpForLevel(level)
 end
 
 function Player:onGainExperience(source, exp, rawExp)
-	if not source or source:isPlayer() then
-		return exp
-	end
-	
-	-- Premium
-	--local xpPremium = 0
-	--if self:isPremium() then
-		--xpPremium = exp * 0.2 -- +20% XP
-	--end
-	
-	-- Soul regeneration
-	local vocation = self:getVocation()
-	if self:getSoul() < vocation:getMaxSoul() and exp >= self:getLevel() then
-		soulCondition:setParameter(CONDITION_PARAM_SOULTICKS, vocation:getSoulGainTicks() * 1000)
-		self:addCondition(soulCondition)
-	end
-
-	-- Apply experience stage multiplier
-	exp = exp * Game.getExperienceStage(self:getLevel())
-	
-	local multiplier = 1.1
-    if self:getStorageValue(17754) == 1 then
-        exp = exp * multiplier
-    end
-	
-	if self:getStorageValue(1234) >= os.time() then
-    exp = exp * 1.25
-    end
-
-	local onlineBonusExtra = self:applyOnlineStayBonus(exp, ONLINE_STAY_BONUS_XP_REMAINDER_STORAGE)
-	local bestiaryBonusExtra = self:applyBestiaryExperienceBonus(exp)
-	exp = exp + onlineBonusExtra + bestiaryBonusExtra
-	
-	-- Custom Lines
-    if getGlobalStorageValue(17589) > os.time() then
-        exp = exp * (1 + getGlobalStorageValue(17585) / 100)
-    end
-    -- Custom Lines
-	
-	-- Report final gained experience and a non-negative amount to the next level.
-	local expForLevel = getExpForLevel(self:getLevel() + 1)
-	if expForLevel >= 1 then
-		self:addAnalyzerExp(exp, math.max(0, expForLevel - self:getExperience() - exp))
-	end
-	return exp
+ -- Numerical awards follow the audited server; custom progress/UI is retained.
+ local vocation = self:getVocation()
+ if source and not source:isPlayer() and self:getSoul() < vocation:getMaxSoul() and exp >= self:getLevel() then
+  soulCondition:setParameter(CONDITION_PARAM_SOULTICKS, vocation:getSoulGainTicks() * 1000)
+  self:addCondition(soulCondition)
+ end
+ self:addAnalyzerExp(exp, math.max(0, getExpForLevel(self:getLevel() + 1) - self:getExperience() - exp))
+ return exp
 end
 
 function Player:onLoseExperience(exp)
@@ -233,31 +196,7 @@ function Player:onLoseExperience(exp)
 end
 
 function Player:onGainSkillTries(skill, tries)
-    local remainderStorage = ONLINE_STAY_BONUS_SKILL_REMAINDER_BASE + skill
-    if APPLY_SKILL_MULTIPLIER == false then
-        local onlineBonusExtra = self:applyOnlineStayBonus(tries, remainderStorage)
-        return tries + onlineBonusExtra
-    end
-
-    if skill == SKILL_MAGLEVEL then
-        tries = tries * configManager.getNumber(configKeys.RATE_MAGIC)
-        -- Custom Lines
-        if getGlobalStorageValue(17591) > os.time() then
-            tries = tries * (1 + getGlobalStorageValue(17587) / 100)
-        end
-        -- Custom Lines
-        local onlineBonusExtra = self:applyOnlineStayBonus(tries, remainderStorage)
-        return tries + onlineBonusExtra
-    end
-    
-    tries = tries * configManager.getNumber(configKeys.RATE_SKILL)
-    -- Custom Lines
-    if getGlobalStorageValue(17590) > os.time() then
-        tries = tries * (1 + getGlobalStorageValue(17586) / 100)
-    end
-    -- Custom Lines
-    local onlineBonusExtra = self:applyOnlineStayBonus(tries, remainderStorage)
-    return tries + onlineBonusExtra
+ return tries
 end
 
 function Player:onUseItem(item, target)

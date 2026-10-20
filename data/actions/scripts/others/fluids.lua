@@ -53,16 +53,30 @@ function onUse(player, item, fromPosition, target, toPosition)
 		if item:getFluidType() == FLUID_NONE then
 			player:sendCancelMessage("It is empty.")
 		else
+            local restorative = item:getFluidType() == FLUID_MANAFLUID or item:getFluidType() == FLUID_LIFEFLUID
+            if restorative then
+                if player:getCondition(CONDITION_EXHAUST) then
+                    player:sendCancelMessage(RETURNVALUE_YOUAREEXHAUSTED)
+                    return true
+                end
+                local exhaustion = Condition(CONDITION_EXHAUST)
+                exhaustion:setParameter(CONDITION_PARAM_TICKS, 1000)
+                player:addCondition(exhaustion)
+            end
 			local self = target == player
 			if self and item:getFluidType() == FLUID_BEER or item:getFluidType() == FLUID_WINE then
 				player:addCondition(drunk)
 			elseif self and item:getFluidType() == FLUID_SLIME then
 				player:addCondition(poison)
 			elseif item:getFluidType() == FLUID_MANAFLUID then
-				target:addMana(math.random(50, 100))
+				target:addMana(math.random(50, 150))
 				target:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
 			elseif item:getFluidType() == FLUID_LIFEFLUID then
-				target:addHealth(math.random(50, 60))
+				local healed = math.random(25, 75)
+                if target:getHealth() > 0 then
+                    target:addHealth(healed)
+                    target:removeCondition(CONDITION_PARALYZE)
+                end
 				target:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
 			end
 			

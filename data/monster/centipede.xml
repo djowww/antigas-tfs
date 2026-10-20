@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Centipede" nameDescription="a centipede" race="blood" experience="30" speed="166" manacost="335">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Centipede" nameDescription="a centipede" race="blood" experience="30" speed="166" manacost="335" legacyreference="1" legacyfistskill="30">
 	<health now="70" max="70" />
 	<look type="124" head="0" body="0" legs="0" feet="0" corpse="4354" />
 	<targetchange interval="1000" chance="6" />
@@ -26,8 +26,11 @@
 		<immunity poison="1" />
 	</immunities>
 	<loot>
-		<item id="3031" countmax="15" chance="800" /> <!-- a gold coin -->
-		<item id="3286" countmax="1" chance="45" /> <!-- a mace -->
-		<item id="3264" countmax="1" chance="30" /> <!-- a sword -->
+		<item id="3031" countmax="15" chance="800" />
+		<!-- a gold coin -->
+		<item id="3286" countmax="1" chance="45" />
+		<!-- a mace -->
+		<item id="3264" countmax="1" chance="30" />
+		<!-- a sword -->
 	</loot>
 </monster>

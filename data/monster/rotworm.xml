@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Rotworm" nameDescription="a rotworm" race="blood" experience="40" speed="116" manacost="305">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Rotworm" nameDescription="a rotworm" race="blood" experience="40" speed="116" manacost="305" legacyreference="1" legacyfistskill="26">
 	<health now="65" max="65" />
 	<look type="26" head="0" body="0" legs="0" feet="0" corpse="4005" />
 	<targetchange interval="1000" chance="0" />
@@ -26,14 +26,23 @@
 		<immunity outfit="1" />
 	</immunities>
 	<loot>
-		<item id="3430" countmax="1" chance="10" /> <!-- a copper shield -->
-		<item id="3031" countmax="8" chance="600" /> <!-- a gold coin -->
-		<item id="3031" countmax="12" chance="300" /> <!-- a gold coin -->
-		<item id="3582" countmax="1" chance="200" /> <!-- ham -->
-		<item id="3300" countmax="1" chance="3" /> <!-- a katana -->
-		<item id="3374" countmax="1" chance="15" /> <!-- a legion helmet -->
-		<item id="3286" countmax="1" chance="45" /> <!-- a mace -->
-		<item id="3577" countmax="1" chance="200" /> <!-- meat -->
-		<item id="3264" countmax="1" chance="30" /> <!-- a sword -->
+		<item id="3430" countmax="1" chance="10" />
+		<!-- a copper shield -->
+		<item id="3031" countmax="8" chance="600" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="12" chance="300" />
+		<!-- a gold coin -->
+		<item id="3582" countmax="1" chance="200" />
+		<!-- ham -->
+		<item id="3300" countmax="1" chance="3" />
+		<!-- a katana -->
+		<item id="3374" countmax="1" chance="15" />
+		<!-- a legion helmet -->
+		<item id="3286" countmax="1" chance="45" />
+		<!-- a mace -->
+		<item id="3577" countmax="1" chance="200" />
+		<!-- meat -->
+		<item id="3264" countmax="1" chance="30" />
+		<!-- a sword -->
 	</loot>
 </monster>

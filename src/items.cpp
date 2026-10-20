@@ -257,6 +257,7 @@ bool Items::loadItems()
 						items[id].fluidSource = getFluidType(script.readIdentifier());
 					} else if (identifier == "avoiddamagetypes") {
 						items[id].combatType = getCombatType(script.readIdentifier());
+						items[id].avoidDamageTypes = items[id].combatType;
 					} else if (identifier == "minimumlevel") {
 						items[id].minReqLevel = script.readNumber();
 					} else if (identifier == "beddirection") {
@@ -275,14 +276,19 @@ bool Items::loadItems()
 						identifier = asLowerCaseString(script.readIdentifier());
 						if (identifier == "head") {
 							items[id].slotPosition |= SLOTP_HEAD;
+							items[id].legacyBodySlot = 1;
 						} else if (identifier == "body") {
 							items[id].slotPosition |= SLOTP_ARMOR;
+							items[id].legacyBodySlot = 4;
 						} else if (identifier == "legs") {
 							items[id].slotPosition |= SLOTP_LEGS;
+							items[id].legacyBodySlot = 7;
 						} else if (identifier == "feet") {
 							items[id].slotPosition |= SLOTP_FEET;
+							items[id].legacyBodySlot = 8;
 						} else if (identifier == "backpack") {
 							items[id].slotPosition |= SLOTP_BACKPACK;
+							items[id].legacyBodySlot = 3;
 						} else if (identifier == "twohanded") {
 							items[id].slotPosition |= SLOTP_TWO_HAND;
 						} else if (identifier == "righthand") {
@@ -291,10 +297,13 @@ bool Items::loadItems()
 							items[id].slotPosition &= ~SLOTP_RIGHT;
 						} else if (identifier == "necklace") {
 							items[id].slotPosition |= SLOTP_NECKLACE;
+							items[id].legacyBodySlot = 2;
 						} else if (identifier == "ring") {
 							items[id].slotPosition |= SLOTP_RING;
+							items[id].legacyBodySlot = 9;
 						} else if (identifier == "ammo") {
 							items[id].slotPosition |= SLOTP_AMMO;
+							items[id].legacyBodySlot = 10;
 						} else if (identifier == "hand") {
 							items[id].slotPosition |= SLOTP_HAND;
 						} else {
@@ -360,6 +369,7 @@ bool Items::loadItems()
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_ENERGYDAMAGE)] += percent;
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] += percent;
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_EARTHDAMAGE)] += percent;
+						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_LIFEDRAIN)] += percent;
 					} else if (identifier == "absorbenergy") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_ENERGYDAMAGE)] += script.readNumber();
 					} else if (identifier == "absorbfire") {
@@ -371,7 +381,9 @@ bool Items::loadItems()
 					} else if (identifier == "absorbmanadrain") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_MANADRAIN)] += script.readNumber();
 					} else if (identifier == "absorbphysical") {
-						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_PHYSICALDAMAGE)] += script.readNumber();
+						const int32_t percent = script.readNumber();
+						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_PHYSICALDAMAGE)] += percent;
+						if (id == 3048 || id == 3081 || id == 3082 || id == 3084) items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_UNDEFINEDDAMAGE)] += percent;
 					} else if (identifier == "absorbhealing") {
 						items[id].getAbilities().absorbPercent[combatTypeToIndex(COMBAT_HEALING)] += script.readNumber();
 					} else if (identifier == "absorbundefined") {

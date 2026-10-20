@@ -5,11 +5,17 @@ function healingFormula(level, maglevel, base, variation)
 	return min, max
 end
 
-function damageFormula(level, maglevel, base, variation)
-	local value = 2 * level + (3 * maglevel)
-	local min = value - math.random(variation) + base / 100
-	local max = value + math.random(variation) + base / 100
-	return -min, -max
+-- One integer roll precedes both factor scaling and integer truncation.
+function legacySpellForce(level, magicLevel, base, variation, clamp)
+ local factor = 2 * level + 3 * magicLevel
+ if clamp == "minimum" then factor = math.max(factor, 100)
+ elseif clamp == "maximum" then factor = math.min(factor, 100) end
+ return math.floor((base + math.random(-variation, variation)) * factor / 100)
+end
+
+function damageFormula(level, magicLevel, base, variation, clamp)
+ local amount = -legacySpellForce(level, magicLevel, base, variation, clamp)
+ return amount, amount
 end
 
 ---------------------------------------------------------------------------------------

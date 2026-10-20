@@ -221,29 +221,21 @@ void BedItem::wakeUp(Player* player)
 
 void BedItem::regeneratePlayer(Player* player) const
 {
-	const uint32_t sleptTime = time(nullptr) - sleepStart;
-
-	Condition* condition = player->getCondition(CONDITION_REGENERATION, CONDITIONID_DEFAULT);
-	if (condition) {
-		uint32_t regen;
-		if (condition->getTicks() != -1) {
-			regen = std::min<int32_t>((condition->getTicks() / 1000), sleptTime) / 30;
-			const int32_t newRegenTicks = condition->getTicks() - (regen * 30000);
-			if (newRegenTicks <= 0) {
-				player->removeCondition(condition);
-			} else {
-				condition->setTicks(newRegenTicks);
-			}
-		} else {
-			regen = sleptTime / 30;
-		}
-
-		player->changeHealth(regen, false);
-		player->changeMana(regen);
-	}
-
-	const int32_t soulRegen = sleptTime / (60 * 15);
-	player->changeSoul(soulRegen);
+ const time_t logout = player->getLastLogout();
+ const time_t now = time(nullptr);
+ const uint32_t sleptTime = logout > 0 && now > logout ? now - logout : 0;
+ Condition* condition = player->getCondition(CONDITION_REGENERATION, CONDITIONID_DEFAULT);
+ if (condition && condition->getTicks() > 0 && player->getHealth() > 0) {
+  const uint32_t food = condition->getTicks() / 1000;
+  const uint32_t units = std::min<uint32_t>(sleptTime / 15, food / 3);
+  player->changeHealth(units / 4, false);
+  player->changeMana(units);
+  const int32_t remaining = condition->getTicks() - units * 3000;
+  if (remaining <= 0) player->removeCondition(condition);
+  else condition->setTicks(remaining);
+ }
+ // Soul remains outside the HP/mana compatibility change.
+ player->changeSoul(sleptTime / (60 * 15));
 }
 
 void BedItem::updateAppearance(const Player* player)

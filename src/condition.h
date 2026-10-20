@@ -54,6 +54,12 @@ enum ConditionAttr_t {
 	CONDITIONATTR_OUTFIT,
 	CONDITIONATTR_PERIODDAMAGE,
 	CONDITIONATTR_SUBID,
+	CONDITIONATTR_LEGACYRESERVE = 200,
+	CONDITIONATTR_LEGACYTICK,
+	CONDITIONATTR_LEGACYREADY,
+	CONDITIONATTR_LEGACYFORCE,
+	CONDITIONATTR_LEGACYPROTECTED,
+	CONDITIONATTR_LEGACYOWNERGUID,
 
 	//reserved for serialization
 	CONDITIONATTR_END = 254,
@@ -267,6 +273,18 @@ class ConditionDamage final : public Condition
 			return forceUpdate;
 		}
 		int32_t getTotalDamage() const;
+		void setLegacyForce(int32_t force) {
+			force = std::max<int32_t>(0, force);
+			legacyForceValue = force;
+			legacyProtected = false;
+			legacyReserve = conditionType == CONDITION_FIRE ? force / 10 : (conditionType == CONDITION_ENERGY ? force / 20 : force);
+			legacyReady = true; legacyElapsed = 0;
+			// Finite marker keeps combat conditions eligible for persistence; the
+			// actual lifetime is controlled by the reserve, never wall-clock expiry.
+			ticks = std::numeric_limits<int32_t>::max();
+			endTime = std::numeric_limits<int64_t>::max();
+		}
+		int32_t getLegacyReserve() const { return legacyReserve; }
 
 		//serialization
 		void serialize(PropWriteStream& propWriteStream) final;
@@ -279,13 +297,20 @@ class ConditionDamage final : public Condition
 		int32_t periodDamage = 0;
 		int32_t periodDamageTick = 0;
 		int32_t tickInterval = 2000;
+		int32_t legacyReserve = 0;
+		int32_t legacyElapsed = 0;
+		int32_t legacyForceValue = 0;
+		bool legacyReady = false;
+		bool legacyProtected = false;
 
 		bool forceUpdate = false;
 		bool delayed = false;
 		bool field = false;
 		uint32_t owner = 0;
+		uint32_t legacyOwnerGuid = 0;
 
 		bool init();
+		bool applyLegacyApplication(Creature* creature);
 
 		std::list<IntervalInfo> damageList;
 

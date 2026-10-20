@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Minotaur Guard" nameDescription="a minotaur guard" race="blood" experience="160" speed="190" manacost="550">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Minotaur Guard" nameDescription="a minotaur guard" race="blood" experience="160" speed="190" manacost="550" legacyreference="1" legacyfistskill="50">
 	<health now="185" max="185" />
 	<look type="29" head="0" body="0" legs="0" feet="0" corpse="4057" />
 	<targetchange interval="1000" chance="5" />
@@ -27,16 +27,26 @@
 		<voice sentence="Kaplar!" />
 	</voices>
 	<loot>
-		<item id="3413" countmax="1" chance="20" /> <!-- a battle shield -->
-		<item id="3359" countmax="1" chance="40" /> <!-- a brass armor -->
-		<item id="3358" countmax="1" chance="30" /> <!-- a chain armor -->
-		<item id="3558" countmax="1" chance="10" /> <!-- chain legs -->
-		<item id="3275" countmax="1" chance="4" /> <!-- a double axe -->
-		<item id="3483" countmax="1" chance="50" /> <!-- a fishing rod -->
-		<item id="3031" countmax="20" chance="600" /> <!-- a gold coin -->
-		<item id="3276" countmax="1" chance="100" /> <!-- a hatchet -->
-		<item id="3559" countmax="1" chance="150" /> <!-- leather legs -->
-		<item id="3577" countmax="1" chance="100" /> <!-- meat -->
-		 <!-- a minotaur leather -->
+		<item id="3413" countmax="1" chance="20" />
+		<!-- a battle shield -->
+		<item id="3359" countmax="1" chance="40" />
+		<!-- a brass armor -->
+		<item id="3358" countmax="1" chance="30" />
+		<!-- a chain armor -->
+		<item id="3558" countmax="1" chance="10" />
+		<!-- chain legs -->
+		<item id="3275" countmax="1" chance="4" />
+		<!-- a double axe -->
+		<item id="3483" countmax="1" chance="50" />
+		<!-- a fishing rod -->
+		<item id="3031" countmax="20" chance="600" />
+		<!-- a gold coin -->
+		<item id="3276" countmax="1" chance="100" />
+		<!-- a hatchet -->
+		<item id="3559" countmax="1" chance="150" />
+		<!-- leather legs -->
+		<item id="3577" countmax="1" chance="100" />
+		<!-- meat -->
+		<!-- a minotaur leather -->
 	</loot>
 </monster>

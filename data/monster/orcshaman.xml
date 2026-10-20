@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Orc Shaman" nameDescription="an orc shaman" race="blood" experience="110" speed="140" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Orc Shaman" nameDescription="an orc shaman" race="blood" experience="110" speed="140" manacost="0" legacyreference="1" legacyfistskill="20">
 	<health now="115" max="115" />
 	<look type="6" head="0" body="0" legs="0" feet="0" corpse="4041" />
 	<targetchange interval="1000" chance="50" />
@@ -19,17 +19,17 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="20" attack="13" />
-		<attack name="energy" min="-20" max="-30" range="7" chance="8">
+		<attack name="energy" legacychance="8" interval="2000" chance="0" min="-20" max="-30" range="7" target="1">
 			<attribute key="shootEffect" value="energy" />
 			<attribute key="areaEffect" value="energy" />
 		</attack>
-		<attack name="fire" min="-5" max="-45" range="7" radius="1" target="1" chance="13">
+		<attack name="fire" legacychance="13" interval="2000" chance="0" min="-5" max="-45" range="7" radius="5" target="1">
 			<attribute key="shootEffect" value="fire" />
 			<attribute key="areaEffect" value="firearea" />
 		</attack>
 	</attacks>
 	<defenses armor="8" defense="10">
-		<defense name="healing" min="27" max="43" chance="4">
+		<defense name="healing" legacychance="4" interval="2000" chance="0" min="27" max="43">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
@@ -46,14 +46,23 @@
 		<voice sentence="Huumans stinkk!" />
 	</voices>
 	<loot>
-		<item id="2839" countmax="1" chance="45" /> <!-- a book -->
-		<item id="3358" countmax="1" chance="90" /> <!-- a chain armor -->
-		<item id="3352" countmax="1" chance="90" /> <!-- a chain helmet -->
-		<item id="2853" countmax="1" chance="110" /> <!-- a bag -->
-		<item id="3597" countmax="2" chance="110" /> <!-- a corncob -->
-		<item id="3031" countmax="5" chance="900" /> <!-- a gold coin -->
-		<item id="3277" countmax="1" chance="100" /> <!-- a spear -->
-		<item id="3289" countmax="1" chance="70" /> <!-- a staff -->
-		<item id="3072" countmax="1" chance="10" /> <!-- a green spellwand -->
+		<item id="2839" countmax="1" chance="45" />
+		<!-- a book -->
+		<item id="3358" countmax="1" chance="90" />
+		<!-- a chain armor -->
+		<item id="3352" countmax="1" chance="90" />
+		<!-- a chain helmet -->
+		<item id="2853" countmax="1" chance="110" />
+		<!-- a bag -->
+		<item id="3597" countmax="2" chance="110" />
+		<!-- a corncob -->
+		<item id="3031" countmax="5" chance="900" />
+		<!-- a gold coin -->
+		<item id="3277" countmax="1" chance="100" />
+		<!-- a spear -->
+		<item id="3289" countmax="1" chance="70" />
+		<!-- a staff -->
+		<item id="3072" countmax="1" chance="10" />
+		<!-- a green spellwand -->
 	</loot>
 </monster>

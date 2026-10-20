@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Banshee" nameDescription="a banshee" race="undead" experience="900" speed="220" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Banshee" nameDescription="a banshee" race="undead" experience="900" speed="220" manacost="0" legacyreference="1" legacyfistskill="45">
 	<health now="1000" max="1000" />
 	<look type="78" head="0" body="0" legs="0" feet="0" corpse="4179" />
 	<targetchange interval="1000" chance="3" />
@@ -19,14 +19,12 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="45" attack="30" poison="65" />
-		<attack name="lifedrain" min="-50" max="-350" range="1" chance="30" />
-		<attack name="paralyze_banshee" chance="10" range="7"/>
-		<attack name="lifedrain" min="-120" max="-200" interval="2000" radius="4" target="0" chance="3">
-			<attribute key="areaEffect" value="rednote" />
-		</attack>
+		<attack name="paralyze_banshee" chance="10" range="7" />
+		<attack name="lifedrain" legacychance="30" interval="2000" chance="0" min="-50" max="-350" range="1" target="1" />
+		<attack name="lifedrain" legacychance="3" interval="2000" chance="0" min="-120" max="-200" radius="4" target="0" />
 	</attacks>
 	<defenses armor="25" defense="65">
-		<defense name="healing" min="113" max="187" interval="2000" chance="4">
+		<defense name="healing" legacychance="4" interval="2000" chance="0" min="113" max="187">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
@@ -48,24 +46,43 @@
 		<voice sentence="Feel my gentle kiss of death." />
 	</voices>
 	<loot>
-		<item id="3027" countmax="1" chance="20" /> <!-- a black pearl -->
-		<item id="3567" countmax="1" chance="6" /> <!-- a blue robe -->
-		<item id="2917" countmax="1" chance="700" /> <!-- a candlestick -->
-		<item id="3007" countmax="1" chance="1" /> <!-- a crystal ring -->
-		<item id="3122" countmax="1" chance="199" /> <!-- a dirty cape -->
-		<item id="3031" countmax="80" chance="300" /> <!-- a gold coin -->
-		<item id="3061" countmax="1" chance="1" /> <!-- a life crystal -->
-		<item id="2949" countmax="1" chance="10" /> <!-- a lyre -->
-		<item id="3463" countmax="1" chance="70" /> <!-- a mirror -->
-		<item id="3299" countmax="1" chance="15" /> <!-- a poison dagger -->
-		<item id="3566" countmax="1" chance="1" /> <!-- a red robe -->
-		<item id="3098" countmax="1" chance="8" /> <!-- a ring of healing -->
-		<item id="3054" countmax="1" chance="90" /> <!-- a silver amulet -->
-		<item id="3017" countmax="1" chance="15" /> <!-- a silver brooch -->
-		<item id="3568" countmax="1" chance="600" /> <!-- a simple dress -->
-		<item id="3059" countmax="1" chance="5" /> <!-- a spellbook -->
-		<item id="3081" countmax="1" chance="8" /> <!-- a stone skin amulet -->
-		<item id="3004" countmax="1" chance="5" /> <!-- a wedding ring -->
-		<item id="3026" countmax="1" chance="10" /> <!-- a white pearl -->
+		<item id="3027" countmax="1" chance="20" />
+		<!-- a black pearl -->
+		<item id="3567" countmax="1" chance="6" />
+		<!-- a blue robe -->
+		<item id="2917" countmax="1" chance="700" />
+		<!-- a candlestick -->
+		<item id="3007" countmax="1" chance="1" />
+		<!-- a crystal ring -->
+		<item id="3122" countmax="1" chance="199" />
+		<!-- a dirty cape -->
+		<item id="3031" countmax="80" chance="300" />
+		<!-- a gold coin -->
+		<item id="3061" countmax="1" chance="1" />
+		<!-- a life crystal -->
+		<item id="2949" countmax="1" chance="10" />
+		<!-- a lyre -->
+		<item id="3463" countmax="1" chance="70" />
+		<!-- a mirror -->
+		<item id="3299" countmax="1" chance="15" />
+		<!-- a poison dagger -->
+		<item id="3566" countmax="1" chance="1" />
+		<!-- a red robe -->
+		<item id="3098" countmax="1" chance="8" />
+		<!-- a ring of healing -->
+		<item id="3054" countmax="1" chance="90" />
+		<!-- a silver amulet -->
+		<item id="3017" countmax="1" chance="15" />
+		<!-- a silver brooch -->
+		<item id="3568" countmax="1" chance="600" />
+		<!-- a simple dress -->
+		<item id="3059" countmax="1" chance="5" />
+		<!-- a spellbook -->
+		<item id="3081" countmax="1" chance="8" />
+		<!-- a stone skin amulet -->
+		<item id="3004" countmax="1" chance="5" />
+		<!-- a wedding ring -->
+		<item id="3026" countmax="1" chance="10" />
+		<!-- a white pearl -->
 	</loot>
 </monster>

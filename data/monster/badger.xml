@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Badger" nameDescription="a Badger" race="blood" experience="5" speed="140" manacost="200">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Badger" nameDescription="a Badger" race="blood" experience="5" speed="140" manacost="200" legacyreference="1" legacyfistskill="17">
 	<health now="23" max="23" />
 	<look type="105" head="0" body="0" legs="0" feet="0" corpse="4224" />
 	<targetchange interval="1000" chance="0" />
@@ -23,6 +23,7 @@
 	<defenses armor="1" defense="3">
 	</defenses>
 	<loot>
-		<item id="3577" countmax="1" chance="400" /> <!-- meat -->
+		<item id="3577" countmax="1" chance="400" />
+		<!-- meat -->
 	</loot>
 </monster>

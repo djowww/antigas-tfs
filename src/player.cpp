@@ -36,6 +36,7 @@
 #include "movement.h"
 #include "scheduler.h"
 #include "weapons.h"
+#include "legacycombat.h"
 
 extern ConfigManager g_config;
 extern Game g_game;
@@ -85,7 +86,19 @@ bool Player::setVocation(uint16_t vocId)
 	if (!voc) {
 		return false;
 	}
-	vocation = voc;
+ if (vocation && vocation != voc) {
+  const uint64_t oldMana = vocation->getReqMana(magLevel + 1);
+  const uint64_t newMana = voc->getReqMana(magLevel + 1);
+  if (oldMana) manaSpent = static_cast<uint64_t>(static_cast<long double>(manaSpent) * newMana / oldMana);
+  magLevelPercent = getPercentLevel(manaSpent, newMana);
+  for (uint8_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) {
+   const uint64_t oldCost = vocation->getReqSkillTries(i, skills[i].level + 1);
+   const uint64_t newCost = voc->getReqSkillTries(i, skills[i].level + 1);
+   if (oldCost) skills[i].tries = static_cast<uint64_t>(static_cast<long double>(skills[i].tries) * newCost / oldCost);
+   skills[i].percent = getPercentLevel(skills[i].tries, newCost);
+  }
+ }
+ vocation = voc;
 
 	Condition* condition = getCondition(CONDITION_REGENERATION, CONDITIONID_DEFAULT);
 	if (condition) {
@@ -267,16 +280,12 @@ int32_t Player::getWeaponSkill(const Item* item) const
 
 int32_t Player::getArmor() const
 {
-	int32_t armor = 0;
-
-	static const slots_t armorSlots[] = { CONST_SLOT_HEAD, CONST_SLOT_NECKLACE, CONST_SLOT_ARMOR, CONST_SLOT_LEGS, CONST_SLOT_FEET, CONST_SLOT_RING };
-	for (slots_t slot : armorSlots) {
-		Item* inventoryItem = inventory[slot];
-		if (inventoryItem) {
-			armor += inventoryItem->getArmor();
-		}
-	}
-	return static_cast<int32_t>(armor * vocation->armorMultiplier);
+ int32_t armor = 0;
+ for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
+  const Item* item = inventory[slot];
+  if (item && Item::items[item->getID()].legacyBodySlot == slot) armor += item->getArmor();
+ }
+ return armor;
 }
 
 void Player::getShieldAndWeapon(const Item*& shield, const Item*& weapon) const
@@ -311,39 +320,27 @@ void Player::getShieldAndWeapon(const Item*& shield, const Item*& weapon) const
 
 int32_t Player::getDefense() const
 {
-	int32_t baseDefense = 5;
-	int32_t defenseValue = 0;
-	int32_t defenseSkill = 0;
-	int32_t extraDefense = 0;
-	float defenseFactor = getDefenseFactor();
-	const Item* weapon;
-	const Item* shield;
-	getShieldAndWeapon(shield, weapon);
-
-	if (weapon) {
-		defenseValue = baseDefense + weapon->getDefense();
-		defenseSkill = getWeaponSkill(weapon);
-	}
-
-	if (shield && shield->getDefense() >= defenseValue) {
-		defenseValue = baseDefense + shield->getDefense() + extraDefense;
-		defenseSkill = getSkillLevel(SKILL_SHIELD);
-	}
-
-	if (defenseSkill == 0) {
-		return 0;
-	}
-
-	defenseValue = static_cast<int32_t>(defenseValue * vocation->defenseMultiplier);
-	return static_cast<int32_t>(std::ceil((static_cast<float>(defenseSkill * (defenseValue * 0.015)) + (defenseValue * 0.1)) * defenseFactor));
+ const Item* weapon;
+ const Item* shield;
+ getShieldAndWeapon(shield, weapon);
+ int32_t value = 5; // human racial fallback, matching the audited human.mon
+ int32_t skill = getSkillLevel(SKILL_FIST);
+ if (shield) {
+  value = shield->getDefense();
+  skill = getSkillLevel(SKILL_SHIELD);
+ } else if (weapon) {
+  value = weapon->getDefense();
+  skill = getWeaponSkill(weapon);
+ }
+ const uint8_t mode = (!attackedCreature || OTSYS_TIME() >= lastAttack + getAttackSpeed()) ? 3 : fightMode;
+ return LegacyCombat::probe(LegacyCombat::defendValue(value, mode), skill);
 }
 
 float Player::getAttackFactor() const
 {
 	switch (fightMode) {
-		case FIGHTMODE_ATTACK: return 1.0f;
-		case FIGHTMODE_BALANCED: return 1.2f;
-		case FIGHTMODE_DEFENSE: return 2.0f;
+		case FIGHTMODE_ATTACK: return 1.2f;
+		case FIGHTMODE_DEFENSE: return 0.6f;
 		default: return 1.0f;
 	}
 }
@@ -351,15 +348,8 @@ float Player::getAttackFactor() const
 float Player::getDefenseFactor() const
 {
 	switch (fightMode) {
-		case FIGHTMODE_ATTACK: return 1.0f;
-		case FIGHTMODE_BALANCED: return 1.2f;
-		case FIGHTMODE_DEFENSE: {
-			if ((OTSYS_TIME() - lastAttack) < getAttackSpeed()) {
-				return 1.0f;
-			}
-
-			return 2.0f;
-		}
+		case FIGHTMODE_ATTACK: return 0.6f;
+		case FIGHTMODE_DEFENSE: return 1.8f;
 		default: return 1.0f;
 	}
 }
@@ -404,7 +394,7 @@ void Player::addSkillAdvance(skills_t skill, uint64_t count)
 {
 	uint64_t currReqTries = vocation->getReqSkillTries(skill, skills[skill].level);
 	uint64_t nextReqTries = vocation->getReqSkillTries(skill, skills[skill].level + 1);
-	if (currReqTries >= nextReqTries) {
+	if (nextReqTries == 0) {
 		//player has reached max skill
 		return;
 	}
@@ -431,7 +421,7 @@ void Player::addSkillAdvance(skills_t skill, uint64_t count)
 		sendUpdateSkills = true;
 		currReqTries = nextReqTries;
 		nextReqTries = vocation->getReqSkillTries(skill, skills[skill].level + 1);
-		if (currReqTries >= nextReqTries) {
+		if (nextReqTries == 0) {
 			count = 0;
 			break;
 		}
@@ -440,7 +430,7 @@ void Player::addSkillAdvance(skills_t skill, uint64_t count)
 	skills[skill].tries += count;
 
 	uint32_t newPercent;
-	if (nextReqTries > currReqTries) {
+	if (nextReqTries != 0) {
 		newPercent = Player::getPercentLevel(skills[skill].tries, nextReqTries);
 	} else {
 		newPercent = 0;
@@ -528,36 +518,7 @@ void Player::refreshItemRarityBonuses()
 	int32_t stats[STAT_LAST + 1] = {};
 	int32_t skills[SKILL_LAST + 1] = {};
 	int32_t speed = 0;
-	for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
-		const Item* item = itemRarityItems[slot];
-		if (!item) continue;
-		for (uint8_t index = 0; index < item->getRarityBonusCount(); ++index) {
-			ItemRarityBonus_t type;
-			uint8_t value, subtype;
-			if (!item->getRarityBonus(index, type, value, subtype)) continue;
-			if (index == 0 && !canApplyPrimaryRarityBonus(static_cast<slots_t>(slot), type)) continue;
-			switch (type) {
-				case ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT:
-					stats[STAT_MAXHITPOINTS] += static_cast<int32_t>(std::ceil(getDefaultStats(STAT_MAXHITPOINTS) * (value / 100.0)));
-					break;
-				case ITEM_RARITY_BONUS_MAX_MANA_PERCENT:
-					stats[STAT_MAXMANAPOINTS] += static_cast<int32_t>(std::ceil(getDefaultStats(STAT_MAXMANAPOINTS) * (value / 100.0)));
-					break;
-				case ITEM_RARITY_BONUS_SPEED_PERCENT:
-					speed += static_cast<int32_t>(std::round(getBaseSpeed() * (value / 100.0)));
-					break;
-				case ITEM_RARITY_BONUS_SKILL:
-					if (subtype <= SKILL_LAST) {
-						skills[subtype] += value;
-					} else if (subtype == SKILL_MAGLEVEL) {
-						stats[STAT_MAGICPOINTS] += value;
-					}
-					break;
-				default:
-					break;
-			}
-		}
-	}
+	// Strict audited rules retain rarity metadata, without numerical bonuses.
 
 	bool statsChanged = false;
 	for (int32_t stat = STAT_FIRST; stat <= STAT_LAST; ++stat) {
@@ -1156,7 +1117,8 @@ void Player::onRemoveCreature(Creature* creature, bool isLogout)
 			loginPosition = getPosition();
 		}
 
-		lastLogout = time(nullptr);
+		clearAttacked();
+        lastLogout = time(nullptr);
 
 		if (eventWalk != 0) {
 			setFollowCreature(nullptr);
@@ -1420,7 +1382,7 @@ void Player::onThink(uint32_t interval)
 	if (!getTile()->hasFlag(TILESTATE_NOLOGOUT) && !isAccessPlayer()) {
 		idleTime += interval;
 		const int32_t kickAfterMinutes = g_config.getNumber(ConfigManager::KICK_AFTER_MINUTES);
-		if ((!pzLocked && OTSYS_TIME() - lastPong >= 60000) || idleTime > (kickAfterMinutes * 60000) + 60000) {
+		if ((!isPzLocked() && OTSYS_TIME() - lastPong >= 60000) || idleTime > (kickAfterMinutes * 60000) + 60000) {
 			kickPlayer(true);
 		} else if (client && idleTime == 60000 * kickAfterMinutes) {
 			std::ostringstream ss;
@@ -1508,7 +1470,7 @@ void Player::addManaSpent(uint64_t amount)
 
 	uint64_t currReqMana = vocation->getReqMana(magLevel);
 	uint64_t nextReqMana = vocation->getReqMana(magLevel + 1);
-	if (currReqMana >= nextReqMana) {
+	if (nextReqMana == 0) {
 		//player has reached max magic level
 		return;
 	}
@@ -1535,7 +1497,7 @@ void Player::addManaSpent(uint64_t amount)
 		sendUpdateStats = true;
 		currReqMana = nextReqMana;
 		nextReqMana = vocation->getReqMana(magLevel + 1);
-		if (currReqMana >= nextReqMana) {
+		if (nextReqMana == 0) {
 			return;
 		}
 	}
@@ -1543,7 +1505,7 @@ void Player::addManaSpent(uint64_t amount)
 	manaSpent += amount;
 
 	uint8_t oldPercent = magLevelPercent;
-	if (nextReqMana > currReqMana) {
+	if (nextReqMana != 0) {
 		magLevelPercent = Player::getPercentLevel(manaSpent, nextReqMana);
 	} else {
 		magLevelPercent = 0;
@@ -1697,44 +1659,13 @@ uint16_t Player::getDropLootPercent()
 
 void Player::onBlockHit()
 {
-	if (shieldBlockCount > 0) {
-		--shieldBlockCount;
-
-		if (hasShield()) {
-			addSkillAdvance(SKILL_SHIELD, 1);
-		}
-	}
+ if (hasShield() && consumeLegacyLearningCredit() && !hasFlag(PlayerFlag_NotGainSkill))
+  addSkillAdvance(SKILL_SHIELD, 1);
 }
 
 void Player::onAttackedCreatureBlockHit(BlockType_t blockType)
 {
-	lastAttackBlockType = blockType;
-
-	switch (blockType) {
-		case BLOCK_NONE: {
-			addAttackSkillPoint = true;
-			bloodHitCount = 30;
-			shieldBlockCount = 30;
-			break;
-		}
-
-		case BLOCK_DEFENSE:
-		case BLOCK_ARMOR: {
-			//need to draw blood every 30 hits
-			if (bloodHitCount > 0) {
-				addAttackSkillPoint = true;
-				--bloodHitCount;
-			} else {
-				addAttackSkillPoint = false;
-			}
-			break;
-		}
-
-		default: {
-			addAttackSkillPoint = false;
-			break;
-		}
-	}
+ lastAttackBlockType = blockType;
 }
 
 bool Player::hasShield() const
@@ -1752,83 +1683,49 @@ bool Player::hasShield() const
 }
 
 BlockType_t Player::blockHit(Creature* attacker, CombatType_t combatType, int32_t& damage,
-	bool checkDefense /* = false*/, bool checkArmor /* = false*/, bool field /* = false*/)
+ bool checkDefense, bool checkArmor, bool field)
 {
-	BlockType_t blockType = Creature::blockHit(attacker, combatType, damage, checkDefense, checkArmor, field);
+ const BlockType_t result = Creature::blockHit(attacker, combatType, damage, checkDefense, checkArmor, field);
+ if (attacker) sendCreatureSquare(attacker, SQ_COLOR_BLACK);
+ return result;
+}
 
-	if (attacker) {
-		sendCreatureSquare(attacker, SQ_COLOR_BLACK);
-	}
+void Player::applyLegacyProtection(int32_t& damage, CombatType_t combatType, bool field)
+{
+ for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST && damage > 0; ++slot) {
+  Item* item = inventory[slot];
+  if (!item || !isItemAbilityEnabled(static_cast<slots_t>(slot))) continue;
+  const ItemType& it = Item::items[item->getID()];
+  if (it.legacyBodySlot != slot) continue;
+  if (!it.abilities) continue;
+  const int32_t percent = it.abilities->absorbPercent[combatTypeToIndex(combatType)];
+  const int32_t fieldPercent = field ? it.abilities->fieldAbsorbPercent[combatTypeToIndex(combatType)] : 0;
+  if (!percent && !fieldPercent) continue;
+  HuntSupplyUse supply(this, item);
+  if (percent) damage = LegacyCombat::protect(damage, percent);
+  if (fieldPercent && damage > 0) damage = LegacyCombat::protect(damage, fieldPercent);
+  const uint16_t charges = item->getCharges();
+  if (charges > 1) g_game.transformItem(item, item->getID(), charges - 1);
+  else g_game.internalRemoveItem(item);
+ }
+}
 
-	if (blockType != BLOCK_NONE) {
-		return blockType;
-	}
-
-	if (damage > 0) {
-		int32_t rarityAbsorbPercent = 0;
-		for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
-			Item* item = inventory[slot];
-			if (!item) {
-				continue;
-			}
-
-			const ItemType& it = Item::items[item->getID()];
-			if (isItemRarityEnabled(static_cast<slots_t>(slot))) {
-				for (uint8_t index = 0; index < item->getRarityBonusCount(); ++index) {
-					ItemRarityBonus_t type;
-					uint8_t value, subtype;
-					if (item->getRarityBonus(index, type, value, subtype) && type == ITEM_RARITY_BONUS_RESISTANCE &&
-						subtype == combatTypeToIndex(combatType) &&
-						(index != 0 || canApplyPrimaryRarityBonus(static_cast<slots_t>(slot), type))) {
-						rarityAbsorbPercent += value;
-					}
-				}
-			}
-			if (!isItemAbilityEnabled(static_cast<slots_t>(slot))) {
-				continue;
-			}
-
-			if (it.abilities) {
-				HuntSupplyUse supply(this, item);
-				const int16_t& absorbPercent = it.abilities->absorbPercent[combatTypeToIndex(combatType)];
-				if (absorbPercent != 0) {
-					damage -= std::round(damage * (absorbPercent / 100.));
-
-					uint16_t charges = item->getCharges() - 1;
-					if (charges != 0) {
-						g_game.transformItem(item, item->getID(), charges);
-					} else {
-						g_game.internalRemoveItem(item);
-					}
-				}
-
-				if (field && !item->isRemoved()) {
-					const int16_t& fieldAbsorbPercent = it.abilities->fieldAbsorbPercent[combatTypeToIndex(combatType)];
-					if (fieldAbsorbPercent != 0) {
-						damage -= std::round(damage * (fieldAbsorbPercent / 100.));
-
-						uint16_t charges = item->getCharges() - 1;
-						if (charges != 0) {
-							g_game.transformItem(item, item->getID(), charges);
-						} else {
-							g_game.internalRemoveItem(item);
-						}
-					}
-				}
-			}
-		}
-
-		if (damage > 0 && rarityAbsorbPercent > 0) {
-			const int32_t absorbPercent = std::min<int32_t>(100, rarityAbsorbPercent);
-			damage -= std::round(damage * (absorbPercent / 100.0));
-		}
-
-		if (damage <= 0) {
-			damage = 0;
-			blockType = BLOCK_ARMOR;
-		}
-	}
-	return blockType;
+void Player::applyLegacyConditionProtection(int32_t& force, ConditionType_t type)
+{
+ const int index = type == CONDITION_POISON ? 0 : (type == CONDITION_FIRE ? 1 : 2);
+ for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST && force > 0; ++slot) {
+  Item* item = inventory[slot];
+  if (!item || !isItemAbilityEnabled(static_cast<slots_t>(slot))) continue;
+  const ItemType& it = Item::items[item->getID()];
+  if (it.legacyBodySlot != slot || !it.abilities) continue;
+  const int percent = it.abilities->legacyConditionAbsorbPercent[index];
+  if (!percent) continue;
+  HuntSupplyUse supply(this, item);
+  force = LegacyCombat::protect(force, percent);
+  const uint16_t charges = item->getCharges();
+  if (charges > 1) g_game.transformItem(item, item->getID(), charges - 1);
+  else g_game.internalRemoveItem(item);
+ }
 }
 
 uint32_t Player::getIP() const
@@ -1844,10 +1741,12 @@ void Player::dropLoot(Container* corpse, Creature*)
 {
     if (corpse && lootDrop) {
         Skulls_t playerSkull = getSkull();
-        if (inventory[CONST_SLOT_NECKLACE] && inventory[CONST_SLOT_NECKLACE]->getID() == ITEM_AMULETOFLOSS && playerSkull != SKULL_RED) {
+        const bool aolProtected = inventory[CONST_SLOT_NECKLACE] && inventory[CONST_SLOT_NECKLACE]->getID() == ITEM_AMULETOFLOSS;
+        if (inventory[CONST_SLOT_NECKLACE] && inventory[CONST_SLOT_NECKLACE]->getID() == ITEM_AMULETOFLOSS) {
             HuntSupplyUse supply(this, inventory[CONST_SLOT_NECKLACE]);
             g_game.internalRemoveItem(inventory[CONST_SLOT_NECKLACE], 1);
-        } else {
+        }
+        if (playerSkull == SKULL_RED || !aolProtected) {
             for (int32_t i = CONST_SLOT_FIRST; i <= CONST_SLOT_LAST; ++i) {
                 Item* item = inventory[i];
                 if (item) {
@@ -1860,12 +1759,7 @@ void Player::dropLoot(Container* corpse, Creature*)
         }
     }
 
-    if (!inventory[CONST_SLOT_BACKPACK]) {
-        Item* bagItem = Item::CreateItem(2853, 1);
-        if (bagItem) {
-           g_game.internalPlayerAddItem(this, bagItem, false, CONST_SLOT_BACKPACK);
-        }
-    }
+
 }
 
 void Player::death(Creature* lastHitCreature)
@@ -1884,9 +1778,9 @@ void Player::death(Creature* lastHitCreature)
 
 		sumMana += manaSpent;
 
-		double deathLossPercent = getLostPercent();
+		const unsigned deathLossPercent = getLegacyDeathPercent();
 
-		lostMana = static_cast<uint64_t>(sumMana * deathLossPercent);
+		lostMana = LegacyDeath::loss(sumMana, deathLossPercent);
 
 		while (lostMana > manaSpent && magLevel > 0) {
 			lostMana -= manaSpent;
@@ -1912,7 +1806,7 @@ void Player::death(Creature* lastHitCreature)
 
 			sumSkillTries += skills[i].tries;
 
-			uint32_t lostSkillTries = static_cast<uint32_t>(sumSkillTries * deathLossPercent);
+			uint64_t lostSkillTries = LegacyDeath::loss(sumSkillTries, deathLossPercent);
 			while (lostSkillTries > skills[i].tries) {
 				lostSkillTries -= skills[i].tries;
 
@@ -1927,12 +1821,12 @@ void Player::death(Creature* lastHitCreature)
 				skills[i].level--;
 			}
 
-			skills[i].tries = std::max<int32_t>(0, skills[i].tries - lostSkillTries);
-			skills[i].percent = Player::getPercentLevel(skills[i].tries, vocation->getReqSkillTries(i, skills[i].level));
+			skills[i].tries -= lostSkillTries;
+			skills[i].percent = Player::getPercentLevel(skills[i].tries, vocation->getReqSkillTries(i, skills[i].level + 1));
 		}
 
 		//Level loss
-		uint64_t expLoss = static_cast<uint64_t>(experience * deathLossPercent);
+		uint64_t expLoss = LegacyDeath::loss(experience, deathLossPercent);
 		g_events->eventPlayerOnLoseExperience(this, expLoss);
 
 		if (expLoss != 0) {
@@ -1962,17 +1856,7 @@ void Player::death(Creature* lastHitCreature)
 			}
 		}
 
-		std::bitset<6> bitset(blessings);
-		if (bitset[5]) {
-			if (Player::lastHitIsPlayer(lastHitCreature)) {
-				bitset.reset(5);
-				blessings = bitset.to_ulong();
-			} else {
-				blessings = 32;
-			}
-		} else {
-			blessings = 0;
-		}
+		blessings = 0;
 
 		sendStats();
 		sendSkills();
@@ -1994,52 +1878,7 @@ void Player::death(Creature* lastHitCreature)
 			}
 		}
 
-		// Teleport newbies to newbie island
-		if (g_config.getBoolean(ConfigManager::TELEPORT_NEWBIES)) {
-			if (getVocationId() != VOCATION_NONE && level <= static_cast<uint32_t>(g_config.getNumber(ConfigManager::NEWBIE_LEVEL_THRESHOLD))) {
-				Town* newbieTown = g_game.map.towns.getTown(g_config.getNumber(ConfigManager::NEWBIE_TOWN));
-				if (newbieTown) {
-					// Restart stats
-					level = 1;
-					experience = 0;
-					levelPercent = 0;
-					capacity = 400;
-					health = 150;
-					healthMax = 150;
-					mana = 0;
-					manaMax = 0;
-					magLevel = 0;
-					magLevelPercent = 0;
-					manaSpent = 0;
-					setVocation(0);
 
-					// Restart skills
-					for (uint8_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) { //for each skill
-						skills[i].level = 10;
-						skills[i].tries = 0;
-						skills[i].percent = 0;
-					}
-
-					// Restart town
-					setTown(newbieTown);
-					loginPosition = getTemplePosition();
-
-					// Restart first items
-					addStorageValue(30017, 1);
-
-					// Restart items
-					for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; slot++)
-					{
-						Item* item = inventory[slot];
-						if (item) {
-							g_game.internalRemoveItem(item, item->getItemCount());
-						}
-					}
-				} else {
-					std::cout << "[Warning - Player:death] Newbie teletransportation is enabled, newbie town does not exist." << std::endl;
-				}
-			}
-		}
 		updateBaseSpeed();
 	} else {
 		setLossSkill(true);
@@ -2070,12 +1909,7 @@ void Player::death(Creature* lastHitCreature)
 
 bool Player::dropCorpse(Creature* lastHitCreature, Creature* mostDamageCreature, bool lastHitUnjustified, bool mostDamageUnjustified)
 {
-	if (getZone() != ZONE_PVP || !Player::lastHitIsPlayer(lastHitCreature)) {
-		return Creature::dropCorpse(lastHitCreature, mostDamageCreature, lastHitUnjustified, mostDamageUnjustified);
-	}
-
-	setDropLoot(true);
-	return false;
+ return Creature::dropCorpse(lastHitCreature, mostDamageCreature,lastHitUnjustified,mostDamageUnjustified);
 }
 
 Item* Player::getCorpse(Creature* lastHitCreature, Creature* mostDamageCreature)
@@ -2094,18 +1928,22 @@ Item* Player::getCorpse(Creature* lastHitCreature, Creature* mostDamageCreature)
 	return corpse;
 }
 
-void Player::addInFightTicks(bool pzlock /*= false*/)
+
+void Player::addInFightTicks(bool pzlock)
 {
-	if (hasFlag(PlayerFlag_NotGainInFight)) {
-		return;
-	}
+ addLegacyInFightTicks(60000,pzlock);
+}
 
-	if (pzlock) {
-		pzLocked = true;
-	}
-
-	Condition* condition = Condition::createCondition(CONDITIONID_DEFAULT, CONDITION_INFIGHT, g_config.getNumber(ConfigManager::PZ_LOCKED), 0);
-	addCondition(condition);
+void Player::addLegacyInFightTicks(int32_t milliseconds,bool blockProtectionZone)
+{
+ if(hasFlag(PlayerFlag_NotGainInFight)) return;
+ const int64_t now=OTSYS_TIME();
+ if((blockProtectionZone && g_game.getWorldType()!=WORLD_TYPE_NO_PVP) || protectionZoneLockUntil>now) {
+  protectionZoneLockUntil=std::max<int64_t>(protectionZoneLockUntil,now+milliseconds);
+  pzLocked=true;
+ }
+ Condition* condition=Condition::createCondition(CONDITIONID_DEFAULT,CONDITION_INFIGHT,milliseconds,0);
+ addCondition(condition);
 }
 
 void Player::removeList()
@@ -3013,47 +2851,13 @@ void Player::internalAddThing(uint32_t index, Thing* thing)
 
 uint32_t Player::checkPlayerKilling()
 {
-	time_t today = std::time(nullptr);
-	int32_t lastDay = 0;
-	int32_t lastWeek = 0;
-	int32_t lastMonth = 0;
-	int64_t egibleMurders = 0;
-
-	time_t dayTimestamp = today - (24 * 60 * 60);
-	time_t weekTimestamp = today - (7 * 24 * 60 * 60);
-	time_t monthTimestamp = today - (30 * 24 * 60 * 60);
-
-	for (time_t currentMurderTimestamp : murderTimeStamps) {
-		if (currentMurderTimestamp > dayTimestamp) {
-			lastDay++;
-		}
-
-		if (currentMurderTimestamp > weekTimestamp) {
-			lastWeek++;
-		}
-
-		egibleMurders = lastMonth + 1;
-
-		if (currentMurderTimestamp <= monthTimestamp) {
-			egibleMurders = lastMonth;
-		}
-
-		lastMonth = egibleMurders;
-	}
-
-	if (lastDay >= g_config.getNumber(ConfigManager::KILLS_DAY_BANISHMENT) ||
-		lastWeek >= g_config.getNumber(ConfigManager::KILLS_WEEK_BANISHMENT) ||
-		lastMonth >= g_config.getNumber(ConfigManager::KILLS_MONTH_BANISHMENT)) {
-		return 2; // banishment!
-	}
-
-	if (lastDay >= g_config.getNumber(ConfigManager::KILLS_DAY_RED_SKULL) || 
-		lastWeek >= g_config.getNumber(ConfigManager::KILLS_WEEK_RED_SKULL) || 
-		lastMonth >= g_config.getNumber(ConfigManager::KILLS_MONTH_RED_SKULL)) {
-		return 1; // red skull!
-	}
-
-	return 0;
+ const time_t now = std::time(nullptr);
+ const unsigned day = LegacyDeath::count(murderTimeStamps, now, 86400);
+ const unsigned week = LegacyDeath::count(murderTimeStamps, now, 7*86400);
+ const unsigned month = LegacyDeath::count(murderTimeStamps, now, 30*86400);
+ if(day>=6 || week>=10 || month>=20) return 2;
+ if(day>=3 || week>=5 || month>=10) return 1;
+ return 0;
 }
 
 bool Player::setFollowCreature(Creature* creature)
@@ -3087,6 +2891,8 @@ bool Player::setAttackedCreature(Creature* creature)
 	}
 
 	if (creature) {
+        onAttackedCreature(creature);
+        creature->onAttacked();
 		g_dispatcher.addTask(createTask(std::bind(&Game::checkCreatureAttack, &g_game, getID())));
 	}
 	return true;
@@ -3115,6 +2921,12 @@ void Player::getPathSearchParams(const Creature* creature, FindPathParams& fpp) 
 
 void Player::doAttacking(uint32_t)
 {
+ if(!attackedCreature) return;
+ // Physical execution always rejects PZ even if selection used ATTACK_EVERYWHERE.
+ if(getZone()==ZONE_PROTECTION || attackedCreature->getZone()==ZONE_PROTECTION) return;
+ if(Combat::canTargetCreature(this,attackedCreature)!=RETURNVALUE_NOERROR) return;
+ if(attackedCreature->getPlayer() && getVocationId()==VOCATION_NONE) return;
+
 	if (lastAttack == 0) {
 		lastAttack = OTSYS_TIME() - getAttackSpeed() - 1;
 	}
@@ -3151,13 +2963,14 @@ void Player::doAttacking(uint32_t)
 
 uint64_t Player::getGainedExperience(Creature* attacker) const
 {
-	if (g_config.getBoolean(ConfigManager::EXPERIENCE_FROM_PLAYERS)) {
-		Player* attackerPlayer = attacker->getPlayer();
-		if (attackerPlayer && attackerPlayer != this && skillLoss && std::abs(static_cast<int32_t>(attackerPlayer->getLevel() - level)) <= g_config.getNumber(ConfigManager::EXP_FROM_PLAYERS_LEVEL_RANGE)) {
-			return std::max<uint64_t>(0, std::floor(getLostExperience() * getDamageRatio(attacker) * 0.75));
-		}
-	}
-	return 0;
+    if (!attacker || attacker == this || !skillLoss || g_game.getWorldType() != WORLD_TYPE_PVP_ENFORCED) return 0;
+    uint64_t share = getLegacyExperienceShare(experience / 20, attacker);
+    const Player* player = attacker->getPlayer();
+    if (!player) return share;
+    if (party && player->getParty() == party) return 0;
+    const uint64_t limit = static_cast<uint64_t>(level) * 11 / 10;
+    if (player->getLevel() >= limit || level == 0) return 0;
+    return share * (limit - player->getLevel()) / level;
 }
 
 void Player::onFollowCreature(const Creature* creature)
@@ -3272,6 +3085,7 @@ void Player::onEndCondition(ConditionType_t type)
 	if (type == CONDITION_INFIGHT) {
 		onIdleStatus();
 		pzLocked = false;
+        protectionZoneLockUntil = 0;
 		clearAttacked();
 
 		if (getSkull() != SKULL_RED) {
@@ -3313,50 +3127,15 @@ void Player::onCombatRemoveCondition(Condition* condition)
 
 void Player::onAttackedCreature(Creature* target)
 {
-	Creature::onAttackedCreature(target);
-
-	if (target->getZone() == ZONE_PVP) {
-		return;
-	}
-
-	if (target == this) {
-		addInFightTicks();
-		return;
-	}
-
-	if (hasFlag(PlayerFlag_NotGainInFight)) {
-		return;
-	}
-
-	Player* targetPlayer = target->getPlayer();
-	if (targetPlayer) {
-		if (!pzLocked && g_game.getWorldType() != WORLD_TYPE_PVP_ENFORCED) {
-			pzLocked = true;
-			sendIcons();
-		}
-
-		if (!isPartner(targetPlayer)) {
-			if (getSkull() == SKULL_NONE && getSkullClient(targetPlayer) == SKULL_YELLOW) {
-				addAttacked(targetPlayer);
-				targetPlayer->sendCreatureSkull(this);
-			} else {
-				if (!targetPlayer->hasAttacked(this)) {
-					if (!Combat::isInPvpZone(this, targetPlayer) && !isInWar(targetPlayer)) {
-						addAttacked(targetPlayer);
-						if (targetPlayer->getSkull() == SKULL_NONE && getSkull() == SKULL_NONE) {
-							setSkull(SKULL_WHITE);
-						}
-					}
-	
-					if (getSkull() == SKULL_NONE) {
-						targetPlayer->sendCreatureSkull(this);
-					}
-				}
-			}
-		}
-	}
-
-	addInFightTicks();
+ Creature::onAttackedCreature(target);
+ if(target==this || hasFlag(PlayerFlag_NotGainInFight)) return;
+ if(Player* victim=target->getPlayer()) {
+  const bool justified=isAttackJustified(victim);
+  addAttacked(victim);
+  if(!justified && g_game.getWorldType()==WORLD_TYPE_PVP && getSkull()==SKULL_NONE) setSkull(SKULL_WHITE);
+  addLegacyInFightTicks(60000,true);
+ }
+ addLegacyInFightTicks(60000,false);
 }
 
 void Player::onAttacked()
@@ -3417,37 +3196,18 @@ void Player::onTargetCreatureGainHealth(Creature* target, int32_t points)
 	}
 }
 
-bool Player::onKilledCreature(Creature* target, bool lastHit/* = true*/)
+bool Player::onKilledCreature(Creature* target, bool lastHit)
 {
-	bool unjustified = false;
-
-	if (hasFlag(PlayerFlag_NotGenerateLoot)) {
-		target->setDropLoot(false);
-	}
-
-	Creature::onKilledCreature(target, lastHit);
-
-	if (Player* targetPlayer = target->getPlayer()) {
-		if (targetPlayer && targetPlayer->getZone() == ZONE_PVP) {
-			targetPlayer->setDropLoot(false);
-			targetPlayer->setLossSkill(false);
-		} else if (!hasFlag(PlayerFlag_NotGainInFight) && !isPartner(targetPlayer)) {
-			if (!Combat::isInPvpZone(this, targetPlayer) && hasAttacked(targetPlayer) && !targetPlayer->hasAttacked(this) && targetPlayer != this) {
-				if (targetPlayer->getSkull() == SKULL_NONE && !isInWar(targetPlayer)) {
-					unjustified = true;
-					addUnjustifiedDead(targetPlayer);
-				}
-			}
-		}
-
-		if (lastHit && hasCondition(CONDITION_INFIGHT)) {
-			pzLocked = true;
-			Condition* condition = Condition::createCondition(CONDITIONID_DEFAULT, CONDITION_INFIGHT, g_config.getNumber(ConfigManager::WHITE_SKULL_TIME), 0);
-			addCondition(condition);
-		}
-	}
-
-	return unjustified;
+ if(hasFlag(PlayerFlag_NotGenerateLoot)) target->setDropLoot(false);
+ Creature::onKilledCreature(target,lastHit);
+ Player* victim=target->getPlayer();
+ if(!victim || victim==this || hasFlag(PlayerFlag_NotGainInFight)) return false;
+ const bool unjustified=g_game.getWorldType()==WORLD_TYPE_PVP && !isAttackJustified(victim);
+ if(unjustified) addUnjustifiedDead(victim);
+ if(lastHit) {
+  addLegacyInFightTicks(900000,true);
+ }
+ return unjustified;
 }
 
 void Player::gainExperience(uint64_t gainExp, Creature* source)
@@ -3465,11 +3225,6 @@ void Player::onGainExperience(uint64_t gainExp, Creature* target)
 		return;
 	}
 
-	if (target && !target->getPlayer() && party && party->isSharedExperienceActive() && party->isSharedExperienceEnabled()) {
-		party->shareExperience(gainExp, target);
-		//We will get a share of the experience through the sharing mechanism
-		return;
-	}
 
 	Creature::onGainExperience(gainExp, target);
 	gainExperience(gainExp, target);
@@ -3854,107 +3609,95 @@ Skulls_t Player::getSkull() const
 	return skull;
 }
 
+uint32_t Player::legacyPartyLeader(bool includeLeaving) const
+{
+ if(party && party->getLeader()) return party->getLeader()->getID();
+ if(includeLeaving && formerPartyLeader && LegacyDeath::withinGrace(partyLeavingAt,OTSYS_TIME()/1000)) return formerPartyLeader;
+ return 0;
+}
+
+void Player::setParty(Party* next)
+{
+ if(party && party != next && party->getLeader()) {
+  formerPartyLeader = party->getLeader()->getID();
+  partyLeavingAt = OTSYS_TIME()/1000;
+ }
+ party = next;
+ if(next) { formerPartyLeader=0; partyLeavingAt=0; }
+}
+
+bool Player::hasLegacyAttacked(const Player* target, bool includeFormer) const
+{
+ if(!target || hasFlag(PlayerFlag_NotGainInFight)) return false;
+ if(attackedSet.count(target->getID())) return true;
+ return includeFormer && LegacyDeath::withinGrace(formerMarksClearedAt,OTSYS_TIME()/1000) && formerAttackedSet.count(target->getID());
+}
+
+bool Player::isAttackJustified(const Player* target) const
+{
+ if(!target) return false;
+ if(g_game.getWorldType()==WORLD_TYPE_PVP_ENFORCED) return true;
+ if(target->playerKillerEnd || target->skull==SKULL_WHITE) return true;
+ if(target->formerAggressor && LegacyDeath::withinGrace(target->formerMarksClearedAt,OTSYS_TIME()/1000)) return true;
+ const uint32_t leader = legacyPartyLeader(true);
+ if(leader && leader==target->legacyPartyLeader(true)) return true;
+ return target->hasLegacyAttacked(this,true);
+}
+
 Skulls_t Player::getSkullClient(const Creature* creature) const
 {
-	if (!creature || g_game.getWorldType() != WORLD_TYPE_PVP) {
-		return SKULL_NONE;
-	}
-
-	const Player* player = creature->getPlayer();
-	if (player && player->getSkull() == SKULL_NONE) {
-		if (isInWar(player)) {
-			return SKULL_GREEN;
-		}
-
-		if (!player->getGuildWarList().empty() && guild == player->getGuild()) {
-			return SKULL_GREEN;
-		}
-
-		if (player->hasAttacked(this)) {
-			return SKULL_YELLOW;
-		}
-
-		if (isPartner(player)) {
-			return SKULL_GREEN;
-		}
-	}
-	return Creature::getSkullClient(creature);
+ if(!creature || g_game.getWorldType()!=WORLD_TYPE_PVP) return SKULL_NONE;
+ const Player* target=creature->getPlayer();
+ if(!target) return SKULL_NONE;
+ if(target->playerKillerEnd) return SKULL_RED;
+ if(target->skull==SKULL_WHITE) return SKULL_WHITE;
+ const uint32_t leader=legacyPartyLeader(false);
+ if(leader && leader==target->legacyPartyLeader(false)) return SKULL_GREEN;
+ if(target->hasLegacyAttacked(this,false)) return SKULL_YELLOW;
+ return SKULL_NONE;
 }
 
 bool Player::hasAttacked(const Player* attacked) const
 {
-	if (hasFlag(PlayerFlag_NotGainInFight) || !attacked) {
-		return false;
-	}
-
-	return attackedSet.find(attacked->id) != attackedSet.end();
+ return hasLegacyAttacked(attacked,false);
 }
 
 void Player::addAttacked(const Player* attacked)
 {
-	if (hasFlag(PlayerFlag_NotGainInFight) || !attacked || attacked == this) {
-		return;
-	}
-
-	attackedSet.insert(attacked->id);
+ if(!attacked || attacked==this || hasFlag(PlayerFlag_NotGainInFight) || g_game.getWorldType()!=WORLD_TYPE_PVP) return;
+ if(attacked->hasLegacyAttacked(this,true)) return;
+ const uint32_t leader=legacyPartyLeader(true);
+ if(leader && leader==attacked->legacyPartyLeader(true)) return;
+ attackedSet.insert(attacked->getID());
 }
 
 void Player::clearAttacked()
 {
-	attackedSet.clear();
+ formerMarksClearedAt=OTSYS_TIME()/1000;
+ formerAggressor=skull==SKULL_WHITE;
+ formerAttackedSet=attackedSet;
+ attackedSet.clear();
+ for(const auto& entry:g_game.getPlayers()) entry.second->attackedSet.erase(getID());
 }
 
 void Player::addUnjustifiedDead(const Player* attacked)
 {
-	if (hasFlag(PlayerFlag_NotGainInFight) || attacked == this || g_game.getWorldType() == WORLD_TYPE_PVP_ENFORCED) {
-		return;
-	}
-
-	// current unjustified kill!
-	murderTimeStamps.push_back(std::time(nullptr));
-
-	sendTextMessage(MESSAGE_STATUS_WARNING, "Warning! The murder of " + attacked->getName() + " was not justified.");
-
-	if (playerKillerEnd == 0) {
-		// white skull time, it only sets on first kill!
-		playerKillerEnd = std::time(nullptr) + g_config.getNumber(ConfigManager::WHITE_SKULL_TIME);
-	}
-
-	uint32_t murderResult = checkPlayerKilling();
-	if (murderResult >= 1) {
-		// red skull player
-		playerKillerEnd = std::time(nullptr) + g_config.getNumber(ConfigManager::RED_SKULL_TIME);
-		setSkull(SKULL_RED);
-
-		if (murderResult == 2) {
-			// banishment for too many unjustified kills
-			Database* db = Database::getInstance();
-
-			std::ostringstream ss;
-			ss << "INSERT INTO `account_bans` (`account_id`, `reason`, `banned_at`, `expires_at`, `banned_by`) VALUES (";
-			ss << getAccount() << ", ";
-			// This fixed literal contains no user-controlled bytes and needs no DB escaping.
-			ss << "'Too many unjustified kills'" << ", ";
-			ss << std::time(nullptr) << ", ";
-			ss << std::time(nullptr) + g_config.getNumber(ConfigManager::BAN_LENGTH) << ", ";
-			ss << "1);";
-
-			db->executeQuery(ss.str());
-
-			g_game.addMagicEffect(getPosition(), CONST_ME_GREEN_RINGS);
-			g_game.removeCreature(this);
-			disconnect();
-		}
-	}
+ if (hasFlag(PlayerFlag_NotGainInFight) || attacked == this || g_game.getWorldType() != WORLD_TYPE_PVP || isAttackJustified(attacked)) return;
+ LegacyDeath::record(murderTimeStamps, std::time(nullptr));
+ sendTextMessage(MESSAGE_STATUS_WARNING, "Warning! The murder of " + attacked->getName() + " was not justified.");
+ const uint32_t result = checkPlayerKilling();
+ if(result) { playerKillerEnd = std::time(nullptr) + 30*86400; setSkull(SKULL_RED); }
+ if(result==2) {
+  // The reference delegates Action=2/Reason=28 to its external Query Manager.
+  // No local ban duration can be reconstructed; retain the event for an operator.
+  std::cout << "[Legacy PK punishment request] player=" << getGUID() << " action=2 reason=28" << std::endl;
+ }
 }
 
 void Player::checkSkullTicks()
 {
-	time_t today = std::time(nullptr);
-
-	if (!hasCondition(CONDITION_INFIGHT) && ((skull == SKULL_RED && today >= playerKillerEnd) || (skull == SKULL_WHITE))) {
-		setSkull(SKULL_NONE);
-	}
+ // Persistent PK expiry is cleared on login, not by periodic online polling.
+ if(!hasCondition(CONDITION_INFIGHT) && skull==SKULL_WHITE) setSkull(SKULL_NONE);
 }
 
 bool Player::isPromoted() const
@@ -3963,37 +3706,14 @@ bool Player::isPromoted() const
 	return promotedVocation == VOCATION_NONE && vocation->getId() != promotedVocation;
 }
 
+unsigned Player::getLegacyDeathPercent() const
+{
+ return LegacyDeath::percent(isPremium(), isPromoted(), std::bitset<5>(blessings).count());
+}
+
 double Player::getLostPercent() const
 {
-	int32_t blessingCount = std::bitset<5>(blessings).count();
-	int32_t achievementReduction = 0;
-	getStorageValue(17806, achievementReduction);
-	achievementReduction = std::max<int32_t>(0, std::min<int32_t>(100, achievementReduction));
-	const double achievementMultiplier = (100 - achievementReduction) / 100.0;
-
-	int32_t deathLosePercent = g_config.getNumber(ConfigManager::DEATH_LOSE_PERCENT);
-	if (deathLosePercent != -1) {
-		if (isPromoted()) {
-			deathLosePercent -= 3;
-		}
-
-		deathLosePercent -= blessingCount;
-		return std::max<int32_t>(0, deathLosePercent) / 100. * achievementMultiplier;
-	}
-
-	double lossPercent;
-	if (level >= 25) {
-		double tmpLevel = level + (levelPercent / 100.);
-		lossPercent = static_cast<double>((tmpLevel + 50) * 50 * ((tmpLevel * tmpLevel) - (5 * tmpLevel) + 8)) / experience;
-	} else {
-		lossPercent = 10;
-	}
-
-	if (isPromoted()) {
-		lossPercent *= 0.7;
-	}
-
-	return lossPercent * pow(0.92, blessingCount) / 100 * achievementMultiplier;
+ return getLegacyDeathPercent() / 100.0;
 }
 
 void Player::learnInstantSpell(const std::string& spellName)

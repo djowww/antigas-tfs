@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Slime" nameDescription="a slime" race="venom" experience="160" speed="120" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Slime" nameDescription="a slime" race="venom" experience="160" speed="120" manacost="0" legacyreference="1" legacyfistskill="22">
 	<health now="150" max="150" />
 	<look type="19" head="0" body="0" legs="0" feet="0" corpse="2121" />
 	<targetchange interval="1000" chance="0" />
@@ -32,7 +32,7 @@
 	<voices interval="5000" chance="10">
 		<voice sentence="Blubb" />
 	</voices>
-		<script>
-    <event name="death_animation_slime"/>
-</script>
+	<script>
+		<event name="death_animation_slime" />
+	</script>
 </monster>

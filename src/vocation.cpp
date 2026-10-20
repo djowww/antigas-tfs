@@ -83,7 +83,7 @@ bool Vocations::loadFromXml()
 		}
 
 		if ((attr = vocationNode.attribute("manamultiplier"))) {
-			voc.manaMultiplier = pugi::cast<float>(attr.value());
+			voc.manaMultiplier = pugi::cast<double>(attr.value());
 		}
 
 		if ((attr = vocationNode.attribute("attackspeed"))) {
@@ -112,7 +112,7 @@ bool Vocations::loadFromXml()
 				if (skillIdAttribute) {
 					uint16_t skill_id = pugi::cast<uint16_t>(skillIdAttribute.value());
 					if (skill_id <= SKILL_LAST) {
-						voc.skillMultipliers[skill_id] = pugi::cast<float>(childNode.attribute("multiplier").value());
+						voc.skillMultipliers[skill_id] = pugi::cast<double>(childNode.attribute("multiplier").value());
 					} else {
 						std::cout << "[Notice - Vocations::loadFromXml] No valid skill id: " << skill_id << " for vocation: " << voc.id << std::endl;
 					}
@@ -177,37 +177,41 @@ uint16_t Vocations::getPromotedVocation(uint16_t vocationId) const
 
 uint32_t Vocation::skillBase[SKILL_LAST + 1] = {50, 50, 50, 50, 30, 100, 20};
 
+namespace {
+// The reference stores a cumulative, floored geometric threshold. Costs are
+// differences of those thresholds, never independently rounded powers.
+uint64_t legacyThreshold(uint32_t delta, double multiplier, uint32_t levels)
+{
+ const double ratio = std::round(multiplier * 1000.0) / 1000.0;
+ if (ratio <= 1.0) return static_cast<uint64_t>(delta) * levels;
+ // x87 __cmath_power keeps the repeated-squaring intermediates at80 bits.
+ long double power = 1.0L, base = ratio;
+ uint32_t exponent = levels;
+ while (exponent) {
+  if (exponent & 1) power *= base;
+  exponent >>= 1;
+  if (exponent) base *= base;
+ }
+ const long double value = static_cast<long double>(delta) *
+  ((static_cast<long double>(power) - 1.0L) / (static_cast<long double>(ratio) - 1.0L));
+ if (!std::isfinite(value) || value >= std::numeric_limits<uint64_t>::max())
+  return std::numeric_limits<uint64_t>::max();
+ return static_cast<uint64_t>(std::floor(std::max<long double>(0, value)));
+}
+}
+
 uint64_t Vocation::getReqSkillTries(uint8_t skill, uint16_t level)
 {
-	if (skill > SKILL_LAST) {
-		return 0;
-	}
-
-	auto it = cacheSkill[skill].find(level);
-	if (it != cacheSkill[skill].end()) {
-		return it->second;
-	}
-
-	uint64_t tries = static_cast<uint64_t>(skillBase[skill] * std::pow(static_cast<double>(skillMultipliers[skill]), level - 11));
-	cacheSkill[skill][level] = tries;
-	return tries;
+ if (skill > SKILL_LAST || level <= 10) return 0;
+ const auto before = legacyThreshold(skillBase[skill], skillMultipliers[skill], level - 11);
+ const auto after = legacyThreshold(skillBase[skill], skillMultipliers[skill], level - 10);
+ return after >= before ? after - before : 0;
 }
 
 uint64_t Vocation::getReqMana(uint32_t magLevel)
 {
-	auto it = cacheMana.find(magLevel);
-	if (it != cacheMana.end()) {
-		return it->second;
-	}
-
-	uint64_t reqMana = static_cast<uint64_t>(400 * std::pow<double>(manaMultiplier, static_cast<int32_t>(magLevel) - 1));
-	uint32_t modResult = reqMana % 20;
-	if (modResult < 10) {
-		reqMana -= modResult;
-	} else {
-		reqMana -= modResult + 20;
-	}
-
-	cacheMana[magLevel] = reqMana;
-	return reqMana;
+ if (magLevel == 0) return 0;
+ const auto before = legacyThreshold(1600, manaMultiplier, magLevel - 1);
+ const auto after = legacyThreshold(1600, manaMultiplier, magLevel);
+ return after >= before ? after - before : 0;
 }

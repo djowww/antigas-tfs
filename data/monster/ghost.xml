@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Ghost" nameDescription="a ghost" race="undead" experience="120" speed="160" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Ghost" nameDescription="a ghost" race="undead" experience="120" speed="160" manacost="0" legacyreference="1" legacyfistskill="45">
 	<health now="150" max="150" />
 	<look type="48" head="0" body="0" legs="0" feet="0" corpse="4094" />
 	<targetchange interval="1000" chance="0" />
@@ -19,7 +19,7 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="45" attack="28" />
-		<attack name="lifedrain" min="-25" max="-45" range="1" chance="7" />
+		<attack name="lifedrain" legacychance="7" interval="2000" chance="0" min="-25" max="-45" range="1" target="1" />
 	</attacks>
 	<defenses armor="10" defense="20">
 	</defenses>
@@ -35,14 +35,22 @@
 		<voice sentence="Buuuuuh" />
 	</voices>
 	<loot>
-	    <!--  withe piece -->
-		<item id="3432" countmax="1" chance="8" /> <!-- an ancient shield -->
-		<item id="2843" countmax="1" chance="15" /> <!-- a book -->
-		<item id="3565" countmax="1" chance="90" /> <!-- a cape -->
-		<item id="3292" countmax="1" chance="70" /> <!-- a combat knife -->
-		<item id="3282" countmax="1" chance="110" /> <!-- a morning star -->
-		<item id="3551" countmax="1" chance="200" /> <!-- sandals -->
-		<item id="3740" countmax="1" chance="150" /> <!-- a shadow herb -->
-		<item id="3049" countmax="1" chance="2" /> <!-- a stealth ring -->
+		<!--  withe piece -->
+		<item id="3432" countmax="1" chance="8" />
+		<!-- an ancient shield -->
+		<item id="2843" countmax="1" chance="15" />
+		<!-- a book -->
+		<item id="3565" countmax="1" chance="90" />
+		<!-- a cape -->
+		<item id="3292" countmax="1" chance="70" />
+		<!-- a combat knife -->
+		<item id="3282" countmax="1" chance="110" />
+		<!-- a morning star -->
+		<item id="3551" countmax="1" chance="200" />
+		<!-- sandals -->
+		<item id="3740" countmax="1" chance="150" />
+		<!-- a shadow herb -->
+		<item id="3049" countmax="1" chance="2" />
+		<!-- a stealth ring -->
 	</loot>
 </monster>

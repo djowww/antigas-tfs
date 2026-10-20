@@ -101,6 +101,8 @@ struct Abilities {
 
 	//damage abilities modifiers
 	int16_t absorbPercent[COMBAT_COUNT] = { 0 };
+	// Application types32/64/128 are distinct from their elemental pulses.
+	int16_t legacyConditionAbsorbPercent[3] = { 0 };
 
 	bool manaShield = false;
 	bool invisible = false;
@@ -223,6 +225,7 @@ class ItemType
 		int32_t destroyTarget = 0;
 
 		CombatType_t combatType = COMBAT_NONE;
+		CombatType_t avoidDamageTypes = COMBAT_NONE;
 
 		uint16_t transformToOnUse = 0;
 		uint16_t transformToFree = 0;
@@ -234,6 +237,7 @@ class ItemType
 		uint16_t transformDeEquipTo = 0;
 		uint16_t maxItems = 8;
 		uint16_t slotPosition = SLOTP_RIGHT | SLOTP_LEFT | SLOTP_AMMO;
+		uint8_t legacyBodySlot = 0;
 		uint16_t speed = 0;
 
 		MagicEffectClasses magicEffect = CONST_ME_NONE;

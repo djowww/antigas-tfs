@@ -30,6 +30,7 @@
 #include "protocolgame.h"
 #include "ioguild.h"
 #include "party.h"
+#include "legacydeath.h"
 #include "depotlocker.h"
 #include "guild.h"
 #include "groups.h"
@@ -265,9 +266,7 @@ class Player final : public Creature, public Cylinder
 			return secureMode;
 		}
 
-		void setParty(Party* party) {
-			this->party = party;
-		}
+		void setParty(Party* party);
 		Party* getParty() const {
 			return party;
 		}
@@ -535,6 +534,7 @@ class Player final : public Creature, public Cylinder
 		void setFightMode(fightMode_t mode) {
 			fightMode = mode;
 		}
+		fightMode_t getFightMode() const { return fightMode; }
 		void setSecureMode(bool mode) {
 			secureMode = mode;
 		}
@@ -552,10 +552,12 @@ class Player final : public Creature, public Cylinder
 		void changeSoul(int32_t soulChange);
 
 		bool isPzLocked() const {
-			return pzLocked;
+			return protectionZoneLockUntil != 0 && OTSYS_TIME() < protectionZoneLockUntil;
 		}
 		BlockType_t blockHit(Creature* attacker, CombatType_t combatType, int32_t& damage,
 		                             bool checkDefense = false, bool checkArmor = false, bool field = false) final;
+		void applyLegacyProtection(int32_t& damage, CombatType_t combatType, bool field) final;
+		void applyLegacyConditionProtection(int32_t& force, ConditionType_t type) final;
 		void doAttacking(uint32_t interval) final;
 		bool hasExtraSwing() final {
 			return lastAttack > 0 && ((OTSYS_TIME() - lastAttack) >= getAttackSpeed());
@@ -570,6 +572,13 @@ class Player final : public Creature, public Cylinder
 		uint8_t getSkillPercent(uint8_t skill) const {
 			return skills[skill].percent;
 		}
+
+        bool consumeLegacyLearningCredit() {
+            if (!legacyLearningCredits) return false;
+            --legacyLearningCredits;
+            return true;
+        }
+        void refreshLegacyLearningCredit() { legacyLearningCredits = 30; }
 
 		bool getAddAttackSkill() const {
 			return addAttackSkillPoint;
@@ -597,6 +606,7 @@ class Player final : public Creature, public Cylinder
 		float getDefenseFactor() const final;
 
 		void addInFightTicks(bool pzlock = false);
+		void addLegacyInFightTicks(int32_t milliseconds, bool blockProtectionZone);
 
 		uint64_t getGainedExperience(Creature* attacker) const final;
 
@@ -629,6 +639,10 @@ class Player final : public Creature, public Cylinder
 		bool hasAttacked(const Player* attacked) const;
 		void addAttacked(const Player* attacked);
 		void clearAttacked();
+		bool isAttackJustified(const Player* target) const;
+		bool hasLegacyAttacked(const Player* target, bool includeFormer) const;
+		uint32_t legacyPartyLeader(bool includeLeaving) const;
+		unsigned getLegacyDeathPercent() const;
 		void addUnjustifiedDead(const Player* attacked);
 		void sendCreatureSkull(const Creature* creature) const {
 			if (client) {
@@ -1094,6 +1108,11 @@ class Player final : public Creature, public Cylinder
 		uint32_t checkPlayerKilling();
 
 		std::unordered_set<uint32_t> attackedSet;
+		std::unordered_set<uint32_t> formerAttackedSet;
+		int64_t formerMarksClearedAt = 0;
+		bool formerAggressor = false;
+		uint32_t formerPartyLeader = 0;
+		int64_t partyLeavingAt = 0;
 		std::unordered_set<uint32_t> VIPList;
 
 		std::map<uint8_t, OpenContainer> openContainers;
@@ -1169,6 +1188,7 @@ class Player final : public Creature, public Cylinder
 		int32_t varStats[STAT_LAST + 1] = {};
 		int32_t MessageBufferCount = 0;
 		int32_t premiumDays = 0;
+        uint8_t legacyLearningCredits = 0;
 		int32_t bloodHitCount = 0;
 		int32_t shieldBlockCount = 0;
 		int32_t offlineTrainingSkill = 0;
@@ -1195,6 +1215,7 @@ class Player final : public Creature, public Cylinder
 		bool secureMode = false;
 		bool ghostMode = false;
 		bool pzLocked = false;
+		int64_t protectionZoneLockUntil = 0;
 		bool wasMounted = false;
 		bool isConnecting = false;
 		bool persistenceQuarantined = false;
@@ -1230,7 +1251,7 @@ class Player final : public Creature, public Cylinder
 		static uint16_t getDropLootPercent();
 		double getLostPercent() const;
 		uint64_t getLostExperience() const final {
-			return skillLoss ? static_cast<uint64_t>(experience * getLostPercent()) : 0;
+			return skillLoss ? LegacyDeath::loss(experience, getLegacyDeathPercent()) : 0;
 		}
 		uint32_t getDamageImmunities() const final {
 			return damageImmunities;

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Fire Elemental" nameDescription="a fire elemental" race="fire" experience="220" speed="190" manacost="690">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Fire Elemental" nameDescription="a fire elemental" race="fire" experience="220" speed="190" manacost="690" legacyreference="1" legacyfistskill="38">
 	<health now="280" max="280" />
 	<look type="49" head="0" body="0" legs="0" feet="0" corpse="2118" />
 	<targetchange interval="1000" chance="10" />
@@ -19,12 +19,12 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="38" attack="38" />
-		<attack name="fire" min="-55" max="-155" range="7" radius="2" target="1" chance="4">
-			<attribute key="shootEffect" value="fire" />
-			<attribute key="areaEffect" value="firearea" />
-		</attack>
 		<attack name="firefield" range="7" radius="1" target="1" chance="3">
 			<attribute key="shootEffect" value="fire" />
+		</attack>
+		<attack name="fire" legacychance="4" interval="2000" chance="0" min="-55" max="-155" range="7" radius="5" target="1">
+			<attribute key="shootEffect" value="fire" />
+			<attribute key="areaEffect" value="firearea" />
 		</attack>
 	</attacks>
 	<defenses armor="18" defense="20">
@@ -36,6 +36,6 @@
 		<immunity invisible="1" />
 	</immunities>
 	<script>
-    <event name="death_animation_fireelemental"/>
-</script>
+		<event name="death_animation_fireelemental" />
+	</script>
 </monster>
