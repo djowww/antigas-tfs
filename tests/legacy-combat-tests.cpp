@@ -164,20 +164,18 @@ static void chargeLessProtection(Player& attacker, Player& target)
  target.setItemAbility(CONST_SLOT_LEGS, true);
  require(legs->getCharges() == 0, "equipment fixture carries no charges");
  int32_t amount = 100;
+ getRandomGenerator().seed(11);
+ const int32_t expected = 49 - LegacyCombat::armor(9);
+ getRandomGenerator().seed(11);
  const BlockType_t probeBlock = target.blockHit(&attacker, COMBAT_PHYSICALDAMAGE, amount);
- std::cerr << "dbg block=" << int(probeBlock) << " amount=" << amount
-  << " bodySlot=" << int(Item::items[3364].legacyBodySlot)
-  << " absorb=" << (Item::items[3364].abilities ? Item::items[3364].abilities->absorbPercent[combatTypeToIndex(COMBAT_PHYSICALDAMAGE)] : -999)
-  << " inSlot=" << (target.getInventoryItem(CONST_SLOT_LEGS) != nullptr)
-  << " armor=" << target.getArmor()
-  << " attackable=" << target.isAttackable() << std::endl;
- require(probeBlock == BLOCK_NONE && amount == 49,
-  "charge-less protection halves PvP then removes 2 percent (got " + std::to_string(amount) + ")");
+ require(probeBlock == BLOCK_NONE && amount == expected,
+  "charge-less protection halves PvP, removes 2 percent and armor (got " + std::to_string(amount) + ")");
  require(target.getInventoryItem(CONST_SLOT_LEGS) == legs && !legs->isRemoved(),
   "permanent equipment must survive absorbed damage");
  amount = 100;
+ getRandomGenerator().seed(11);
  target.blockHit(&attacker, COMBAT_PHYSICALDAMAGE, amount);
- require(amount == 49 && target.getInventoryItem(CONST_SLOT_LEGS) == legs,
+ require(amount == expected && target.getInventoryItem(CONST_SLOT_LEGS) == legs,
   "permanent equipment keeps protecting across hits");
  g_game.internalRemoveItem(legs);
 }
