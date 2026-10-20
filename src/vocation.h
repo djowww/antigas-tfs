@@ -96,8 +96,8 @@ class Vocation
 		std::string name = "none";
 		std::string description;
 
-		float skillMultipliers[SKILL_LAST + 1] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 1.5f, 1.1f};
-		float manaMultiplier = 4.0f;
+		double skillMultipliers[SKILL_LAST + 1] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 1.5f, 1.1f};
+		double manaMultiplier = 3.0;
 
 		uint32_t gainHealthTicks = 6;
 		uint32_t gainHealthAmount = 1;

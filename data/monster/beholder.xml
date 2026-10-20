@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Beholder" nameDescription="a beholder" race="blood" experience="170" speed="150" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Beholder" nameDescription="a beholder" race="blood" experience="170" speed="150" manacost="0" legacyreference="1" legacyfistskill="35">
 	<health now="260" max="260" />
 	<look type="17" head="0" body="0" legs="0" feet="0" corpse="4089" />
 	<targetchange interval="1000" chance="50" />
@@ -19,23 +19,21 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="35" attack="12" />
-		<attack name="energy" min="-15" max="-45" range="7" chance="15">
+		<attack name="energy" legacychance="15" interval="2000" chance="0" min="-15" max="-45" range="7" target="1">
 			<attribute key="shootEffect" value="energy" />
 		</attack>
-		<attack name="fire" min="-25" max="-45" range="7" chance="16">
+		<attack name="fire" legacychance="16" interval="2000" chance="0" min="-25" max="-45" range="7" target="1">
 			<attribute key="shootEffect" value="fire" />
 		</attack>
-		<attack name="physical" min="-30" max="-50" range="7" chance="13">
+		<attack name="physical" legacychance="13" interval="2000" chance="0" min="-30" max="-50" range="7" target="1">
 			<attribute key="shootEffect" value="death" />
 			<attribute key="areaEffect" value="mortarea" />
 		</attack>
-		<attack name="poison" min="-5" max="-45" range="7" chance="14">
-			<attribute key="shootEffect" value="poison" />
-		</attack>
-		<attack name="lifedrain" min="-35" max="-45" range="7" chance="17">
+		<attack name="earth" legacychance="14" interval="2000" chance="0" min="-5" max="-45" range="7" target="1" />
+		<attack name="lifedrain" legacychance="17" interval="2000" chance="0" min="-35" max="-45" range="7" target="1">
 			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
-		<attack name="manadrain" min="-5" max="-25" range="7" chance="20">
+		<attack name="manadrain" legacychance="20" interval="2000" chance="0" min="-5" max="-25" range="7" target="1">
 			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
 	</attacks>
@@ -56,16 +54,27 @@
 		<voice sentence="You've got the look!" />
 	</voices>
 	<loot>
-		<item id="3418" countmax="1" chance="1" /> <!-- a beholder shield -->
-		<item id="3031" countmax="12" chance="900" /> <!-- a gold coin -->
-		<item id="3031" countmax="16" chance="800" /> <!-- a gold coin -->
-		<item id="3031" countmax="20" chance="700" /> <!-- a gold coin -->
-		<item id="3285" countmax="1" chance="90" /> <!-- a longsword -->
-		<item id="3282" countmax="1" chance="70" /> <!-- a morning star -->
-		<item id="3059" countmax="1" chance="50" /> <!-- a spellbook -->
-		<item id="3409" countmax="1" chance="40" /> <!-- a steel shield -->
-		<item id="3265" countmax="1" chance="40" /> <!-- a two handed sword -->
-		<item id="3412" countmax="1" chance="30" /> <!-- a wooden shield -->
-		<item id="3065" countmax="1" chance="5" /> <!-- a wooden wand -->
+		<item id="3418" countmax="1" chance="1" />
+		<!-- a beholder shield -->
+		<item id="3031" countmax="12" chance="900" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="16" chance="800" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="20" chance="700" />
+		<!-- a gold coin -->
+		<item id="3285" countmax="1" chance="90" />
+		<!-- a longsword -->
+		<item id="3282" countmax="1" chance="70" />
+		<!-- a morning star -->
+		<item id="3059" countmax="1" chance="50" />
+		<!-- a spellbook -->
+		<item id="3409" countmax="1" chance="40" />
+		<!-- a steel shield -->
+		<item id="3265" countmax="1" chance="40" />
+		<!-- a two handed sword -->
+		<item id="3412" countmax="1" chance="30" />
+		<!-- a wooden shield -->
+		<item id="3065" countmax="1" chance="5" />
+		<!-- a wooden wand -->
 	</loot>
 </monster>

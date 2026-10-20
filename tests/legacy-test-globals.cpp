@@ -1,0 +1,14 @@
+#include "otpch.h"
+#include "game.h"
+#include "configmanager.h"
+#include "scheduler.h"
+#include "databasetasks.h"
+#include "rsa.h"
+DatabaseTasks g_databaseTasks;
+Dispatcher g_dispatcher;
+Scheduler g_scheduler;
+Game g_game;
+ConfigManager g_config;
+Monsters g_monsters;
+Vocations g_vocations;
+RSA g_RSA;

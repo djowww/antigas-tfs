@@ -3479,8 +3479,9 @@ void Game::changeLight(const Creature* creature)
 	}
 }
 
-bool Game::combatBlockHit(CombatDamage& damage, Creature* attacker, Creature* target, bool checkDefense, bool checkArmor, bool field)
+bool Game::combatBlockHit(CombatDamage& damage, Creature* attacker, Creature* target, bool checkDefense, bool checkArmor, bool field, BlockType_t* blockResult)
 {
+	if (blockResult) *blockResult = BLOCK_IMMUNITY;
 	if (damage.type == COMBAT_NONE) {
 		return true;
 	}
@@ -3542,6 +3543,7 @@ bool Game::combatBlockHit(CombatDamage& damage, Creature* attacker, Creature* ta
 	if (damage.type != COMBAT_NONE) {
 		damage.value = -damage.value;
 		primaryBlockType = target->blockHit(attacker, damage.type, damage.value, checkDefense, checkArmor, field);
+		if (blockResult) *blockResult = primaryBlockType;
 
 		damage.value = -damage.value;
 		sendBlockEffect(primaryBlockType, damage.type, target->getPosition());
@@ -3794,7 +3796,7 @@ bool Game::combatChangeMana(Creature* attacker, Creature* target, int32_t manaCh
 			attackerPlayer = nullptr;
 		}
 
-		int32_t manaLoss = std::min<int32_t>(target->getMana(), -manaChange);
+		int32_t manaLoss = -manaChange;
 		BlockType_t blockType = target->blockHit(attacker, COMBAT_MANADRAIN, manaLoss);
 		if (blockType != BLOCK_NONE) {
 			addMagicEffect(targetPos, CONST_ME_POFF);
@@ -3805,6 +3807,7 @@ bool Game::combatChangeMana(Creature* attacker, Creature* target, int32_t manaCh
 			return true;
 		}
 
+		manaLoss = std::min<int32_t>(target->getMana(), manaLoss);
 		target->drainMana(attacker, manaLoss);
 
 		std::string damageString = std::to_string(manaLoss);

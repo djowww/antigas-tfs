@@ -37,20 +37,20 @@ CombatDamage Combat::getCombatDamage(Creature* creature, Creature* target) const
 	CombatDamage damage;
 	damage.type = params.combatType;
 	if (formulaType == COMBAT_FORMULA_DAMAGE) {
-		damage.value = normal_random(
+		damage.value = uniform_random(
 			static_cast<int32_t>(mina),
 			static_cast<int32_t>(maxa)
 		);
 	} else if (creature) {
 		int32_t min, max;
 		if (creature->getCombatValues(min, max)) {
-		damage.value = normal_random(min, max);
+		damage.value = uniform_random(min, max);
 		} else if (Player* player = creature->getPlayer()) {
 			if (params.valueCallback) {
 				params.valueCallback->getMinMaxValues(player, damage, params.useCharges);
 			} else if (formulaType == COMBAT_FORMULA_LEVELMAGIC) {
 				int32_t levelFormula = player->getLevel() * 2 + player->getMagicLevel() * 3;
-				damage.value = normal_random(
+				damage.value = uniform_random(
 					static_cast<int32_t>(levelFormula * mina + minb),
 					static_cast<int32_t>(levelFormula * maxa + maxb)
 				);
@@ -58,7 +58,7 @@ CombatDamage Combat::getCombatDamage(Creature* creature, Creature* target) const
 				Item* tool = player->getWeapon();
 				const Weapon* weapon = g_weapons->getWeapon(tool);
 				if (weapon) {
-				damage.value = normal_random(
+				damage.value = uniform_random(
 						static_cast<int32_t>(minb),
 						static_cast<int32_t>(weapon->getWeaponDamage(player, target, tool, true) * maxa + maxb)
 					);
@@ -75,7 +75,7 @@ CombatDamage Combat::getCombatDamage(Creature* creature, Creature* target) const
 						}
 					}
 				} else {
-					damage.value = normal_random(
+					damage.value = uniform_random(
 						static_cast<int32_t>(minb),
 						static_cast<int32_t>(maxb)
 					);
@@ -161,51 +161,30 @@ bool Combat::isPlayerCombat(const Creature* target)
 
 ReturnValue Combat::canTargetCreature(Player* player, Creature* target)
 {
-	if (player == target) {
-		return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
-	}
-
-	if (!player->hasFlag(PlayerFlag_IgnoreProtectionZone)) {
-		//pz-zone
-		if (player->getZone() == ZONE_PROTECTION) {
-			return RETURNVALUE_YOUMAYNOTATTACKAPERSONWHILEINPROTECTIONZONE;
-		}
-
-		if (target->getZone() == ZONE_PROTECTION) {
-			return RETURNVALUE_YOUMAYNOTATTACKAPERSONINPROTECTIONZONE;
-		}
-
-		//nopvp-zone
-		if (isPlayerCombat(target)) {
-			if (player->getZone() == ZONE_NOPVP) {
-				return RETURNVALUE_ACTIONNOTPERMITTEDINANOPVPZONE;
-			}
-
-			if (target->getZone() == ZONE_NOPVP) {
-				return RETURNVALUE_YOUMAYNOTATTACKAPERSONINPROTECTIONZONE;
-			}
-		}
-	}
-
-	if (player->hasFlag(PlayerFlag_CannotUseCombat) || !target->isAttackable()) {
-		if (target->getPlayer()) {
-			return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
-		} else {
-			return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
-		}
-	}
-
-	if (target->getPlayer()) {
-		if (isProtected(player, target->getPlayer())) {
-			return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
-		}
-
-		if (player->hasSecureMode() && !Combat::isInPvpZone(player, target) && player->getSkullClient(target->getPlayer()) == SKULL_NONE) {
-			return RETURNVALUE_TURNSECUREMODETOATTACKUNMARKEDPLAYERS;
-		}
-	}
-
-	return Combat::canDoCombat(player, target);
+ if(player==target) return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
+ Player* victim=target->getPlayer();
+ // Selection checks secure mode before PZ, and ATTACK_EVERYWHERE cannot bypass NO_ATTACK.
+ if(victim && g_game.getWorldType()==WORLD_TYPE_PVP && player->hasSecureMode() && !player->isAttackJustified(victim))
+  return RETURNVALUE_TURNSECUREMODETOATTACKUNMARKEDPLAYERS;
+ const bool everywhere=player->hasFlag(PlayerFlag_IgnoreProtectionZone);
+ if(!everywhere) {
+  if(target->getZone()==ZONE_PROTECTION) return RETURNVALUE_YOUMAYNOTATTACKAPERSONINPROTECTIONZONE;
+  if(player->getZone()==ZONE_PROTECTION) return RETURNVALUE_YOUMAYNOTATTACKAPERSONWHILEINPROTECTIONZONE;
+ }
+ if(player->hasFlag(PlayerFlag_CannotUseCombat)) return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
+ if(victim && player->getVocationId()==VOCATION_NONE && !everywhere) return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
+ if(g_game.getWorldType()==WORLD_TYPE_NO_PVP && victim && !everywhere) return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
+ if(target->getNpc()) return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
+ const Outfit_t outfit=target->getCurrentOutfit();
+ if(!victim && outfit.lookType==0 && outfit.lookTypeEx==0 && outfit.lookHead==0 && outfit.lookBody==0 && outfit.lookLegs==0 && outfit.lookFeet==0)
+  return RETURNVALUE_CREATUREISNOTREACHABLE;
+ if(!Position::areInRange<8,8,0>(player->getPosition(),target->getPosition())) return RETURNVALUE_CREATUREISNOTREACHABLE;
+ if(everywhere) {
+  if(victim && (player->hasFlag(PlayerFlag_CannotAttackPlayer) || victim->hasFlag(PlayerFlag_CannotBeAttacked))) return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
+  if(!victim && player->hasFlag(PlayerFlag_CannotAttackMonster)) return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
+  return RETURNVALUE_NOERROR;
+ }
+ return Combat::canDoCombat(player,target);
 }
 
 ReturnValue Combat::canDoCombat(Creature* caster, Tile* tile, bool aggressive)
@@ -231,11 +210,6 @@ ReturnValue Combat::canDoCombat(Creature* caster, Tile* tile, bool aggressive)
 			return RETURNVALUE_FIRSTGOUPSTAIRS;
 		}
 
-		if (const Player* player = caster->getPlayer()) {
-			if (player->hasFlag(PlayerFlag_IgnoreProtectionZone)) {
-				return RETURNVALUE_NOERROR;
-			}
-		}
 	}
 
 	//pz-zone
@@ -251,22 +225,17 @@ bool Combat::isInPvpZone(const Creature* attacker, const Creature* target)
 	return attacker->getZone() == ZONE_PVP && target->getZone() == ZONE_PVP;
 }
 
-bool Combat::isProtected(const Player* attacker, const Player* target)
+bool Combat::isProtected(const Player* attacker, const Player*)
 {
-	uint32_t protectionLevel = g_config.getNumber(ConfigManager::PROTECTION_LEVEL);
-	if (target->getLevel() < protectionLevel || attacker->getLevel() < protectionLevel) {
-		return true;
-	}
-
-	if (attacker->getVocationId() == VOCATION_NONE || target->getVocationId() == VOCATION_NONE) {
-		return true;
-	}
-
-	return false;
+ // The reference gates an attacker without a profession, not the victim's level.
+ return attacker->getVocationId()==VOCATION_NONE;
 }
 
 ReturnValue Combat::canDoCombat(Creature* attacker, Creature* target)
 {
+    // Victim impacts share Circle's destination-PZ veto, including privileged casters.
+    if(target->getZone()==ZONE_PROTECTION) return RETURNVALUE_YOUMAYNOTATTACKAPERSONINPROTECTIONZONE;
+
 	if (attacker) {
 		if (const Player* targetPlayer = target->getPlayer()) {
 			if (targetPlayer->hasFlag(PlayerFlag_CannotBeAttacked)) {
@@ -458,33 +427,27 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 	assert(data);
 	CombatDamage damage = *data;
 
-	if (g_game.combatBlockHit(damage, caster, target, params.blockedByShield, params.blockedByArmor, params.itemId != 0)) {
+	BlockType_t blocked = BLOCK_NONE;
+	if (g_game.combatBlockHit(damage, caster, target, params.blockedByShield, params.blockedByArmor, params.itemId != 0, &blocked)) {
+		// Contact poison has a separate 1/5 branch when raw damage beat the
+		// defense but later mitigation left no damage. A defense block, dead
+		// target or administrative invulnerability never qualifies.
+		if (data->value < 0 && damage.type == COMBAT_PHYSICALDAMAGE && params.blockedByShield && caster &&
+			blocked != BLOCK_DEFENSE && target->getHealth() > 0 && target->isAttackable() && !target->isInGhostMode()) {
+			for (const auto& condition : params.conditionList) {
+				if (condition->getType() != CONDITION_POISON) continue;
+				if (uniform_random(0, 4) == 0) {
+					Condition* poison = condition->clone();
+					poison->setParam(CONDITION_PARAM_OWNER, caster->getID());
+					target->addCombatCondition(poison);
+				}
+				break;
+			}
+		}
 		return;
 	}
 
-	if (damage.value < 0 && caster) {
-		Player* targetPlayer = target->getPlayer();
-		if (Player* attackerPlayer = caster->getPlayer()) {
-			int32_t attackBonus = 0;
-			attackerPlayer->getStorageValue(17804, attackBonus);
-			attackBonus = std::max<int32_t>(0, std::min<int32_t>(1000, attackBonus));
-			if (attackBonus > 0) {
-				const double scaled = std::floor(std::abs(static_cast<double>(damage.value)) * (100.0 + attackBonus) / 100.0);
-				damage.value = -static_cast<int32_t>(std::min<double>(scaled, std::numeric_limits<int32_t>::max()));
-			}
-		}
-		if (targetPlayer && caster->getPlayer()) {
-			damage.value /= 2;
-			damage.value *= params.pvpDamage / 100;
-			int32_t pvpBonus = 0;
-			caster->getPlayer()->getStorageValue(17805, pvpBonus);
-			pvpBonus = std::max<int32_t>(0, std::min<int32_t>(1000, pvpBonus));
-			if (pvpBonus > 0) {
-				const double scaled = std::floor(std::abs(static_cast<double>(damage.value)) * (100.0 + pvpBonus) / 100.0);
-				damage.value = -static_cast<int32_t>(std::min<double>(scaled, std::numeric_limits<int32_t>::max()));
-			}
-		}
-	}
+	// PvP and all native mitigation are performed once in Creature::blockHit.
 
 	if (g_game.combatChangeHealth(caster, target, damage)) {
 		CombatConditionFunc(caster, target, params, nullptr);
@@ -498,12 +461,6 @@ void Combat::CombatManaFunc(Creature* caster, Creature* target, const CombatPara
 	CombatDamage damage = *data;
 
 
-	if (damage.value < 0) {
-		if (caster && caster->getPlayer() && target->getPlayer()) {
-			damage.value /= 2;
-		}
-	}
-
 	if (g_game.combatChangeMana(caster, target, damage.value)) {
 		CombatConditionFunc(caster, target, params, nullptr);
 		CombatDispelFunc(caster, target, params, nullptr);
@@ -513,7 +470,6 @@ void Combat::CombatManaFunc(Creature* caster, Creature* target, const CombatPara
 void Combat::CombatConditionFunc(Creature* caster, Creature* target, const CombatParams& params, CombatDamage*)
 {
 	for (const auto& condition : params.conditionList) {
-		if (caster == target || !target->isImmune(condition->getType())) {
 			Condition* conditionCopy = condition->clone();
 			if (caster) {
 				conditionCopy->setParam(CONDITION_PARAM_OWNER, caster->getID());
@@ -521,7 +477,6 @@ void Combat::CombatConditionFunc(Creature* caster, Creature* target, const Comba
 
 			//TODO: infight condition until all aggressive conditions has ended
 			target->addCombatCondition(conditionCopy);
-		}
 	}
 }
 
@@ -1339,33 +1294,31 @@ void MagicField::onStepInField(Creature* creature)
 	if (it.conditionDamage) {
 		Condition* conditionCopy = it.conditionDamage->clone();
 		uint32_t ownerId = getOwner();
-		if (ownerId) {
-			bool harmfulField = true;
+  if ((id == 2131 || id == 2132 || id == 2134 || id == 2135) &&
+      (!creature->getMonster() || (creature->getMaster() && creature->getMaster()->getPlayer()))) {
+   delete conditionCopy;
+   g_game.addMagicEffect(creature->getPosition(), CONST_ME_POFF);
+   return;
+  }
 
-			if (g_game.getWorldType() == WORLD_TYPE_NO_PVP || getTile()->hasFlag(TILESTATE_NOPVPZONE)) {
-				Creature* owner = g_game.getCreatureByID(ownerId);
-				if (owner) {
-					if (owner->getPlayer() || (owner->isSummon() && owner->getMaster()->getPlayer())) {
-						harmfulField = false;
-					}
-				}
-			}
-
-			Player* targetPlayer = creature->getPlayer();
-			if (targetPlayer) {
-				Player* attackerPlayer = g_game.getPlayerByID(ownerId);
-				if (attackerPlayer) {
-					if (Combat::isProtected(attackerPlayer, targetPlayer)) {
-						harmfulField = false;
-					}
-				}
-			}
-
-			if (!harmfulField || (OTSYS_TIME() - createTime <= 5000) || creature->hasBeenAttacked(ownerId)) {
-				conditionCopy->setParam(CONDITION_PARAM_OWNER, ownerId);
-			}
-		}
+  conditionCopy->setParam(CONDITION_PARAM_OWNER, ownerId);
+  int32_t force = -1, immediate = 0;
+  switch (id) {
+   case 2118: case 2123: case 2131: force = 70; immediate = 20; break;
+   case 2119: case 2124: case 2132: force = 50; immediate = 10; break;
+   case 2121: case 2127: case 2134: force = 100; break;
+   case 2122: case 2126: case 2135: force = 25; immediate = 30; break;
+   case 2137: case 2138: force = 10; immediate = 300; break;
+  }
+  if (force >= 0) static_cast<ConditionDamage*>(conditionCopy)->setLegacyForce(force);
+  const CombatType_t collisionType = Combat::ConditionToDamageType(conditionCopy->getType());
 
 		creature->addCondition(conditionCopy);
+  if (immediate > 0) {
+   Creature* origin = g_game.getCreatureByID(ownerId);
+   CombatDamage collision; collision.type = collisionType; collision.value = -immediate;
+   if (!g_game.combatBlockHit(collision, origin, creature, false, false, true)) g_game.combatChangeHealth(origin, creature, collision);
+  }
+
 	}
 }

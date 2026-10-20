@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="The Evil Eye" nameDescription="The Evil Eye" race="blood" experience="500" speed="190" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="The Evil Eye" nameDescription="The Evil Eye" race="blood" experience="500" speed="190" manacost="0" legacyreference="1" legacyfistskill="65">
 	<health now="1100" max="1100" />
 	<look type="210" head="0" body="0" legs="0" feet="0" corpse="4233" />
 	<targetchange interval="1000" chance="30" />
@@ -19,37 +19,33 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="65" attack="24" />
-		<attack name="energy" min="-60" max="-130" range="7" interval="1000" chance="7">
-			<attribute key="shootEffect" value="energy" />
-		</attack>
-		<attack name="fire" min="-85" max="-115" range="7" interval="1000" chance="8">
-			<attribute key="shootEffect" value="fire" />
-		</attack>
-		<attack name="physical" min="-135" max="-175" range="7" interval="1000" chance="6">
-			<attribute key="shootEffect" value="death" />
-			<attribute key="areaEffect" value="mortarea" />
-		</attack>
-		<attack name="poison" min="-40" max="-120" range="7" interval="1000" chance="7">
-			<attribute key="shootEffect" value="poison" />
-		</attack>
-		<attack name="lifedrain" min="-110" max="-130" range="7" interval="1000" chance="9">
-			<attribute key="areaEffect" value="redshimmer" />
-		</attack>
 		<attack name="speed" speedchange="-800" duration="20000" range="7" interval="1000" chance="10">
 			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
-		<attack name="poison" min="-35" max="-85" length="8" spread="3" interval="1000" chance="13">
-			<attribute key="areaEffect" value="greenbubble" />
+		<attack name="energy" legacychance="7" interval="1000" chance="0" min="-60" max="-130" range="7" target="1">
+			<attribute key="shootEffect" value="energy" />
 		</attack>
-		<attack name="lifedrain" min="-75" max="-85" length="8" spread="3" interval="1000" chance="18">
+		<attack name="fire" legacychance="8" interval="1000" chance="0" min="-85" max="-115" range="7" target="1">
+			<attribute key="shootEffect" value="fire" />
+		</attack>
+		<attack name="physical" legacychance="6" interval="1000" chance="0" min="-135" max="-175" range="7" target="1">
+			<attribute key="shootEffect" value="death" />
+			<attribute key="areaEffect" value="mortarea" />
+		</attack>
+		<attack name="earth" legacychance="7" interval="2000" chance="0" min="-40" max="-120" range="7" target="1" />
+		<attack name="lifedrain" legacychance="9" interval="1000" chance="0" min="-110" max="-130" range="7" target="1">
 			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
-		<attack name="manadrain" min="-150" max="-250" length="8" spread="3" interval="1000" chance="12">
+		<attack name="earth" legacychance="13" interval="2000" chance="0" min="-35" max="-85" length="8" spread="3" />
+		<attack name="lifedrain" legacychance="18" interval="1000" chance="0" min="-75" max="-85" length="8" spread="3">
+			<attribute key="areaEffect" value="redshimmer" />
+		</attack>
+		<attack name="manadrain" legacychance="12" interval="1000" chance="0" min="-150" max="-250" length="8" spread="3">
 			<attribute key="areaEffect" value="bluebubble" />
 		</attack>
 	</attacks>
 	<defenses armor="19" defense="35">
-		<defense name="healing" min="1" max="219" interval="1000" chance="12">
+		<defense name="healing" legacychance="12" interval="1000" chance="0" min="1" max="219">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
@@ -71,15 +67,25 @@
 		<voice sentence="659978 54764!" />
 	</voices>
 	<loot>
-		<item id="3418" countmax="1" chance="2" /> <!-- a beholder shield -->
-		<item id="3031" countmax="24" chance="900" /> <!-- a gold coin -->
-		<item id="3031" countmax="32" chance="800" /> <!-- a gold coin -->
-		<item id="3031" countmax="40" chance="700" /> <!-- a gold coin -->
-		<item id="3285" countmax="1" chance="90" /> <!-- a longsword -->
-		<item id="3282" countmax="1" chance="70" /> <!-- a morning star -->
-		<item id="3059" countmax="1" chance="50" /> <!-- a spellbook -->
-		<item id="3409" countmax="1" chance="40" /> <!-- a steel shield -->
-		<item id="3265" countmax="1" chance="40" /> <!-- a two handed sword -->
-		<item id="3412" countmax="1" chance="15" /> <!-- a wooden shield -->
+		<item id="3418" countmax="1" chance="2" />
+		<!-- a beholder shield -->
+		<item id="3031" countmax="24" chance="900" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="32" chance="800" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="40" chance="700" />
+		<!-- a gold coin -->
+		<item id="3285" countmax="1" chance="90" />
+		<!-- a longsword -->
+		<item id="3282" countmax="1" chance="70" />
+		<!-- a morning star -->
+		<item id="3059" countmax="1" chance="50" />
+		<!-- a spellbook -->
+		<item id="3409" countmax="1" chance="40" />
+		<!-- a steel shield -->
+		<item id="3265" countmax="1" chance="40" />
+		<!-- a two handed sword -->
+		<item id="3412" countmax="1" chance="15" />
+		<!-- a wooden shield -->
 	</loot>
 </monster>

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Vashresamun" nameDescription="Vashresamun" race="undead" experience="2950" speed="310" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Vashresamun" nameDescription="Vashresamun" race="undead" experience="2950" speed="310" manacost="0" legacyreference="1" legacyfistskill="60">
 	<health now="4000" max="4000" />
 	<look type="85" head="0" body="0" legs="0" feet="0" corpse="4197" />
 	<targetchange interval="1000" chance="3" />
@@ -19,16 +19,14 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="60" attack="45" poison="65" />
-		<attack name="lifedrain" min="-50" max="-750" range="1" interval="1000" chance="15" />
 		<attack name="speed" speedchange="-800" duration="50000" range="7" interval="1000" chance="8">
 			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
-		<attack name="lifedrain" min="-250" max="-550" radius="5" target="0" interval="1000" chance="5">
-			<attribute key="areaEffect" value="rednote" />
-		</attack>
+		<attack name="lifedrain" legacychance="15" interval="1000" chance="0" min="-50" max="-750" range="1" target="1" />
+		<attack name="lifedrain" legacychance="5" interval="1000" chance="0" min="-250" max="-550" radius="5" target="0" />
 	</attacks>
 	<defenses armor="40" defense="75">
-		<defense name="healing" min="250" max="450" interval="1000" chance="5">
+		<defense name="healing" legacychance="5" interval="1000" chance="0" min="250" max="450">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
@@ -51,16 +49,27 @@
 		<voice sentence="Chakka Chakka!" />
 	</voices>
 	<loot>
-		<item id="3022" countmax="1" chance="1" /> <!-- an ancient tiara -->
-		<item id="3236" countmax="1" chance="1000" /> <!-- blue note -->
-		<item id="3567" countmax="1" chance="10" /> <!-- a blue robe -->
-		<item id="3333" countmax="1" chance="1" /> <!-- a crystal mace -->
-		<item id="3007" countmax="1" chance="15" /> <!-- a crystal ring -->
-		<item id="3031" countmax="80" chance="700" /> <!-- a gold coin -->
-		<item id="3031" countmax="85" chance="500" /> <!-- a gold coin -->
-		<item id="3031" countmax="95" chance="350" /> <!-- a gold coin -->
-		<item id="2950" countmax="1" chance="100" /> <!-- a lute -->
-		<item id="2953" countmax="1" chance="2" /> <!-- panpipes -->
-		<item id="3026" countmax="1" chance="100" /> <!-- a white pearl -->
+		<item id="3022" countmax="1" chance="1" />
+		<!-- an ancient tiara -->
+		<item id="3236" countmax="1" chance="1000" />
+		<!-- blue note -->
+		<item id="3567" countmax="1" chance="10" />
+		<!-- a blue robe -->
+		<item id="3333" countmax="1" chance="1" />
+		<!-- a crystal mace -->
+		<item id="3007" countmax="1" chance="15" />
+		<!-- a crystal ring -->
+		<item id="3031" countmax="80" chance="700" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="85" chance="500" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="95" chance="350" />
+		<!-- a gold coin -->
+		<item id="2950" countmax="1" chance="100" />
+		<!-- a lute -->
+		<item id="2953" countmax="1" chance="2" />
+		<!-- panpipes -->
+		<item id="3026" countmax="1" chance="100" />
+		<!-- a white pearl -->
 	</loot>
 </monster>

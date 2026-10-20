@@ -6,10 +6,7 @@ local area = createCombatArea(AREA_WAVE4, AREADIAGONAL_WAVE4)
 setCombatArea(combat, area)
 
 function onGetFormulaValues(player, level, magicLevel)
-    local c = 1.3
-    local d = 0.75
-    local value = math.random((level + (magicLevel * 1.5))*c*d,(level + (magicLevel * 1.5))*c)
-    return -value
+ return damageFormula(level, magicLevel, 30, 10, "minimum")
 end
 
 combat:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, "onGetFormulaValues")

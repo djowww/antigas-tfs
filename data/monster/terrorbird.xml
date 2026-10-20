@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Terror Bird" nameDescription="a terror bird" race="blood" experience="150" speed="212" manacost="490">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Terror Bird" nameDescription="a terror bird" race="blood" experience="150" speed="212" manacost="490" legacyreference="1" legacyfistskill="46">
 	<health now="300" max="300" />
 	<look type="218" head="0" body="0" legs="0" feet="0" corpse="4382" />
 	<targetchange interval="1000" chance="5" />
@@ -28,9 +28,12 @@
 		<voice sentence="Carrah Carrah!" />
 	</voices>
 	<loot>
-		 <!-- a feather headdress -->
-		<item id="3031" countmax="10" chance="700" /> <!-- a gold coin -->
-		<item id="3031" countmax="20" chance="400" /> <!-- a gold coin -->
-		<item id="3577" countmax="2" chance="500" /> <!-- meat -->
+		<!-- a feather headdress -->
+		<item id="3031" countmax="10" chance="700" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="20" chance="400" />
+		<!-- a gold coin -->
+		<item id="3577" countmax="2" chance="500" />
+		<!-- meat -->
 	</loot>
 </monster>

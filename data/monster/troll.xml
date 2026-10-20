@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Troll" nameDescription="a troll" race="blood" experience="20" speed="126" manacost="290">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Troll" nameDescription="a troll" race="blood" experience="20" speed="126" manacost="290" legacyreference="1" legacyfistskill="15">
 	<health now="50" max="50" />
 	<look type="15" head="0" body="0" legs="0" feet="0" corpse="3987" />
 	<targetchange interval="1000" chance="0" />
@@ -30,15 +30,25 @@
 		<voice sentence="Hmmm, dogs." />
 	</voices>
 	<loot>
-		<item id="3031" countmax="10" chance="600" /> <!-- a gold coin -->
-		<item id="3268" countmax="1" chance="180" /> <!-- a hand axe -->
-		<item id="3552" countmax="1" chance="100" /> <!-- leather boots -->
-		<item id="3355" countmax="1" chance="100" /> <!-- a leather helmet -->
-		<item id="3577" countmax="1" chance="150" /> <!-- meat -->
-		<item id="3003" countmax="1" chance="80" /> <!-- a rope -->
-		<item id="3054" countmax="1" chance="1" /> <!-- a silver amulet -->
-		<item id="3277" countmax="1" chance="200" /> <!-- a spear -->
-		<item id="3336" countmax="1" chance="50" /> <!-- a studded club -->
-		<item id="3412" countmax="1" chance="150" /> <!-- a wooden shield -->
+		<item id="3031" countmax="10" chance="600" />
+		<!-- a gold coin -->
+		<item id="3268" countmax="1" chance="180" />
+		<!-- a hand axe -->
+		<item id="3552" countmax="1" chance="100" />
+		<!-- leather boots -->
+		<item id="3355" countmax="1" chance="100" />
+		<!-- a leather helmet -->
+		<item id="3577" countmax="1" chance="150" />
+		<!-- meat -->
+		<item id="3003" countmax="1" chance="80" />
+		<!-- a rope -->
+		<item id="3054" countmax="1" chance="1" />
+		<!-- a silver amulet -->
+		<item id="3277" countmax="1" chance="200" />
+		<!-- a spear -->
+		<item id="3336" countmax="1" chance="50" />
+		<!-- a studded club -->
+		<item id="3412" countmax="1" chance="150" />
+		<!-- a wooden shield -->
 	</loot>
 </monster>

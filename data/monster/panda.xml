@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Panda" nameDescription="a panda" race="blood" experience="23" speed="156" manacost="300">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Panda" nameDescription="a panda" race="blood" experience="23" speed="156" manacost="300" legacyreference="1" legacyfistskill="14">
 	<health now="80" max="80" />
 	<look type="123" head="0" body="0" legs="0" feet="0" corpse="4351" />
 	<targetchange interval="1000" chance="0" />
@@ -30,8 +30,10 @@
 		<voice sentence="Groar" />
 	</voices>
 	<loot>
-		<item id="3582" countmax="2" chance="400" /> <!-- ham -->
-		<item id="3577" countmax="4" chance="700" /> <!-- meat -->
-		 <!-- bamboo leaves -->
+		<item id="3582" countmax="2" chance="400" />
+		<!-- ham -->
+		<item id="3577" countmax="4" chance="700" />
+		<!-- meat -->
+		<!-- bamboo leaves -->
 	</loot>
 </monster>

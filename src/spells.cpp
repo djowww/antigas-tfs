@@ -606,6 +606,24 @@ if (needWeapon) {
 	return true;
 }
 
+namespace {
+bool legacySecureCenter(Player* player, const Tile* tile)
+{
+ if(!tile || g_game.getWorldType()!=WORLD_TYPE_PVP || !player->hasSecureMode()) return true;
+ if(const CreatureVector* creatures=tile->getCreatures()) {
+  for(const Creature* creature:*creatures) {
+   const Player* target=creature->getPlayer();
+   if(target && target!=player && !player->isAttackJustified(target)) {
+    player->sendCancelMessage(RETURNVALUE_TURNSECUREMODETOATTACKUNMARKEDPLAYERS);
+    g_game.addMagicEffect(player->getPosition(),CONST_ME_POFF);
+    return false;
+   }
+  }
+ }
+ return true;
+}
+}
+
 bool Spell::playerInstantSpellCheck(Player* player, const Position& toPos)
 {
 	if (toPos.x == 0xFFFF) {
@@ -630,7 +648,7 @@ bool Spell::playerInstantSpellCheck(Player* player, const Position& toPos)
 	}
 
 	ReturnValue ret = Combat::canDoCombat(player, tile, aggressive);
-	if (ret != RETURNVALUE_NOERROR) {
+	if (ret != RETURNVALUE_NOERROR && !(ret == RETURNVALUE_ACTIONNOTPERMITTEDINPROTECTIONZONE && player->hasFlag(PlayerFlag_IgnoreProtectionZone))) {
 		player->sendCancelMessage(ret);
 		g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
 		return false;
@@ -679,6 +697,9 @@ bool Spell::playerRuneSpellCheck(Player* player, const Position& toPos)
 		return false;
 	}
 
+    // Inspect the chosen center, not every affected tile of an area spell.
+    if(aggressive && !legacySecureCenter(player,tile)) return false;
+
 	if (range != -1 && !g_game.canThrowObjectTo(playerPos, toPos, true, range, range)) {
 		player->sendCancelMessage(RETURNVALUE_DESTINATIONOUTOFREACH);
 		g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
@@ -686,7 +707,7 @@ bool Spell::playerRuneSpellCheck(Player* player, const Position& toPos)
 	}
 
 	ReturnValue ret = Combat::canDoCombat(player, tile, aggressive);
-	if (ret != RETURNVALUE_NOERROR) {
+	if (ret != RETURNVALUE_NOERROR && !(ret == RETURNVALUE_ACTIONNOTPERMITTEDINPROTECTIONZONE && player->hasFlag(PlayerFlag_IgnoreProtectionZone))) {
 		player->sendCancelMessage(ret);
 		g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
 		return false;
@@ -712,14 +733,7 @@ bool Spell::playerRuneSpellCheck(Player* player, const Position& toPos)
 		return false;
 	}
 
-	if (aggressive && needTarget && visibleCreature && player->hasSecureMode()) {
-		const Player* targetPlayer = visibleCreature->getPlayer();
-		if (targetPlayer && targetPlayer != player && player->getSkullClient(targetPlayer) == SKULL_NONE && !Combat::isInPvpZone(player, targetPlayer)) {
-			player->sendCancelMessage(RETURNVALUE_TURNSECUREMODETOATTACKUNMARKEDPLAYERS);
-			g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
-			return false;
-		}
-	}
+
 	return true;
 }
 
@@ -938,6 +952,7 @@ bool InstantSpell::playerCastInstant(Player* player, std::string& param)
 		}
 
 		if (!useDirection) {
+            if(aggressive && !legacySecureCenter(player,target->getTile())) return false;
 			if (!canThrowSpell(player, target)) {
 				player->sendCancelMessage(RETURNVALUE_CREATUREISNOTREACHABLE);
 				g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
@@ -987,6 +1002,16 @@ bool InstantSpell::playerCastInstant(Player* player, std::string& param)
 		}
 	}
 
+    // Angle/beam/wave routes deliberately do not use the MassCombat center gate.
+    if(aggressive && (!needDirection || casterTargetOrDirection) && !hasParam) {
+        const Tile* center = nullptr;
+        if(selfTarget) center=player->getTile();
+        else if(var.type==VARIANT_POSITION) center=g_game.map.getTile(var.pos);
+        else if(var.type==VARIANT_NUMBER) {
+            if(const Creature* target=g_game.getCreatureByID(var.number)) center=target->getTile();
+        }
+        if(!legacySecureCenter(player,center)) return false;
+    }
 	bool result = internalCastSpell(player, var);
 	if (result) {
 		postCastSpell(player);

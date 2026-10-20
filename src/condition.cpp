@@ -20,9 +20,12 @@
 #include "otpch.h"
 
 #include "condition.h"
+#include "player.h"
+#include "vocation.h"
 #include "game.h"
 
 extern Game g_game;
+extern Vocations g_vocations;
 
 bool Condition::setParam(ConditionParam_t param, int32_t value)
 {
@@ -643,23 +646,45 @@ void ConditionRegeneration::serialize(PropWriteStream& propWriteStream)
 
 bool ConditionRegeneration::executeCondition(Creature* creature, int32_t interval)
 {
-	internalHealthTicks += interval;
-	internalManaTicks += interval;
-
-	if (creature->getZone() != ZONE_PROTECTION) {
-		if (internalHealthTicks >= healthTicks) {
-			internalHealthTicks = 0;
-
-			creature->changeHealth(healthGain);
-		}
-
-		if (internalManaTicks >= manaTicks) {
-			internalManaTicks = 0;
-			creature->changeMana(manaGain);
-		}
-	}
-
-	return ConditionGeneric::executeCondition(creature, interval);
+ // Only the default food condition follows the audited vocation clock.
+ // Equipment regeneration has its own configured values and elapsed timers.
+ if (id != CONDITIONID_DEFAULT) {
+  internalHealthTicks += interval;
+  internalManaTicks += interval;
+  if (creature->getZone() != ZONE_PROTECTION) {
+   if (internalHealthTicks >= healthTicks) {
+    internalHealthTicks = 0;
+    creature->changeHealth(healthGain);
+   }
+   if (internalManaTicks >= manaTicks) {
+    internalManaTicks = 0;
+    creature->changeMana(manaGain);
+   }
+  }
+  return ConditionGeneric::executeCondition(creature, interval);
+ }
+ // Food is consumed before the event, even in PZ. Its remaining seconds are
+ // the phase clock, so feeding and persisted ticks preserve the same rule.
+ if (ticks <= 0) return ticks == -1;
+ const int32_t before = (ticks + 999) / 1000;
+ ticks = std::max<int32_t>(0, ticks - std::max<int32_t>(0, interval));
+ const int32_t after = (ticks + 999) / 1000;
+ if (creature->getHealth() > 0 && creature->getZone() != ZONE_PROTECTION) {
+  uint32_t hpPeriod = healthTicks / 1000, mpPeriod = manaTicks / 1000;
+  uint32_t hpAmount = healthGain, mpAmount = manaGain;
+  if (Player* player = creature->getPlayer()) {
+   Vocation* active = player->getVocation();
+   if (!player->isPremium() && active->getFromVocation() != active->getId())
+    active = g_vocations.getVocation(active->getFromVocation());
+   hpPeriod = active->getHealthGainTicks(); mpPeriod = active->getManaGainTicks();
+   hpAmount = active->getHealthGainAmount(); mpAmount = active->getManaGainAmount();
+  }
+  for (int32_t remaining = before - 1; remaining >= after; --remaining) {
+   if (hpPeriod && remaining % hpPeriod == 0) creature->changeHealth(hpAmount);
+   if (mpPeriod && remaining % mpPeriod == 0) creature->changeMana(mpAmount);
+  }
+ }
+ return ticks > 0;
 }
 
 bool ConditionRegeneration::setParam(ConditionParam_t param, int32_t value)
@@ -761,6 +786,8 @@ bool ConditionDamage::setParam(ConditionParam_t param, int32_t value)
 	switch (param) {
 		case CONDITION_PARAM_OWNER:
 			owner = value;
+			legacyOwnerGuid = 0;
+			if (const Player* player = g_game.getPlayerByID(owner)) legacyOwnerGuid = player->getGUID();
 			return true;
 
 		case CONDITION_PARAM_FORCEUPDATE:
@@ -804,6 +831,13 @@ bool ConditionDamage::setParam(ConditionParam_t param, int32_t value)
 
 bool ConditionDamage::unserializeProp(ConditionAttr_t attr, PropStream& propStream)
 {
+ if (attr == CONDITIONATTR_LEGACYRESERVE) return propStream.read<int32_t>(legacyReserve);
+ if (attr == CONDITIONATTR_LEGACYTICK) return propStream.read<int32_t>(legacyElapsed);
+ if (attr == CONDITIONATTR_LEGACYFORCE) return propStream.read<int32_t>(legacyForceValue);
+ if (attr == CONDITIONATTR_LEGACYOWNERGUID) return propStream.read<uint32_t>(legacyOwnerGuid);
+ if (attr == CONDITIONATTR_LEGACYPROTECTED) { uint8_t value; if (!propStream.read<uint8_t>(value)) return false; legacyProtected = value != 0; return true; }
+ if (attr == CONDITIONATTR_LEGACYREADY) { uint8_t ready; if (!propStream.read<uint8_t>(ready)) return false; legacyReady = ready != 0; return true; }
+
 	if (attr == CONDITIONATTR_DELAYED) {
 		uint8_t value;
 		if (!propStream.read<uint8_t>(value)) {
@@ -815,6 +849,7 @@ bool ConditionDamage::unserializeProp(ConditionAttr_t attr, PropStream& propStre
 	} else if (attr == CONDITIONATTR_PERIODDAMAGE) {
 		return propStream.read<int32_t>(periodDamage);
 	} else if (attr == CONDITIONATTR_OWNER) {
+		owner = 0; // Runtime IDs are not stable across process starts.
 		return propStream.skip(4);
 	} else if (attr == CONDITIONATTR_INTERVALDATA) {
 		IntervalInfo damageInfo;
@@ -834,6 +869,21 @@ bool ConditionDamage::unserializeProp(ConditionAttr_t attr, PropStream& propStre
 void ConditionDamage::serialize(PropWriteStream& propWriteStream)
 {
 	Condition::serialize(propWriteStream);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_OWNER);
+ propWriteStream.write<uint32_t>(0);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_LEGACYOWNERGUID);
+ propWriteStream.write<uint32_t>(legacyOwnerGuid);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_LEGACYRESERVE);
+ propWriteStream.write<int32_t>(legacyReserve);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_LEGACYTICK);
+ propWriteStream.write<int32_t>(legacyElapsed);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_LEGACYREADY);
+ propWriteStream.write<uint8_t>(legacyReady);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_LEGACYFORCE);
+ propWriteStream.write<int32_t>(legacyForceValue);
+ propWriteStream.write<uint8_t>(CONDITIONATTR_LEGACYPROTECTED);
+ propWriteStream.write<uint8_t>(legacyProtected);
+
 
 	propWriteStream.write<uint8_t>(CONDITIONATTR_DELAYED);
 	propWriteStream.write<uint8_t>(delayed);
@@ -849,16 +899,9 @@ void ConditionDamage::serialize(PropWriteStream& propWriteStream)
 
 bool ConditionDamage::updateCondition(const Condition* addCondition)
 {
-	const ConditionDamage& conditionDamage = static_cast<const ConditionDamage&>(*addCondition);
-	if (conditionDamage.doForceUpdate()) {
-		return true;
-	}
-
-	if (ticks == -1 && conditionDamage.ticks > 0) {
-		return false;
-	}
-
-	return conditionDamage.getTotalDamage() > getTotalDamage();
+ const ConditionDamage& incoming = static_cast<const ConditionDamage&>(*addCondition);
+ if (conditionType != CONDITION_POISON) return true;
+ return incoming.getTotalDamage() > legacyReserve;
 }
 
 bool ConditionDamage::addDamage(int32_t rounds, int32_t time, int32_t value)
@@ -895,88 +938,58 @@ bool ConditionDamage::addDamage(int32_t rounds, int32_t time, int32_t value)
 
 bool ConditionDamage::init()
 {
-	if (periodDamage != 0) {
-		return true;
-	}
-
-	if (damageList.empty()) {
-		setTicks(0);
-
-		int32_t amount = uniform_random(minDamage, maxDamage);
-		if (amount != 0) {
-			if (startDamage > maxDamage) {
-				startDamage = maxDamage;
-			} else if (startDamage == 0) {
-				startDamage = std::max<int32_t>(1, std::ceil(amount / 20.0));
-			}
-
-			std::list<int32_t> list;
-			ConditionDamage::generateDamageList(amount, startDamage, list);
-			for (int32_t value : list) {
-				addDamage(1, tickInterval, -value);
-			}
-		}
-	}
-	return !damageList.empty();
+ ticks = std::numeric_limits<int32_t>::max();
+ endTime = std::numeric_limits<int64_t>::max();
+ if (!legacyReady) {
+  int32_t force = 0;
+  if (!damageList.empty()) {
+   for (const IntervalInfo& part : damageList) force += std::abs(part.value);
+  } else if (periodDamage) force = std::abs(periodDamage);
+  else force = uniform_random(minDamage, maxDamage);
+  setLegacyForce(force);
+  damageList.clear();
+ }
+ return legacyReserve > 0;
 }
 
 bool ConditionDamage::startCondition(Creature* creature)
 {
-	if (!Condition::startCondition(creature)) {
-		return false;
-	}
+ if (!Condition::startCondition(creature)) return false;
+ return applyLegacyApplication(creature);
+}
 
-	if (!init()) {
-		return false;
-	}
-
-	if (!delayed) {
-		int32_t damage;
-		if (getNextDamage(damage)) {
-			return doDamage(creature, damage);
-		}
-	}
-	return true;
+bool ConditionDamage::applyLegacyApplication(Creature* creature)
+{
+ if (creature->getHealth() <= 0 || !creature->isAttackable()) return false;
+ init();
+ if (!legacyProtected) {
+  int32_t force = legacyForceValue;
+  creature->applyLegacyConditionProtection(force, conditionType);
+  setLegacyForce(force);
+  legacyProtected = true;
+ }
+ if (creature->isImmune(conditionType) || creature->isImmune(Combat::ConditionToDamageType(conditionType))) return false;
+ return legacyReserve > 0;
 }
 
 bool ConditionDamage::executeCondition(Creature* creature, int32_t interval)
 {
-	if (periodDamage != 0) {
-		periodDamageTick += interval;
-
-		if (periodDamageTick >= tickInterval) {
-			periodDamageTick = 0;
-			doDamage(creature, periodDamage);
-		}
-	} else if (!damageList.empty()) {
-		IntervalInfo& damageInfo = damageList.front();
-
-		bool bRemove = (ticks != -1);
-		creature->onTickCondition(getType(), bRemove);
-		damageInfo.timeLeft -= interval;
-
-		if (damageInfo.timeLeft <= 0) {
-			int32_t damage = damageInfo.value;
-
-			if (bRemove) {
-				damageList.pop_front();
-			} else {
-				damageInfo.timeLeft = damageInfo.interval;
-			}
-
-			doDamage(creature, damage);
-		}
-
-		if (!bRemove) {
-			if (ticks > 0) {
-				endTime += interval;
-			}
-
-			interval = 0;
-		}
-	}
-
-	return Condition::executeCondition(creature, interval);
+ if (legacyReserve <= 0) return false;
+ legacyElapsed += interval;
+ const int32_t cadence = conditionType == CONDITION_POISON ? 4000 : (conditionType == CONDITION_FIRE ? 9000 : 11000);
+ while (legacyElapsed >= cadence && legacyReserve > 0) {
+  legacyElapsed -= cadence;
+  const int32_t pulse = conditionType == CONDITION_POISON ? std::max<int32_t>(1, static_cast<int32_t>(int64_t(legacyReserve) * 50 / 1000)) : (conditionType == CONDITION_FIRE ? 10 : 25);
+  legacyReserve -= conditionType == CONDITION_POISON ? pulse : 1;
+  doDamage(creature, -pulse);
+  // Original events renew the reserve after damage, regardless of mitigation.
+  // onTickCondition checks exact field type; searing fire is physically Avoid
+  // typed and deliberately does not renew its fire timer.
+  bool remove = true;
+  creature->onTickCondition(conditionType, remove);
+  if (!remove) ++legacyReserve;
+ }
+ return legacyReserve > 0;
 }
 
 bool ConditionDamage::getNextDamage(int32_t& damage)
@@ -1005,17 +1018,9 @@ bool ConditionDamage::doDamage(Creature* creature, int32_t healthChange)
 	damage.value = healthChange;
 	damage.type = Combat::ConditionToDamageType(conditionType);
 
-	Creature* attacker = g_game.getCreatureByID(owner);
-	if (field && creature->getPlayer() && attacker && attacker->getPlayer()) {
-		damage.value = static_cast<int32_t>(std::round(damage.value / 2.));
-	}
-
-	if (!creature->isAttackable() || Combat::canDoCombat(attacker, creature) != RETURNVALUE_NOERROR) {
-		if (!creature->isInGhostMode()) {
-			g_game.addMagicEffect(creature->getPosition(), CONST_ME_POFF);
-		}
-		return false;
-	}
+	Creature* attacker = legacyOwnerGuid ? g_game.getPlayerByGUID(legacyOwnerGuid) : g_game.getCreatureByID(owner);
+	// Established effects call the damage pipeline directly in the reference;
+	// moving into PZ or a new attack gate does not cancel their existing pulse.
 
 	if (g_game.combatBlockHit(damage, attacker, creature, false, false, field)) {
 		return false;
@@ -1030,62 +1035,35 @@ void ConditionDamage::endCondition(Creature*)
 
 void ConditionDamage::addCondition(Creature* creature, const Condition* addCondition)
 {
-	if (addCondition->getType() != conditionType) {
-		return;
-	}
-
-	if (!updateCondition(addCondition)) {
-		return;
-	}
-
-	const ConditionDamage& conditionDamage = static_cast<const ConditionDamage&>(*addCondition);
-
-	setTicks(addCondition->getTicks());
-	owner = conditionDamage.owner;
-	maxDamage = conditionDamage.maxDamage;
-	minDamage = conditionDamage.minDamage;
-	startDamage = conditionDamage.startDamage;
-	tickInterval = conditionDamage.tickInterval;
-	periodDamage = conditionDamage.periodDamage;
-	int32_t nextTimeLeft = tickInterval;
-
-	if (!damageList.empty()) {
-		//save previous timeLeft
-		IntervalInfo& damageInfo = damageList.front();
-		nextTimeLeft = damageInfo.timeLeft;
-		damageList.clear();
-	}
-
-	damageList = conditionDamage.damageList;
-
-	if (init()) {
-		if (!damageList.empty()) {
-			//restore last timeLeft
-			IntervalInfo& damageInfo = damageList.front();
-			damageInfo.timeLeft = nextTimeLeft;
-		}
-
-		if (!delayed) {
-			int32_t damage;
-			if (getNextDamage(damage)) {
-				doDamage(creature, damage);
-			}
-		}
-	}
+ if (addCondition->getType() != conditionType) return;
+ ConditionDamage incoming(static_cast<const ConditionDamage&>(*addCondition));
+ incoming.applyLegacyApplication(creature);
+ if (creature->getHealth() <= 0 || !creature->isAttackable() || incoming.legacyForceValue <= 0 || creature->isImmune(conditionType) || creature->isImmune(Combat::ConditionToDamageType(conditionType))) return;
+ if (!updateCondition(&incoming)) return;
+ owner = incoming.owner;
+ legacyOwnerGuid = incoming.legacyOwnerGuid;
+ field = incoming.field;
+ maxDamage = incoming.maxDamage;
+ minDamage = incoming.minDamage;
+ periodDamage = incoming.periodDamage;
+ damageList = incoming.damageList;
+ legacyReserve = incoming.legacyReserve;
+ legacyReady = incoming.legacyReady;
+ legacyElapsed = incoming.legacyElapsed;
+ legacyForceValue = incoming.legacyForceValue;
+ legacyProtected = incoming.legacyProtected;
+ init();
 }
 
 int32_t ConditionDamage::getTotalDamage() const
 {
-	int32_t result;
-	if (!damageList.empty()) {
-		result = 0;
-		for (const IntervalInfo& intervalInfo : damageList) {
-			result += intervalInfo.value;
-		}
-	} else {
-		result = minDamage + (maxDamage - minDamage) / 2;
-	}
-	return std::abs(result);
+ if (legacyReady) return conditionType == CONDITION_POISON ? legacyReserve : legacyReserve * (conditionType == CONDITION_FIRE ? 10 : 20);
+ if (!damageList.empty()) {
+  int32_t amount = 0;
+  for (const IntervalInfo& part : damageList) amount += std::abs(part.value);
+  return amount;
+ }
+ return periodDamage ? std::abs(periodDamage) : minDamage + (maxDamage - minDamage) / 2;
 }
 
 uint32_t ConditionDamage::getIcons() const

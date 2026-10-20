@@ -659,7 +659,7 @@ class Item : virtual public Thing
 		}
 		int32_t getAttack() const {
 			const int32_t attack = hasAttribute(ITEM_ATTRIBUTE_ATTACK) ? getIntAttr(ITEM_ATTRIBUTE_ATTACK) : items[id].attack;
-			return attack + getRarityBonusSum(ITEM_RARITY_BONUS_ATTACK);
+			return attack;
 		}
 		int32_t getArmor() const {
 			if (hasAttribute(ITEM_ATTRIBUTE_ARMOR)) {
@@ -669,7 +669,7 @@ class Item : virtual public Thing
 		}
 		int32_t getDefense() const {
 			const int32_t defense = hasAttribute(ITEM_ATTRIBUTE_DEFENSE) ? getIntAttr(ITEM_ATTRIBUTE_DEFENSE) : items[id].defense;
-			return defense + getRarityBonusSum(ITEM_RARITY_BONUS_DEFENSE);
+			return defense;
 		}
 		int32_t getSlotPosition() const {
 			return items[id].slotPosition;

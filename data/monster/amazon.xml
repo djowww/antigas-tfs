@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Amazon" nameDescription="an amazon" race="blood" experience="60" speed="172" manacost="390">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Amazon" nameDescription="an amazon" race="blood" experience="60" speed="172" manacost="390" legacyreference="1" legacyfistskill="24">
 	<health now="110" max="110" />
 	<look type="137" head="113" body="120" legs="95" feet="115" corpse="4247" />
 	<targetchange interval="1000" chance="50" />
@@ -19,7 +19,7 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="24" attack="16" />
-		<attack name="physical" min="-20" max="-30" range="7" chance="11">
+		<attack name="physical" legacychance="10" interval="2000" chance="0" min="-20" max="-30" range="7" target="1">
 			<attribute key="shootEffect" value="throwingknife" />
 		</attack>
 	</attacks>
@@ -30,15 +30,25 @@
 		<voice sentence="Your head will be mine!" />
 	</voices>
 	<loot>
-		<item id="3602" countmax="1" chance="300" /> <!-- a brown bread -->
-		<item id="3008" countmax="1" chance="2" /> <!-- a crystal necklace -->
-		<item id="3267" countmax="1" chance="800" /> <!-- a dagger -->
-		<item id="3031" countmax="10" chance="400" /> <!-- a gold coin -->
-		<item id="3361" countmax="1" chance="500" /> <!-- a leather armor -->
-		<item id="3273" countmax="1" chance="230" /> <!-- a sabre -->
-		<item id="3114" countmax="2" chance="800" /> <!-- a skull -->
-		<item id="3030" countmax="1" chance="1" /> <!-- a small ruby -->
-		<item id="3426" countmax="1" chance="50" /> <!-- a studded shield -->
-		<item id="2920" countmax="1" chance="50" /> <!-- a torch -->
+		<item id="3602" countmax="1" chance="300" />
+		<!-- a brown bread -->
+		<item id="3008" countmax="1" chance="2" />
+		<!-- a crystal necklace -->
+		<item id="3267" countmax="1" chance="800" />
+		<!-- a dagger -->
+		<item id="3031" countmax="10" chance="400" />
+		<!-- a gold coin -->
+		<item id="3361" countmax="1" chance="500" />
+		<!-- a leather armor -->
+		<item id="3273" countmax="1" chance="230" />
+		<!-- a sabre -->
+		<item id="3114" countmax="2" chance="800" />
+		<!-- a skull -->
+		<item id="3030" countmax="1" chance="1" />
+		<!-- a small ruby -->
+		<item id="3426" countmax="1" chance="50" />
+		<!-- a studded shield -->
+		<item id="2920" countmax="1" chance="50" />
+		<!-- a torch -->
 	</loot>
 </monster>

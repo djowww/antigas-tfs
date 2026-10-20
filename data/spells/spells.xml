@@ -27,7 +27,7 @@
 	</instant>
 	
 	<!-- Druid Spells -->
-	<instant name="Heal Friend" words="exura sio" lvl="7" mana="60" prem="1" aggressive="0" blockwalls="0" needtarget="1" playernameparam="1" params="1" needlearn="0" script="spells/heal friend.lua">
+	<instant name="Heal Friend" words="exura sio" lvl="18" mana="70" prem="1" aggressive="0" blockwalls="0" needtarget="1" playernameparam="1" params="1" needlearn="1" script="spells/heal friend.lua">
 		<vocation name="Druid" />
 		<vocation name="Elder Druid" />
 	</instant>
@@ -37,7 +37,7 @@
 		<vocation name="Elder Druid" />
 	</instant>
 
-	<instant name="Mass Healing" words="exura gran mas res" lvl="19" mana="150" prem="1" aggressive="0" needlearn="0" script="spells/mass healing.lua">
+	<instant name="Mass Healing" words="exura gran mas res" lvl="36" mana="150" prem="1" aggressive="0" needlearn="1" script="spells/mass healing.lua">
 		<vocation name="Druid" />
 		<vocation name="Elder Druid" />
 	</instant>
@@ -91,7 +91,7 @@
 		<vocation name="Elite Knight" />
 	</instant>
 		
-	<instant name="Light Healing" words="exura" lvl="1" mana="25" aggressive="0" selftarget="1" needlearn="0" script="spells/light healing.lua">
+	<instant name="Light Healing" words="exura" lvl="9" mana="25" aggressive="0" selftarget="1" needlearn="1" script="spells/light healing.lua">
 		<vocation name="Sorcerer" />
 		<vocation name="Druid" />
 		<vocation name="Paladin" />
@@ -124,7 +124,7 @@
 			<vocation name="Elite Knight" />
 	</instant>
 
-	<instant name="Intense Healing" words="exura gran" lvl="2" mana="40" aggressive="0" selftarget="1" needlearn="0" script="spells/intense healing.lua">
+	<instant name="Intense Healing" words="exura gran" lvl="11" mana="40" aggressive="0" selftarget="1" needlearn="1" script="spells/intense healing.lua">
 		<vocation name="Sorcerer" />
 		<vocation name="Druid" />
 		<vocation name="Paladin" />
@@ -202,7 +202,7 @@
 		<vocation name="Elite Knight" />
 	</instant>
 
-	<instant name="Ultimate Healing" words="exura vita" lvl="8" mana="80" aggressive="0" selftarget="1" needlearn="0" script="spells/ultimate healing.lua">
+	<instant name="Ultimate Healing" words="exura vita" lvl="20" mana="160" aggressive="0" selftarget="1" needlearn="1" script="spells/ultimate healing.lua">
 		<vocation name="Sorcerer" />
 		<vocation name="Druid" />
 		<vocation name="Paladin" />
@@ -276,10 +276,10 @@
 
 	<!-- Healing Rune Spells -->
 	<rune name="Antidote Rune" id="3153" allowfaruse="1" charges="1" lvl="0" aggressive="0" needtarget="1" script="runes/cure poison.lua" />
-	<rune name="Intense Healing Rune" id="3152" allowfaruse="1" charges="1" lvl="1" aggressive="0" needtarget="1" script="runes/intense healing.lua" />
-	<rune name="Ultimate Healing Rune" id="3160" allowfaruse="1" charges="1" lvl="4" aggressive="0" needtarget="1" script="runes/ultimate healing.lua" />
+	<rune name="Intense Healing Rune" id="3152" allowfaruse="1" charges="1" lvl="0" maglv="1" aggressive="0" needtarget="1" script="runes/intense healing.lua" />
+	<rune name="Ultimate Healing Rune" id="3160" allowfaruse="1" charges="1" lvl="0" maglv="4" aggressive="0" needtarget="1" script="runes/ultimate healing.lua" />
 	<rune name="Convince Creature" id="3177" allowfaruse="1" charges="1" lvl="5" needtarget="1" blocktype="solid" function="convince" />
-	<rune name="Ultimate Healing Rune" id="3150" allowfaruse="1" charges="3" lvl="4" aggressive="0" needtarget="1" script="runes/ultimate healing.lua" />
+	<rune name="Ultimate Healing Rune" id="3150" allowfaruse="1" charges="3" lvl="0" maglv="4" aggressive="0" needtarget="1" script="runes/ultimate healing.lua" />
 	
 	<!-- Support Rune Spells -->
 	<rune name="Animate Dead" id="3203" allowfaruse="1" charges="1" lvl="4" script="runes/animate dead.lua" />
@@ -443,12 +443,12 @@
 		<vocation name="Elder Druid" />
 	</conjure>
 
-	<conjure name="Intense Healing Rune" words="adura gran" lvl="4" mana="60" soul="0" reagentId="3147" conjureId="3152" conjureCount="2" needlearn="0" function="conjureRune">
+	<conjure name="Intense Healing Rune" words="adura gran" lvl="15" mana="240" soul="1" reagentId="3147" conjureId="3152" conjureCount="2" needlearn="1" function="conjureRune">
 		<vocation name="Druid" />
 		<vocation name="Elder Druid" />
 	</conjure>
 
-	<conjure name="Ultimate Healing Rune" words="adura vita" lvl="11" mana="100" soul="0" reagentId="3147" conjureId="3160" conjureCount="2" needlearn="0" function="conjureRune">
+	<conjure name="Ultimate Healing Rune" words="adura vita" lvl="24" mana="400" soul="1" reagentId="3147" conjureId="3160" conjureCount="3" needlearn="1" function="conjureRune">
 		<vocation name="Druid" />
 		<vocation name="Elder Druid" />
 	</conjure>

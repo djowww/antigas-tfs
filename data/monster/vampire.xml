@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Vampire" nameDescription="a vampire" race="undead" experience="290" speed="220" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Vampire" nameDescription="a vampire" race="undead" experience="290" speed="220" manacost="0" legacyreference="1" legacyfistskill="65">
 	<health now="450" max="450" />
 	<look type="68" head="0" body="0" legs="0" feet="0" corpse="4137" />
 	<targetchange interval="1000" chance="5" />
@@ -19,8 +19,8 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="65" attack="42" />
-		<attack name="lifedrain" min="-55" max="-105" range="1" chance="20" />
-		<attack name="paralyze_vampire" chance="12" range="7"/>
+		<attack name="paralyze_vampire" chance="12" range="7" />
+		<attack name="lifedrain" legacychance="5" interval="2000" chance="0" min="-55" max="-105" range="1" target="1" />
 	</attacks>
 	<defenses armor="27" defense="38">
 	</defenses>
@@ -37,18 +37,31 @@
 		<voice sentence="I call you, my bats! Come!" />
 	</voices>
 	<loot>
-		<item id="3027" countmax="1" chance="15" /> <!-- a black pearl -->
-		<item id="2902" countmax="1" chance="110" /> <!-- a bowl -->
-		<item id="3056" countmax="1" chance="2" /> <!-- a bronze amulet -->
-		<item id="3010" countmax="1" chance="2" /> <!-- an emerald bangle -->
-		<item id="3031" countmax="20" chance="150" /> <!-- a gold coin -->
-		<item id="3661" countmax="1" chance="180" /> <!-- a grave flower -->
-		<item id="3284" countmax="1" chance="3" /> <!-- an ice rapier -->
-		<item id="3300" countmax="1" chance="150" /> <!-- a katana -->
-		<item id="3559" countmax="1" chance="80" /> <!-- leather legs -->
-		<item id="3114" countmax="1" chance="100" /> <!-- a skull -->
-		<item id="3271" countmax="1" chance="10" /> <!-- a spike sword -->
-		<item id="3373" countmax="1" chance="4" /> <!-- a strange helmet -->
-		<item id="3434" countmax="1" chance="1" /> <!-- a vampire shield -->
+		<item id="3027" countmax="1" chance="15" />
+		<!-- a black pearl -->
+		<item id="2902" countmax="1" chance="110" />
+		<!-- a bowl -->
+		<item id="3056" countmax="1" chance="2" />
+		<!-- a bronze amulet -->
+		<item id="3010" countmax="1" chance="2" />
+		<!-- an emerald bangle -->
+		<item id="3031" countmax="20" chance="150" />
+		<!-- a gold coin -->
+		<item id="3661" countmax="1" chance="180" />
+		<!-- a grave flower -->
+		<item id="3284" countmax="1" chance="3" />
+		<!-- an ice rapier -->
+		<item id="3300" countmax="1" chance="150" />
+		<!-- a katana -->
+		<item id="3559" countmax="1" chance="80" />
+		<!-- leather legs -->
+		<item id="3114" countmax="1" chance="100" />
+		<!-- a skull -->
+		<item id="3271" countmax="1" chance="10" />
+		<!-- a spike sword -->
+		<item id="3373" countmax="1" chance="4" />
+		<!-- a strange helmet -->
+		<item id="3434" countmax="1" chance="1" />
+		<!-- a vampire shield -->
 	</loot>
 </monster>

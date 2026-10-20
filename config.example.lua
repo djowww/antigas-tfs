@@ -12,7 +12,7 @@ hotkeyAimbotEnabled = false
 
 banLength = 3 * 24 * 60 * 60
 whiteSkullTime = 15 * 60 * 1000
-redSkullTime = 3 * 24 * 60 * 60
+redSkullTime = 30 * 24 * 60 * 60
 killsDayRedSkull = 3
 killsWeekRedSkull = 5
 killsMonthRedSkull = 10
@@ -44,7 +44,7 @@ moneyRate = 2
 blockLogin = false
 blockLoginText = "Server launch: COMING SOON."
 
-deathLosePercent = -1
+deathLosePercent = 10
 
 -- The later bank-backed rent path stays disabled until a documented pre-bank
 -- collection policy is available. Never remove owners to enforce a guessed rule.
@@ -66,7 +66,7 @@ mysqlSock = ""
 passwordType = "sha1"
 
 allowChangeOutfit = true
-freePremium = true
+freePremium = false
 kickIdlePlayerAfterMinutes = 15
 -- Use the core's existing message limiter default; its numerical threshold is
 -- an implementation setting, not a certified value from the 7.4 manual.
@@ -74,7 +74,7 @@ showMonsterLoot = true
 queryPlayerContainers = true
 emoteSpells = false
 
-teleportNewbies = true
+teleportNewbies = false
 newbieTownId = 11
 newbieLevelThreshold = 5
 

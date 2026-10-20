@@ -26,6 +26,7 @@ class Player;
 
 class BedItem final : public Item
 {
+        friend struct LoginGateCoreTestAccess;
 	public:
 		explicit BedItem(uint16_t id);
 

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Shredderthrower" nameDescription="a Shredderthrower" race="undead" experience="18" speed="0" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Shredderthrower" nameDescription="a Shredderthrower" race="undead" experience="18" speed="0" manacost="0" legacyreference="1" legacyfistskill="1">
 	<health now="100" max="100" />
 	<look typeex="0" />
 	<targetchange interval="1000" chance="0" />
@@ -19,7 +19,7 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="1" attack="1" />
-		<attack name="physical" min="-80" max="-140" range="7" interval="1000" chance="1">
+		<attack name="physical" legacychance="1" interval="1000" chance="0" min="-80" max="-140" range="7" target="1">
 			<attribute key="shootEffect" value="throwingstar" />
 			<attribute key="areaEffect" value="fire" />
 		</attack>

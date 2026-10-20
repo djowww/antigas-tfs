@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Crocodile" nameDescription="a crocodile" race="blood" experience="40" speed="156" manacost="350">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Crocodile" nameDescription="a crocodile" race="blood" experience="40" speed="156" manacost="350" legacyreference="1" legacyfistskill="21">
 	<health now="105" max="105" />
 	<look type="119" head="0" body="0" legs="0" feet="0" corpse="4342" />
 	<targetchange interval="1000" chance="5" />
@@ -23,11 +23,16 @@
 	<defenses armor="13" defense="5">
 	</defenses>
 	<loot>
-		 <!-- crocodile boots -->
-		<item id="3031" countmax="10" chance="500" /> <!-- a gold coin -->
-		<item id="3582" countmax="2" chance="400" /> <!-- ham -->
-		<item id="3355" countmax="1" chance="80" /> <!-- a leather helmet -->
-		<item id="3559" countmax="1" chance="80" /> <!-- leather legs -->
-		<item id="3577" countmax="4" chance="700" /> <!-- meat -->
+		<!-- crocodile boots -->
+		<item id="3031" countmax="10" chance="500" />
+		<!-- a gold coin -->
+		<item id="3582" countmax="2" chance="400" />
+		<!-- ham -->
+		<item id="3355" countmax="1" chance="80" />
+		<!-- a leather helmet -->
+		<item id="3559" countmax="1" chance="80" />
+		<!-- leather legs -->
+		<item id="3577" countmax="4" chance="700" />
+		<!-- meat -->
 	</loot>
 </monster>

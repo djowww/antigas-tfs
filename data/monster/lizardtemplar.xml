@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="lizard templar" nameDescription="a lizard templar" race="blood" experience="145" speed="174" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="lizard templar" nameDescription="a lizard templar" race="blood" experience="145" speed="174" manacost="0" legacyreference="1" legacyfistskill="44">
 	<health now="410" max="410" />
 	<look type="113" head="0" body="0" legs="0" feet="0" corpse="4321" />
 	<targetchange interval="1000" chance="0" />
@@ -29,14 +29,21 @@
 		<voice sentence="Hissss!" />
 	</voices>
 	<loot>
-		<item id="3031" countmax="20" chance="800" /> <!-- a gold coin -->
-		<item id="3282" countmax="1" chance="7" /> <!-- a morning star -->
-		<item id="3357" countmax="1" chance="10" /> <!-- a plate armor -->
-		 <!-- a salamander shield -->
-		<item id="3294" countmax="1" chance="100" /> <!-- a short sword -->
-		<item id="3032" countmax="1" chance="3" /> <!-- a small emerald -->
-		<item id="3351" countmax="1" chance="20" /> <!-- a steel helmet -->
-		<item id="3264" countmax="1" chance="50" /> <!-- a sword -->
-		 <!-- a templar scytheblade -->
+		<item id="3031" countmax="20" chance="800" />
+		<!-- a gold coin -->
+		<item id="3282" countmax="1" chance="7" />
+		<!-- a morning star -->
+		<item id="3357" countmax="1" chance="10" />
+		<!-- a plate armor -->
+		<!-- a salamander shield -->
+		<item id="3294" countmax="1" chance="100" />
+		<!-- a short sword -->
+		<item id="3032" countmax="1" chance="3" />
+		<!-- a small emerald -->
+		<item id="3351" countmax="1" chance="20" />
+		<!-- a steel helmet -->
+		<item id="3264" countmax="1" chance="50" />
+		<!-- a sword -->
+		<!-- a templar scytheblade -->
 	</loot>
 </monster>

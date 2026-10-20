@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Deathslicer" nameDescription="a Deathslicer" race="undead" experience="0" speed="478" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Deathslicer" nameDescription="a Deathslicer" race="undead" experience="0" speed="478" manacost="0" legacyreference="1" legacyfistskill="110">
 	<health now="8200" max="8200" />
 	<look type="102" head="0" body="0" legs="0" feet="0" corpse="3138" />
 	<targetchange interval="1000" chance="0" />
@@ -19,11 +19,9 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="110" attack="90" />
-		<attack name="lifedrain" min="-150" max="-250" range="1" interval="1000" chance="2" />
-		<attack name="energy" min="-150" max="-250" range="7" interval="1000" chance="3" />
-		<attack name="energy" min="-150" max="-250" radius="3" target="0" interval="1000" chance="4">
-			<attribute key="areaEffect" value="yellowspark" />
-		</attack>
+		<attack name="lifedrain" legacychance="2" interval="1000" chance="0" min="-150" max="-250" range="1" target="1" />
+		<attack name="energy" legacychance="3" interval="1000" chance="0" min="-150" max="-250" range="7" target="1" />
+		<attack name="energy" legacychance="4" interval="1000" chance="0" min="-150" max="-250" radius="3" target="0" />
 	</attacks>
 	<defenses armor="199" defense="199">
 	</defenses>

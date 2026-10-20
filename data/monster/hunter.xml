@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Hunter" nameDescription="a hunter" race="blood" experience="150" speed="210" manacost="530">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Hunter" nameDescription="a hunter" race="blood" experience="150" speed="210" manacost="530" legacyreference="1" legacyfistskill="18">
 	<health now="150" max="150" />
 	<look type="129" head="95" body="116" legs="120" feet="115" corpse="4240" />
 	<targetchange interval="1000" chance="50" />
@@ -19,7 +19,7 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="18" attack="13" />
-		<attack name="physical" min="-50" max="-100" range="7" chance="2">
+		<attack name="physical" legacychance="2" interval="2000" chance="0" min="-50" max="-100" range="7" target="1">
 			<attribute key="shootEffect" value="arrow" />
 		</attack>
 	</attacks>
@@ -29,21 +29,34 @@
 		<voice sentence="Guess who we are hunting, hahaha!" />
 	</voices>
 	<loot>
-		<item id="3447" countmax="10" chance="700" /> <!-- an arrow -->
-		 <!-- a honda -->
-		<item id="3447" countmax="12" chance="400" /> <!-- an arrow -->
-		<item id="3350" countmax="1" chance="300" /> <!-- a bow -->
-		<item id="3359" countmax="1" chance="50" /> <!-- a brass armor -->
-		<item id="3354" countmax="1" chance="50" /> <!-- a brass helmet -->
-		<item id="3449" countmax="3" chance="50" /> <!-- a burst arrow -->
-		<item id="3085" countmax="1" chance="30" /> <!-- a dragon necklace -->
-		<item id="3355" countmax="1" chance="100" /> <!-- a leather helmet -->
-		<item id="3559" countmax="1" chance="140" /> <!-- leather legs -->
-		<item id="3586" countmax="2" chance="200" /> <!-- an orange -->
-		<item id="3601" countmax="2" chance="110" /> <!-- a roll -->
+		<item id="3447" countmax="10" chance="700" />
+		<!-- an arrow -->
+		<!-- a honda -->
+		<item id="3447" countmax="12" chance="400" />
+		<!-- an arrow -->
+		<item id="3350" countmax="1" chance="300" />
+		<!-- a bow -->
+		<item id="3359" countmax="1" chance="50" />
+		<!-- a brass armor -->
+		<item id="3354" countmax="1" chance="50" />
+		<!-- a brass helmet -->
+		<item id="3449" countmax="3" chance="50" />
+		<!-- a burst arrow -->
+		<item id="3085" countmax="1" chance="30" />
+		<!-- a dragon necklace -->
+		<item id="3355" countmax="1" chance="100" />
+		<!-- a leather helmet -->
+		<item id="3559" countmax="1" chance="140" />
+		<!-- leather legs -->
+		<item id="3586" countmax="2" chance="200" />
+		<!-- an orange -->
+		<item id="3601" countmax="2" chance="110" />
+		<!-- a roll -->
 		<!--  a quiver -->
-		 <!-- a sniper globes -->
-		<item id="3030" countmax="1" chance="2" /> <!-- a small ruby -->
-		<item id="2920" countmax="1" chance="50" /> <!-- a torch -->
+		<!-- a sniper globes -->
+		<item id="3030" countmax="1" chance="2" />
+		<!-- a small ruby -->
+		<item id="2920" countmax="1" chance="50" />
+		<!-- a torch -->
 	</loot>
 </monster>

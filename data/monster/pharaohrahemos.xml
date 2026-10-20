@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Rahemos" nameDescription="Rahemos" race="undead" experience="3100" speed="280" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Rahemos" nameDescription="Rahemos" race="undead" experience="3100" speed="280" manacost="0" legacyreference="1" legacyfistskill="55">
 	<health now="3700" max="3700" />
 	<look type="88" head="0" body="0" legs="0" feet="0" corpse="4215" />
 	<targetchange interval="1000" chance="3" />
@@ -19,15 +19,6 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="55" attack="40" poison="65" />
-		<attack name="lifedrain" min="-50" max="-750" range="1" interval="1000" chance="15" />
-		<attack name="energy" min="-200" max="-600" range="7" interval="1000" chance="5">
-			<attribute key="shootEffect" value="energy" />
-			<attribute key="areaEffect" value="energy" />
-		</attack>
-		<attack name="physical" min="-200" max="-600" range="7" interval="1000" chance="5">
-			<attribute key="shootEffect" value="death" />
-			<attribute key="areaEffect" value="mortarea" />
-		</attack>
 		<attack name="speed" speedchange="-900" duration="50000" range="7" interval="1000" chance="8">
 			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
@@ -38,12 +29,21 @@
 		<attack name="outfit" monster="pig" duration="12000" range="7" interval="1000" chance="7">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</attack>
+		<attack name="lifedrain" legacychance="15" interval="1000" chance="0" min="-50" max="-750" range="1" target="1" />
+		<attack name="energy" legacychance="5" interval="1000" chance="0" min="-200" max="-600" range="7" target="1">
+			<attribute key="shootEffect" value="energy" />
+			<attribute key="areaEffect" value="energy" />
+		</attack>
+		<attack name="physical" legacychance="5" interval="1000" chance="0" min="-200" max="-600" range="7" target="1">
+			<attribute key="shootEffect" value="death" />
+			<attribute key="areaEffect" value="mortarea" />
+		</attack>
 	</attacks>
 	<defenses armor="40" defense="65">
-		<defense name="healing" min="200" max="500" interval="1000" chance="5">
+		<defense name="outfit" monster="demon" duration="4000" interval="1000" chance="20">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
-		<defense name="outfit" monster="demon" duration="4000" interval="1000" chance="20">
+		<defense name="healing" legacychance="5" interval="1000" chance="0" min="200" max="500">
 			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
@@ -68,16 +68,27 @@
 		<voice sentence="I will make you believe in magic." />
 	</voices>
 	<loot>
-		<item id="3235" countmax="1" chance="1000" /> <!-- an ancient rune -->
-		<item id="3068" countmax="1" chance="1" /> <!-- a crystal wand -->
-		<item id="3031" countmax="80" chance="700" /> <!-- a gold coin -->
-		<item id="3031" countmax="85" chance="500" /> <!-- a gold coin -->
-		<item id="3031" countmax="95" chance="350" /> <!-- a gold coin -->
-		<item id="3573" countmax="1" chance="20" /> <!-- a magician hat -->
-		<item id="3060" countmax="1" chance="5" /> <!-- an orb -->
-		<item id="3098" countmax="1" chance="50" /> <!-- a ring of healing -->
-		<item id="3033" countmax="3" chance="100" /> <!-- a small amethyst -->
-		<item id="3335" countmax="1" chance="1" /> <!-- a twin axe -->
-		<item id="3036" countmax="1" chance="10" /> <!-- a violet gem -->
+		<item id="3235" countmax="1" chance="1000" />
+		<!-- an ancient rune -->
+		<item id="3068" countmax="1" chance="1" />
+		<!-- a crystal wand -->
+		<item id="3031" countmax="80" chance="700" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="85" chance="500" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="95" chance="350" />
+		<!-- a gold coin -->
+		<item id="3573" countmax="1" chance="20" />
+		<!-- a magician hat -->
+		<item id="3060" countmax="1" chance="5" />
+		<!-- an orb -->
+		<item id="3098" countmax="1" chance="50" />
+		<!-- a ring of healing -->
+		<item id="3033" countmax="3" chance="100" />
+		<!-- a small amethyst -->
+		<item id="3335" countmax="1" chance="1" />
+		<!-- a twin axe -->
+		<item id="3036" countmax="1" chance="10" />
+		<!-- a violet gem -->
 	</loot>
 </monster>

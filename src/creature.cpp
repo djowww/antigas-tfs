@@ -20,6 +20,7 @@
 #include "otpch.h"
 
 #include "creature.h"
+#include "legacycombat.h"
 #include "game.h"
 #include "monster.h"
 #include "configmanager.h"
@@ -183,6 +184,9 @@ void Creature::onIdleStatus()
 {
 	if (getHealth() > 0) {
 		damageMap.clear();
+		legacyDamageOrder.clear();
+		legacyNextDamageSlot = 0;
+		legacyTotalDamage = 0;
 		lastHitCreatureId = 0;
 	}
 }
@@ -625,8 +629,12 @@ void Creature::onDeath()
 	Creature* lastHitCreature = g_game.getCreatureByID(lastHitCreatureId);
 	Creature* lastHitCreatureMaster;
 	if (lastHitCreature) {
-		lastHitUnjustified = lastHitCreature->onKilledCreature(this);
 		lastHitCreatureMaster = lastHitCreature->getMaster();
+        if (getPlayer()) {
+            if (Player* immediate = lastHitCreature->getPlayer()) { immediate->addLegacyInFightTicks(900000,true); }
+            if (lastHitCreatureMaster) { if (Player* masterPlayer = lastHitCreatureMaster->getPlayer()) { masterPlayer->addLegacyInFightTicks(900000,true); } }
+        }
+        lastHitUnjustified = lastHitCreature->onKilledCreature(this);
 	} else {
 		lastHitCreatureMaster = nullptr;
 	}
@@ -634,25 +642,22 @@ void Creature::onDeath()
 	Creature* mostDamageCreature = nullptr;
 
 	const int64_t timeNow = OTSYS_TIME();
-	const uint32_t inFightTicks = g_config.getNumber(ConfigManager::PZ_LOCKED);
+	const uint32_t inFightTicks = 60000;
 	int32_t mostDamage = 0;
 	std::map<Creature*, uint64_t> experienceMap;
-	for (const auto& it : damageMap) {
+	for (const uint32_t sourceId : legacyDamageOrder) {
+        const auto& it = *damageMap.find(sourceId);
+        const CountBlock_t cb = it.second;
+        // Preserve physical slot order for equal damage, including overwritten
+        // slots. Resolve the winning ID after comparison, not before it.
+        if (cb.total > mostDamage && timeNow - cb.ticks < inFightTicks) {
+            mostDamage = cb.total;
+            mostDamageCreature = g_game.getCreatureByID(sourceId);
+        }
 		if (Creature* attacker = g_game.getCreatureByID(it.first)) {
-			CountBlock_t cb = it.second;
-			if ((cb.total > mostDamage && (timeNow - cb.ticks <= inFightTicks))) {
-				mostDamage = cb.total;
-				mostDamageCreature = attacker;
-			}
 
 			if (attacker != this) {
 				uint64_t gainExp = getGainedExperience(attacker);
-				if (Player* player = attacker->getPlayer()) {
-					Party* party = player->getParty();
-					if (party && party->getLeader() && party->isSharedExperienceActive() && party->isSharedExperienceEnabled()) {
-						attacker = party->getLeader();
-					}
-				}
 
 				auto tmpIt = experienceMap.find(attacker);
 				if (tmpIt == experienceMap.end()) {
@@ -800,68 +805,49 @@ void Creature::drainHealth(Creature* attacker, int32_t damage)
 	}
 }
 
-void Creature::drainMana(Creature* attacker, int32_t manaLoss)
+void Creature::drainMana(Creature*, int32_t manaLoss)
 {
-	onAttacked();
-	changeMana(-manaLoss);
-
-	if (attacker) {
-		addDamagePoints(attacker, manaLoss);
-	}
+    onAttacked();
+    changeMana(-manaLoss);
+    // Mana absorbed/drained is not HP damage in the reference XP table.
 }
 
 BlockType_t Creature::blockHit(Creature* attacker, CombatType_t combatType, int32_t& damage,
-                               bool checkDefense /* = false */, bool checkArmor /* = false */, bool /* field  = false */)
+ bool checkDefense, bool checkArmor, bool field)
 {
-	BlockType_t blockType = BLOCK_NONE;
+ BlockType_t blockType = BLOCK_NONE;
+ // Administrative invulnerability precedes item use; racial immunity follows
+ // protection and armor in the audited engine.
+ if (health <= 0 || !isAttackable()) {
+  damage = 0;
+  blockType = BLOCK_IMMUNITY;
+ } else {
+  if (checkDefense) {
+   damage -= rollLegacyDefense();
+   if (damage <= 0) { damage = 0; blockType = BLOCK_DEFENSE; }
+  }
+  if (damage > 0 && attacker && attacker->getPlayer() && getPlayer()) damage = LegacyCombat::pvp(damage);
+  if (damage > 0) applyLegacyProtection(damage, combatType, field);
+  if (damage > 0 && combatType == COMBAT_PHYSICALDAMAGE) damage -= LegacyCombat::armor(getArmor());
+  if (damage <= 0 && blockType == BLOCK_NONE) { damage = 0; blockType = BLOCK_ARMOR; }
+  if (damage > 0 && isImmune(combatType)) { damage = 0; blockType = BLOCK_IMMUNITY; }
+ }
+ if (attacker) {
+  attacker->onAttackedCreature(this);
+  attacker->onAttackedCreatureBlockHit(blockType);
+ }
+ onAttacked();
+ return blockType;
+}
 
-	if (isImmune(combatType)) {
-		damage = 0;
-		blockType = BLOCK_IMMUNITY;
-	} else if (checkDefense || checkArmor) {
-		bool hasDefense = false;
-
-		if (blockCount > 0) {
-			--blockCount;
-			hasDefense = true;
-		}
-
-		if (checkDefense && hasDefense) {
-			int32_t defense = getDefense();
-			damage -= uniform_random(defense / 2, defense);
-			if (damage <= 0) {
-				damage = 0;
-				blockType = BLOCK_DEFENSE;
-				checkArmor = false;
-			}
-		}
-
-		if (checkArmor) {
-			int32_t armor = getArmor();
-			if (armor > 3) {
-				damage -= uniform_random(armor / 2, armor - (armor % 2 + 1));
-			} else if (armor > 0) {
-				--damage;
-			}
-
-			if (damage <= 0) {
-				damage = 0;
-				blockType = BLOCK_ARMOR;
-			}
-		}
-
-		if (hasDefense && blockType != BLOCK_NONE) {
-			onBlockHit();
-		}
-	}
-
-	if (attacker) {
-		attacker->onAttackedCreature(this);
-		attacker->onAttackedCreatureBlockHit(blockType);
-	}
-
-	onAttacked();
-	return blockType;
+int32_t Creature::rollLegacyDefense()
+{
+ const int64_t now = OTSYS_TIME();
+ if (now < legacyEarliestDefendTime) return 0;
+ legacyEarliestDefendTime = legacyLastDefendTime + 2000;
+ legacyLastDefendTime = now;
+ onBlockHit();
+ return getDefense();
 }
 
 bool Creature::setAttackedCreature(Creature* creature)
@@ -980,49 +966,50 @@ bool Creature::setFollowCreature(Creature* creature)
 
 double Creature::getDamageRatio(Creature* attacker) const
 {
-	uint32_t totalDamage = 0;
-	uint32_t attackerDamage = 0;
-
-	for (const auto& it : damageMap) {
-		const CountBlock_t& cb = it.second;
-		totalDamage += cb.total;
-		if (it.first == attacker->getID()) {
-			attackerDamage += cb.total;
-		}
-	}
-
-	if (totalDamage == 0) {
-		return 0;
-	}
-
-	return (static_cast<double>(attackerDamage) / totalDamage);
+    const auto it = attacker ? damageMap.find(attacker->getID()) : damageMap.end();
+    if (it == damageMap.end() || legacyTotalDamage == 0) return 0;
+    return static_cast<double>(it->second.total) / legacyTotalDamage;
 }
 
 uint64_t Creature::getGainedExperience(Creature* attacker) const
 {
-	return std::floor(getDamageRatio(attacker) * getLostExperience());
+    return getLegacyExperienceShare(getLostExperience(), attacker);
+}
+
+uint64_t Creature::getLegacyExperienceShare(uint64_t reward, const Creature* attacker) const
+{
+    const auto it = attacker ? damageMap.find(attacker->getID()) : damageMap.end();
+    if (it == damageMap.end() || legacyTotalDamage == 0 || attacker->getHealth() <= 0) return 0;
+    const uint64_t part = static_cast<uint32_t>(it->second.total);
+    // Exact integer allocation, avoiding floating-point quota rounding.
+    return (reward / legacyTotalDamage) * part + ((reward % legacyTotalDamage) * part) / legacyTotalDamage;
 }
 
 void Creature::addDamagePoints(Creature* attacker, int32_t damagePoints)
 {
-	if (damagePoints <= 0) {
-		return;
-	}
-
-	uint32_t attackerId = attacker->id;
-
-	auto it = damageMap.find(attackerId);
-	if (it == damageMap.end()) {
-		CountBlock_t cb;
-		cb.ticks = OTSYS_TIME();
-		cb.total = damagePoints;
-		damageMap[attackerId] = cb;
-	} else {
-		it->second.total += damagePoints;
-		it->second.ticks = OTSYS_TIME();
-	}
-
-	lastHitCreatureId = attackerId;
+    if (!attacker || damagePoints <= 0) return;
+    const auto record = [this](Creature* source, uint32_t amount) {
+        if (!source) return;
+        const uint32_t sourceId = source->getID();
+        legacyTotalDamage += amount;
+        auto it = damageMap.find(sourceId);
+        if (it == damageMap.end()) {
+            if (legacyDamageOrder.size() == 20) {
+                damageMap.erase(legacyDamageOrder[legacyNextDamageSlot]);
+                legacyDamageOrder[legacyNextDamageSlot] = sourceId;
+            } else { legacyDamageOrder.push_back(sourceId); }
+            legacyNextDamageSlot = (legacyNextDamageSlot + 1) % 20;
+            CountBlock_t entry; entry.total = amount; entry.ticks = OTSYS_TIME();
+            damageMap.emplace(sourceId,entry);
+        } else { it->second.total += amount; it->second.ticks = OTSYS_TIME(); }
+    };
+    // The reference contribution argument is unsigned16; overkill was already
+    // limited by drainHealth before reaching this method.
+    if (Creature* owner = attacker->getMaster()) {
+        const uint16_t half = static_cast<uint16_t>(damagePoints / 2);
+        record(owner,half); record(attacker,half);
+    } else { record(attacker,static_cast<uint16_t>(damagePoints)); }
+    lastHitCreatureId = attacker->id;
 }
 
 void Creature::onAddCondition(ConditionType_t type)
@@ -1044,26 +1031,17 @@ void Creature::onEndCondition(ConditionType_t)
 	//
 }
 
-void Creature::onTickCondition(ConditionType_t type, bool& bRemove)
+void Creature::onTickCondition(ConditionType_t type, bool& remove)
 {
-	const MagicField* field = getTile()->getFieldItem();
-	if (!field) {
-		return;
-	}
-
-	switch (type) {
-		case CONDITION_FIRE:
-			bRemove = (field->getCombatType() != COMBAT_FIREDAMAGE);
-			break;
-		case CONDITION_ENERGY:
-			bRemove = (field->getCombatType() != COMBAT_ENERGYDAMAGE);
-			break;
-		case CONDITION_POISON:
-			bRemove = (field->getCombatType() != COMBAT_EARTHDAMAGE);
-			break;
-		default:
-			break;
-	}
+ CombatType_t elemental = COMBAT_NONE;
+ if (type == CONDITION_POISON) elemental = COMBAT_EARTHDAMAGE;
+ else if (type == CONDITION_FIRE) elemental = COMBAT_FIREDAMAGE;
+ else if (type == CONDITION_ENERGY) elemental = COMBAT_ENERGYDAMAGE;
+ if (elemental == COMBAT_NONE || !getTile() || !getTile()->getItemList()) return;
+ for (const Item* item : *getTile()->getItemList()) {
+  const ItemType& definition = Item::items[item->getID()];
+  if (definition.blockPathFind && definition.avoidDamageTypes == elemental) { remove = false; return; }
+ }
 }
 
 void Creature::onCombatRemoveCondition(Condition* condition)
@@ -1081,11 +1059,10 @@ void Creature::onAttackedCreatureDrainHealth(Creature* target, int32_t points)
 	target->addDamagePoints(this, points);
 }
 
-bool Creature::onKilledCreature(Creature* target, bool)
+bool Creature::onKilledCreature(Creature* target, bool lastHit)
 {
 	if (master) {
-		master->onKilledCreature(target);
-		return false;
+		return master->onKilledCreature(target,lastHit);
 	}
 
 	//scripting event - onKill
@@ -1096,16 +1073,10 @@ bool Creature::onKilledCreature(Creature* target, bool)
 	return false;
 }
 
-void Creature::onGainExperience(uint64_t gainExp, Creature* target)
+void Creature::onGainExperience(uint64_t, Creature*)
 {
-	if (gainExp == 0 || !master) {
-		return;
-	}
-
-	gainExp /= 2;
-	master->onGainExperience(gainExp, target);
-
-	g_game.addAnimatedText(position, TEXTCOLOR_WHITE_EXP, std::to_string(gainExp));
+    // A summon and its master already own distinct damage-table shares.
+    // Forwarding another half here would award the master's share twice.
 }
 
 void Creature::addSummon(Creature* creature)

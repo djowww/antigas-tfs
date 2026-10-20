@@ -91,9 +91,7 @@ class Monster final : public Creature
 		int32_t getArmor() const final {
 			return mType->info.armor;
 		}
-		int32_t getDefense() const final {
-			return mType->info.defense;
-		}
+		int32_t getDefense() const final;
 		bool isPushable() const final {
 			return mType->info.pushable && baseSpeed != 0;
 		}
@@ -189,6 +187,8 @@ class Monster final : public Creature
 		uint32_t attackTicks = 0;
 		uint32_t targetTicks = 0;
 		uint32_t targetChangeTicks = 0;
+		int32_t legacyMeleeAttack = 0;
+		int32_t legacyMeleeSkill = 0;
 		uint32_t defenseTicks = 0;
 		uint32_t yellTicks = 0;
 		int32_t minCombatValue = 0;

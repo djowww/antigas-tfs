@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Minotaur Mage" nameDescription="a minotaur mage" race="blood" experience="150" speed="170" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Minotaur Mage" nameDescription="a minotaur mage" race="blood" experience="150" speed="170" manacost="0" legacyreference="1" legacyfistskill="18">
 	<health now="155" max="155" />
 	<look type="23" head="0" body="0" legs="0" feet="0" corpse="4047" />
 	<targetchange interval="1000" chance="50" />
@@ -19,16 +19,16 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="18" attack="15" />
-		<attack name="energy" min="-15" max="-45" range="7" chance="6">
+		<attack name="energyfield" range="7" radius="1" target="1" chance="9">
+			<attribute key="shootEffect" value="energy" />
+		</attack>
+		<attack name="energy" legacychance="6" interval="2000" chance="0" min="-15" max="-45" range="7" target="1">
 			<attribute key="shootEffect" value="energy" />
 			<attribute key="areaEffect" value="energy" />
 		</attack>
-		<attack name="fire" min="-35" max="-95" range="7" radius="1" target="1" chance="11">
+		<attack name="fire" legacychance="11" interval="2000" chance="0" min="-35" max="-95" range="7" radius="5" target="1">
 			<attribute key="shootEffect" value="fire" />
 			<attribute key="areaEffect" value="firearea" />
-		</attack>
-		<attack name="energyfield" range="7" radius="1" target="1" chance="9">
-			<attribute key="shootEffect" value="energy" />
 		</attack>
 	</attacks>
 	<defenses armor="18" defense="40">
@@ -42,17 +42,28 @@
 		<voice sentence="Kaplar!" />
 	</voices>
 	<loot>
-		<item id="3359" countmax="1" chance="40" /> <!-- a brass armor -->
-		<item id="3595" countmax="7" chance="100" /> <!-- a carrot -->
-		<item id="3558" countmax="1" chance="20" /> <!-- chain legs -->
-		<item id="3292" countmax="1" chance="40" /> <!-- a combat knife -->
-		<item id="3998" countmax="1" chance="700" /> <!-- a dead snake -->
-		<item id="3031" countmax="10" chance="800" /> <!-- a gold coin -->
-		<item id="3291" countmax="1" chance="100" /> <!-- a knife -->
-		<item id="3355" countmax="1" chance="100" /> <!-- a leather helmet -->
-		<item id="3559" countmax="1" chance="150" /> <!-- leather legs -->
-		<item id="2920" countmax="2" chance="300" /> <!-- a torch -->
-		 <!-- a minotaur leather -->
-		<item id="3073" countmax="1" chance="5" /> <!-- a yellow spellwand -->
+		<item id="3359" countmax="1" chance="40" />
+		<!-- a brass armor -->
+		<item id="3595" countmax="7" chance="100" />
+		<!-- a carrot -->
+		<item id="3558" countmax="1" chance="20" />
+		<!-- chain legs -->
+		<item id="3292" countmax="1" chance="40" />
+		<!-- a combat knife -->
+		<item id="3998" countmax="1" chance="700" />
+		<!-- a dead snake -->
+		<item id="3031" countmax="10" chance="800" />
+		<!-- a gold coin -->
+		<item id="3291" countmax="1" chance="100" />
+		<!-- a knife -->
+		<item id="3355" countmax="1" chance="100" />
+		<!-- a leather helmet -->
+		<item id="3559" countmax="1" chance="150" />
+		<!-- leather legs -->
+		<item id="2920" countmax="2" chance="300" />
+		<!-- a torch -->
+		<!-- a minotaur leather -->
+		<item id="3073" countmax="1" chance="5" />
+		<!-- a yellow spellwand -->
 	</loot>
 </monster>

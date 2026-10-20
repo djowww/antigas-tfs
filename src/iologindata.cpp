@@ -355,7 +355,8 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 			player->skull = SKULL_RED;
 		}
 
-		if (player->playerKillerEnd == 0) {
+		if (player->playerKillerEnd < std::time(nullptr)) {
+            player->playerKillerEnd = 0;
 			player->skull = SKULL_NONE;
 		}
 	}
@@ -404,7 +405,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	query << "SELECT `date` FROM `player_murders` WHERE `player_id` = " << player->getGUID() << " ORDER BY `date` ASC";
 	if ((result = db->storeQuery(query.str()))) {
 		do {
-			player->murderTimeStamps.push_back(result->getNumber<time_t>("date"));
+			LegacyDeath::record(player->murderTimeStamps, result->getNumber<time_t>("date"));
 		} while (result->next());
 	}
 

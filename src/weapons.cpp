@@ -25,6 +25,7 @@
 #include "game.h"
 #include "pugicast.h"
 #include "weapons.h"
+#include "legacycombat.h"
 
 extern Game g_game;
 extern Vocations g_vocations;
@@ -136,13 +137,15 @@ bool Weapons::registerEvent(Event* event, const pugi::xml_node&)
 //monsters
 int32_t Weapons::getMaxMeleeDamage(int32_t attackSkill, int32_t attackValue)
 {
-	return static_cast<int32_t>(std::ceil((attackSkill * (attackValue * 0.05)) + (attackValue * 0.5)));
+	return LegacyCombat::maximum(attackValue, attackSkill);
 }
 
 //players
 int32_t Weapons::getMaxWeaponDamage(uint32_t level, int32_t attackSkill, int32_t attackValue, float attackFactor)
 {
-	return static_cast<int32_t>(std::round((level / 5) + (((((attackSkill / 4.) + 1) * (attackValue / 3.)) * 1.03) / attackFactor)));
+	(void)level;
+	const uint8_t mode = attackFactor < 1.0f ? 3 : (attackFactor > 1.0f ? 1 : 2);
+	return LegacyCombat::maximum(LegacyCombat::attackValue(attackValue, mode), attackSkill);
 }
 
 bool Weapon::configureEvent(const pugi::xml_node& node)
@@ -350,13 +353,14 @@ bool Weapon::useFist(Player* player, Creature* target)
 
 	CombatDamage damage;
 	damage.type = params.combatType;
-	damage.value = -normal_random(0, maxDamage);
+	(void)maxDamage;
+	if (player->consumeLegacyLearningCredit() && !player->hasFlag(PlayerFlag_NotGainSkill)) player->addSkillAdvance(SKILL_FIST, 1);
+	attackSkill = player->getSkillLevel(SKILL_FIST);
+	damage.value = -LegacyCombat::probe(LegacyCombat::attackValue(attackValue, player->getFightMode()), attackSkill);
 
+	const int32_t priorHealth = target->getHealth(), priorMana = target->getMana();
 	Combat::doCombatHealth(player, target, damage, params);
-	if (!player->hasFlag(PlayerFlag_NotGainSkill) && player->getAddAttackSkill()) {
-		player->addSkillAdvance(SKILL_FIST, 1);
-	}
-
+	if (target->getHealth() < priorHealth || target->getMana() < priorMana) player->refreshLegacyLearningCredit();
 	return true;
 }
 
@@ -372,7 +376,9 @@ void Weapon::internalUseWeapon(Player* player, Item* item, Creature* target, int
 		CombatDamage damage;
 		damage.type = params.combatType;
 		damage.value = (getWeaponDamage(player, target, item) * damageModifier) / 100;
+		const int32_t priorHealth = target->getHealth(), priorMana = target->getMana();
 		Combat::doCombatHealth(player, target, damage, params);
+		if (target->getHealth() < priorHealth || target->getMana() < priorMana) player->refreshLegacyLearningCredit();
 	}
 
 	onUsedWeapon(player, item, target->getTile());
@@ -396,14 +402,6 @@ void Weapon::internalUseWeapon(Player* player, Item* item, Tile* tile) const
 
 void Weapon::onUsedWeapon(Player* player, Item* item, Tile* destTile) const
 {
-	if (!player->hasFlag(PlayerFlag_NotGainSkill)) {
-		skills_t skillType;
-		uint32_t skillPoint;
-		if (getSkillType(player, item, skillType, skillPoint)) {
-			player->addSkillAdvance(skillType, skillPoint);
-		}
-	}
-
 	uint32_t manaCost = getManaCost(player);
 	if (manaCost != 0) {
 		player->addManaSpent(manaCost);
@@ -553,12 +551,18 @@ int32_t WeaponMelee::getWeaponDamage(const Player* player, const Creature*, cons
 	int32_t attackValue = std::max<int32_t>(0, item->getAttack());
 	float attackFactor = player->getAttackFactor();
 
-	int32_t maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->meleeDamageMultiplier);
+	int32_t maxValue = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor);
 	if (maxDamage) {
 		return -maxValue;
 	}
 
-	return -normal_random(0, maxValue);
+ Player* learner = const_cast<Player*>(player);
+ if (learner->consumeLegacyLearningCredit() && !learner->hasFlag(PlayerFlag_NotGainSkill)) {
+  skills_t skill; uint32_t ignored;
+  if (getSkillType(player, item, skill, ignored)) learner->addSkillAdvance(skill, 1);
+ }
+ attackSkill = player->getWeaponSkill(item);
+	return -LegacyCombat::probe(LegacyCombat::attackValue(attackValue, player->getFightMode()), attackSkill);
 }
 
 WeaponDistance::WeaponDistance(LuaScriptInterface* interface) :
@@ -595,115 +599,14 @@ bool WeaponDistance::useWeapon(Player* player, Item* item, Creature* target) con
 		return false;
 	}
 
-	int32_t chance;
-	if (it.hitChance == 0) {
-		//hit chance is based on distance to target and distance skill
-		uint32_t skill = player->getSkillLevel(SKILL_DISTANCE);
-		const Position& playerPos = player->getPosition();
-		const Position& targetPos = target->getPosition();
-		uint32_t distance = std::max<uint32_t>(1, std::max<uint32_t>(Position::getDistanceX(playerPos, targetPos), Position::getDistanceY(playerPos, targetPos)));
-
-		uint32_t maxHitChance;
-		if (it.maxHitChance != -1) {
-			maxHitChance = it.maxHitChance;
-		} else if (it.ammoType != AMMO_NONE) {
-			//hit chance on two-handed weapons is limited to 90%
-			maxHitChance = 90;
-		} else {
-			//one-handed is set to 75%
-			maxHitChance = 75;
-		}
-
-		if (maxHitChance == 75) {
-			//chance for one-handed weapons
-			switch (distance) {
-				case 1:
-				case 5:
-					chance = std::min<uint32_t>(skill, 74) + 1;
-					break;
-				case 2:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 28) * 2.40f) + 8;
-					break;
-				case 3:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 45) * 1.55f) + 6;
-					break;
-				case 4:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 58) * 1.25f) + 3;
-					break;
-				case 6:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 90) * 0.80f) + 3;
-					break;
-				case 7:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 104) * 0.70f) + 2;
-					break;
-				default:
-					chance = it.hitChance;
-					break;
-			}
-		} else if (maxHitChance == 90) {
-			//formula for two-handed weapons
-			switch (distance) {
-				case 1:
-				case 5:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 74) * 1.20f) + 1;
-					break;
-				case 2:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 28) * 3.20f);
-					break;
-				case 3:
-					chance = std::min<uint32_t>(skill, 45) * 2;
-					break;
-				case 4:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 58) * 1.55f);
-					break;
-				case 6:
-				case 7:
-					chance = std::min<uint32_t>(skill, 90);
-					break;
-				default:
-					chance = it.hitChance;
-					break;
-			}
-		} else if (maxHitChance == 100) {
-			switch (distance) {
-				case 1:
-				case 5:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 73) * 1.35f) + 1;
-					break;
-				case 2:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 30) * 3.20f) + 4;
-					break;
-				case 3:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 48) * 2.05f) + 2;
-					break;
-				case 4:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 65) * 1.50f) + 2;
-					break;
-				case 6:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 87) * 1.20f) - 4;
-					break;
-				case 7:
-					chance = static_cast<uint32_t>(std::min<uint32_t>(skill, 90) * 1.10f) + 1;
-					break;
-				default:
-					chance = it.hitChance;
-					break;
-			}
-		} else {
-			chance = maxHitChance;
-		}
-	} else {
-		chance = it.hitChance;
-	}
-
-	if (item->getWeaponType() == WEAPON_AMMO) {
-		Item* bow = player->getWeapon(true);
-		if (bow && bow->getHitChance() != 0) {
-			chance += bow->getHitChance();
-		}
-	}
-
-	if (chance >= uniform_random(1, 100)) {
+ const Position& source = player->getPosition();
+ const Position& destination = target->getPosition();
+ int32_t distance = std::max(Position::getDistanceX(source, destination), Position::getDistanceY(source, destination));
+ if (distance <= 1) distance = 5;
+ const int32_t cap = it.ammoType != AMMO_NONE ? 90 : 75;
+ if (player->consumeLegacyLearningCredit() && !player->hasFlag(PlayerFlag_NotGainSkill)) player->addSkillAdvance(SKILL_DISTANCE, 1);
+ const bool hits = uniform_random(0, 15 * distance - 1) <= player->getBaseSkill(SKILL_DISTANCE) && uniform_random(0, 99) <= cap;
+ if (hits) {
 		Weapon::internalUseWeapon(player, item, target, damageModifier);
 	} else {
 		//miss target
@@ -748,22 +651,20 @@ int32_t WeaponDistance::getWeaponDamage(const Player* player, const Creature* ta
 	int32_t attackSkill = player->getSkillLevel(SKILL_DISTANCE);
 	float attackFactor = player->getAttackFactor();
 
-	int32_t maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->distDamageMultiplier);
+	int32_t maxValue = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor);
 	if (maxDamage) {
 		return -maxValue;
 	}
 
-	int32_t minValue;
-	if (target) {
-		if (target->getPlayer()) {
-			minValue = static_cast<int32_t>(std::ceil(player->getLevel() * 0.1));
-		} else {
-			minValue = static_cast<int32_t>(std::ceil(player->getLevel() * 0.2));
-		}
-	} else {
-		minValue = 0;
-	}
-	return -normal_random(minValue, maxValue);
+	(void)target;
+ Player* learner = const_cast<Player*>(player);
+ if (learner->consumeLegacyLearningCredit() && !learner->hasFlag(PlayerFlag_NotGainSkill)) learner->addSkillAdvance(SKILL_DISTANCE, 1);
+ attackSkill = player->getSkillLevel(SKILL_DISTANCE);
+	const int32_t amount = -LegacyCombat::probe(LegacyCombat::attackValue(attackValue, player->getFightMode()), attackSkill);
+	// The reference calls the target's defense when the shooter has a shield,
+	// consuming its timer/training, but discards the resulting defense roll.
+	if (target && player->hasShield()) const_cast<Creature*>(target)->rollLegacyDefense();
+	return amount;
 }
 
 bool WeaponDistance::getSkillType(const Player* player, const Item*, skills_t& skill, uint32_t& skillpoint) const
@@ -832,9 +733,9 @@ void WeaponWand::configureWeapon(const ItemType& it)
 
 int32_t WeaponWand::getWeaponDamage(const Player*, const Creature*, const Item* item, bool maxDamage /*= false*/) const
 {
-	const int32_t rarityAttack = item ? static_cast<int32_t>(item->getRarityBonusSum(ITEM_RARITY_BONUS_ATTACK)) : 0;
+	const int32_t rarityAttack = 0;
 	if (maxDamage) {
 		return -(maxChange + rarityAttack);
 	}
-	return -normal_random(minChange + rarityAttack, maxChange + rarityAttack);
+	return -uniform_random(minChange + rarityAttack, maxChange + rarityAttack);
 }

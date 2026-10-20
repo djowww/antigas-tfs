@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="Ancient Scarab" nameDescription="an ancient scarab" race="venom" experience="720" speed="218" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="Ancient Scarab" nameDescription="an ancient scarab" race="venom" experience="720" speed="218" manacost="0" legacyreference="1" legacyfistskill="80">
 	<health now="1000" max="1000" />
 	<look type="79" head="0" body="0" legs="0" feet="0" corpse="4185" />
 	<targetchange interval="1000" chance="10" />
@@ -19,15 +19,15 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="80" attack="50" poison="100" />
-		<attack name="poison" min="-15" max="-135" range="7" chance="9">
-			<attribute key="shootEffect" value="poison" />
+		<attack name="paralyze_ancientscarab" chance="13" range="7" />
+		<attack name="paralyze_ancientscarab2" chance="25" range="7" />
+		<attack name="earth" legacychance="9" interval="2000" chance="0" min="-15" max="-135" range="7" target="1" />
+		<attack name="poisoncondition" legacychance="6" interval="2000" chance="0" min="-400" max="-500" radius="5" target="0">
 			<attribute key="areaEffect" value="poison" />
 		</attack>
-		<attack name="paralyze_ancientscarab" chance="13" range="7"/>
-		<attack name="poisoncondition" min="-400" max="-500" radius="5" target="0" chance="6">
+		<attack name="poisoncondition" legacychance="6" interval="2000" chance="0" min="-400" max="-500" radius="5" target="0">
 			<attribute key="areaEffect" value="poison" />
 		</attack>
-		<attack name="paralyze_ancientscarab2" chance="25" range="7"/>
 	</attacks>
 	<defenses armor="36" defense="33">
 		<defense name="speed" speedchange="403" duration="9000" chance="13">
@@ -45,18 +45,31 @@
 		<summon name="larva2" interval="1000" chance="7" max="3" />
 	</summons>
 	<loot>
-		<item id="3025" countmax="1" chance="10" /> <!-- an ancient amulet -->
-		<item id="3328" countmax="1" chance="3" /> <!-- a daramanian waraxe -->
-		<item id="3031" countmax="100" chance="444" /> <!-- a gold coin -->
-		<item id="3031" countmax="66" chance="757" /> <!-- a gold coin -->
-		<item id="3031" countmax="22" chance="999" /> <!-- a gold coin -->
-		<item id="3046" countmax="1" chance="109" /> <!-- a magic light wand -->
-		<item id="3357" countmax="1" chance="100" /> <!-- a plate armor -->
-		<item id="3018" countmax="1" chance="5" /> <!-- a scarab amulet -->
-		<item id="3042" countmax="2" chance="50" /> <!-- a scarab coin -->
-		<item id="3042" countmax="1" chance="10" /> <!-- a scarab coin -->
-		<item id="3440" countmax="1" chance="5" /> <!-- a scarab shield -->
-		<item id="3033" countmax="4" chance="12" /> <!-- a small amethyst -->
-		<item id="3032" countmax="3" chance="6" /> <!-- a small emerald -->
+		<item id="3025" countmax="1" chance="10" />
+		<!-- an ancient amulet -->
+		<item id="3328" countmax="1" chance="3" />
+		<!-- a daramanian waraxe -->
+		<item id="3031" countmax="100" chance="444" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="66" chance="757" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="22" chance="999" />
+		<!-- a gold coin -->
+		<item id="3046" countmax="1" chance="109" />
+		<!-- a magic light wand -->
+		<item id="3357" countmax="1" chance="100" />
+		<!-- a plate armor -->
+		<item id="3018" countmax="1" chance="5" />
+		<!-- a scarab amulet -->
+		<item id="3042" countmax="2" chance="50" />
+		<!-- a scarab coin -->
+		<item id="3042" countmax="1" chance="10" />
+		<!-- a scarab coin -->
+		<item id="3440" countmax="1" chance="5" />
+		<!-- a scarab shield -->
+		<item id="3033" countmax="4" chance="12" />
+		<!-- a small amethyst -->
+		<item id="3032" countmax="3" chance="6" />
+		<!-- a small emerald -->
 	</loot>
 </monster>

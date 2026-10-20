@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monster name="The Old Widow" nameDescription="The Old Widow" race="venom" experience="2800" speed="278" manacost="0">
+<?xml version='1.0' encoding='utf-8'?>
+<monster name="The Old Widow" nameDescription="The Old Widow" race="venom" experience="2800" speed="278" manacost="0" legacyreference="1" legacyfistskill="120">
 	<health now="3550" max="3550" />
 	<look type="208" head="0" body="0" legs="0" feet="0" corpse="4038" />
 	<targetchange interval="1000" chance="10" />
@@ -19,10 +19,6 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="2000" chance="0" skill="120" attack="95" poison="450" />
-		<attack name="poison" min="-250" max="-300" range="7" interval="1000" chance="7">
-			<attribute key="shootEffect" value="poison" />
-			<attribute key="areaEffect" value="poison" />
-		</attack>
 		<attack name="speed" speedchange="-800" duration="25000" range="7" interval="1000" chance="5">
 			<attribute key="shootEffect" value="poison" />
 			<attribute key="areaEffect" value="poison" />
@@ -30,13 +26,14 @@
 		<attack name="poisonfield" range="7" radius="4" target="1" interval="1000" chance="11">
 			<attribute key="shootEffect" value="poison" />
 		</attack>
+		<attack name="earth" legacychance="7" interval="2000" chance="0" min="-250" max="-300" range="7" target="1" />
 	</attacks>
 	<defenses armor="45" defense="60">
-		<defense name="healing" min="225" max="275" interval="1000" chance="6">
-			<attribute key="areaEffect" value="blueshimmer" />
-		</defense>
 		<defense name="speed" speedchange="708" duration="6000" interval="1000" chance="13">
 			<attribute key="areaEffect" value="redshimmer" />
+		</defense>
+		<defense name="healing" legacychance="6" interval="1000" chance="0" min="225" max="275">
+			<attribute key="areaEffect" value="blueshimmer" />
 		</defense>
 	</defenses>
 	<immunities>
@@ -50,15 +47,25 @@
 		<summon name="giant spider" interval="1000" chance="8" max="2" />
 	</summons>
 	<loot>
-		<item id="3372" countmax="1" chance="160" /> <!-- brass legs -->
-		<item id="3031" countmax="77" chance="666" /> <!-- a gold coin -->
-		<item id="3031" countmax="66" chance="999" /> <!-- a gold coin -->
-		<item id="3031" countmax="22" chance="999" /> <!-- a gold coin -->
-		<item id="3370" countmax="1" chance="6" /> <!-- a knight armor -->
-		<item id="3371" countmax="1" chance="6" /> <!-- knight legs -->
-		<item id="3357" countmax="1" chance="200" /> <!-- a plate armor -->
-		<item id="3055" countmax="1" chance="2" /> <!-- a platinum amulet -->
-		<item id="3351" countmax="1" chance="100" /> <!-- a steel helmet -->
-		<item id="3053" countmax="1" chance="14" /> <!-- a time ring -->
+		<item id="3372" countmax="1" chance="160" />
+		<!-- brass legs -->
+		<item id="3031" countmax="77" chance="666" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="66" chance="999" />
+		<!-- a gold coin -->
+		<item id="3031" countmax="22" chance="999" />
+		<!-- a gold coin -->
+		<item id="3370" countmax="1" chance="6" />
+		<!-- a knight armor -->
+		<item id="3371" countmax="1" chance="6" />
+		<!-- knight legs -->
+		<item id="3357" countmax="1" chance="200" />
+		<!-- a plate armor -->
+		<item id="3055" countmax="1" chance="2" />
+		<!-- a platinum amulet -->
+		<item id="3351" countmax="1" chance="100" />
+		<!-- a steel helmet -->
+		<item id="3053" countmax="1" chance="14" />
+		<!-- a time ring -->
 	</loot>
 </monster>
