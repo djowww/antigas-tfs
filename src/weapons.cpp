@@ -551,7 +551,8 @@ int32_t WeaponMelee::getWeaponDamage(const Player* player, const Creature*, cons
 	int32_t attackValue = std::max<int32_t>(0, item->getAttack());
 	float attackFactor = player->getAttackFactor();
 
-	int32_t maxValue = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor);
+	const float meleeMultiplier = player->getVocation()->meleeDamageMultiplier;
+	int32_t maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * meleeMultiplier);
 	if (maxDamage) {
 		return -maxValue;
 	}
@@ -562,7 +563,8 @@ int32_t WeaponMelee::getWeaponDamage(const Player* player, const Creature*, cons
   if (getSkillType(player, item, skill, ignored)) learner->addSkillAdvance(skill, 1);
  }
  attackSkill = player->getWeaponSkill(item);
-	return -LegacyCombat::probe(LegacyCombat::attackValue(attackValue, player->getFightMode()), attackSkill);
+	const int32_t rolled = LegacyCombat::probe(LegacyCombat::attackValue(attackValue, player->getFightMode()), attackSkill);
+	return -static_cast<int32_t>(rolled * meleeMultiplier);
 }
 
 WeaponDistance::WeaponDistance(LuaScriptInterface* interface) :

@@ -642,19 +642,20 @@ void Creature::onDeath()
 	Creature* mostDamageCreature = nullptr;
 
 	const int64_t timeNow = OTSYS_TIME();
-	const uint32_t inFightTicks = 60000;
+	const uint32_t inFightTicks = static_cast<uint32_t>(std::max<int32_t>(0, g_config.getNumber(ConfigManager::PZ_LOCKED)));
 	int32_t mostDamage = 0;
 	std::map<Creature*, uint64_t> experienceMap;
 	for (const uint32_t sourceId : legacyDamageOrder) {
-        const auto& it = *damageMap.find(sourceId);
-        const CountBlock_t cb = it.second;
+        const auto found = damageMap.find(sourceId);
+        if (found == damageMap.end()) continue;
+        const CountBlock_t cb = found->second;
         // Preserve physical slot order for equal damage, including overwritten
         // slots. Resolve the winning ID after comparison, not before it.
         if (cb.total > mostDamage && timeNow - cb.ticks < inFightTicks) {
             mostDamage = cb.total;
             mostDamageCreature = g_game.getCreatureByID(sourceId);
         }
-		if (Creature* attacker = g_game.getCreatureByID(it.first)) {
+		if (Creature* attacker = g_game.getCreatureByID(found->first)) {
 
 			if (attacker != this) {
 				uint64_t gainExp = getGainedExperience(attacker);
@@ -988,10 +989,10 @@ uint64_t Creature::getLegacyExperienceShare(uint64_t reward, const Creature* att
 void Creature::addDamagePoints(Creature* attacker, int32_t damagePoints)
 {
     if (!attacker || damagePoints <= 0) return;
-    const auto record = [this](Creature* source, uint32_t amount) {
-        if (!source) return;
+    const auto record = [this](Creature* source, int32_t amount) {
+        if (!source || amount <= 0) return;
         const uint32_t sourceId = source->getID();
-        legacyTotalDamage += amount;
+        legacyTotalDamage += static_cast<uint64_t>(amount);
         auto it = damageMap.find(sourceId);
         if (it == damageMap.end()) {
             if (legacyDamageOrder.size() == 20) {
@@ -1001,14 +1002,19 @@ void Creature::addDamagePoints(Creature* attacker, int32_t damagePoints)
             legacyNextDamageSlot = (legacyNextDamageSlot + 1) % 20;
             CountBlock_t entry; entry.total = amount; entry.ticks = OTSYS_TIME();
             damageMap.emplace(sourceId,entry);
-        } else { it->second.total += amount; it->second.ticks = OTSYS_TIME(); }
+        } else {
+            const int64_t sum = static_cast<int64_t>(it->second.total) + amount;
+            it->second.total = static_cast<int32_t>(std::min<int64_t>(sum, std::numeric_limits<int32_t>::max()));
+            it->second.ticks = OTSYS_TIME();
+        }
     };
-    // The reference contribution argument is unsigned16; overkill was already
-    // limited by drainHealth before reaching this method.
+    // Contributions are kept in int32 so single hits above 65535 and the summon
+    // split do not truncate; the remainder of an odd hit stays with the attacker.
     if (Creature* owner = attacker->getMaster()) {
-        const uint16_t half = static_cast<uint16_t>(damagePoints / 2);
-        record(owner,half); record(attacker,half);
-    } else { record(attacker,static_cast<uint16_t>(damagePoints)); }
+        const int32_t half = damagePoints / 2;
+        record(owner, half);
+        record(attacker, damagePoints - half);
+    } else { record(attacker, damagePoints); }
     lastHitCreatureId = attacker->id;
 }
 

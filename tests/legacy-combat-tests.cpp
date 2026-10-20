@@ -156,6 +156,25 @@ static void pipeline(Player& attacker, Player& target)
  g_game.internalRemoveItem(misplaced);
 }
 
+static void chargeLessProtection(Player& attacker, Player& target)
+{
+ Item* legs = Item::CreateItem(3364);
+ require(legs != nullptr, "golden legs fixture");
+ static_cast<Cylinder&>(target).internalAddThing(CONST_SLOT_LEGS, legs);
+ target.setItemAbility(CONST_SLOT_LEGS, true);
+ require(legs->getCharges() == 0, "equipment fixture carries no charges");
+ int32_t amount = 100;
+ require(target.blockHit(&attacker, COMBAT_PHYSICALDAMAGE, amount) == BLOCK_NONE && amount == 49,
+  "charge-less protection halves PvP then removes 2 percent");
+ require(target.getInventoryItem(CONST_SLOT_LEGS) == legs && !legs->isRemoved(),
+  "permanent equipment must survive absorbed damage");
+ amount = 100;
+ target.blockHit(&attacker, COMBAT_PHYSICALDAMAGE, amount);
+ require(amount == 49 && target.getInventoryItem(CONST_SLOT_LEGS) == legs,
+  "permanent equipment keeps protecting across hits");
+ g_game.internalRemoveItem(legs);
+}
+
 static void effects(Player& target)
 {
  struct Vector { ConditionType_t type; int force; int total; int cadence; int pulses; };
@@ -391,7 +410,7 @@ int main()
   DynamicTile origin(100,100,7), destination(101,100,7);
   Player attacker(nullptr), target(nullptr);
   LoginGateCoreTestAccess::prepare(attacker,group,origin); LoginGateCoreTestAccess::prepare(target,group,destination);
-  weaponVectors(attacker,weapons); pipeline(attacker,target); effects(target); contactPoison(attacker,target); fields(target); learningSources(attacker,target,weapons); rangedDefense(attacker,target,weapons); spellCallbacks(attacker);
+  weaponVectors(attacker,weapons); pipeline(attacker,target); chargeLessProtection(attacker,target); effects(target); contactPoison(attacker,target); fields(target); learningSources(attacker,target,weapons); rangedDefense(attacker,target,weapons); spellCallbacks(attacker);
   g_game.cleanup(true);
   std::cout << "PASS legacy combat: " << checks << " actual core/Lua checks" << std::endl;
   return 0;

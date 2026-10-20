@@ -1705,8 +1705,11 @@ void Player::applyLegacyProtection(int32_t& damage, CombatType_t combatType, boo
   if (percent) damage = LegacyCombat::protect(damage, percent);
   if (fieldPercent && damage > 0) damage = LegacyCombat::protect(damage, fieldPercent);
   const uint16_t charges = item->getCharges();
+  // Permanently equipped items carry no ITEM_ATTRIBUTE_CHARGES, so getCharges()
+  // returns 0. Only consumables with a defined use count may be decremented or
+  // destroyed here; charge-less equipment must keep protecting forever.
   if (charges > 1) g_game.transformItem(item, item->getID(), charges - 1);
-  else g_game.internalRemoveItem(item);
+  else if (charges == 1) g_game.internalRemoveItem(item);
  }
 }
 
@@ -1724,7 +1727,7 @@ void Player::applyLegacyConditionProtection(int32_t& force, ConditionType_t type
   force = LegacyCombat::protect(force, percent);
   const uint16_t charges = item->getCharges();
   if (charges > 1) g_game.transformItem(item, item->getID(), charges - 1);
-  else g_game.internalRemoveItem(item);
+  else if (charges == 1) g_game.internalRemoveItem(item);
  }
 }
 
@@ -3708,7 +3711,27 @@ bool Player::isPromoted() const
 
 unsigned Player::getLegacyDeathPercent() const
 {
- return LegacyDeath::percent(isPremium(), isPromoted(), std::bitset<5>(blessings).count());
+ const int32_t blessingCount = static_cast<int32_t>(std::bitset<5>(blessings).count());
+
+ // Restored configuration and achievement paths: deathLosePercent overrides the
+ // legacy table when set, and storage 17806 still scales the final percentage.
+ int32_t achievementReduction = 0;
+ getStorageValue(17806, achievementReduction);
+ achievementReduction = std::max<int32_t>(0, std::min<int32_t>(100, achievementReduction));
+ const int32_t achievementPercent = 100 - achievementReduction;
+
+ const int32_t configured = g_config.getNumber(ConfigManager::DEATH_LOSE_PERCENT);
+ int32_t percent;
+ if (configured != -1) {
+  percent = configured;
+  if (isPromoted()) percent -= 3;
+  percent -= blessingCount;
+ } else {
+  percent = static_cast<int32_t>(LegacyDeath::percent(isPremium(), isPromoted(), blessingCount));
+ }
+
+ percent = std::max<int32_t>(0, percent);
+ return static_cast<unsigned>(percent * achievementPercent / 100);
 }
 
 double Player::getLostPercent() const
