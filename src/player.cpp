@@ -3720,7 +3720,7 @@ unsigned Player::getLegacyDeathPercent() const
  achievementReduction = std::max<int32_t>(0, std::min<int32_t>(100, achievementReduction));
  const int32_t achievementPercent = 100 - achievementReduction;
 
- const int32_t configured = g_config.getNumber(ConfigManager::DEATH_LOSE_PERCENT);
+ const int32_t configured = g_config.isLoaded() ? g_config.getNumber(ConfigManager::DEATH_LOSE_PERCENT) : -1;
  int32_t percent;
  if (configured != -1) {
   percent = configured;

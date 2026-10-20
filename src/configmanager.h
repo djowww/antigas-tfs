@@ -120,6 +120,7 @@ class ConfigManager
 
 		bool load();
 		bool reload();
+		bool isLoaded() const { return loaded; }
 
 		const std::string& getString(string_config_t what) const;
 		int32_t getNumber(integer_config_t what) const;

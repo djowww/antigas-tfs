@@ -1008,12 +1008,12 @@ void Creature::addDamagePoints(Creature* attacker, int32_t damagePoints)
             it->second.ticks = OTSYS_TIME();
         }
     };
-    // Contributions are kept in int32 so single hits above 65535 and the summon
-    // split do not truncate; the remainder of an odd hit stays with the attacker.
+    // Contributions stay in int32 so single hits above 65535 no longer truncate;
+    // the summon split keeps the reference halves (an odd hit contributes floor/floor).
     if (Creature* owner = attacker->getMaster()) {
         const int32_t half = damagePoints / 2;
         record(owner, half);
-        record(attacker, damagePoints - half);
+        record(attacker, half);
     } else { record(attacker, damagePoints); }
     lastHitCreatureId = attacker->id;
 }
