@@ -92,3 +92,25 @@ class Store:
             # Bounded rows as well as age: preserve models/checkpoints under log pressure.
             self.db.execute('DELETE FROM events WHERE at<? OR id<coalesce((SELECT max(id)-10000 FROM events),0)', (at-7*86400,))
         self.db.execute('PRAGMA wal_checkpoint(PASSIVE)')
+
+    def record_events_and_checkpoint(self, agent, events, state):
+        """Commit related events and their recovery checkpoint atomically."""
+        self._agent(agent)
+        checkpoint=json.dumps(state,allow_nan=False,separators=(',',':'))
+        if len(checkpoint.encode())>1048576:
+            raise ValueError('checkpoint too large')
+        rows=[]
+        for at,kind,payload in events:
+            encoded=json.dumps(payload,allow_nan=False,separators=(',',':'))
+            if len(encoded.encode())>8192:
+                raise ValueError('event too large')
+            rows.append((at,agent,kind,encoded))
+        if not rows:
+            raise ValueError('at least one event is required')
+        with self.db:
+            self.db.execute('INSERT OR REPLACE INTO checkpoints VALUES(?,?,?)',
+                            (agent,VERSION,checkpoint))
+            self.db.executemany('INSERT INTO events(at,agent,kind,payload) VALUES(?,?,?,?)',rows)
+            self.db.execute('DELETE FROM events WHERE at<? OR id<coalesce((SELECT max(id)-10000 FROM events),0)',
+                            (max(row[0] for row in rows)-7*86400,))
+        self.db.execute('PRAGMA wal_checkpoint(PASSIVE)')

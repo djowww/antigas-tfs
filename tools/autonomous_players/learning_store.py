@@ -33,18 +33,33 @@ class LearningStore:
                 agent TEXT NOT NULL, state TEXT NOT NULL, action TEXT NOT NULL,
                 value REAL NOT NULL, updates INTEGER NOT NULL,
                 PRIMARY KEY(agent,state,action));
+            CREATE TABLE IF NOT EXISTS agents(agent TEXT PRIMARY KEY);
+            CREATE INDEX IF NOT EXISTS idx_learning_transitions_agent_id
+                ON transitions(agent,id DESC);
+            CREATE INDEX IF NOT EXISTS idx_learning_route_edges_agent_at
+                ON route_edges(agent,at);
         ''')
+        with self.db:
+            # One-time backfill keeps older learner databases within the same
+            # agent budget without scanning history on every subsequent write.
+            self.db.execute('''INSERT OR IGNORE INTO agents(agent)
+                SELECT agent FROM checkpoints UNION SELECT agent FROM transitions
+                UNION SELECT agent FROM route_edges UNION SELECT agent FROM qvalues''')
         self.db.execute('PRAGMA wal_autocheckpoint=64')
         self.db.execute('PRAGMA journal_size_limit=1048576')
 
     def _agent(self, agent):
         if not isinstance(agent, str) or not 1 <= len(agent) <= 64:
             raise ValueError('invalid agent')
-        count = self.db.execute('''SELECT count(DISTINCT agent) FROM (
-            SELECT agent FROM checkpoints UNION SELECT agent FROM transitions)''').fetchone()[0]
-        known = self.db.execute('SELECT 1 FROM checkpoints WHERE agent=? UNION SELECT 1 FROM transitions WHERE agent=?', (agent, agent)).fetchone()
-        if not known and count >= self.max_agents:
+        known = self.db.execute('SELECT 1 FROM agents WHERE agent=?',(agent,)).fetchone()
+        if known:
+            return
+        count = self.db.execute('SELECT count(*) FROM agents').fetchone()[0]
+        if count >= self.max_agents:
             raise ValueError('agent budget exhausted')
+
+    def _register_agent(self,agent):
+        self.db.execute('INSERT OR IGNORE INTO agents(agent) VALUES(?)',(agent,))
 
     def record_transition(self, agent, state, action, next_state, outcome, reward, at):
         self._agent(agent)
@@ -56,6 +71,7 @@ class LearningStore:
         if len(payload.encode()) > 8192:
             raise ValueError('outcome too large')
         with self.db:
+            self._register_agent(agent)
             self.db.execute('INSERT INTO transitions(at,agent,state,action,next_state,outcome,reward) VALUES(?,?,?,?,?,?,?)',
                             (float(at), agent, state, action, next_state, payload, float(reward)))
             self.db.execute('''DELETE FROM transitions WHERE agent=? AND id NOT IN
@@ -65,6 +81,7 @@ class LearningStore:
     def route_edge(self, agent, source, destination, transition_id, success, at):
         self._agent(agent)
         with self.db:
+            self._register_agent(agent)
             self.db.execute('INSERT INTO route_edges VALUES(?,?,?,?,?,?)',
                             (agent, str(source), str(destination), int(transition_id), int(bool(success)), float(at)))
             self.db.execute('''DELETE FROM route_edges WHERE rowid IN
@@ -84,6 +101,7 @@ class LearningStore:
         exists = self.db.execute('SELECT 1 FROM qvalues WHERE agent=? AND state=? AND action=?',
                                  (agent, state, action)).fetchone()
         with self.db:
+            self._register_agent(agent)
             if not exists and self.db.execute('SELECT count(*) FROM qvalues WHERE agent=?', (agent,)).fetchone()[0] >= self.max_values:
                 self.db.execute('''DELETE FROM qvalues WHERE rowid IN
                                    (SELECT rowid FROM qvalues WHERE agent=? ORDER BY updates ASC, rowid ASC LIMIT 1)''', (agent,))
@@ -98,6 +116,7 @@ class LearningStore:
             raise ValueError('checkpoint too large')
         checksum = hashlib.sha256(encoded.encode()).hexdigest()
         with self.db:
+            self._register_agent(agent)
             seq = self.db.execute('SELECT coalesce(max(seq),0)+1 FROM checkpoints WHERE agent=?', (agent,)).fetchone()[0]
             self.db.execute('INSERT INTO checkpoints VALUES(?,?,?,?)', (agent, seq, encoded, checksum))
             self.db.execute('''DELETE FROM checkpoints WHERE agent=? AND seq NOT IN

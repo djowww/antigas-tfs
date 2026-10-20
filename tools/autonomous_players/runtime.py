@@ -18,7 +18,7 @@ class SessionTimeout(TimeoutError):
 async def deadline(operation,seconds,stage):
     try:
         return await asyncio.wait_for(operation,seconds)
-    except TimeoutError:
+    except (asyncio.TimeoutError, TimeoutError):
         raise SessionTimeout(stage) from None
 
 

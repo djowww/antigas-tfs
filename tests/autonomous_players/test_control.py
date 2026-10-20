@@ -128,8 +128,9 @@ class SupervisorTests(unittest.TestCase):
         guard = Supervisor()
         self.advance(guard,0,295)
         self.assertEqual(guard.observe(HealthSample(300, 300, 767, 20, 50, 123)).target, 0)
-        self.assertEqual(guard.observe(HealthSample(301, 301, 768, 20, 50, 123)).target, 0)
-        self.assertEqual(self.advance(guard,306,601).target,1)
+        self.assertEqual(guard.observe(HealthSample(301, 301, 1023, 20, 50, 123)).target, 0)
+        self.assertEqual(self.advance(guard,306,601).target,0)
+        self.assertEqual(guard.observe(sample(606)).target,1)
 
     def test_recovery_requires_continuous_health(self):
         guard = Supervisor()

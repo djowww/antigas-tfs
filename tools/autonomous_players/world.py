@@ -104,6 +104,6 @@ class World:
             self.tiles = {k: v for k, v in self.tiles.items() if k.z in floors and
                           -8 <= k.x-p.x-(p.z-k.z) <= 9 and -6 <= k.y-p.y-(p.z-k.z) <= 7}
             present = {t.creature_id for tile in self.tiles.values() for t in tile if t.creature_id}
-            for c in self.creatures.values():
-                if c.id not in present:
+            for creature_id,c in tuple(self.creatures.items()):
+                if creature_id not in present:
                     c.position = None

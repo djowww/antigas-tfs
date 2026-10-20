@@ -27,6 +27,30 @@ class DirectAdmissionTests(unittest.TestCase):
     def test_insufficient_admission_memory_cannot_start_ten(self):
         self.assertEqual(Supervisor(immediate_target=10).observe(self.sample(memory_mib=700)).target,0)
 
+    def test_memory_recovery_requires_headroom_above_running_threshold(self):
+        guard=Supervisor(immediate_target=20)
+        self.assertEqual(guard.observe(self.sample(memory_mib=900)).target,0)
+        self.assertEqual(guard.observe(self.sample(5,memory_mib=1200)).target,20)
+        guard._suspend('memory')
+        for t in range(10,320,5):
+            decision=guard.observe(self.sample(t,memory_mib=900))
+        self.assertTrue(decision.suspended)
+        self.assertEqual(decision.target,0)
+        for t in range(320,630,5):
+            decision=guard.observe(self.sample(t,memory_mib=1200))
+        self.assertFalse(decision.suspended)
+        self.assertEqual(decision.target,20)
+
+    def test_twenty_online_suspend_after_sustained_memory_pressure(self):
+        guard=Supervisor(immediate_target=20)
+        self.assertEqual(guard.observe(self.sample()).target,20)
+        for second in (5,10,15):
+            self.assertFalse(guard.observe(self.sample(second,memory_mib=700)).suspended)
+        decision=guard.observe(self.sample(20,memory_mib=700))
+        self.assertTrue(decision.suspended)
+        self.assertEqual(decision.target,0)
+        self.assertEqual(decision.reason,'memory')
+
     def test_cpu_latch_can_recover_but_other_failure_cannot_be_cleared(self):
         for reason,expected in [('cpu',10),('SQL delay',0),('client protocol fault',0)]:
             guard=Supervisor(immediate_target=10)

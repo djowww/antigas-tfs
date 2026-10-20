@@ -71,6 +71,24 @@ class SessionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(failure.exception.stage,'read')
         self.assertEqual(cancelled,[True])
 
+    async def test_deadline_normalizes_python310_asyncio_timeout(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from tools.autonomous_players import runtime
+
+        class LegacyAsyncioTimeout(Exception):
+            pass
+
+        async def wait_for(operation,seconds):
+            operation.close()
+            raise LegacyAsyncioTimeout()
+
+        fake_asyncio=SimpleNamespace(wait_for=wait_for,TimeoutError=LegacyAsyncioTimeout)
+        with patch.object(runtime,'asyncio',fake_asyncio):
+            with self.assertRaises(runtime.SessionTimeout) as failure:
+                await runtime.deadline(asyncio.sleep(0),.01,'connect')
+        self.assertEqual(failure.exception.stage,'connect')
+
     async def test_rate_budget_waits_without_dropping_actions(self):
         state=[0.0]
         async def sleep(delay):

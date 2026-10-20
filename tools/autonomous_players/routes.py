@@ -45,13 +45,38 @@ class RouteGraph:
             step = self.tiles[step]
         return step if step in self.tiles else None
 
-    def next_step(self,start,goal,max_nodes=40000):
+    def next_step(self,start,goal,max_nodes=40000,blocked=()):
         if start not in self.tiles or goal not in self.tiles or start == goal:
             return None
-        key=(start,goal)
+        blocked=frozenset(blocked)
+        if goal in blocked:
+            return None
+        key=(start,goal,blocked,max_nodes)
         if key in self.cache:
             self.cache.move_to_end(key)
             return self.cache[key]
+        if blocked:
+            # Creature positions change constantly. Follow the cached static
+            # route when every tile on it is still clear; search again only
+            # when an occupant actually blocks that route.
+            base_key=(start,goal,frozenset(),max_nodes)
+            if base_key not in self.cache:
+                self.next_step(start,goal,max_nodes)
+            if self.cache.get(base_key) is not None:
+                p,first,seen=start,None,set()
+                while p!=goal and p not in seen:
+                    seen.add(p)
+                    step=self.cache.get((p,goal,frozenset(),max_nodes))
+                    if step is None:
+                        break
+                    destination=self.destination(step)
+                    if step in blocked or destination in blocked or destination is None:
+                        break
+                    if first is None:
+                        first=step
+                    p=destination
+                if p==goal:
+                    return first
         serial = count()
         queue,costs,parent = [(0,next(serial),start)],{start:0},{}
         while queue and len(costs) <= max_nodes:
@@ -59,7 +84,7 @@ class RouteGraph:
             if p == goal:
                 while p!=start:
                     previous,step=parent[p]
-                    self.cache[(previous,goal)]=step
+                    self.cache[(previous,goal,blocked,max_nodes)]=step
                     p=previous
                 result=self.cache[key]
                 while len(self.cache)>8192:
@@ -67,15 +92,18 @@ class RouteGraph:
                 return result
             for dx,dy in ((0,1),(1,0),(0,-1),(-1,0)):
                 step = p.shift(dx,dy)
-                if step not in self.tiles:
+                if step not in self.tiles or step in blocked:
                     continue
                 destination = self.destination(step)
-                if destination not in self.tiles:
+                if destination not in self.tiles or destination in blocked:
                     continue
                 cost = costs[p]+1
                 if cost < costs.get(destination,1e20):
                     costs[destination],parent[destination] = cost,(p,step)
                     heapq.heappush(queue,(cost,next(serial),destination))
+        self.cache[key] = None
+        while len(self.cache)>8192:
+            self.cache.popitem(last=False)
         return None
 
 

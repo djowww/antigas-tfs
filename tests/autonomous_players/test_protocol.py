@@ -3,7 +3,7 @@ from pathlib import Path
 
 from tools.autonomous_players.definitions import load_items
 from tools.autonomous_players.wire import Writer, ProtocolError
-from tools.autonomous_players.world import World, Position, Creature
+from tools.autonomous_players.world import World, Position, Creature, Thing
 from tools.autonomous_players.protocol import Decoder, attack, say, use_item
 
 ITEMS = load_items(Path(__file__).resolve().parents[2] / 'data/items/items.srv')
@@ -59,6 +59,37 @@ class DecoderTests(unittest.TestCase):
         self.assertEqual(self.w.creatures[0x40000001].position, Position(102, 100, 7))
         self.assertEqual(self.w.creatures[0x10000002].position, p)
 
+    def test_server_known_creature_update_survives_local_viewport_prune(self):
+        cid=0x40000003
+        self.w.position=Position(100,100,7)
+        self.w.creatures[cid]=Creature(cid,'Cave Rat',Position(500,500,7))
+        self.w.tiles[Position(500,500,7)]=[Thing(0,creature_id=cid)]
+        self.w.prune()
+        self.assertIsNone(self.w.creatures[cid].position)
+
+        packet=pos(Writer().u8(0x69),101,100,7).u16(0)
+        packet.u16(0x62).u32(cid).u8(80).u8(1).u16(128).raw(bytes(5))
+        packet.u16(0).u8(0).u8(0).u16(220).raw(bytes(3)).u16(0xff00)
+        self.d.feed_payload(packet.data,self.w)
+
+        self.assertEqual(self.w.creatures[cid].health,80)
+        self.assertEqual(self.w.creatures[cid].position,Position(101,100,7))
+
+    def test_server_eviction_packet_removes_retained_known_creature(self):
+        old_id,new_id=0x40000003,0x40000004
+        self.w.position=Position(100,100,7)
+        self.w.creatures[old_id]=Creature(old_id,'Rat',Position(500,500,7))
+        self.w.tiles[Position(500,500,7)]=[Thing(0,creature_id=old_id)]
+        self.w.prune()
+        packet=pos(Writer().u8(0x69),100,100,7).u16(0)
+        packet.u16(0x61).u32(old_id).u32(new_id).string('Rat').u8(100).u8(0)
+        packet.u16(128).raw(bytes(5)).u16(0).u8(0).u8(0).u16(220).raw(bytes(3)).u16(0xff00)
+
+        self.d.feed_payload(packet.data,self.w)
+
+        self.assertNotIn(old_id,self.w.creatures)
+        self.assertEqual(self.w.creatures[new_id].name,'Rat')
+
     def test_unknown_and_truncated_packets_invalidate_world(self):
         for packet in (b'\x01', b'\xa0\x01'):
             world = World()
@@ -69,7 +100,8 @@ class DecoderTests(unittest.TestCase):
     def test_container_slot_updates(self):
         p = Writer().u8(0x6e).u8(0).u16(2853).string('bag').u8(20).u8(0).u8(2).u16(3031).u8(7).u16(3585).u8(2)
         p.u8(0x71).u8(0).u8(0).u16(3031).u8(8).u8(0x72).u8(0).u8(1)
-        self.d.feed_payload(p.data, self.w)
+        events=self.d.feed_payload(p.data, self.w)
+        self.assertEqual((events[0].kind,events[0].data),('container_open',(0,2853)))
         self.assertEqual(len(self.w.containers[0].items), 1)
         self.assertEqual(self.w.containers[0].items[0].count, 8)
 

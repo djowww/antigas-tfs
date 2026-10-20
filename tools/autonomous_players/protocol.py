@@ -261,7 +261,7 @@ class Decoder:
             cid, item = r.u8(), self.item(r)
             name, capacity, parent, count = r.string(255), r.u8(), bool(r.u8()), r.u8()
             w.containers[cid] = Container(cid,item.id,name,capacity,parent,[self.item(r) for _ in range(count)])
-            return Event('container', cid)
+            return Event('container_open', (cid,item.id))
         if op == 0x6f:
             cid = r.u8()
             w.containers.pop(cid,None)

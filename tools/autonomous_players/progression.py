@@ -1,4 +1,5 @@
 """Navigation and observed NPC dialogues for ordinary progression and supplies."""
+import time
 from .world import Position
 from .social import Oracle,Purchase
 from .protocol import say
@@ -7,10 +8,24 @@ from .navigation import find_path,walk_packet,walkable
 # Surface animal spawns verified in the active Rook spawn map.
 FOOD_POINTS = (Position(32105,32245,7), Position(32108,32230,7),
                Position(32085,32238,7), Position(32053,32220,7),
-               Position(32023,32225,7), Position(32074,32239,7))
+               Position(32023,32225,7), Position(32074,32239,7),
+               Position(32046,32235,7), Position(32033,32239,7),
+               Position(32067,32233,7), Position(32048,32227,7),
+               Position(32025,32209,7), Position(32072,32224,7))
+STAIR_OFFSETS = {1947:(0,-1,-1),1950:(1,0,-1),1952:(-1,0,-1),1954:(0,1,-1),
+                 413:(0,1,1),414:(0,1,1),428:(0,1,1),369:(0,0,1),370:(0,0,1),385:(0,0,1)}
 
 
 class Progression:
+    WOUNDED_HEALTH_RATIO=.65
+    CRITICAL_HEALTH_RATIO=.35
+    HEALER_VISIBILITY_GRACE_SECONDS=8
+    ROUTE_STEP_TIMEOUT_SECONDS=10
+    ROUTE_STEP_COOLDOWN_SECONDS=15
+    ROUTE_STEP_RETRY_SECONDS=1
+    FORAGE_FRONTIER_TIMEOUT_SECONDS=10
+    FORAGE_FRONTIER_RETRY_SECONDS=1
+
     def __init__(self,profile,world,items,routes=None,oracle_position=Position(32104,32190,6),
                  rook_bounds=(32000,32000,32200,32350),hunting_points=(),learned_graph=None):
         self.profile,self.world,self.items,self.routes = profile,world,items,routes
@@ -21,6 +36,14 @@ class Progression:
         self.purchase = None
         self.halted = False
         self.healer_greeted = False
+        self.healer_request_health = None
+        self.healer_retry_at = 0
+        self.healer_forage_until = 0
+        self.needs_food = False
+        self.healer_retries = 0
+        self.healer_last_response = None
+        self.healer_last_response_at = None
+        self.healer_missing_since = None
         self.travel_started,self.travel_position,self.travel_progress=None,None,None
         if len(hunting_points)>64:
             raise ValueError('hunting route budget exceeded')
@@ -28,12 +51,20 @@ class Progression:
         self.learned_graph=learned_graph
         self.hunting_index=profile.get('account',0)%len(self.hunting_points) if self.hunting_points else 0
         self.hunting_started,self.hunting_position,self.hunting_progress=None,None,None
+        self.strategy_hint_applied=False
         self.forage_index=profile.get('account',0)%len(FOOD_POINTS)
         self.forage_started,self.forage_position,self.forage_progress=None,None,None
         self.forage_arrived=None
+        self.forage_visits={}
+        self.forage_frontier_source=self.forage_frontier_step=None
+        self.forage_frontier_started=self.forage_frontier_last_sent=None
+        self.blocked_steps={}
+        self.active_route_source=self.active_route_step=None
+        self.active_route_goal=self.active_route_started=None
+        self.active_route_last_sent=None
 
     def forage(self,now):
-        if not self.in_rook() or not self.routes or self.world.position.z!=7:
+        if not self.in_rook() or self.world.position.z!=7:
             return []
         p=self.world.position
         goal=FOOD_POINTS[self.forage_index]
@@ -44,50 +75,136 @@ class Progression:
         if p.distance(goal)<=4:
             self.forage_arrived=self.forage_arrived or now
         if self.forage_arrived is not None and now-self.forage_arrived<90:
-            return self._toward(goal) if p.distance(goal)>6 else []
+            return self._toward(goal,now) if p.distance(goal)>6 else []
         if (self.forage_arrived is not None or now-self.forage_started>180 or
                 now-self.forage_progress>20):
             self.forage_index=(self.forage_index+1)%len(FOOD_POINTS)
             self.forage_started,self.forage_position,self.forage_progress=now,p,now
             self.forage_arrived=None
             goal=FOOD_POINTS[self.forage_index]
-        return self._toward(goal)
+        route=self._toward(goal,now)
+        if route or p.distance(goal)<=6:
+            self.forage_frontier_source=self.forage_frontier_step=None
+            self.forage_frontier_started=self.forage_frontier_last_sent=None
+            return route
+        # When the saved route ends at an unobserved tile, take one safe
+        # observed frontier step toward food instead of remaining idle.
+        self.forage_visits[p]=self.forage_visits.get(p,0)+1
+        if len(self.forage_visits)>512:
+            self.forage_visits.pop(next(iter(self.forage_visits)))
+        self.blocked_steps={step:expiry for step,expiry in self.blocked_steps.items() if expiry>now}
+        if (self.forage_frontier_source==p and self.forage_frontier_step is not None and
+                self.forage_frontier_started is not None and
+                now-self.forage_frontier_started>=self.FORAGE_FRONTIER_TIMEOUT_SECONDS):
+            if len(self.blocked_steps)>=256 and self.forage_frontier_step not in self.blocked_steps:
+                del self.blocked_steps[next(iter(self.blocked_steps))]
+            self.blocked_steps[self.forage_frontier_step]=now+self.ROUTE_STEP_COOLDOWN_SECONDS
+            self.forage_frontier_source=self.forage_frontier_step=None
+            self.forage_frontier_started=self.forage_frontier_last_sent=None
+        elif (self.forage_frontier_source==p and self.forage_frontier_step is not None and
+              self.forage_frontier_last_sent is not None and
+              now-self.forage_frontier_last_sent<self.FORAGE_FRONTIER_RETRY_SECONDS):
+            return []
+        occupied={c.position for c in self.world.creatures.values()
+                  if c.id!=self.world.self_id and c.position is not None}
+        candidates=[p.shift(dx,dy) for dx,dy in ((0,1),(1,0),(0,-1),(-1,0))
+                    if p.shift(dx,dy) not in occupied and
+                    p.shift(dx,dy) not in self.blocked_steps and
+                    walkable(self.world,p.shift(dx,dy),self.items)]
+        if not candidates:
+            return []
+        step=min(candidates,key=lambda tile:(tile.distance(goal),
+                                             self.forage_visits.get(tile,0),tile.x,tile.y))
+        if (self.forage_frontier_source,self.forage_frontier_step)!=(p,step):
+            self.forage_frontier_source,self.forage_frontier_step=p,step
+            self.forage_frontier_started=now
+        self.forage_frontier_last_sent=now
+        return [walk_packet(p,step)]
+
+    def _health_below(self,ratio):
+        stats=self.world.stats
+        return stats.max_health>0 and stats.health<stats.max_health*ratio
+
+    def _possessions(self):
+        possessions=list(self.world.inventory.values())
+        for container in self.world.containers.values():
+            definition=self.items.get(container.item_id)
+            if ('dead' in container.name.lower() or
+                    (definition and 'dead' in definition.name.lower())):
+                continue
+            possessions.extend(container.items)
+        return possessions
 
     def recover(self,now):
         if not self.in_rook():
             return []
         w=self.world
+        if not self._health_below(self.CRITICAL_HEALTH_RATIO):
+            self.healer_request_health=None
+            self.healer_retry_at=0
+            self.healer_forage_until=0
+            self.healer_retries=0
+        if self.healer_forage_until:
+            if now<self.healer_forage_until:
+                return self.forage(now)
+            else:
+                self.healer_forage_until=0
+                self.healer_retries=0
         temple=Position(32097,32218,7)
-        possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
+        possessions=self._possessions()
         gold=sum(i.count for i in possessions if i.id==3031)
         food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
-        if w.stats.health>=65 and not self.healer_greeted and not food and gold>=3:
+        if food:
+            self.needs_food=False
+        elif self._health_below(self.WOUNDED_HEALTH_RATIO):
+            self.needs_food=True
+        if not self._health_below(self.WOUNDED_HEALTH_RATIO) and not self.healer_greeted and not food and gold>=3:
             self.next_purchase=0
             return self.step(now)
         healer=self._npc('Cipfried')
-        if healer and w.position.distance(healer.position)>1:
-            goal=temple
-            if goal.distance(healer.position)>1:
-                candidates=[healer.position.shift(dx,dy) for dx,dy in
-                            ((0,1),(1,0),(0,-1),(-1,0),(1,1),(-1,1),(1,-1),(-1,-1))]
-                goals=[p for p in candidates if walkable(w,p,self.items)]
-                if goals: goal=min(goals,key=lambda p:w.position.distance(p))
-            return self._toward(goal)
-        if not healer and w.position.distance(temple)>1:
-            return self._toward(temple)
+        if not healer:
+            if w.position.distance(temple)>1:
+                self.healer_missing_since=None
+                return self._toward(temple,now)
+            if self.healer_missing_since is None:
+                self.healer_missing_since=now
+            if now-self.healer_missing_since<self.HEALER_VISIBILITY_GRACE_SECONDS:
+                return []
+            return self.forage(now)
+        self.healer_missing_since=None
         if healer:
-            if w.stats.health<65:
-                result=self._speak('Cipfried','heal' if self.healer_greeted else 'hi',now)
-                if result:self.healer_greeted=True
+            if self._health_below(self.CRITICAL_HEALTH_RATIO):
+                if self.healer_request_health is not None and w.stats.health>self.healer_request_health:
+                    self.healer_request_health=None
+                    self.healer_retry_at=0
+                    self.healer_greeted=False
+                    self.healer_retries=0
+                if self.healer_retry_at and now<self.healer_retry_at:
+                    return []
+                if self.healer_retry_at and self.healer_request_health is not None:
+                    # Re-open the NPC conversation if a heal request produced no
+                    # health change; do not repeat "heal" indefinitely.
+                    self.healer_retries+=1
+                    self.healer_greeted=False
+                    self.healer_request_health=None
+                    self.healer_retry_at=0
+                    if self.healer_retries>=3:
+                        self.healer_forage_until=now+30
+                        return self.forage(now)
+                text='heal' if self.healer_greeted else 'hi'
+                result=self._speak('Cipfried',text,now)
+                if result:
+                    self.healer_greeted=True
+                    if text=='heal':
+                        self.healer_request_health=w.stats.health
+                        self.healer_retry_at=now+6
                 return result
             if self.healer_greeted:
-                result=self._speak('Cipfried','bye',now)
-                if result:self.healer_greeted=False
-                return result
+                return self.finish_healer_dialogue(now)
         return []
 
     def _patrol(self,now):
-        if not self.routes or not self.hunting_points:
+        if not self.hunting_points:
             return []
         p=self.world.position
         goal=self.hunting_points[self.hunting_index]
@@ -113,19 +230,20 @@ class Progression:
                     self.hunting_index=self.hunting_points.index(learned_goal)
                 elif self.learned_graph.has_blocked_goal(self.profile['character'], p, self.hunting_points, now):
                     return []
-        route = self._toward(goal)
+        route = self._toward(goal,now)
         if route or not self.learned_graph:
             return route
         self.learned_graph.record_failure(self.profile['character'], p, goal, 'blocked', now)
         alternate = self.learned_graph.next_goal(self.profile['character'], p, self.hunting_points, now)
         if alternate is not None and alternate != goal:
             self.hunting_index = self.hunting_points.index(alternate)
-            return self._toward(alternate)
+            return self._toward(alternate,now)
         return []
 
     @property
     def busy(self):
-        return bool(self.pending or self.purchase or (self.in_rook() and self.world.stats.level>=8 and
+        return bool(self.pending or self.purchase or self.travel_started is not None or
+                    (self.in_rook() and self.world.stats.level>=8 and
                     self.profile.get('observed_vocation')==0 and not self.halted))
 
     def in_rook(self):
@@ -135,9 +253,36 @@ class Progression:
 
     def observe(self,events,now):
         for event in events:
+            if event.kind=='move' and event.data[0]==self.world.self_id:
+                _,old,new=event.data
+                if old==self.forage_frontier_source:
+                    self.forage_frontier_source=self.forage_frontier_step=None
+                    self.forage_frontier_started=self.forage_frontier_last_sent=None
+                if old==self.active_route_source:
+                    self.active_route_source=self.active_route_step=None
+                    self.active_route_goal=self.active_route_started=None
+                    self.active_route_last_sent=None
+            elif (event.kind=='walk_cancel' and self.active_route_step and
+                  self.world.position==self.active_route_source):
+                if len(self.blocked_steps)>=256 and self.active_route_step not in self.blocked_steps:
+                    del self.blocked_steps[next(iter(self.blocked_steps))]
+                self.blocked_steps[self.active_route_step]=now+self.ROUTE_STEP_COOLDOWN_SECONDS
+                self.active_route_source=self.active_route_step=None
+                self.active_route_goal=self.active_route_started=None
+                self.active_route_last_sent=None
+            elif (event.kind=='walk_cancel' and self.forage_frontier_step and
+                  self.world.position==self.forage_frontier_source):
+                if len(self.blocked_steps)>=256 and self.forage_frontier_step not in self.blocked_steps:
+                    del self.blocked_steps[next(iter(self.blocked_steps))]
+                self.blocked_steps[self.forage_frontier_step]=now+self.ROUTE_STEP_COOLDOWN_SECONDS
+                self.forage_frontier_source=self.forage_frontier_step=None
+                self.forage_frontier_started=self.forage_frontier_last_sent=None
             if event.kind != 'speech':
                 continue
             author,text=event.data['author'],event.data['text']
+            if author=='Cipfried':
+                self.healer_last_response=str(text)[:160]
+                self.healer_last_response_at=now
             response=self.oracle.reply(author,text,now)
             if response:
                 self.pending.append((author,response))
@@ -147,6 +292,37 @@ class Progression:
                     self.pending.append((author,response))
             if author=='The Oracle' and self.oracle.state=='confirmed' and 'SO BE IT' in text.upper():
                 self.halted=True  # The new world snapshot supplies the next phase.
+
+    def healing_status(self,now=None):
+        now=time.monotonic() if now is None else now
+        healer=self._npc('Cipfried')
+        return {
+            'health':self.world.stats.health,
+            'healer_visible':bool(healer),
+            'healer_distance':self.world.position.distance(healer.position) if healer and self.world.position else None,
+            'greeted':self.healer_greeted,
+            'waiting_until':self.healer_retry_at or None,
+            'foraging_until':self.healer_forage_until or None,
+            'needs_food':self.needs_food,
+            'retries':self.healer_retries,
+            'last_response':self.healer_last_response,
+            'last_response_age':round(now-self.healer_last_response_at,1) if self.healer_last_response_at is not None else None,
+            'healer_missing_for':round(now-self.healer_missing_since,1) if self.healer_missing_since is not None else None,
+        }
+
+    def hunting_status(self,now=None):
+        now=time.monotonic() if now is None else now
+        goal=self.hunting_points[self.hunting_index] if self.hunting_points else None
+        stalled_for=max(0,round(now-self.hunting_progress,1)) if self.hunting_progress is not None else None
+        return {
+            'route_graph_loaded':bool(self.routes),
+            'route_tiles':len(self.routes.tiles) if self.routes else 0,
+            'hunting_points':len(self.hunting_points),
+            'goal':[goal.x,goal.y,goal.z] if goal else None,
+            'goal_distance':self.world.position.distance(goal) if goal and self.world.position else None,
+            'stalled_seconds':stalled_for,
+            'stalled':stalled_for is not None and stalled_for>20,
+        }
 
     def _npc(self,name):
         p=self.world.position
@@ -161,31 +337,125 @@ class Progression:
         self.last_speech=now
         return [say(text)]
 
-    def _toward(self,goal):
+    def finish_healer_dialogue(self,now):
+        """Close a completed healer conversation without restarting recovery travel."""
+        if not self.healer_greeted or self._health_below(self.CRITICAL_HEALTH_RATIO):
+            return None
+        if not self._npc('Cipfried'):
+            self.healer_greeted=False
+            return None
+        result=self._speak('Cipfried','bye',now)
+        if result:
+            self.healer_greeted=False
+        return result
+
+    def _toward(self,goal,now=None):
         w=self.world
         p=w.position
+        now=time.monotonic() if now is None else now
+        self.blocked_steps={step:expiry for step,expiry in self.blocked_steps.items() if expiry>now}
+        if (self.active_route_source==p and self.active_route_goal==goal and
+                self.active_route_started is not None and
+                now-self.active_route_started>=self.ROUTE_STEP_TIMEOUT_SECONDS):
+            if len(self.blocked_steps)>=256 and self.active_route_step not in self.blocked_steps:
+                del self.blocked_steps[next(iter(self.blocked_steps))]
+            self.blocked_steps[self.active_route_step]=now+self.ROUTE_STEP_COOLDOWN_SECONDS
+            self.active_route_source=self.active_route_step=None
+            self.active_route_goal=self.active_route_started=None
+            self.active_route_last_sent=None
+        elif self.active_route_source!=p or self.active_route_goal!=goal:
+            self.active_route_source=self.active_route_step=None
+            self.active_route_goal=self.active_route_started=None
+            self.active_route_last_sent=None
+
+        def route_action(step):
+            if (self.active_route_source,self.active_route_step,self.active_route_goal)!=(p,step,goal):
+                self.active_route_source,self.active_route_step=p,step
+                self.active_route_goal,self.active_route_started=goal,now
+                self.active_route_last_sent=None
+            if (self.active_route_last_sent is not None and
+                    now-self.active_route_last_sent<self.ROUTE_STEP_RETRY_SECONDS):
+                self.floor_authorization=None
+                return []
+            self.active_route_last_sent=now
+            return [walk_packet(p,step)]
+        if (self.active_route_source==p and self.active_route_step is not None and
+                self.active_route_goal==goal and self.active_route_last_sent is not None and
+                now-self.active_route_last_sent<self.ROUTE_STEP_RETRY_SECONDS):
+            # The same accepted step is already awaiting server movement. Avoid
+            # repeating an expensive graph search while its send cooldown runs.
+            self.floor_authorization=None
+            return []
         if self.routes:
-            step=self.routes.next_step(p,goal)
-            if step and p.distance(step)==1:
+            blocked={c.position for c in w.creatures.values()
+                     if c.id!=w.self_id and c.position is not None}
+            blocked.update(self.blocked_steps)
+            # Try the static shortest route first, then search around observed
+            # occupants or stale/unwalkable route tiles instead of waiting on
+            # the same corridor forever.
+            for _ in range(4):
+                step=self.routes.next_step(p,goal,blocked=blocked)
+                if not step or p.distance(step)!=1:
+                    break
                 if self.routes.tiles.get(step) is not None:
                     expected=self.routes.tiles[step]
-                    # Pin the live stair ID/offset to the advisory map edge.
-                    # Full mapping can be supplied by the route compiler later;
-                    # these are the normal Rook library stair orientations.
-                    offsets={1947:(0,-1,-1),1950:(1,0,-1),1952:(-1,0,-1),1954:(0,1,-1),
-                             413:(0,1,1),414:(0,1,1),428:(0,1,1),369:(0,0,1),370:(0,0,1),385:(0,0,1)}
                     for thing in w.tiles.get(step,[]):
-                        delta=offsets.get(thing.id)
+                        delta=STAIR_OFFSETS.get(thing.id)
                         if delta and step.shift(*delta)==expected and walkable(w,step,self.items,True):
                             self.floor_authorization=(step,thing.id)
-                            return [walk_packet(p,step)]
-                    return []
-                if walkable(w,step,self.items):
-                    return [walk_packet(p,step)]
-        path=find_path(w,p,goal,self.items)
-        return [walk_packet(p,path[0])] if path else []
+                            return route_action(step)
+                elif walkable(w,step,self.items):
+                    return route_action(step)
+                blocked.add(step)
+        if p.z!=goal.z:
+            stair_routes=[]
+            blocked={c.position for c in w.creatures.values()
+                     if c.id!=w.self_id and c.position is not None}
+            blocked.update(self.blocked_steps)
+            current_floor_distance=abs(goal.z-p.z)
+            for step,things in w.tiles.items():
+                if step.z!=p.z or step in blocked:
+                    continue
+                delta=next((STAIR_OFFSETS.get(thing.id) for thing in things
+                            if thing.id in STAIR_OFFSETS),None)
+                if delta is None:
+                    continue
+                destination=step.shift(*delta)
+                mapped_destination=self.routes.tiles.get(step) if self.routes else None
+                if mapped_destination is not None and mapped_destination!=destination:
+                    transition_id=next(thing.id for thing in things if thing.id in STAIR_OFFSETS)
+                    learned_match=(self.learned_graph and self.learned_graph.can_use(
+                        self.profile['character'],p,destination,now,transition_id))
+                    if not learned_match:
+                        continue
+                if abs(goal.z-destination.z)>=current_floor_distance:
+                    continue
+                path=find_path(w,p,step,self.items,floor_changes=True,blocked=blocked)
+                if path:
+                    transition_id=next(thing.id for thing in things if thing.id in STAIR_OFFSETS)
+                    stair_routes.append((len(path),step,destination,transition_id,path))
+            if stair_routes:
+                _,step,_,transition_id,path=min(
+                    stair_routes,key=lambda route:(route[0],abs(goal.z-route[2].z)))
+                first=path[0]
+                if first==step:
+                    self.floor_authorization=(step,transition_id)
+                return route_action(first)
+        path=find_path(w,p,goal,self.items,blocked=self.blocked_steps)
+        if not path:
+            self.active_route_source=self.active_route_step=None
+            self.active_route_goal=self.active_route_started=None
+            self.active_route_last_sent=None
+            return []
+        return route_action(path[0])
 
-    def step(self,now):
+    def step_with_intent(self,now,intent):
+        if intent not in ('move','hunt'):
+            return self.step(now)
+        return self.step(now,behavior_hint=intent)
+
+    def step(self,now,behavior_hint=None):
+        self.strategy_hint_applied=False
         self.authorization,self.floor_authorization=None,None
         w=self.world
         if not w.valid or not w.position:
@@ -207,6 +477,10 @@ class Progression:
             return result
         if not self.in_rook():
             return []
+        if self.healer_greeted:
+            dialogue=self.finish_healer_dialogue(now)
+            if dialogue is not None:
+                return dialogue
         if w.stats.level>=8 and self.profile.get('observed_vocation')==0:
             if self.halted:
                 return []
@@ -220,14 +494,32 @@ class Progression:
                 response=self.oracle.start(w.stats.level,now)
                 return self._speak('The Oracle',response,now) if response else []
             goal=self.oracle_position.shift(y=1)
-            return self._toward(goal)
+            return self._toward(goal,now)
+        possessions=self._possessions()
+        food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
+        if food:
+            self.needs_food=False
+        elif self._health_below(self.WOUNDED_HEALTH_RATIO):
+            self.needs_food=True
+        if self.needs_food:
+            if w.position.z>7:
+                return self._toward(Position(32097,32218,7),now)
+            if self.healer_greeted:
+                result=self._speak('Cipfried','bye',now)
+                if result:
+                    self.healer_greeted=False
+                    return result
+            route=self.forage(now)
+            if route:return route
         if now<self.next_purchase:
-            return self._patrol(now)
+            if behavior_hint=='move':
+                return []
+            route=self._patrol(now)
+            self.strategy_hint_applied=behavior_hint=='hunt' and bool(route)
+            return route
         if now-self.last_speech<2:
             return []
-        possessions=list(w.inventory.values())+[i for c in w.containers.values() for i in c.items]
         gold=sum(i.count for i in possessions if i.id==3031)
-        food=any(self.items[i.id].attributes.get('nutrition',0)>0 for i in possessions)
         target=None
         if not food and gold>=3:
             target=('Willie','bread',3,Position(32047,32205,7))
@@ -237,7 +529,11 @@ class Progression:
             target=('Dixi','rope',50,Position(32105,32208,6))
         if not target:
             self.travel_started=None
-            return self._patrol(now)
+            if behavior_hint=='move':
+                return []
+            route=self._patrol(now)
+            self.strategy_hint_applied=behavior_hint=='hunt' and bool(route)
+            return route
         name,item,price,goal=target
         if self._npc(name):
             self.travel_started=None
@@ -258,4 +554,4 @@ class Progression:
             self.next_purchase=now+90
             self.travel_started=None
             return self._patrol(now)
-        return self._toward(goal)
+        return self._toward(goal,now)

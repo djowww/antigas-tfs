@@ -9,6 +9,8 @@ class LearningDeploymentTests(unittest.TestCase):
         unit = (ROOT / 'deploy/autonomous-learning/autonomous-learning-agent.service').read_text()
         self.assertIn('CPUQuota=10%', unit)
         self.assertIn('MemoryMax=128M', unit)
+        self.assertIn('--neural-mode shadow', unit)
+        self.assertIn('KillSignal=SIGINT', unit)
         self.assertIn('RestrictAddressFamilies=AF_UNIX', unit)
         self.assertIn('IPAddressDeny=any', unit)
         self.assertNotIn('antigas74.service', unit)
@@ -23,6 +25,20 @@ class LearningDeploymentTests(unittest.TestCase):
         self.assertNotIn('learning_store.py', script)
         self.assertNotIn('/var/lib/autonomous-players/state.db', script)
         self.assertNotIn('mysql', script.lower())
+
+    def test_removing_learner_preserves_persisted_learning_database(self):
+        script = (ROOT / 'deploy/autonomous-learning/remove-learning-agent.sh').read_text()
+        self.assertIn('/var/lib/autonomous-learning/learning.db', script)
+        self.assertIn('/var/lib/autonomous-learning/learning.neural.json', script)
+        self.assertNotIn('rm -rf /var/lib/autonomous-learning', script)
+        self.assertIn('preserve', script.lower())
+
+    def test_removal_aborts_when_service_state_cannot_be_verified(self):
+        script = (ROOT / 'deploy/autonomous-learning/remove-learning-agent.sh').read_text()
+        self.assertIn('unit_state=$(systemctl is-active "$unit" 2>/dev/null || true)', script)
+        self.assertIn('inactive|failed)', script)
+        self.assertIn('cannot verify', script.lower())
+        self.assertLess(script.index('case "$unit_state"'), script.index('rm -f /etc/systemd'))
 
 
 if __name__ == '__main__':

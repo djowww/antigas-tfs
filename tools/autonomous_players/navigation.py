@@ -23,8 +23,10 @@ def walkable(world, position, items, floor_changes=False):
     return True
 
 
-def find_path(world, start, goal, items, max_nodes=2048, floor_changes=False):
-    if not world.valid or start.z != goal.z or not walkable(world,goal,items,floor_changes):
+def find_path(world, start, goal, items, max_nodes=2048, floor_changes=False, blocked=()):
+    blocked=frozenset(blocked)
+    if (not world.valid or start.z != goal.z or goal in blocked or
+            not walkable(world,goal,items,floor_changes)):
         return []
     serial = count()
     queue = [(0,next(serial),start)]
@@ -39,7 +41,7 @@ def find_path(world, start, goal, items, max_nodes=2048, floor_changes=False):
             return path[::-1]
         for dx,dy in DIRECTIONS:
             n = p.shift(dx,dy)
-            if not walkable(world,n,items,floor_changes and n == goal):
+            if n in blocked or not walkable(world,n,items,floor_changes and n == goal):
                 continue
             if dx and dy and (not walkable(world,p.shift(dx,0),items) or not walkable(world,p.shift(0,dy),items)):
                 continue
