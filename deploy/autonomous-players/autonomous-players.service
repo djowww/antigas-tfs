@@ -1,0 +1,31 @@
+[Unit]
+Description=Autonomous normal game players (maximum 20)
+After=network-online.target autonomous-players-guardian.service
+Requires=autonomous-players-guardian.service
+
+[Service]
+Type=simple
+User=antigas-players
+Group=antigas-players
+WorkingDirectory=/opt/autonomous-players
+ExecStart=/usr/bin/python3 -m tools.autonomous_players run --config /etc/autonomous-players/runtime.json
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=110
+Nice=15
+CPUQuota=15%
+MemoryHigh=192M
+MemoryMax=256M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=localhost
+ReadWritePaths=/var/lib/autonomous-players
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

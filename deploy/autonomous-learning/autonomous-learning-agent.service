@@ -1,0 +1,31 @@
+[Unit]
+Description=Removable autonomous learning companion
+After=network.target
+
+[Service]
+Type=simple
+User=antigas-players
+Group=antigas-players
+WorkingDirectory=/opt/autonomous-players
+RuntimeDirectory=autonomous-learning-agent
+StateDirectory=autonomous-learning
+ExecStart=/usr/bin/python3 -m tools.autonomous_learning_agent --socket /run/autonomous-learning-agent/agent.sock --state /var/lib/autonomous-learning/learning.db --status /var/lib/autonomous-learning/status.json --neural-mode shadow
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=20
+KillSignal=SIGINT
+Nice=19
+CPUQuota=10%
+MemoryMax=128M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+RestrictAddressFamilies=AF_UNIX
+IPAddressDeny=any
+ReadWritePaths=/var/lib/autonomous-learning /run/autonomous-learning-agent
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

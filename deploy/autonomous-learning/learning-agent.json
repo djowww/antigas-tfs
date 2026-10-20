@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "mode": "active",
+  "socket": "/run/autonomous-learning-agent/agent.sock",
+  "state": "/var/lib/autonomous-learning/learning.db",
+  "max_agents": 20,
+  "max_message_bytes": 32768
+}
