@@ -1,5 +1,11 @@
 <?php
 declare(strict_types=1);
+// Public journal; keep the existing registration handler and all POST requests.
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && !isset($_GET['jogar'])) {
+    require __DIR__.'/blog.php';
+    return;
+}
+
 require (getenv('ANTIGAS_WEB_LIB')?:'/opt/antigas-web/private').'/security.php';
 webStart();
 require __DIR__.'/i18n.php';
