@@ -13,3 +13,15 @@ if ($actual !== $expected) {
 }
 
 echo "Site HTML safety regression passed\n";
+
+$_SERVER['REQUEST_URI'] = '/index.php?jogar=1';
+$_GET = ['jogar' => '1'];
+if (siteLanguageUrl('pt') !== '/index.php?jogar=1&lang=pt') {
+    throw new RuntimeException('Changing the registration language must keep the registration route.');
+}
+$_SERVER['REQUEST_URI'] = '/wiki.php';
+$_GET = [];
+if (siteLanguageUrl('en') !== '/wiki.php?lang=en') {
+    throw new RuntimeException('The wiki language selector must stay on the wiki.');
+}
+echo "Registration and wiki language routes passed\n";

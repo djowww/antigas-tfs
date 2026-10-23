@@ -440,11 +440,11 @@ const ANTIGAS_TRANSLATIONS = [
 
 require_once __DIR__ . '/i18n-extra.php';
 
-function siteStartI18n(): string
+function siteStartI18n(string $defaultLanguage = 'en'): string
 {
     $supported = ['en', 'pt', 'es', 'pl'];
     $requested = $_GET['lang'] ?? null;
-    $stored = $_SESSION['site_language'] ?? ($_COOKIE['antigas_site_language'] ?? 'en');
+    $stored = $_SESSION['site_language'] ?? ($_COOKIE['antigas_site_language'] ?? $defaultLanguage);
     $language = is_string($requested) && in_array($requested, $supported, true)
         ? $requested
         : (is_string($stored) && in_array($stored, $supported, true) ? $stored : 'en');
@@ -503,6 +503,9 @@ function siteLanguageUrl(string $language): string
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     $path = is_string($path) && $path !== '' ? $path : '/';
     $query = [];
+    if (isset($_GET['jogar'])) {
+        $query['jogar'] = '1';
+    }
     if (isset($_GET['order']) && is_string($_GET['order']) && preg_match('/\A[a-f0-9]{32}\z/D', $_GET['order'])) {
         $query['order'] = $_GET['order'];
     }

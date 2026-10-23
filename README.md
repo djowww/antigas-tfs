@@ -7,6 +7,8 @@
 
 Um servidor independente inspirado na experiência clássica de Tibia 7.4, anteriormente conhecido como **Antigas**. Um projeto feito para compartilhar com a comunidade o carinho por esse mundo e pela aventura de descobrir o que existe depois da próxima escada.
 
+**Site oficial do projeto:** [tibia74.tech](https://tibia74.tech/) — novidades, changelog, downloads e [wiki do jogador](https://tibia74.tech/wiki.php#guia).
+
 ## Um sonho que virou servidor
 
 Desenvolver este servidor foi a realização de um sonho: transformar minha admiração pelo Tibia clássico em um lugar onde outras pessoas também pudessem viver suas próprias histórias. Quis oferecer à comunidade um mundo para explorar, encontrar companhia para uma caça, aprender com os erros e sentir a alegria de conquistar algo com o próprio esforço.
@@ -45,10 +47,10 @@ Veja o [guia do ambiente local](local/README.md) para requisitos, persistência 
 
 ### Comunidade e servidor público
 
-- [Conheça o servidor](https://tibia74.tech/)
-- [Crie sua conta](https://tibia74.tech/#criar-conta)
+- [Site do projeto e novidades](https://tibia74.tech/)
+- [Crie sua conta](https://tibia74.tech/index.php?jogar=1#criar-conta)
 - [Baixe o cliente do projeto](https://tibia74.tech/#download)
-- [Leia o guia do jogador](https://tibia74.tech/wiki.php)
+- [Leia o guia do jogador](https://tibia74.tech/wiki.php#guia)
 
 Para explorar o projeto, veja a [documentação](docs/INDEX.md), o [guia de compilação](docs/building.md), [como contribuir](CONTRIBUTING.md) e a [política de segurança](SECURITY.md).
 

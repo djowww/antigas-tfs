@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-// Public journal; keep the existing registration handler and all POST requests.
+// Project homepage is the existing wiki; retain registration GET and all POSTs.
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && !isset($_GET['jogar'])) {
-    require __DIR__.'/blog.php';
+    require __DIR__.'/wiki.php';
     return;
 }
 

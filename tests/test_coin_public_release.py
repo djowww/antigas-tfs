@@ -18,10 +18,8 @@ class CoinPublicReleaseTests(unittest.TestCase):
         home = (ROOT / "deploy/site-public/index.php").read_text(encoding="utf-8")
         wiki = (ROOT / "deploy/site-public/wiki.php").read_text(encoding="utf-8")
         self.assertRegex(home, rf"Antigas-7\.4-Launcher-v{RELEASE_VERSION}\.zip\?site=[^'\"]*v{RELEASE_VERSION}")
-        self.assertEqual(
-            len(re.findall(rf"Antigas-7\.4-Launcher-v{RELEASE_VERSION}\.zip\?site=[^'\"]*v{RELEASE_VERSION}", wiki)),
-            2,
-        )
+        self.assertIn('href="/index.php?jogar=1#download"', wiki)
+        self.assertNotRegex(wiki, r"Antigas-7\.4-Launcher-v[0-9]+\.zip")
 
     def test_client_source_snapshot_metadata_matches_release(self):
         init = (ROOT / "deploy/client-current/init.lua").read_text(encoding="utf-8")
@@ -33,7 +31,7 @@ class CoinPublicReleaseTests(unittest.TestCase):
         self.assertEqual(marker, str(RELEASE_VERSION))
         self.assertIn(f"CLIENTE v{RELEASE_VERSION}", readme)
 
-    def test_homepage_leads_with_coin_restoration_release_news(self):
+    def test_legacy_registration_preserves_coin_item_news_without_payment(self):
         home = (ROOT / "deploy/site-public/index.php").read_text(encoding="utf-8")
         title = "Antigas Coins return in client v75"
 
@@ -43,7 +41,7 @@ class CoinPublicReleaseTests(unittest.TestCase):
         self.assertIn(title, home)
         self.assertIn("Client v75 restores the classic Antigas Coin item and its artwork, keeping its ID.", home)
         self.assertIn("Antigas Coins are back in the Store and Market for in-game trades.", home)
-        self.assertIn("After manual payment approval, collect website Coins through the Market.", home)
+        self.assertIn("Website purchases are disabled. Player trades remain available in the Market.", home)
 
     def test_coin_restoration_release_news_is_translated(self):
         translations = (ROOT / "deploy/site-public/i18n-extra.php").read_text(encoding="utf-8")

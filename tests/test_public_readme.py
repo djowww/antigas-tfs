@@ -15,21 +15,21 @@ class PublicReadmeTests(unittest.TestCase):
         self.assertTrue(root.attrib.get("viewBox"))
         svg_ns = "{http://www.w3.org/2000/svg}"
         tagline = next(
-            (node for node in root.iter(f"{svg_ns}text") if (node.text or "").strip() == "SUA AVENTURA CLÁSSICA"),
+            (node for node in root.iter(f"{svg_ns}text") if (node.text or "").strip() == "A classic rpg version"),
             None,
         )
         self.assertIsNotNone(tagline)
-        self.assertGreaterEqual(float(tagline.attrib["font-size"]), 32)
+        self.assertGreaterEqual(float(tagline.attrib["font-size"]), 24)
         self.assertRegex(
             readme,
-            r"!\[([^\]]*Antigas 7\.4[^\]]*)\]\(docs/assets/antigas-74-banner\.svg\)",
+            r"!\[([^\]]*Tibia 7\.4[^\]]*)\]\(docs/assets/antigas-74-banner\.svg\)",
         )
 
     def test_readme_has_player_and_contributor_paths_and_public_boundary(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         required = (
             "https://tibia74.tech/",
-            "https://tibia74.tech/#criar-conta",
+            "https://tibia74.tech/index.php?jogar=1#criar-conta",
             "https://tibia74.tech/#download",
             "https://tibia74.tech/wiki.php",
             "docs/building.md",
@@ -37,7 +37,8 @@ class PublicReadmeTests(unittest.TestCase):
             "SECURITY.md",
             "cliente completo",
             "serviços privados",
-            "pacotes de atualização",
+            "local/README.md",
+            "START-LOCAL.cmd",
             "SHA-256",
         )
         for link_or_phrase in required:

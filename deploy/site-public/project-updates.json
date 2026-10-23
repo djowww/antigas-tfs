@@ -1,0 +1,34 @@
+[
+  {
+    "id": "localhost-release",
+    "date": "2026-10-23",
+    "title": "Server and Windows client, ready for localhost.",
+    "summary": "Download the complete package to explore Rookgaard and test your own changes in a separate local world.",
+    "changes": [
+      "Server, test database and Windows .exe client in one package.",
+      "START-LOCAL.cmd prepares the world; STOP-LOCAL.cmd preserves its progress.",
+      "Normal demo account: 1 / local123, character Local Adventurer."
+    ],
+    "paragraphs": [
+      "Requires Docker Desktop with Linux containers and internet for the first setup. The Windows client is already included.",
+      "Build, login, map entry, client movement and saved position after restart were validated. This is a test release; not every quest or game system has been fully tested."
+    ],
+    "url": "https://github.com/djowww/tibia-7.4-a-classic-rpg-version/releases/tag/local-test-v1"
+  },
+  {
+    "id": "open-source-project",
+    "date": "2026-10-22",
+    "title": "Tibia 7.4 — A classic rpg version.",
+    "summary": "Previously Antigas, the project now shares its code, development story and credits with the community on GitHub.",
+    "changes": [
+      "New project name and public source repository.",
+      "README with the story behind the server and paths for players and contributors.",
+      "Original copyright notices and third-party licenses preserved."
+    ],
+    "paragraphs": [
+      "The server was born from a dream of sharing adventures, exploration and good memories with the community. The project continues to evolve with its players and contributors.",
+      "This is an independent project with custom systems, inspired by Tibia. Credits include Alejandro Mujica, the OpenTibia and OTClient communities, and rxi. Tibia was created by CipSoft; this project is not affiliated with it."
+    ],
+    "url": "https://github.com/djowww/tibia-7.4-a-classic-rpg-version"
+  }
+]
