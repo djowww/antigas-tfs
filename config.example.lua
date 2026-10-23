@@ -29,10 +29,10 @@ maxPlayers = 2000
 -- 0 selects maxPlayers + 256 (or 4096 when maxPlayers is unlimited).
 maxConnections = 0
 maxConnectionsPerIP = 128
-motd = "Bem-vindo ao Antigas 7.4! Crie sua conta em tibia74.tech"
+motd = "Tibia 7.4 - Local test. Use START-LOCAL.cmd for automatic setup."
 onePlayerOnlinePerAccount = true
 allowClones = false
-serverName = "Antigas 7.4"
+serverName = "Tibia 7.4 - A classic rpg version"
 statusTimeout = 5000
 replaceKickOnLogin = true
 maxPacketsPerSecond = 50
@@ -96,7 +96,7 @@ convertUnsafeScripts = true
 defaultPriority = "high"
 startupDatabaseOptimization = true
 
-ownerName = "Antigas 7.4"
+ownerName = "Local test"
 ownerEmail = "admin@example.invalid"
-url = "https://tibia74.tech"
+url = "http://127.0.0.1"
 location = "Sao Paulo"

@@ -22,7 +22,7 @@ O executável gerado fica em `build/tfs`; a pasta `build/` é ignorada pelo Git.
 
 ## Pré-requisitos para executar
 
-Este checkout não constitui uma instalação pronta para uso: faltam o schema base completo do banco, credenciais, chave RSA privada e uma distribuição completa do cliente.
+Para uma instalação local automatizada, use [START-LOCAL.cmd e o guia local](../local/README.md). O Compose fornece MariaDB, schema vazio, personagem de demonstração e chave RSA nova; não requer importar dados de produção. O restante desta seção trata da instalação manual.
 
 Copie o [exemplo de configuração](../config.example.lua) e ajuste banco, rede e regras para seu ambiente:
 
@@ -32,7 +32,7 @@ cp config.example.lua config.lua
 
 `config.lua` é ignorado pelo Git. O programa carrega a configuração e `data/` em relação ao diretório de execução; ao executar `./build/tfs`, use a raiz do repositório como diretório de trabalho.
 
-Disponibilize uma base compatível antes de iniciar. Os arquivos em `data/sql/` acrescentam tabelas do Market e não substituem o schema base. Consulte [migrações e compatibilidade MySQL/MariaDB](../data/sql/README-market.md): `market-v3.sql` usa uma sintaxe de criação de índice aceita pelo MariaDB que requer adaptação no MySQL.
+Disponibilize uma base compatível antes de iniciar. [local/schema.sql](../local/schema.sql) contém a estrutura para testes e uma conta de demonstração; não importe essa conta em produção. Os arquivos em `data/sql/` acrescentam tabelas do Market. Consulte [migrações e compatibilidade MySQL/MariaDB](../data/sql/README-market.md): `market-v3.sql` usa uma sintaxe de criação de índice aceita pelo MariaDB que requer adaptação no MySQL.
 
 ## Chave RSA e cliente
 

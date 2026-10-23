@@ -1,0 +1,41 @@
+name: tibia74-local
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_ROOT_PASSWORD: localroot
+      MARIADB_DATABASE: tibia_local
+      MARIADB_USER: localgame
+      MARIADB_PASSWORD: localgame
+    volumes:
+      - local-db:/var/lib/mysql
+      - ./local/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  server:
+    build:
+      context: .
+      dockerfile: local/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:17173:17173"
+      - "127.0.0.1:17174:17174"
+    volumes:
+      - local-keys:/local-state
+    environment:
+      ANTIGAS_RSA_KEY_FILE: /local-state/rsa.txt
+    stop_grace_period: 90s
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import socket; socket.create_connection(('127.0.0.1',17173),2).close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 90
+      start_period: 30s
+volumes:
+  local-db:
+  local-keys:

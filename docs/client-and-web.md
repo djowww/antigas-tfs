@@ -6,7 +6,7 @@ O projeto se chama Tibia 7.4 - A classic rpg version, anteriormente Antigas. O c
 
 [deploy/client-current/](../deploy/client-current/) contém arquivos selecionados de uma distribuição personalizada baseada em OTClient: inicialização, módulos Lua, layouts OTUI e estilos. Não inclui o código C++ completo do OTClient, seu executável nem todos os assets necessários para montar o cliente do zero.
 
-Integre esses arquivos em uma base de cliente compatível e confira seus módulos e dependências. `init.lua` contém endpoints e uma chave RSA pública específicos da distribuição. Para uma instalação própria, ajuste os endpoints e use a chave pública correspondente à chave privada do servidor. O número de release do cliente é independente da versão de protocolo.
+O snapshot versionado agora usa o perfil local, com login em `127.0.0.1:17173`. O iniciador [START-LOCAL.cmd](../START-LOCAL.cmd) obtém o cliente completo da release e copia para ele a chave pública gerada pelo servidor local. O placeholder RSA do snapshot não é uma chave utilizável antes dessa preparação. Consulte o [guia local](../local/README.md). Para hospedar outro ambiente, ajuste os endpoints e a chave pública correspondente. O número de release do cliente é independente da versão de protocolo.
 
 Copie também `client.version` ao integrar o snapshot: o launcher consulta esse marcador antes de `APP_VERSION` em `init.lua`. O empacotador atualiza ambos e as instruções com a versão solicitada; cada execução exige uma pasta de saída nova.
 

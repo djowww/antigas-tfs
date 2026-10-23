@@ -35,6 +35,16 @@ O núcleo utiliza C++11 e LuaJIT, com extensões para o cliente customizado. A i
 
 ## Comece por aqui
 
+### Testar no seu computador
+
+Baixe o [pacote local para Windows](https://github.com/djowww/tibia-7.4-a-classic-rpg-version/releases/tag/local-test-v1), extraia e abra **START-LOCAL.cmd**, com o Docker Desktop em execução. O pacote inclui o cliente; ao usar o repositório, o iniciador baixa e verifica o cliente automaticamente.
+
+**Conta: `1` · Senha: `local123` · Personagem: `Local Adventurer`.** Servidor e cliente usam **127.0.0.1**, nas portas **17173/17174**. Banco e chaves são preparados automaticamente, sem dados da produção. A primeira inicialização compila o servidor e pode demorar vários minutos; exige internet. Depois, use **STOP-LOCAL.cmd** para parar sem apagar o progresso.
+
+Veja o [guia do ambiente local](local/README.md) para requisitos, persistência e diagnóstico. Não é necessário configurar o site ou os pagamentos para jogar localmente.
+
+### Comunidade e servidor público
+
 - [Conheça o servidor](https://tibia74.tech/)
 - [Crie sua conta](https://tibia74.tech/#criar-conta)
 - [Baixe o cliente do projeto](https://tibia74.tech/#download)
@@ -63,9 +73,10 @@ Consulte o [guia dos sistemas](docs/systems.md) para conhecer as regras e integr
 | `tests/` | Testes e ferramentas de desenvolvimento. |
 | `tools/` | Ferramentas de manutenção e preparação de releases. |
 | `docs/` | Guias de compilação, sistemas e componentes complementares. |
+| `local/` e `compose.yaml` | Instalação local, banco vazio, conta de demonstração e iniciador do cliente. |
 | `config.example.lua` | Modelo de configuração para uma instalação própria. |
 
-O servidor usa MySQL/MariaDB para persistência. Este repositório reúne o código-fonte do servidor e fontes selecionadas do cliente e do site. O cliente completo e os serviços privados são distribuídos separadamente; o launcher verifica a assinatura ECDSA e o SHA-256 dos pacotes de atualização. Este checkout não é um pacote autossuficiente para executar o jogo. O schema base do banco também precisa ser obtido separadamente; os SQL versionados aqui são do Market. Veja [compilação e configuração](docs/building.md) e [cliente, launcher e site](docs/client-and-web.md).
+O servidor usa MySQL/MariaDB para persistência. O modo local inclui schema vazio, dados de demonstração e preparação automática por Docker Compose; o cliente completo é distribuído na release local. Os serviços privados do portal e de pagamentos não fazem parte desse ambiente. O launcher de produção continua separado e verifica assinaturas ECDSA e SHA-256. Para configurações próprias, veja [compilação e configuração](docs/building.md) e [cliente, launcher e site](docs/client-and-web.md).
 
 ## Compilar o servidor
 

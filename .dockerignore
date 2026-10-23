@@ -1,0 +1,10 @@
+*
+!CMakeLists.txt
+!src/
+!src/**
+!data/
+!data/**
+!local/
+!local/config.lua
+!local/entrypoint.py
+!local/Dockerfile

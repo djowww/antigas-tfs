@@ -1,6 +1,6 @@
 -- CONFIG
-APP_NAME = "Antigas 7.4"
-g_app.setName("Antigas 7.4")
+APP_NAME = "Tibia 7.4 Local"
+g_app.setName("Tibia 7.4 Local")
 APP_VERSION = 76        -- Antigas 7.4 client release
 SERVER_VERSION = 772
 -- Keep mount fields enabled for protocol compatibility, but hide mount UI/actions.
@@ -16,17 +16,17 @@ REGISTRATION_KEY = "AbcDeFgH"
 -- Public compatibility marker, never an authentication secret.
 CLIENT_LOGIN_TAG = "Antigas-26"
 -- Only the public half is distributed. The private key stays on the game host.
-ANTIGAS_RSA_PUBLIC_KEY = "151443125323504204375382354287356003701006971573041073445496555415478359019135764120268216214793438872432577466463500772267222035885123566964906884006462345636524667036973926875446320056229710429874630771165351493794880179782407166548292481542252089147741100986631791473955222848947024386813939016739023607339"
+ANTIGAS_RSA_PUBLIC_KEY = "LOCAL_KEY_CONFIGURED_BY_START_SCRIPT"
 AUTO_RECONNECT = false
 
 -- If you don't use updater or other service, set it to updater = ""
 Services = {
-	website = "https://tibia74.tech",
-	createAccountWebsite = "https://tibia74.tech/#criar-conta",
-	accessAccountWebsite = "https://tibia74.tech/account.php",
+	website = "",
+	createAccountWebsite = "",
+	accessAccountWebsite = "",
 	loginInfo = "",
 	updater = "",
-	releaseInfo = "https://tibia74.tech/client-release.json",
+	releaseInfo = "",
 	-- stats = "",
 	-- crash reporting and feedback are not configured
 }
@@ -37,7 +37,7 @@ Servers = {
 --  OTClientV8Websocket = "wss://otclient.ovh:3000/",
 --  OTClientV8proxy = "http://otclient.ovh/api/login.php?proxy=1",
 --  OTClientV8ClassicWithFeatures = "otclient.ovh:7171:1099:25:30:80:90",
- OTClientV8Classic = "login.tibia74.tech:7173:772"
+ OTClientV8Classic = "127.0.0.1:17173:772"
 }
 
 USE_NEW_ENERGAME = false -- uses entergamev2 based on websockets instead of entergame

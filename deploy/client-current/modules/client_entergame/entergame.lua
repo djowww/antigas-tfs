@@ -382,8 +382,8 @@ function EnterGame.doLogin()
   G.stayLogged = true
   G.server = serverSelector:getText():trim()
   G.host = Servers and Servers[G.server]
-  if type(G.host) ~= 'string' or G.host ~= 'login.tibia74.tech:7173:772' then
-    return EnterGame.onError('Select the official Antigas server.')
+  if type(G.host) ~= 'string' or G.host ~= '127.0.0.1:17173:772' then
+    return EnterGame.onError('Select the local test server.')
   end
   G.clientVersion = tonumber(clientVersionSelector:getText())  
  

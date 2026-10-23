@@ -2,18 +2,18 @@
 local background
 local infoWindow
 
-local accesAccountLink = "https://tibia74.tech/"
-local websiteLink = "https://tibia74.tech/"
-downloadClient = "https://tibia74.tech/"
+local accesAccountLink = ""
+local websiteLink = ""
+downloadClient = ""
 
 local infoTexts = {
- [1] = "Antigas 7.4",
+ [1] = "Tibia 7.4 Local",
  [2] = "Classic 7.4 visuals",
- [3] = "Antigas server",
+ [3] = "Account: 1 / local123",
  [4] = "Retro client",
  [5] = "",
- [6] = "Official site",
- [7] = "tibia74.tech",
+ [6] = "Local test",
+ [7] = "127.0.0.1",
 }
 
 -- public functions
@@ -60,11 +60,11 @@ function infoHide()
 end
 
 function accesAccount()
-   g_platform.openUrl(accesAccountLink)
+   if accesAccountLink ~= "" then g_platform.openUrl(accesAccountLink) end
 end
 
 function openWebsite()
-   g_platform.openUrl(websiteLink)
+   if websiteLink ~= "" then g_platform.openUrl(websiteLink) end
 end
 
 function setClientInfo()

@@ -57,3 +57,7 @@ id_ed25519*
 desktop.ini
 Desktop.ini
 Thumbs.db
+
+# Downloaded local demo client and verification output.
+/local/client/
+/local/results/
