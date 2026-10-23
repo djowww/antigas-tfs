@@ -27,6 +27,7 @@ struct LoginGateCoreTestAccess {
 static unsigned checks=0;
 static void expect(bool ok, const char* why) { ++checks; if (!ok) throw std::runtime_error(why); }
 int main() {
+ expect(Item::items.loadItems(), "production item definitions load");
  Vocations& vocations = g_vocations; expect(vocations.loadFromXml(), "vocations load");
  auto* knight=vocations.getVocation(4); auto* paladin=vocations.getVocation(3);
  auto* sorcerer=vocations.getVocation(1); auto* druid=vocations.getVocation(2);
@@ -128,7 +129,13 @@ int main() {
  expect(player.getHealth()==51 && player.getMana()==52 && restored->getTicks()==6000,"remaining phase survives roundtrip");
  LoginGateCoreTestAccess::prepare(player,group,tile,4,false);
  expect(player.addCondition(new ConditionRegeneration(CONDITIONID_DEFAULT,CONDITION_REGENERATION,12000)),"bed food fixture");
- BedItem bed(0); LoginGateCoreTestAccess::regenerateBed(bed,player,60);
+ uint16_t bedId=0;
+ for (size_t id=1;id<Item::items.size();++id) {
+  const ItemType& type=Item::items[id];
+  if (type.id && type.isBed()) { bedId=type.id; break; }
+ }
+ expect(bedId!=0, "production bed fixture exists");
+ BedItem bed(bedId); LoginGateCoreTestAccess::regenerateBed(bed,player,60);
  expect(player.getHealth()==51 && player.getMana()==54,"bed60seconds HP1 mana4");
  expect(!player.getCondition(CONDITION_REGENERATION,CONDITIONID_DEFAULT),"bed consumes food3perunit");
  g_events=nullptr; g_creatureEvents=nullptr;

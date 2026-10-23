@@ -170,5 +170,8 @@ int main() {
  murders.push_back(now-86400+1); require(LegacyDeath::count(murders,now,86400)==1);
  for(unsigned i=0;i<30;++i) LegacyDeath::record(murders,now+i);
  require(murders.size()==20 && murders.front()==now+10);
+ // Production drains deferred item releases on its game loop. This isolated
+ // fixture starts no loop, so flush the items consumed/transferred by dropLoot.
+ g_game.cleanup(true);
  std::cout<<"PASS legacy death "<<checks<<" checks\n";
 }
