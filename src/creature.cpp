@@ -32,7 +32,7 @@ extern CreatureEvents* g_creatureEvents;
 
 Creature::Creature()
 {
-	onIdleStatus();
+	Creature::onIdleStatus();
 }
 
 Creature::~Creature()

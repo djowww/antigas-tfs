@@ -523,13 +523,13 @@ int main()
 	require(!weapon->setRarityExtraData(1 | (1 << 5) | (2 << 10) | (3 << 15)),
 		"duplicate extra statuses must be rejected");
 		weapon->setIntAttr(ITEM_ATTRIBUTE_ATTACK, 47);
-		require(weapon->getAttack() == 52, "refine base attack and rarity must add once");
+		require(weapon->getAttack() == 47, "rarity metadata must not change refined attack under audited rules");
 		WeaponMelee melee(nullptr);
 		const int32_t rareMeleeDamage = melee.getWeaponDamage(&player, nullptr, weapon, true);
 		weapon->setRarityData(ITEM_RARITY_NONE, ITEM_RARITY_BONUS_NONE, 0, 0);
-		require(rareMeleeDamage < melee.getWeaponDamage(&player, nullptr, weapon, true), "melee rarity must increase actual maximum damage");
+		require(rareMeleeDamage == melee.getWeaponDamage(&player, nullptr, weapon, true), "rarity must not change actual melee damage under audited rules");
 		weapon->setRarityData(ITEM_RARITY_MYTHIC, ITEM_RARITY_BONUS_ATTACK, 5, 0);
-		require(weapon->getDescription(1).find("Atk:52") != std::string::npos, "look must show effective attack");
+		require(weapon->getDescription(1).find("Atk:47") != std::string::npos, "look must show refined attack without a numerical rarity bonus");
 		PropWriteStream saved;
 		weapon->serializeAttr(saved);
 		size_t size;
@@ -538,7 +538,7 @@ int main()
 		loaded.init(bytes, size);
 		Item* restored = Item::CreateItem(sword);
 		require(restored->unserializeAttr(loaded), "serialized rarity must load");
-		require(restored->getRarityTier() == ITEM_RARITY_MYTHIC && restored->getAttack() == 52, "rarity and refine must persist together");
+		require(restored->getRarityTier() == ITEM_RARITY_MYTHIC && restored->getAttack() == 47, "rarity metadata and refined attack must persist independently");
 	require(restored->getRarityBonusCount() == 5 && restored->getRarityExtraData() == expectedExtraBonuses,
 		"all rarity statuses must persist with the item");
 		Item* clone = restored->clone();
@@ -553,21 +553,21 @@ int main()
 
 		Item* armorItem = equip(player, armor, CONST_SLOT_ARMOR, ITEM_RARITY_BONUS_MAX_HEALTH_PERCENT, 5);
 		const int32_t hpBase = player.getDefaultStats(STAT_MAXHITPOINTS);
-		require(player.getMaxHealth() == hpBase + static_cast<int32_t>(std::ceil(hpBase * .05)), "armor must add base health percentage");
+		require(player.getMaxHealth() == hpBase, "rarity metadata must not grant extra health");
 		g_moveEvents->onPlayerEquip(&player, armorItem, CONST_SLOT_ARMOR, false);
-		require(player.getMaxHealth() == hpBase + static_cast<int32_t>(std::ceil(hpBase * .05)), "repeated equip notification must not duplicate bonus");
+		require(player.getMaxHealth() == hpBase, "repeated equip must not introduce a numerical rarity bonus");
 		require(!player.isItemAbilityEnabled(CONST_SLOT_ARMOR), "rarity must not activate native item abilities");
 		Item* legsItem = equip(player, legs, CONST_SLOT_LEGS, ITEM_RARITY_BONUS_MAX_MANA_PERCENT, 5);
 		Item* bootsItem = equip(player, boots, CONST_SLOT_FEET, ITEM_RARITY_BONUS_SPEED_PERCENT, 10);
 		luaCheck("assert(rarityPlayer:addExperience(" + std::to_string(Player::getExpForLevel(20)) + ", false))");
 		const int32_t hpAfterLevel = player.getDefaultStats(STAT_MAXHITPOINTS);
 		const int32_t manaAfterLevel = player.getDefaultStats(STAT_MAXMANAPOINTS);
-		require(player.getMaxHealth() == hpAfterLevel + static_cast<int32_t>(std::ceil(hpAfterLevel * .05)), "health percentage must follow level changes");
-		require(player.getMaxMana() == static_cast<uint32_t>(manaAfterLevel + std::ceil(manaAfterLevel * .05)), "mana percentage must follow level changes");
-		require(player.getSpeed() == static_cast<int32_t>(player.getBaseSpeed() + std::round(player.getBaseSpeed() * .10)), "speed percentage must follow base speed changes");
+		require(hpAfterLevel > hpBase && player.getMaxHealth() == hpAfterLevel, "normal level health gains must remain free of rarity bonuses");
+		require(player.getMaxMana() == static_cast<uint32_t>(manaAfterLevel), "normal level mana gains must remain free of rarity bonuses");
+		require(player.getSpeed() == static_cast<int32_t>(player.getBaseSpeed()), "rarity boots must not change level-based speed");
 		luaCheck("assert(rarityPlayer:removeExperience(" + std::to_string(Player::getExpForLevel(20)) + "))");
-		require(player.getMaxHealth() == player.getDefaultStats(STAT_MAXHITPOINTS) + static_cast<int32_t>(std::ceil(player.getDefaultStats(STAT_MAXHITPOINTS) * .05)), "downgrade must refresh health bonus");
-		luaCheck("assert(rarityPlayer:setMaxHealth(1000)); assert(rarityPlayer:getMaxHealth() == 1050); assert(rarityPlayer:setMaxMana(800)); assert(rarityPlayer:getMaxMana() == 840)");
+		require(player.getMaxHealth() == player.getDefaultStats(STAT_MAXHITPOINTS), "level downgrade must not introduce a rarity health bonus");
+		luaCheck("assert(rarityPlayer:setMaxHealth(1000)); assert(rarityPlayer:getMaxHealth() == 1000); assert(rarityPlayer:setMaxMana(800)); assert(rarityPlayer:getMaxMana() == 800)");
 		unequip(player, armorItem, CONST_SLOT_ARMOR);
 		unequip(player, legsItem, CONST_SLOT_LEGS);
 		unequip(player, bootsItem, CONST_SLOT_FEET);
@@ -582,9 +582,9 @@ int main()
 	Item* ringItem = equip(player, ring, CONST_SLOT_RING, ITEM_RARITY_BONUS_SKILL, 5, SKILL_SWORD, ITEM_RARITY_MYTHIC);
 		Item* necklaceItem = equip(player, necklace, CONST_SLOT_NECKLACE, ITEM_RARITY_BONUS_SKILL, 3, SKILL_SWORD);
 	const uint32_t ringExtras = ringItem->getRarityExtraData();
-		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + 8, "ring and necklace skill bonuses must stack");
+		require(player.getSkillLevel(SKILL_SWORD) == originalSkill, "rarity jewelry must not change sword skill");
 		unequip(player, necklaceItem, CONST_SLOT_NECKLACE);
-		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + 5, "removing necklace must preserve ring bonus");
+		require(player.getSkillLevel(SKILL_SWORD) == originalSkill, "removing rarity jewelry must preserve native sword skill");
 
 		// Force the production transform path that replaces the Item instance.
 		ItemType& targetType = Item::items.getItemType(necklace);
@@ -594,16 +594,27 @@ int main()
 		require(transformed && transformed != ringItem, "test must exercise replacement transform");
 	require(transformed->getRarityTier() == ITEM_RARITY_MYTHIC && transformed->getRarityExtraData() == ringExtras,
 		"replacement transform must preserve rarity and all extra statuses");
-		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + 5, "old item removal must not remove replacement bonus");
+		require(player.getSkillLevel(SKILL_SWORD) == originalSkill, "replacement transformation must preserve native sword skill");
 		targetType.type = originalType;
 		unequip(player, transformed, CONST_SLOT_RING);
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill, "transformed bonus must remove once");
 
 		armorItem = equip(player, armor, CONST_SLOT_ARMOR, ITEM_RARITY_BONUS_RESISTANCE, 5, 0);
 		legsItem = equip(player, legs, CONST_SLOT_LEGS, ITEM_RARITY_BONUS_RESISTANCE, 5, 0);
+		// The audited physical pipeline always rolls native armor. Replay the same
+		// draw without rarity to isolate metadata from the real armor reduction.
+		getRandomGenerator().seed(12345);
 		int32_t damage = 100;
 		player.blockHit(nullptr, COMBAT_PHYSICALDAMAGE, damage, false, false);
-		require(damage == 90, "matching resistance from armor and legs must sum to 10 percent");
+		const int32_t rarePhysicalDamage = damage;
+		armorItem->setRarityData(ITEM_RARITY_NONE, ITEM_RARITY_BONUS_NONE, 0, 0);
+		legsItem->setRarityData(ITEM_RARITY_NONE, ITEM_RARITY_BONUS_NONE, 0, 0);
+		getRandomGenerator().seed(12345);
+		damage = 100;
+		player.blockHit(nullptr, COMBAT_PHYSICALDAMAGE, damage, false, false);
+		require(damage > 0 && rarePhysicalDamage == damage, "rarity resistance metadata must leave native physical armor reduction unchanged");
+		armorItem->setRarityData(ITEM_RARITY_UNCOMMON, ITEM_RARITY_BONUS_RESISTANCE, 5, 0);
+		legsItem->setRarityData(ITEM_RARITY_UNCOMMON, ITEM_RARITY_BONUS_RESISTANCE, 5, 0);
 		damage = 100;
 		player.blockHit(nullptr, COMBAT_FIREDAMAGE, damage, false, false);
 		require(damage == 100, "physical resistance must not reduce fire");
@@ -613,7 +624,7 @@ int main()
 		Item* shieldItem = Item::CreateItem(shield);
 		shieldItem->setRarityData(ITEM_RARITY_RARE, ITEM_RARITY_BONUS_DEFENSE, 2, 0);
 		shieldItem->setIntAttr(ITEM_ATTRIBUTE_DEFENSE, 30);
-		require(shieldItem->getDefense() == 32, "shield refinement and rarity defense must add");
+		require(shieldItem->getDefense() == 30, "rarity metadata must not change refined shield defense");
 		delete shieldItem;
 		WeaponWand wand(nullptr);
 		pugi::xml_document wandConfig;
@@ -624,14 +635,14 @@ int main()
 		require(wand.configureEvent(wandNode), "wand fixture must configure");
 		Item* wandItem = Item::CreateItem(wandId);
 		wandItem->setRarityData(ITEM_RARITY_MYTHIC, ITEM_RARITY_BONUS_ATTACK, 5, 0);
-		require(wand.getWeaponDamage(&player, nullptr, wandItem) == -25, "wand rarity must affect actual damage");
+		require(wand.getWeaponDamage(&player, nullptr, wandItem) == -20, "rarity metadata must not change the isolated wand damage fixture");
 		delete wandItem;
 		Item* bowItem = equip(player, bowId, CONST_SLOT_RIGHT, ITEM_RARITY_BONUS_ATTACK, 5);
 		Item* arrow = Item::CreateItem(ammoId, 1);
 		WeaponDistance distance(nullptr);
 		const int32_t rareDistanceDamage = distance.getWeaponDamage(&player, nullptr, arrow, true);
 		bowItem->setRarityData(ITEM_RARITY_NONE, ITEM_RARITY_BONUS_NONE, 0, 0);
-		require(rareDistanceDamage < distance.getWeaponDamage(&player, nullptr, arrow, true), "bow rarity must increase ammunition damage");
+		require(rareDistanceDamage == distance.getWeaponDamage(&player, nullptr, arrow, true), "rarity metadata must not change actual ammunition damage");
 		delete arrow;
 		unequip(player, bowItem, CONST_SLOT_RIGHT);
 
@@ -778,9 +789,9 @@ int main()
 		Item* nativeRing = equip(player, nativeRingId, CONST_SLOT_RING, ITEM_RARITY_BONUS_SKILL, 5, SKILL_MAGLEVEL);
 		require(nativeRing->getID() == nativeActiveId && player.isItemAbilityEnabled(CONST_SLOT_RING), "native equip must transform and activate ring ability");
 		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + nativeSwordBonus, "native sword skill must apply alongside rarity");
-		require(player.getMagicLevel() == magicBase + 5, "magic level rarity must survive native equip transformation");
+		require(player.getMagicLevel() == magicBase, "rarity metadata must not grant magic levels during native equip transformation");
 		g_moveEvents->onPlayerEquip(&player, nativeRing, CONST_SLOT_RING, false);
-		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + nativeSwordBonus && player.getMagicLevel() == magicBase + 5, "repeated native equip must duplicate neither bonus");
+		require(player.getSkillLevel(SKILL_SWORD) == originalSkill + nativeSwordBonus && player.getMagicLevel() == magicBase, "repeated native equip must preserve its single native bonus without adding rarity magic levels");
 		require(g_game.internalMoveItem(&player, bag, INDEX_WHEREEVER, nativeRing, 1, nullptr, FLAG_NOLIMIT) == RETURNVALUE_NOERROR, "native ring must move to backpack using real item movement");
 		require(nativeRing->getID() == nativeRingId && nativeRing->hasRarity(), "native unequip transformation must preserve rarity");
 		require(!player.isItemAbilityEnabled(CONST_SLOT_RING) && !player.isItemRarityEnabled(CONST_SLOT_RING), "native and rarity state must clear on unequip");

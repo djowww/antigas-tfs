@@ -2,6 +2,8 @@
 
 ## Regras
 
+O núcleo atual mantém a raridade como metadados persistentes e identidade visual. Desde a integração das regras clássicas auditadas, esses metadados **não concedem bônus numéricos** de ataque, defesa, vida, mana, velocidade, skills ou resistência. Atributos de refino e efeitos nativos dos equipamentos continuam seguindo suas próprias regras. Os testes verificam essa separação sem reativar os bônus antigos.
+
 Cada equipamento elegível criado pelo loot de monstros pode receber uma raridade. A quantidade de status por item corresponde ao tier: incomum 1, raro 2, épico 3, lendário 4 e mítico 5. Cada item recebe status distintos, sem repetição no mesmo item. A configuração `itemRarityLootChance` usa escala de 0 a 10000; o padrão 1000 representa 10% dos equipamentos elegíveis. As chances originais de cada item no loot continuam valendo.
 
 | Raridade | Identidade visual | Peso entre os itens com raridade | Status por item |
@@ -13,12 +15,12 @@ Cada equipamento elegível criado pelo loot de monstros pode receber uma raridad
 | Mítico | Carmim; 5 marcas | 2% | 5 |
 
 - A primeira linha preserva o status principal do tipo do equipamento: armas recebem ataque, escudos defesa, botas velocidade, joias uma skill, e torso/pernas vida, mana ou resistência.
-- Os status adicionais são sorteados sem repetição entre vida máxima, mana máxima, velocidade, resistências (físico, energia, terra, fogo e gelo) e skills (fist, club, sword, axe, distance, shielding, fishing e magic level). Eles também funcionam em outros equipamentos elegíveis.
-- Bônus de vida, mana e resistência usam o percentual do tier; velocidade adicional usa 2% por tier; skills usam +1 por tier. O bônus principal de botas varia entre 1–2%, 3–4%, 5–6%, 7–8% ou 9–10%, conforme o tier.
-- O total de resistência continua limitado a 100%. Refino e raridade de ataque/defesa são somados uma única vez.
+- Os status adicionais são sorteados sem repetição entre vida máxima, mana máxima, velocidade, resistências (físico, energia, terra, fogo e gelo) e skills (fist, club, sword, axe, distance, shielding, fishing e magic level). Esses campos são preservados nos equipamentos elegíveis, sem aplicação numérica no personagem.
+- Os valores armazenados e apresentados usam o percentual do tier para vida, mana e resistência; velocidade adicional usa 2% por tier; skills usam +1 por tier. O campo principal de botas varia entre 1–2%, 3–4%, 5–6%, 7–8% ou 9–10%, conforme o tier. Esses valores descrevem os metadados, não aumentos efetivos.
+- Ataque e defesa efetivos preservam os atributos nativos ou refinados do item, sem somar os campos de raridade.
 - Capacetes, mochilas, munição e outros itens empilháveis ficam fora do sorteio.
 
-Percentuais de HP/mana usam os valores base e arredondam para cima; velocidade arredonda para o inteiro mais próximo. Bônus acompanham mudanças de nível e alterações dos máximos via Lua. Duas resistências do mesmo tipo se somam e são aplicadas ao dano restante após os efeitos nativos. Carregar armadura na mão não concede o bônus do slot de torso/pernas.
+Equipar, retirar ou transformar um item raro, subir ou perder níveis e alterar máximos via Lua não deve introduzir bônus numéricos de raridade. Efeitos nativos, como a skill de um anel equipado, continuam sendo aplicados e removidos normalmente, uma única vez.
 
 ## Identificação no cliente
 
@@ -28,7 +30,7 @@ Corpos ainda não abertos recebem uma indicação visual até o servidor confirm
 
 ## Persistência e integração
 
-A raridade pertence à instância do item. O atributo 39 guarda o tier e o status principal; o atributo 40 guarda os status adicionais em códigos compactos de cinco bits. Clones, salvamentos e transformações preservam ambos. Equipamentos salvos no formato antigo recebem status faltantes de forma determinística ao carregar, então o próximo salvamento os persiste sem mudar o tier ou o primeiro status. Os efeitos são derivados do equipamento, sem gravar bônus nos atributos base do personagem.
+A raridade pertence à instância do item. O atributo 39 guarda o tier e o status principal; o atributo 40 guarda os status adicionais em códigos compactos de cinco bits. Clones, salvamentos e transformações preservam ambos. Equipamentos salvos no formato antigo recebem status faltantes de forma determinística ao carregar, então o próximo salvamento os persiste sem mudar o tier ou o primeiro status. Nenhum bônus de raridade é gravado nos atributos base do personagem.
 
 O opcode 127 envia tier e todos os status ao cliente. Atualizações de slots do inventário levam os metadados no mesmo pacote do item para evitar um quadro sem cor no login; containers continuam recebendo metadados junto com seu conteúdo. Consultas para páginas e mudanças individuais continuam usando tokens, e respostas antigas são descartadas. Tooltips listam os status completos; bordas e cores são restauradas após arrastar e limpas quando o item muda.
 
@@ -42,7 +44,7 @@ cmake --build build --parallel 1
 ctest --test-dir build --output-on-failure
 ```
 
-O teste C++ usa o núcleo real, `items.srv`, vocações e uma definição de NPC; não inicia mundo, banco ou listeners. Abrange atributos persistidos, refino, dano, resistência, evolução, chamadas Lua, loot e os caminhos de equipar/retirar/transformar anéis com efeitos nativos.
+O teste C++ usa o núcleo real, `items.srv`, vocações e uma definição de NPC; não inicia mundo, banco ou listeners. Abrange atributos persistidos, refino, ausência de efeitos numéricos da raridade sobre dano/resistência/evolução, chamadas Lua, loot e os caminhos de equipar/retirar/transformar anéis com efeitos nativos.
 
 As suítes [`rarity-ui-tests.lua`](../tests/rarity-ui-tests.lua) e [`rarity-economy-tests.lua`](../tests/rarity-economy-tests.lua) exercitam os scripts com objetos simulados. [`rarity-ui-runner.py`](../tests/rarity-ui-runner.py) executa os cenários Lua 5.2 e LuaJIT via Lupa.
 
