@@ -33,7 +33,7 @@ O launcher busca um manifesto por HTTPS e verifica sua assinatura ECDSA P-256 co
 
 ## Site PHP
 
-[deploy/site-public/](../deploy/site-public/) contém páginas públicas, estilos, traduções e um manifesto de release. Cadastro, conta e coins dependem de bibliotecas privadas externas, incluindo `security.php` e `pix.php`, e de tabelas e serviços de banco/pagamento que não estão integralmente incluídos aqui.
+[deploy/site-public/](../deploy/site-public/) contém páginas públicas, estilos, traduções e um manifesto de release. Cadastro e conta dependem da biblioteca privada externa `security.php` e de tabelas de banco que não estão integralmente incluídas aqui. O blog funciona sem essas bibliotecas. A rota `coins.php` é uma página informativa sem compras: não carrega bibliotecas de pagamento, não cria pedidos e não exibe dados do recebedor nem códigos de cobrança.
 
 `ANTIGAS_WEB_LIB` permite indicar o diretório dessas bibliotecas. Disponibilize implementações compatíveis e suas configurações privadas antes de executar as páginas; copiar somente `site-public/` não completa a instalação. Revise também os links e o manifesto de downloads para sua distribuição.
 

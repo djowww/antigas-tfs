@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
       <p class="motto"><?= siteTHtml('A world of adventures.<br><span>Like the old days.</span>') ?></p>
     </header>
     <nav class="topnav" aria-label="<?= siteT('Main navigation') ?>">
-      <a href="#inicio" aria-current="page"><?= siteT('Home') ?></a><a href="#noticias"><?= siteT('News') ?></a><a href="#mundo"><?= siteT('The world') ?></a><a href="#market">Market</a><a href="/account.php"><?= siteT('My account') ?></a><a href="/coins.php"><?= siteT('Antigas Coins') ?></a><a href="#criar-conta"><?= siteT('Create account') ?></a><a href="#download"><?= siteT('Download') ?></a>
+      <a href="#inicio" aria-current="page"><?= siteT('Home') ?></a><a href="#noticias"><?= siteT('News') ?></a><a href="#mundo"><?= siteT('The world') ?></a><a href="#market">Market</a><a href="/account.php"><?= siteT('My account') ?></a><a href="#criar-conta"><?= siteT('Create account') ?></a><a href="#download"><?= siteT('Download') ?></a>
     </nav>
     <?= siteLanguageSwitcher() ?>
   </div>
@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="news-body">
           <p class="dropcap"><?= siteT('Client v75 restores the classic Antigas Coin item and its artwork, keeping its ID.') ?></p>
           <p><?= siteT('Antigas Coins are back in the Store and Market for in-game trades.') ?></p>
-          <p><?= siteT('After manual payment approval, collect website Coins through the Market.') ?></p>
+          <p><?= siteT('Website purchases are disabled. Player trades remain available in the Market.') ?></p>
           <p><?= siteT('Open your launcher to install the latest client. Your characters, progress and saved preferences remain available.') ?></p>
         </div>
       </article>
@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
         <div class="news-body">
           <p class="dropcap"><?= siteT('Client v72 retires 284 extra or customized item definitions while keeping every item ID reserved.') ?></p>
           <p><?= siteT('Terrains, mountains, borders and structural map graphics remain unchanged. Classic contents from retired backpacks are preserved.') ?></p>
-          <p><?= siteT('At the v72 release, retired items and Antigas Coins were unavailable in the Shop and Market. Antigas Coins are now available through website orders; after manual payment approval, collect them through the Market with the selected character.') ?></p>
+          <p><?= siteT('Antigas Coins remain game items. Website purchases are disabled; player trades remain available in the Market.') ?></p>
           <p><?= siteT('Open your launcher to install client v72. Hotkey presets and saved preferences remain available.') ?></p>
         </div>
       </article>
