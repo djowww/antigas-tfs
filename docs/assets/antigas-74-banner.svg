@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
-  <title id="title">Antigas 7.4 — um mundo clássico para explorar</title>
+  <title id="title">Tibia 7.4 - A classic rpg version</title>
   <desc id="desc">Banner de pedra escura com detalhes em bronze e azul, inspirado na interface de MMORPGs clássicos.</desc>
   <defs>
     <linearGradient id="field" x1="0" y1="0" x2="1" y2="1">
@@ -42,10 +42,10 @@
   </g>
 
   <g text-anchor="middle" font-family="Georgia, 'Times New Roman', serif">
-    <text x="660" y="157" fill="#eee5d1" font-size="70" font-weight="700" letter-spacing="9">ANTIGAS</text>
+    <text x="660" y="157" fill="#eee5d1" font-size="64" font-weight="700" letter-spacing="3">TIBIA 7.4</text>
     <path d="M425 179H895" stroke="#aa9465" stroke-width="2"/>
     <path d="M630 179l30-7 30 7-30 7z" fill="#c8b37e"/>
-    <text x="660" y="222" fill="#c8b37e" font-size="36" letter-spacing="2">SUA AVENTURA CLÁSSICA</text>
+    <text x="660" y="222" fill="#c8b37e" font-size="27" letter-spacing="1">A classic rpg version</text>
   </g>
 
   <g transform="translate(1010 180)" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif">

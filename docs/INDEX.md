@@ -1,4 +1,4 @@
-# Documentação do Antigas
+# Documentação — Tibia 7.4 - A classic rpg version
 
 Guias para conhecer o projeto, compilar o servidor e entender seus sistemas.
 

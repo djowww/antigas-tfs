@@ -1,10 +1,10 @@
 # Como contribuir
 
-O Antigas reúne código C++, scripts Lua e componentes complementares do cliente e do portal. Comece pela [documentação](docs/INDEX.md) e pelo [guia de compilação](docs/building.md).
+Tibia 7.4 - A classic rpg version reúne código C++, scripts Lua e componentes complementares do cliente e do portal. Comece pela [documentação](docs/INDEX.md) e pelo [guia de compilação](docs/building.md).
 
 ## Relatar um problema
 
-Abra uma [issue](https://github.com/djowww/antigas-tfs/issues) com o comportamento esperado, o que aconteceu, a versão ou commit utilizado e os passos para reproduzir. Inclua apenas o trecho de log necessário.
+Abra uma [issue](https://github.com/djowww/tibia-7.4-a-classic-rpg-version/issues) com o comportamento esperado, o que aconteceu, a versão ou commit utilizado e os passos para reproduzir. Inclua apenas o trecho de log necessário.
 
 Para vulnerabilidades, use o canal indicado em [SECURITY.md](SECURITY.md).
 

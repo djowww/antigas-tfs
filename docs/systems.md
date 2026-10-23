@@ -1,6 +1,6 @@
 # Sistemas do Antigas
 
-Este guia apresenta o comportamento dos sistemas customizados do Antigas 7.4. As interfaces dependem dos módulos correspondentes do cliente oficial e das extensões de comunicação do servidor.
+Este guia apresenta o comportamento dos sistemas customizados de Tibia 7.4 - A classic rpg version (anteriormente Antigas). As interfaces dependem dos módulos correspondentes do cliente oficial e das extensões de comunicação do servidor.
 
 ## Market
 

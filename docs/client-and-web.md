@@ -1,6 +1,6 @@
 # Cliente, launcher e site
 
-O servidor e sua distribuição oficial usam a identidade Antigas 7.4 e extensões próprias. A compatibilidade exige os módulos, opcodes e chave pública esperados pelo servidor.
+O projeto se chama Tibia 7.4 - A classic rpg version, anteriormente Antigas. O cliente distribuído e os serviços existentes ainda podem apresentar o nome anterior e utilizam extensões próprias. A compatibilidade exige os módulos, opcodes e chave pública esperados pelo servidor.
 
 ## Snapshot do cliente
 
