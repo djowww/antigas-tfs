@@ -30,6 +30,9 @@ def package(source, output):
         for name, p in sorted(files.items()):
             z.write(p, name)
         z.writestr('LEIA-ME-LOCAL.txt', 'Use START-LOCAL.cmd from the server repository.\nAccount: 1 / local123\nThis client is configured only for 127.0.0.1:17173.\n')
+        # Last archive member: interrupted extraction cannot leave an early
+        # executable mistaken for a completed bundled installation.
+        z.writestr('.local-client-complete', 'local-v1\n')
     digest = hashlib.sha256(output.read_bytes()).hexdigest()
     return {'url': 'https://github.com/djowww/tibia-7.4-a-classic-rpg-version/releases/download/local-test-v1/' + output.name,
             'sha256': digest, 'size': output.stat().st_size}

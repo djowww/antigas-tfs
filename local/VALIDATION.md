@@ -19,6 +19,12 @@ Verificado em Windows x64 com Docker Desktop e containers Linux em 23/10/2026.
   `32097,32217,7`, com a mesma conta. Nenhum volume foi apagado.
 - Portas do jogo publicadas apenas no loopback do computador; nenhuma porta
   do banco publicada. Servidor público e banco de produção não foram usados.
+- Recuperação de instalação interrompida: um executável vazio preexistente,
+  sem marcador de conclusão, foi substituído após download HTTP real,
+  verificação SHA-256 e extração em staging; a pasta incompleta foi preservada.
+  Essa checagem específica isolou as respostas do Docker, que havia sido
+  encerrado no computador. Build, jogo, cliente e persistência acima foram
+  testados separadamente contra containers reais, sem simulação.
 
 Essa validação cobre instalação, login e movimentação básica. Não representa
 um teste completo de todas as quests, do Market ou de todos os computadores e

@@ -61,3 +61,5 @@ Thumbs.db
 # Downloaded local demo client and verification output.
 /local/client/
 /local/results/
+/local/.client-install-*/
+/local/.client-incomplete-*/
